@@ -1,0 +1,1738 @@
+# AI & Machine Learning: AWS -> Azure mappings.
+# Schema: see README "Data schema". Provider blocks are keyed by provider id (aws, azure, later gcp, oci).
+# match: direct | partial | none
+#   direct  = same job, similar scope; migration is mostly API/config translation
+#   partial = overlaps, but scope, features, or packaging differ materially
+#   none    = no current equivalent on the other side (including when the equivalent was retired)
+category:
+  id: ai-ml
+  name: AI & Machine Learning
+  description: Foundation models, agents, RAG, ML platforms, MLOps, AI chips, assistants, and prebuilt AI services. AWS mapped to Azure, verified against official docs.
+  last_verified: "2026-10-19"
+  groups:
+    - id: genai
+      name: Generative AI platforms & models
+    - id: agents
+      name: AI agents
+    - id: safety-rag
+      name: Safety, RAG & search
+    - id: ml-platform
+      name: ML platform (SageMaker AI ↔ Azure ML)
+    - id: mlops
+      name: MLOps & responsible AI
+    - id: infra
+      name: AI infrastructure & chips
+    - id: assistants
+      name: AI assistants & copilots
+    - id: vision-docs
+      name: Vision & documents
+    - id: language
+      name: Language & translation
+    - id: speech
+      name: Speech & conversational AI
+    - id: industry
+      name: Industry & specialized ML
+
+rows:
+# ───────────────────────── GENERATIVE AI ─────────────────────────
+- id: foundation-model-api
+  group: genai
+  capability: Foundation model API platform
+  what_for: Call hosted large language, image, and embedding models through one managed API, without running GPUs yourself.
+  match: direct
+  answer: The Azure equivalent of Amazon Bedrock is Microsoft Foundry Models (which includes Azure OpenAI). Both are managed, pay-per-token, multi-vendor model APIs.
+  providers:
+    aws: [bedrock]
+    azure: [foundry-models, foundry]
+  differences:
+    - Model overlap is now large. Both offer OpenAI GPT models, Anthropic Claude, xAI Grok, Meta Llama, Mistral, DeepSeek, Cohere, and Moonshot Kimi. Check per-model region and lifecycle on each side.
+    - Only on Bedrock (first-party), Amazon Nova. Bedrock also lists Qwen, Stability AI, TwelveLabs, Writer, Luma, AI21, Z.ai GLM, MiniMax, NVIDIA Nemotron, and Google Gemma.
+    - Only on Foundry (first-party), Microsoft MAI and Phi models plus Model Router. Foundry also lists Black Forest Labs FLUX, Sora (video, preview), and 10,000+ catalog models, including Hugging Face models on managed compute.
+    - Claude on Foundry comes in two versions, "Hosted on Azure" and "Hosted on Anthropic infrastructure". Availability and lifecycle differ per model, and some subscription types (CSP, credit-only, free trial) can't use Claude.
+    - APIs. Bedrock offers Converse, InvokeModel, OpenAI-compatible Chat Completions and Responses, and the Anthropic Messages API (bedrock-runtime and bedrock-mantle endpoints). Foundry is moving to the OpenAI v1 routes and Responses API on one project endpoint, replacing the monthly api-version parameters and the Assistants API.
+    - Data residency. Bedrock uses Global and Geo cross-Region inference profiles. Foundry uses Global, Data Zone, and Regional deployment types.
+    - Auth. Bedrock uses IAM (SigV4) or Bedrock API keys. Foundry uses Microsoft Entra ID or keys.
+  pricing:
+    aws: On-demand pricing per input/output token (media models price per image or per second of video). Batch inference is priced below on-demand. Provisioned Throughput is billed per model unit per hour, with optional commitment terms. Prices vary by model and Region.
+    azure: Standard (serverless) deployments are billed per token. Provisioned deployments are billed for reserved PTUs (hourly, or with monthly/annual reservations). Batch deployments are discounted vs Standard. Partner models such as Claude are billed through Azure Marketplace at the provider's rates.
+  exams:
+    aws: [AIF-C01, AWS-GAI-PRO]
+    azure: [AI-901, AI-103]
+  faq:
+    - q: Is Azure OpenAI the same as Microsoft Foundry?
+      a: Azure OpenAI is now one family of models inside Microsoft Foundry Models. An existing Azure OpenAI resource can be upgraded to a Foundry resource and keep its endpoint and keys.
+    - q: Can I use Claude on Azure like on Bedrock?
+      a: Yes, Claude models are available in Microsoft Foundry as partner models. They're billed through Azure Marketplace and have subscription-type restrictions that Bedrock doesn't have.
+    - q: Can I use OpenAI GPT models on Bedrock?
+      a: Yes. As of Oct 2026, Bedrock lists OpenAI GPT-5.x/GPT-6 models and gpt-oss on its model cards page, available through the Responses, Converse, and Chat Completions APIs.
+  related: [model-customization, provisioned-throughput, model-catalog-open-weights, first-party-models, managed-agents]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/model-cards.html
+    - https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
+    - https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+    - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure
+    - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-from-partners
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  flags:
+    - Model lineups change monthly. The overlap list reflects the vendor model pages on 2026-10-19.
+
+- id: first-party-models
+  group: genai
+  capability: Cloud provider's own foundation models
+  what_for: The cloud vendor's own model families, often the cheapest or most deeply integrated option on that cloud.
+  match: partial
+  answer: Amazon Nova's closest Azure counterpart is Microsoft's own models in Foundry (MAI and Phi, plus Model Router). But Microsoft's flagship LLMs on Azure are mainly OpenAI GPT models, so there's no one-to-one family match.
+  providers:
+    aws: [amazon-nova]
+    azure: [microsoft-models, foundry-models]
+  differences:
+    - Nova covers understanding (Micro/Lite/Pro, Nova 2 Lite), creative (Canvas image, Reel video), speech-to-speech (Nova 2 Sonic), and multimodal embeddings, all from Amazon.
+    - On Azure, first-party models include the MAI models (for example MAI-Image), Phi small language models, Model Router, and healthcare AI models. General-purpose frontier LLM work on Azure usually means Azure OpenAI GPT models, which are "sold by Azure" but built by OpenAI.
+    - For speech-to-speech, Nova Sonic maps more naturally to Azure Voice Live or realtime audio models than to a Microsoft-built LLM.
+  pricing:
+    aws: Nova is priced per token (text), per image, or per second of video on Bedrock, with batch and Provisioned Throughput options.
+    azure: Microsoft models sold by Azure are priced per token (or per image) on serverless deployments. Some offer provisioned throughput.
+  exams:
+    aws: [AIF-C01, AWS-GAI-PRO]
+    azure: [AI-901, AI-103]
+  faq:
+    - q: What is the Azure equivalent of Amazon Nova?
+      a: There isn't an exact one. Microsoft's own models (MAI, Phi) are the first-party counterpart, while Azure OpenAI GPT models fill the general-purpose flagship role.
+  related: [foundation-model-api, realtime-voice]
+  sources:
+    - https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html
+    - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure
+
+- id: model-catalog-open-weights
+  group: genai
+  capability: Open-weight model hub on dedicated compute
+  what_for: Pick an open or specialized model from a catalog and deploy it onto GPUs dedicated to you, often to fine-tune it or meet isolation needs.
+  match: direct
+  answer: SageMaker JumpStart and Bedrock Marketplace map to the Microsoft Foundry model catalog's managed-compute deployments (and the Azure Machine Learning model catalog).
+  providers:
+    aws: [sagemaker-jumpstart, bedrock-marketplace]
+    azure: [foundry-models, azure-machine-learning]
+  differences:
+    - Foundry advertises 10,000+ catalog models (including Hugging Face) and states that partner/community models are the large majority. Hugging Face managed-compute deployments currently use hub-based projects in the Foundry (classic) portal.
+    - JumpStart supports private and curated hubs for governing which models teams may use. Bedrock Marketplace models are called through Bedrock APIs, so Guardrails, Knowledge Bases, and Agents integrate with them.
+    - Billing is per instance/VM-hour on both sides when you deploy to dedicated compute.
+  pricing:
+    aws: SageMaker instance-hours for the endpoint (plus any model-provider software fee for Marketplace models).
+    azure: VM core-hours for managed compute deployments (plus any provider fee shown in the catalog).
+  exams:
+    aws: [MLA-C01, AWS-GAI-PRO]
+    azure: [AI-103, AI-300]
+  faq:
+    - q: Where do I deploy a Hugging Face model on Azure?
+      a: Deploy it from the Foundry model catalog to managed compute (hub-based project in Foundry classic), or through Azure Machine Learning.
+  related: [foundation-model-api, ml-inference-endpoints, model-customization]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/studio-jumpstart.html
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/amazon-bedrock-marketplace.html
+    - https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+
+- id: model-customization
+  group: genai
+  capability: Foundation model fine-tuning & distillation
+  what_for: Adapt a hosted model to your domain with your own data, without managing training infrastructure.
+  match: direct
+  answer: Bedrock model customization maps to Foundry fine-tuning. Both offer supervised fine-tuning, reinforcement fine-tuning, and distillation for selected models.
+  providers:
+    aws: [bedrock-model-customization]
+    azure: [foundry-fine-tuning]
+  differences:
+    - Bedrock offers supervised fine-tuning, reinforcement fine-tuning (reward functions written in AWS Lambda, or training from invocation logs), and managed distillation (teacher to student).
+    - Foundry offers SFT, preference fine-tuning (DPO), and reinforcement fine-tuning (model-specific). Distillation is done through teacher-generated SFT data. Fine-tuned models deploy serverless or on managed compute with LoRA adapters (preview).
+    - Which base models are tunable differs a lot and changes often. Check each side's supported-model table.
+  pricing:
+    aws: Billed per training token (tokens in corpus × epochs) plus monthly model storage. Inference on a custom model may require Provisioned Throughput or on-demand custom model pricing, depending on the model.
+    azure: Billed per training token or training hour (model-dependent), plus hourly hosting for deployed fine-tuned models (Developer tier available for testing).
+  exams:
+    aws: [AWS-GAI-PRO, MLA-C01]
+    azure: [AI-103, AI-300]
+  faq:
+    - q: Does Azure have reinforcement fine-tuning like Bedrock?
+      a: Yes, Foundry lists reinforcement fine-tuning (RFT) for supported models, alongside SFT and DPO.
+  related: [foundation-model-api, ml-training-jobs]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html
+    - https://learn.microsoft.com/en-us/azure/foundry/fine-tuning/overview
+
+- id: provisioned-throughput
+  group: genai
+  capability: Reserved model throughput & cross-region routing
+  what_for: Guarantee model capacity for production traffic, or spread requests across regions to get more throughput.
+  match: direct
+  answer: Bedrock Provisioned Throughput and cross-Region inference map to Foundry Provisioned (PTU) deployments and the Global/Data Zone deployment types.
+  providers:
+    aws: [bedrock-provisioned-throughput]
+    azure: [foundry-deployment-types]
+  differences:
+    - Bedrock reserves capacity in model units per specific model. Some Foundry models offer fungible provisioned throughput, so quota and reservations can be shifted across eligible models.
+    - Geography. Bedrock offers Global and Geo cross-Region inference profiles (for example US Geo). Foundry offers Global, Data Zone (US/EU), and Regional, each as Standard, Provisioned, or Batch.
+  pricing:
+    aws: Provisioned Throughput is billed hourly per model unit, with no-commitment or term options. Cross-Region inference is billed at the source Region's on-demand rates, and global profiles can be cheaper.
+    azure: PTUs are billed hourly, with discounted monthly/annual Azure reservations. Global/Data Zone Standard is billed per token.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103, AI-200]
+  related: [foundation-model-api]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html
+    - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/deployment-types
+    - https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+
+- id: genai-workflows
+  group: genai
+  capability: Prompt & LLM workflow orchestration
+  what_for: Chain prompts, models, retrieval, and code steps into a versioned flow your app can call.
+  match: partial
+  answer: Bedrock Flows (with Prompt management) maps most closely to Microsoft Agent Framework workflows on Azure. The older Azure Prompt flow is deprecated and retires on April 20, 2027.
+  providers:
+    aws: [bedrock-flows]
+    azure: [microsoft-agent-framework, prompt-flow]
+  differences:
+    - Bedrock Flows is a managed, visual service with nodes (prompt, knowledge base, Lambda, and more), immutable versions, and aliases called through InvokeFlow.
+    - Microsoft Agent Framework is an SDK (code-first). You host it yourself or as a Foundry hosted agent, so there's no fully managed visual flow service with the same shape.
+    - Prompt flow container images no longer receive updates, so don't start new work on it.
+  pricing:
+    aws: Flows bills per node transition, plus the model, knowledge base, and Lambda usage it triggers.
+    azure: Agent Framework is open-source (no charge). You pay for the models, tools, and compute you run, such as hosted-agent container compute.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103, AI-500]
+  related: [managed-agents, agent-frameworks]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/flows.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/overview-what-is-prompt-flow
+    - https://learn.microsoft.com/en-us/agent-framework/overview/
+  flags:
+    - "Bedrock Flows pricing unit (per node transition) is from the Bedrock pricing page structure. Confirm current terms on the pricing page."
+
+- id: genai-evaluation
+  group: genai
+  capability: Model, RAG & agent evaluation
+  what_for: Score model, RAG, and agent quality and safety (automatically, with an LLM judge, or with humans) before and after release.
+  match: direct
+  answer: Bedrock Evaluations and AgentCore Evaluations map to Foundry observability and evaluations (built-in and custom evaluators, continuous evaluation, and tracing).
+  providers:
+    aws: [bedrock-evaluations, bedrock-agentcore]
+    azure: [foundry-observability]
+  differences:
+    - Bedrock Evaluations covers models (including Marketplace, custom, and imported models, and prompt routers) and RAG sources, including ones outside Bedrock. It supports human-worker evaluation jobs.
+    - AgentCore Evaluations and Optimization score agent sessions and traces (Strands, LangGraph, OpenTelemetry/OpenInference) and run A/B tests on prompt and tool-description changes.
+    - Foundry combines tracing, evaluators, and monitoring dashboards (some preview), and adds Agent optimizer (preview) to propose better instructions and tools.
+  pricing:
+    aws: You pay for the model inference used (generator and judge models) plus any human-evaluation task fees. AgentCore Evaluations is consumption-based.
+    azure: Evaluations bill for the judge/model tokens consumed. Tracing data lands in Application Insights (Azure Monitor pricing).
+  exams:
+    aws: [AWS-GAI-PRO, AIF-C01]
+    azure: [AI-103, AI-300]
+  related: [managed-agents, guardrails, rag-knowledge-bases]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/evaluation.html
+    - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+    - https://learn.microsoft.com/en-us/azure/foundry/concepts/observability
+
+- id: multimodal-extraction
+  group: genai
+  capability: GenAI multimodal content extraction (IDP)
+  what_for: Turn documents, images, audio, and video into structured fields with a schema, using generative AI instead of hand-built templates.
+  match: direct
+  answer: The Azure equivalent of Amazon Bedrock Data Automation is Azure Content Understanding.
+  providers:
+    aws: [bedrock-data-automation]
+    azure: [content-understanding]
+  differences:
+    - Both handle documents, images, audio, and video, use user-defined output schemas, and return confidence information.
+    - Content Understanding ships prebuilt industry analyzers (tax, procurement, contracts, call center, media) and is the path Microsoft recommends for parts of the retiring Image Analysis and Custom Vision.
+    - Bedrock Data Automation plugs into Bedrock Knowledge Bases as a parser for multimodal RAG.
+  pricing:
+    aws: Billed per page (documents), per image, or per minute (audio/video), with standard vs custom-output tiers.
+    azure: Billed per unit processed (pages, images, minutes) plus the generative model tokens used for field extraction.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103]
+  related: [document-ocr, image-analysis, rag-knowledge-bases]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/bda.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview
+  flags:
+    - Pricing units are described at a high level. Confirm exact meters on the pricing pages.
+
+# ───────────────────────── AGENTS ─────────────────────────
+- id: managed-agents
+  group: agents
+  capability: Managed AI agent platform
+  what_for: Run AI agents that reason, call tools, and keep context, with hosting, scaling, identity, and tracing handled for you.
+  match: direct
+  answer: The Azure equivalent of Amazon Bedrock AgentCore is Foundry Agent Service. Both host declarative or code-based agents from any framework and model.
+  providers:
+    aws: [bedrock-agentcore]
+    azure: [foundry-agent-service]
+  differences:
+    - "Shape. AgentCore is a set of modular services you can use independently: Harness (config-defined managed agent loop in an isolated microVM), Runtime (serverless hosting for code agents), Memory, Gateway, Identity, Code Interpreter, Browser, Observability, Evaluations, Optimization, Policy, Registry, and Payments."
+    - Foundry Agent Service has three agent types. Prompt agents are declarative. Voice-based prompt agents run on Voice Live (preview). Hosted agents run your container or zip. You can also call the Responses API for "ephemeral" agents you define in code.
+    - Frameworks. AgentCore Runtime lists Strands, LangGraph, CrewAI, LlamaIndex, Google ADK, and OpenAI Agents SDK. Foundry hosted agents list Microsoft Agent Framework, LangGraph, OpenAI Agents SDK, Anthropic Agent SDK, and GitHub Copilot SDK.
+    - Models. AgentCore works with models in or outside Bedrock (OpenAI, Gemini, and others). Foundry agents use Foundry catalog models.
+    - Distribution. Foundry agents can be published to Microsoft Teams, Microsoft Copilot, and the Entra Agent Registry. AgentCore has its own Registry for agents, MCP servers, and skills.
+    - Only AgentCore offers Payments (x402 and Machine Payments Protocol microtransactions).
+  pricing:
+    aws: Consumption-based per AgentCore component (for example Runtime compute while active, Gateway calls, Memory events/records, Browser and Code Interpreter sessions), plus model tokens. No upfront commitment.
+    azure: Prompt agents are billed per call for inference plus tool usage. Hosted agents add container compute, and voice agents add Voice Live usage.
+  exams:
+    aws: [AWS-GAI-PRO, AIF-C01]
+    azure: [AI-103, AI-500]
+  faq:
+    - q: Should I use Bedrock Agents or AgentCore?
+      a: New customers should use AgentCore. Bedrock Agents was renamed Agents Classic and stopped accepting new customers on July 30, 2026.
+    - q: What is the Azure equivalent of AgentCore Runtime?
+      a: Foundry Agent Service hosted agents. You bring code in any supported framework, and Foundry runs it with a managed endpoint, scaling, and a dedicated Entra identity.
+  related: [bedrock-agents-classic, agent-tools, agent-memory, agent-identity-governance, agent-frameworks, genai-evaluation]
+  sources:
+    - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+    - https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
+
+- id: bedrock-agents-classic
+  group: agents
+  capability: Configuration-based agents (legacy Bedrock Agents)
+  what_for: Define an agent by configuration (instructions, action groups, and knowledge bases) instead of writing orchestration code.
+  match: partial
+  answer: Bedrock Agents Classic is in maintenance (no new customers since July 30, 2026). On Azure, the equivalent concept is a Foundry prompt agent, and on AWS the successor is the AgentCore managed harness.
+  providers:
+    aws: [bedrock-agents-classic, bedrock-agentcore]
+    azure: [foundry-agent-service]
+  differences:
+    - AWS's migration path is the AgentCore harness. Action groups become MCP tools through AgentCore Gateway, and knowledge bases become gateway-fronted tools, with memory, guardrails, and tracing added.
+    - Foundry prompt agents are the declarative counterpart. They support instructions, a model, and tools (file search, code interpreter, web search, MCP, functions).
+  pricing:
+    aws: Agents Classic charges no separate agent fee. You pay for model tokens and the resources invoked.
+    azure: Prompt agents are billed per call for inference plus tool usage.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103]
+  related: [managed-agents]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/agents-classic-maintenance-mode.html
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+  flags:
+    - "\"No separate agent fee\" for Agents Classic reflects historical Bedrock pricing. Confirm on the pricing page."
+
+- id: agent-tools
+  slug: aws-agentcore-gateway-vs-azure-foundry-agent-tools
+  group: agents
+  capability: Agent tools, MCP gateway & sandboxes
+  what_for: Give agents safe access to your APIs, MCP servers, a code sandbox, and a web browser.
+  match: partial
+  answer: AgentCore Gateway, Code Interpreter, and Browser map to the Foundry Agent Service toolbox (a managed MCP endpoint with web search, file search, code interpreter, OpenAPI, functions, and MCP tools).
+  providers:
+    aws: [bedrock-agentcore]
+    azure: [foundry-agent-service]
+  differences:
+    - AgentCore Gateway turns REST APIs, Lambda functions, and existing services into MCP tools, and fronts existing MCP servers with interceptors and Cedar-compatible policy.
+    - AgentCore Browser is a managed cloud browser runtime for agents (Playwright and BrowserUse compatible). It's a standalone service, not just a tool flag.
+    - The Foundry toolbox curates tools once and shares them across agents through a single managed MCP endpoint with central auth and versioning. It also offers Microsoft-ecosystem tools (SharePoint, WorkIQ, Fabric IQ).
+  pricing:
+    aws: Per-component consumption (Gateway API calls and indexing, and Browser and Code Interpreter session compute).
+    azure: Tool usage is billed per tool (for example web search grounding and code interpreter sessions), plus model tokens.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103, AI-500]
+  related: [managed-agents, agent-identity-governance]
+  sources:
+    - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+  flags:
+    - A Foundry built-in tool equivalent to AgentCore Browser (managed headless browser) wasn't confirmed in the docs reviewed. Treat it as a gap until verified.
+
+- id: agent-memory
+  slug: aws-agentcore-memory-vs-azure-foundry-agent-memory
+  group: agents
+  capability: Agent memory (short- & long-term)
+  what_for: Let agents remember a conversation and learn user preferences across sessions.
+  match: partial
+  answer: AgentCore Memory maps to Foundry Agent Service memory (preview). AgentCore's memory is GA and more configurable today.
+  providers:
+    aws: [bedrock-agentcore]
+    azure: [foundry-agent-service]
+  differences:
+    - AgentCore Memory offers short-term (multi-turn) and long-term memory with configurable strategies, sharing across agents, and namespace-scoped IAM controls.
+    - Foundry lists memory as a built-in tool and describes it as preview on the Foundry overview. Hosted agents also get session-level state persistence.
+  pricing:
+    aws: Billed per memory event and stored or retrieved long-term records.
+    azure: Preview pricing. Check the Foundry pricing page.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103]
+  related: [managed-agents]
+  sources:
+    - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+    - https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+
+- id: agent-identity-governance
+  slug: aws-agentcore-identity-vs-azure-entra-agent-id
+  group: agents
+  capability: Agent identity, policy & registry
+  what_for: Give each agent its own identity, control which tools it may call, and keep a governed catalog of agents and tools.
+  match: partial
+  answer: AgentCore Identity, Policy, and Registry map to Microsoft Entra agent identities, Foundry guardrails (tool-call controls), the Foundry control plane, and the Entra Agent Registry.
+  providers:
+    aws: [bedrock-agentcore]
+    azure: [foundry-agent-service, foundry-guardrails]
+  differences:
+    - AgentCore Identity vends short-lived credentials from a token vault, and works with any IdP (Cognito, Okta, Entra ID, Auth0).
+    - AgentCore Policy enforces deterministic rules on every tool call at the Gateway, written in natural language or Dogwood (Cedar-compatible).
+    - On Azure, hosted agents get a dedicated Microsoft Entra identity. Guardrails can inspect tool calls and tool responses (preview), and hosted agents support network egress controls (preview).
+    - Registry. AgentCore Registry catalogs agents, MCP servers, tools, and skills with an approval workflow. Foundry publishes agents to the Entra Agent Registry.
+  pricing:
+    aws: Consumption-based per component.
+    azure: Included with Foundry/Entra usage. Some Entra agent features may require specific Entra licensing.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-500, AI-103]
+  related: [managed-agents, guardrails, agent-tools]
+  sources:
+    - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+    - https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
+  flags:
+    - Entra licensing requirements for agent identities weren't verified for this release.
+
+- id: agent-frameworks
+  group: agents
+  capability: Open-source agent SDK from the cloud vendor
+  what_for: Write agent logic in code with the vendor's own open-source framework, then deploy it to the vendor's agent hosting.
+  match: direct
+  answer: The Azure counterpart of the Strands Agents SDK is Microsoft Agent Framework. Both are open-source, code-first agent SDKs that deploy to the vendor's managed agent runtime (AgentCore Runtime or Foundry hosted agents).
+  providers:
+    aws: [strands-agents]
+    azure: [microsoft-agent-framework]
+  differences:
+    - Both runtimes are framework-agnostic, so you aren't locked into the vendor SDK. LangGraph and the OpenAI Agents SDK run on both.
+    - Microsoft Agent Framework combines AutoGen's agent abstractions with Semantic Kernel's enterprise features and adds graph-based workflows. Microsoft also recommends it as the replacement for Prompt flow, which retires Apr 20, 2027.
+  pricing:
+    aws: Open-source, no charge.
+    azure: Open-source, no charge.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103, AI-500]
+  related: [managed-agents, genai-workflows]
+  sources:
+    - https://strandsagents.com/docs/
+    - https://learn.microsoft.com/en-us/agent-framework/overview/
+
+# ───────────────────────── SAFETY, RAG & SEARCH ─────────────────────────
+- id: guardrails
+  group: safety-rag
+  capability: GenAI guardrails & content safety
+  what_for: Block harmful content, prompt attacks, and sensitive data in model inputs and outputs, and catch hallucinations.
+  match: direct
+  answer: The Azure equivalent of Amazon Bedrock Guardrails is Foundry guardrails, which are powered by Azure AI Content Safety. Content Safety is also available as a standalone API, like Bedrock's ApplyGuardrail.
+  providers:
+    aws: [bedrock-guardrails]
+    azure: [foundry-guardrails, content-safety]
+  differences:
+    - Content categories differ. Bedrock filters Hate, Insults, Sexual, Violence, Misconduct, and Prompt Attack. Azure classifies Hate, Sexual, Self-harm, and Violence by severity, with Prompt Shields for jailbreak and indirect attacks.
+    - Only on Bedrock, Automated Reasoning checks (logic-rule validation of responses), plus denied topics and word filters (Azure uses blocklists and custom categories).
+    - Only on Azure, protected-material detection (known text and code) and task-adherence detection for agent tool use. Guardrails can also run at tool-call and tool-response intervention points for agents (preview).
+    - Hallucination checks are on both sides. Bedrock has contextual grounding checks, and Azure has groundedness detection (preview).
+    - Turning output filtering off on Azure-sold models requires Microsoft approval (Limited Access, modified guardrails).
+    - Bedrock offers cross-account enforcement of guardrails and Classic vs Standard safeguard tiers.
+  pricing:
+    aws: Charged per text unit processed by each policy type (content, denied topics, PII, grounding, Automated Reasoning). Word filters are free of charge.
+    azure: Content filtering on Foundry deployments is included with model usage. Standalone Content Safety APIs are billed per text record and per image, with a free tier.
+  exams:
+    aws: [AIF-C01, AWS-GAI-PRO]
+    azure: [AI-901, AI-103]
+  faq:
+    - q: Does Azure have an equivalent to the Bedrock ApplyGuardrail API?
+      a: Yes. Azure AI Content Safety exposes text and image moderation, Prompt Shields, groundedness, and protected-material detection as standalone APIs you can call on any content.
+  related: [content-moderation, pii-detection, genai-evaluation, agent-identity-governance]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
+    - https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
+    - https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview
+  flags:
+    - "\"Word filters free\" reflects Bedrock pricing-page structure. Confirm current pricing."
+
+- id: rag-knowledge-bases
+  group: safety-rag
+  capability: Managed RAG / knowledge bases
+  what_for: Connect models and agents to your own documents so answers are grounded and cited.
+  match: direct
+  answer: The Azure equivalent of Amazon Bedrock Knowledge Bases is Foundry IQ knowledge bases, which run on Azure AI Search with agentic retrieval.
+  providers:
+    aws: [bedrock-knowledge-bases]
+    azure: [foundry-iq, ai-search]
+  differences:
+    - Bedrock offers a Managed Knowledge Base (AWS runs ingestion, storage, and agentic multi-hop retrieval) or customer-managed vector stores (OpenSearch Serverless, Aurora, Neptune Analytics graphs, Kendra GenAI index, structured data stores).
+    - Foundry IQ is a multi-source knowledge base on Azure AI Search. It covers Blob, SharePoint, OneLake, and web sources, syncs ACLs, honors Microsoft Purview sensitivity labels, and enforces permissions at query time under the caller's Entra identity.
+    - Foundry IQ is partly GA and partly preview depending on the Search REST API version. Bedrock Knowledge Bases is GA.
+    - Both support hybrid search, reranking, and citations. Bedrock also supports image queries with multimodal embeddings.
+  pricing:
+    aws: Managed KB is billed on ingested size, query volume, and LLM usage. Customer-managed KBs bill for the underlying vector store plus embedding and generation tokens.
+    azure: Azure AI Search tier (search units per hour), plus semantic ranker/agentic retrieval usage and embedding/LLM tokens.
+  exams:
+    aws: [AWS-GAI-PRO, AIF-C01]
+    azure: [AI-103]
+  faq:
+    - q: Is Azure AI Search the same as Bedrock Knowledge Bases?
+      a: Not exactly. Azure AI Search is the index and retrieval engine. Foundry IQ is the knowledge-base layer on top of it that maps most closely to Bedrock Knowledge Bases.
+  related: [enterprise-search, managed-agents, multimodal-extraction]
+  sources:
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-foundry-iq
+    - https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search
+
+- id: enterprise-search
+  group: safety-rag
+  capability: Enterprise / intelligent search
+  what_for: Search across company content with relevance ranking and connectors, behind an app or intranet.
+  match: partial
+  answer: Amazon Kendra maps to Azure AI Search, but Kendra is in maintenance mode (no new customers since July 30, 2026), and AWS now points new search workloads to Bedrock Managed Knowledge Base.
+  providers:
+    aws: [kendra, bedrock-knowledge-bases]
+    azure: [ai-search]
+  differences:
+    - Kendra is a turnkey search service (connectors, FAQs, relevance tuning). Azure AI Search is a more general engine. You build indexes with indexers, skillsets, and integrated vectorization, and you get full-text, vector, and hybrid search plus semantic reranking.
+    - For log analytics or OpenSearch-style workloads, Azure AI Search isn't a replacement (per Microsoft's AWS comparison guide).
+    - Migration note. AWS's Kendra-to-Bedrock-Managed-KB guide lists feature gaps and workarounds.
+  pricing:
+    aws: Kendra is billed per index-hour by edition, plus connector usage.
+    azure: Billed per search unit per hour by tier (Free, Basic, Standard, Storage Optimized), plus semantic ranker usage.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103]
+  related: [rag-knowledge-bases]
+  sources:
+    - https://docs.aws.amazon.com/kendra/latest/dg/kendra-availability-change.html
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+    - https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+# ───────────────────────── ML PLATFORM ─────────────────────────
+- id: ml-platform
+  group: ml-platform
+  capability: End-to-end ML platform
+  what_for: Build, train, deploy, and manage your own machine learning models on managed infrastructure.
+  match: direct
+  answer: The Azure equivalent of Amazon SageMaker AI is Azure Machine Learning.
+  providers:
+    aws: [sagemaker-ai]
+    azure: [azure-machine-learning]
+  differences:
+    - Organizing unit. SageMaker AI uses domains and user profiles (Studio), while Azure ML uses workspaces (with hubs/projects shared with Foundry classic) and registries.
+    - Naming. "Amazon SageMaker" is now the umbrella for data + AI (Unified Studio), and the ML service is "SageMaker AI". On Azure, generative AI work has moved toward Microsoft Foundry, while Azure ML remains the classic ML/MLOps platform.
+    - Several SageMaker AI features (Clarify, Model Monitor, Ground Truth, A2I, Debugger) entered maintenance on June 30, 2026, while Azure ML's equivalents (Responsible AI dashboard, model monitoring) remain active. Azure ML data labeling, however, retired Sep 30, 2026.
+    - MLflow is first-class on both. Azure ML workspaces are MLflow tracking servers, and SageMaker AI offers managed MLflow.
+  pricing:
+    aws: Pay for underlying instances by the second (notebooks, processing, training, hosting), with SageMaker Savings Plans available. There's no platform fee.
+    azure: No extra charge for Azure ML itself. You pay for the compute (VMs, clusters, endpoints) and associated Azure resources (storage, Key Vault, Container Registry, Application Insights).
+  exams:
+    aws: [MLA-C01, AIF-C01]
+    azure: [AI-300, AI-901]
+  faq:
+    - q: Is Azure Machine Learning being replaced by Microsoft Foundry?
+      a: No. Foundry is Microsoft's platform for generative AI apps and agents, and Azure ML remains the platform for training, MLOps, and deploying your own models. They share some infrastructure, such as hubs and the model catalog.
+  related: [ml-studio-ide, ml-training-jobs, ml-inference-endpoints, ml-pipelines, unified-data-ai-studio]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/overview-what-is-azure-machine-learning
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+- id: unified-data-ai-studio
+  group: ml-platform
+  capability: Unified data + analytics + AI workspace
+  what_for: One place for data engineers, analysts, and data scientists to work on shared projects across data and ML tools.
+  match: partial
+  answer: Amazon SageMaker Unified Studio maps most closely to Microsoft Fabric (Data Science workload) integrated with Azure Machine Learning. Microsoft's own comparison maps SageMaker to the Fabric Data Science workload plus Azure ML.
+  providers:
+    aws: [sagemaker-unified-studio]
+    azure: [fabric-data-science, azure-machine-learning]
+  differences:
+    - Unified Studio spans AWS analytics (Athena, EMR, Glue, Redshift), Bedrock, and SageMaker AI under domains and projects with SSO.
+    - Fabric is a SaaS analytics platform (OneLake, Spark, Power BI) with a Data Science workload (notebooks, MLflow experiments, SynapseML) that hands off to Azure ML for GPU training and enterprise deployment.
+    - Licensing models differ completely. Fabric is billed by capacity (F SKUs), while Unified Studio bills for the underlying AWS services used.
+  pricing:
+    aws: No separate charge for Unified Studio itself. You pay for the services and compute each project uses.
+    azure: Fabric capacity (F SKU, pay-as-you-go or reserved), plus Azure ML compute for workloads handed off to Azure ML.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-platform, ml-studio-ide]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker-unified-studio/latest/userguide/what-is-sagemaker-unified-studio.html
+    - https://learn.microsoft.com/en-us/fabric/data-science/data-science-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  flags:
+    - "\"No separate charge for Unified Studio\" should be confirmed on the SageMaker pricing page."
+
+- id: ml-studio-ide
+  group: ml-platform
+  capability: ML IDE & managed notebooks
+  what_for: Browser-based notebooks and IDEs on managed compute for data science work.
+  match: direct
+  answer: Amazon SageMaker Studio maps to Azure Machine Learning studio with compute instances (JupyterLab and VS Code).
+  providers:
+    aws: [sagemaker-studio]
+    azure: [azure-ml-studio]
+  differences:
+    - SageMaker Studio bundles JupyterLab, Code Editor (Code-OSS), RStudio, and Studio Classic as apps on per-user spaces.
+    - Azure ML compute instances are per-user managed VMs that you open in JupyterLab, VS Code (desktop or web), or studio notebooks. Idle shutdown and schedules control cost.
+    - The legacy SageMaker Studio Classic still exists for existing customers.
+  pricing:
+    aws: Per-second billing for the instance backing each running app/space, plus storage.
+    azure: Per-hour billing for the compute instance VM while running, plus storage.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-platform, ml-training-jobs]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+- id: ml-training-jobs
+  group: ml-platform
+  capability: Managed training jobs
+  what_for: Submit a training script and let the platform spin up (and tear down) CPU/GPU machines to run it, including distributed training.
+  match: direct
+  answer: SageMaker AI training jobs map to Azure Machine Learning command/sweep jobs on compute clusters or serverless compute.
+  providers:
+    aws: [sagemaker-training]
+    azure: [azure-ml-compute]
+  differences:
+    - SageMaker offers built-in algorithms, framework containers, Managed Spot Training, and warm pools.
+    - Azure ML uses environments (curated or custom Docker), compute clusters that scale to zero, serverless compute (no cluster to manage), low-priority VMs, and multinode distributed training. You can also attach Kubernetes (AKS/Arc) as compute.
+    - Hyperparameter tuning maps to sweep jobs on Azure ML.
+  pricing:
+    aws: Per-second billing for training instances (Spot discounts available).
+    azure: Per-hour VM pricing for cluster or serverless nodes (low-priority discounts available). There's no Azure ML surcharge.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [large-scale-training-clusters, ml-pipelines, gpu-instances]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target
+    - https://learn.microsoft.com/en-us/azure/machine-learning/overview-what-is-azure-machine-learning
+
+- id: large-scale-training-clusters
+  group: ml-platform
+  capability: Resilient large-scale FM training clusters
+  what_for: Run weeks-long training of foundation models on thousands of accelerators, with automatic recovery from hardware faults.
+  match: partial
+  answer: Azure has no single managed equivalent of SageMaker HyperPod. The usual Azure patterns are Azure ML compute clusters/serverless with ND-series GPUs, or AKS with GPU node pools attached to Azure ML.
+  providers:
+    aws: [sagemaker-hyperpod]
+    azure: [azure-ml-compute, aks, azure-ml-kubernetes]
+  differences:
+    - HyperPod provides persistent clusters with Slurm or EKS orchestration, built-in node health checks and auto-replacement, task governance, and support for Trainium and NVIDIA NVL72 UltraServers.
+    - On Azure you assemble the equivalent from ND GB200/GB300 v6 or H100/H200 VMs with InfiniBand, orchestrated by AKS or Azure ML. Resiliency features depend on what you configure.
+    - Microsoft's AWS-to-Azure comparison guide doesn't list a HyperPod equivalent.
+  pricing:
+    aws: Per-instance-hour for cluster nodes, with flexible training plans for reserved capacity.
+    azure: VM pricing (pay-as-you-go, reservations, or capacity reservations), plus AKS control plane tier if used.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-training-jobs, gpu-instances, custom-training-chips]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-family
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  flags:
+    - This mapping is our assessment, not a Microsoft-published equivalence. Azure CycleCloud (Slurm) is another option we haven't verified for this release.
+
+- id: ml-inference-endpoints
+  group: ml-platform
+  capability: Model hosting & inference endpoints
+  what_for: Serve trained models behind an HTTPS endpoint for real-time or batch predictions.
+  match: direct
+  answer: SageMaker AI endpoints map to Azure Machine Learning managed online endpoints (real-time), batch endpoints, and serverless deployments.
+  providers:
+    aws: [sagemaker-inference]
+    azure: [azure-ml-endpoints]
+  differences:
+    - Real-time inference maps to managed online endpoints. Both support multiple deployments behind one endpoint with traffic splitting (blue/green).
+    - Batch transform maps to batch endpoints (async jobs on compute clusters).
+    - SageMaker Serverless Inference maps only partially. Azure "serverless/standard deployments" apply to catalog models billed per token, not to arbitrary custom containers.
+    - SageMaker Asynchronous Inference (queued requests, scale to zero) has no direct Azure ML endpoint type. Batch endpoints or a custom queue are the closest options.
+    - Inference components and multi-model endpoints on SageMaker don't have a 1:1 Azure feature.
+  pricing:
+    aws: Per-second instance billing for real-time/async endpoints, per-request + duration for serverless, and per-instance time for batch.
+    azure: VM hours for online deployments, cluster node time for batch jobs, and per-token for serverless model deployments.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-platform, model-registry, model-catalog-open-weights]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints
+  flags:
+    - The claim about missing async inference and multi-model equivalents is based on the Azure endpoint types documented (online, Kubernetes online, batch, serverless) on 2026-10-19.
+
+- id: ml-pipelines
+  group: mlops
+  capability: ML pipelines / workflow orchestration
+  what_for: Automate the steps from data prep to training, evaluation, and deployment as a repeatable workflow.
+  match: direct
+  answer: Amazon SageMaker Pipelines maps to Azure Machine Learning pipelines.
+  providers:
+    aws: [sagemaker-pipelines]
+    azure: [azure-ml-pipelines, azure-ml-designer]
+  differences:
+    - SageMaker Pipelines offers serverless orchestration with a drag-and-drop editor in Studio, the SDK, and JSON definitions, plus lineage tracking.
+    - Azure ML pipelines are built from reusable components (SDK v2/CLI v2/YAML). Designer is the visual builder. Components and environments can be shared through registries.
+  pricing:
+    aws: No charge for orchestration. You pay for the jobs each step runs.
+    azure: No charge for orchestration. You pay for the compute each step runs.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-training-jobs, model-registry, feature-store]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/pipelines.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-ml-pipelines
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-designer
+
+- id: feature-store
+  group: mlops
+  capability: Feature store
+  what_for: Store and share ML features so training and real-time inference use exactly the same values.
+  match: direct
+  answer: Amazon SageMaker Feature Store maps to the Azure Machine Learning managed feature store.
+  providers:
+    aws: [sagemaker-feature-store]
+    azure: [azure-ml-feature-store]
+  differences:
+    - SageMaker organizes features into feature groups with an online store (latest values, ms latency) and/or offline store (history in S3). Feature Processor runs transformation code.
+    - Azure uses feature-set specifications that the system materializes to offline and online stores on a schedule, with managed transformation pipelines and point-in-time joins.
+  pricing:
+    aws: Online store billed by read/write units and storage. Offline store billed at S3 rates.
+    azure: Billed for materialization compute plus underlying storage, and the online store's backing service (for example Azure Cache for Redis).
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [ml-pipelines, ml-platform]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/feature-store.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-what-is-managed-feature-store
+  flags:
+    - Azure online store backing service (Redis) should be confirmed in the managed feature store docs for your region and version.
+
+- id: model-registry
+  group: mlops
+  capability: Model registry
+  what_for: Version, approve, and promote models from development to production with lineage.
+  match: direct
+  answer: SageMaker Model Registry maps to the Azure Machine Learning model registry and cross-workspace registries.
+  providers:
+    aws: [sagemaker-model-registry]
+    azure: [azure-ml-registries]
+  differences:
+    - SageMaker Model Registry uses model package groups, approval status, staging constructs, and integrated Model Cards.
+    - Azure ML registries share models, components, and environments across workspaces and regions for dev → test → prod MLOps, keeping lineage back to the training job.
+  pricing:
+    aws: No separate charge beyond storage.
+    azure: No separate charge beyond storage and related resources.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [mlflow-tracking, ml-pipelines, ml-inference-endpoints]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/how-to-share-models-pipelines-across-workspaces-with-registries
+
+- id: mlflow-tracking
+  group: mlops
+  capability: Experiment tracking (MLflow)
+  what_for: Log parameters, metrics, and artifacts for every training run so you can compare and reproduce them.
+  match: direct
+  answer: Managed MLflow on SageMaker AI maps to MLflow in Azure Machine Learning. On Azure, every workspace is an MLflow-compatible tracking server.
+  providers:
+    aws: [sagemaker-mlflow]
+    azure: [azure-ml-mlflow]
+  differences:
+    - SageMaker provisions managed MLflow tracking servers/apps that you size, and adds GenAI tracing and evaluation.
+    - Azure ML needs no separate server. Point the MLflow client at the workspace URI. Fabric Data Science also uses MLflow natively.
+  pricing:
+    aws: Billed per tracking server size per hour plus storage.
+    azure: No separate charge. MLflow tracking is part of the workspace.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [model-registry, ml-platform]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/mlflow.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-mlflow
+  flags:
+    - SageMaker managed MLflow pricing granularity (server-size hours) should be confirmed on the pricing page, since newer "MLflow Apps" may bill differently.
+
+- id: automl
+  group: ml-platform
+  capability: AutoML
+  what_for: Let the platform try algorithms and hyperparameters automatically to produce a good model from tabular, image, or text data.
+  match: direct
+  answer: SageMaker Autopilot (now surfaced in SageMaker Canvas) maps to Azure Machine Learning automated ML.
+  providers:
+    aws: [sagemaker-autopilot, sagemaker-canvas]
+    azure: [azure-ml-automl]
+  differences:
+    - Azure AutoML covers classification, regression, forecasting, computer vision (image classification, detection, segmentation), and NLP, from code or the studio UI.
+    - Autopilot's UI moved to Canvas in 2023, and the Autopilot APIs remain for code users.
+    - Azure AutoML for images is Microsoft's recommended replacement for the retiring Custom Vision.
+  pricing:
+    aws: Billed for the underlying training and processing compute (Canvas has its own session pricing).
+    azure: Billed for the compute the AutoML job uses.
+  exams:
+    aws: [MLA-C01, AIF-C01]
+    azure: [AI-300, AI-901]
+  related: [no-code-ml, time-series-forecasting, custom-image-models]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/autopilot-automate-model-development.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+- id: no-code-ml
+  group: ml-platform
+  capability: No-code ML for analysts
+  what_for: Let business analysts build predictions with point-and-click, without writing code.
+  match: partial
+  answer: SageMaker Canvas maps partially to the no-code AutoML UI and Designer in Azure Machine Learning studio. Azure has no single analyst-focused product with the same scope.
+  providers:
+    aws: [sagemaker-canvas]
+    azure: [azure-ml-automl, azure-ml-designer]
+  differences:
+    - Canvas bundles data prep, AutoML (tabular, time series, text, image), ready-to-use models (document, vision, language), and foundation-model chat in one analyst app. It's also the recommended path for Forecast customers.
+    - On Azure, analysts typically use the AutoML UI or Designer in Azure ML studio, or the Fabric Data Science and Power BI AI features. Those are separate products, not one app.
+  pricing:
+    aws: Canvas bills a session charge per hour while logged in, plus training and prediction costs.
+    azure: Billed for the compute AutoML and Designer jobs use.
+  exams:
+    aws: [AIF-C01, MLA-C01]
+    azure: [AI-901, AI-300]
+  related: [automl, time-series-forecasting]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/canvas.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-designer
+
+- id: dl-vm-images
+  group: ml-platform
+  capability: Preconfigured deep learning VM images
+  what_for: Start a GPU VM that already has drivers, CUDA, and ML frameworks installed.
+  match: direct
+  answer: The Azure equivalent of AWS Deep Learning AMIs is Data Science Virtual Machines.
+  providers:
+    aws: [deep-learning-amis]
+    azure: [data-science-vm]
+  differences:
+    - Both are VM images with drivers and frameworks. Microsoft suggests pairing DSVMs with Azure ML for managed training and MLOps.
+    - AWS also ships Deep Learning Containers. On Azure, curated Azure ML environments play that role.
+  pricing:
+    aws: No charge for the AMI. You pay EC2 instance pricing.
+    azure: No charge for the image. You pay VM pricing.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [gpu-instances]
+  sources:
+    - https://docs.aws.amazon.com/dlami/latest/devguide/what-is-dlami.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+# ───────────────────────── MLOPS & RESPONSIBLE AI ─────────────────────────
+- id: bias-explainability
+  group: mlops
+  capability: Bias detection & explainability
+  what_for: Check models for unfair bias and explain which features drive predictions.
+  match: partial
+  answer: SageMaker Clarify (in maintenance, no new customers) maps to the Azure Machine Learning Responsible AI dashboard. On AWS, new customers are directed to SHAP, MLflow, and Bedrock Evaluations instead.
+  providers:
+    aws: [sagemaker-clarify]
+    azure: [responsible-ai-dashboard]
+  differences:
+    - The Azure Responsible AI dashboard (error analysis, fairness, interpretability, counterfactuals, causal analysis) is active, while Clarify accepts no new customers.
+    - Clarify's replacement guidance on AWS is a set of components (reference monitoring solutions, standardized bias formulas, SHAP, MLflow, QuickSight, Bedrock Evaluations), not one managed service.
+  pricing:
+    aws: Clarify processing jobs are billed per instance time.
+    azure: Billed for the compute that generates the dashboard.
+  exams:
+    aws: [MLA-C01, AIF-C01]
+    azure: [AI-300, AI-901]
+  related: [model-monitoring, genai-evaluation]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/clarify-availability-change.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai-dashboard
+
+- id: model-monitoring
+  group: mlops
+  capability: Production model monitoring (drift)
+  what_for: Get alerted when production data or predictions drift away from what the model was trained on.
+  match: direct
+  answer: SageMaker Model Monitor (in maintenance) maps to Azure Machine Learning model monitoring. Azure's is a fully supported, built-in service, while AWS now recommends open-source monitoring solutions for new customers.
+  providers:
+    aws: [sagemaker-model-monitor]
+    azure: [azure-ml-model-monitoring]
+  differences:
+    - Azure ML signals cover data drift, prediction drift, data quality, feature attribution drift, and model performance, with alerts through Azure ML or Event Grid.
+    - AWS's replacement is an open-source reference (aws-samples) built on SageMaker AI, Athena, Lambda, EventBridge, QuickSight, MLflow, and Evidently AI that you deploy in your account.
+  pricing:
+    aws: Monitoring jobs are billed per instance time.
+    azure: Billed for the compute running monitoring jobs.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [bias-explainability, ml-inference-endpoints]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor-availability-change.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
+
+- id: data-labeling
+  group: mlops
+  capability: Data labeling (human + ML-assisted)
+  what_for: Get humans (plus ML assistance) to label images, text, or video to create training data.
+  match: none
+  answer: Azure no longer has a first-party equivalent of SageMaker Ground Truth. Azure Machine Learning data labeling retired on September 30, 2026, and Microsoft points to third-party labeling providers. Ground Truth itself is in maintenance (no new customers).
+  providers:
+    aws: [sagemaker-ground-truth]
+    azure: [azure-ml-data-labeling]
+  differences:
+    - Both first-party labeling services are winding down. Azure's is retired and its data was deleted on Sep 30, 2026. AWS's Ground Truth accepts no new customers, Ground Truth Plus was shut down June 30, 2026, and the Mechanical Turk workforce option ended Sep 30, 2026.
+    - For new projects on either cloud, plan on a third-party or open-source labeling tool and copy the labels into your ML storage.
+  pricing:
+    aws: Existing Ground Truth customers pay per labeled object plus workforce costs.
+    azure: Not applicable (retired).
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [human-review, ml-platform]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/sms.html
+    - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-image-labeling-projects
+
+- id: human-review
+  group: mlops
+  capability: Human-in-the-loop review of predictions
+  what_for: Route low-confidence AI predictions to people for review before they're used.
+  match: none
+  answer: Azure has no direct equivalent of Amazon Augmented AI (A2I), and A2I itself is in maintenance (no new customers since the June 30, 2026 announcement).
+  providers:
+    aws: [sagemaker-a2i]
+    azure: []
+  differences:
+    - On Azure, human review is typically built with Logic Apps or Power Automate approvals plus confidence scores from Document Intelligence or Content Understanding. That's a pattern, not a managed service.
+  pricing:
+    aws: Existing A2I customers pay per object reviewed plus workforce costs.
+    azure: Not applicable.
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [data-labeling, document-ocr]
+  sources:
+    - https://docs.aws.amazon.com/sagemaker/latest/dg/a2i-use-augmented-ai-a2i-human-review-loops.html
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+  flags:
+    - The Azure pattern described is a common practice, not a Microsoft-documented A2I replacement.
+
+- id: training-debugging
+  group: mlops
+  capability: Training debugging & profiling
+  what_for: Catch training problems (vanishing gradients, bottlenecks) and profile GPU/CPU utilization during training.
+  match: none
+  answer: Azure Machine Learning has no managed equivalent of SageMaker Debugger and Profiler. On AWS, Debugger is in maintenance and Profiler reaches end of support on June 30, 2027.
+  providers:
+    aws: [sagemaker-debugger]
+    azure: []
+  differences:
+    - On both clouds the practical path is framework tooling (PyTorch Profiler, TensorBoard, NVIDIA Nsight) plus job metrics in CloudWatch or Azure Monitor.
+  pricing:
+    aws: Debugger rules ran as processing jobs (instance time).
+    azure: Not applicable.
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [ml-training-jobs]
+  sources:
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+    - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
+  flags:
+    - '"No Azure equivalent" means we found no Azure ML feature with this scope in the docs reviewed.'
+
+# ───────────────────────── INFRASTRUCTURE ─────────────────────────
+- id: gpu-instances
+  group: infra
+  capability: NVIDIA GPU instances for AI training
+  what_for: Rent top-end GPU servers for training and serving large models.
+  match: direct
+  answer: Amazon EC2 P-family instances (P5/P5e/P5en, P6-B200, P6-B300, P6e-GB200) map to Azure ND-series VMs (ND H100 v5, ND H200 v5, ND GB200 v6, ND GB300 v6).
+  providers:
+    aws: [ec2-gpu]
+    azure: [nd-series]
+  differences:
+    - Rough generation mapping. P5 (H100) ↔ ND H100 v5. P5e/P5en (H200) ↔ ND H200 v5. P6-B200/P6-B300 ↔ ND GB300 v6 (Blackwell Ultra). P6e-GB200 UltraServers ↔ ND GB200 v6.
+    - Azure offers AMD Instinct MI300X (ND MI300X v5). AWS's listed accelerated families don't include an AMD Instinct training instance.
+    - Inference/graphics GPUs. AWS G6/G6e/G7/G7e map to Azure NC/NV families (not detailed in this release).
+    - Capacity access differs. AWS has EC2 Capacity Blocks and SageMaker flexible training plans, while Azure uses capacity reservations and reserved instances.
+  pricing:
+    aws: On-demand, Savings Plans, Spot, and Capacity Blocks for ML (reserved GPU time slots).
+    azure: Pay-as-you-go, Reserved VM Instances/savings plan, Spot VMs, and on-demand capacity reservations.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [custom-training-chips, large-scale-training-clusters, dl-vm-images]
+  sources:
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-family
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-gb200-v6-series
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-gb300-v6-series
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-h200-v5-series
+  flags:
+    - The generation mapping is approximate (GPU model, not identical node specs). Compare GPU count, memory, and interconnect per SKU.
+
+- id: custom-training-chips
+  group: infra
+  capability: Custom AI training silicon (rentable)
+  what_for: Use the cloud vendor's own AI chips, rather than NVIDIA GPUs, for lower-cost training at scale.
+  match: none
+  answer: Azure has no rentable equivalent of AWS Trainium. Microsoft's Maia 200 is an inference accelerator used behind Microsoft Foundry and Microsoft 365 Copilot, not sold as VMs (the SDK is in preview).
+  providers:
+    aws: [trainium]
+    azure: [maia]
+  differences:
+    - Trainium is rentable as EC2 Trn1/Trn2 instances and Trn3 UltraServers (GA Dec 2, 2025, up to 144 Trainium3 chips), and through SageMaker HyperPod. You program it with the Neuron SDK (native PyTorch).
+    - Maia 200 (announced Jan 26, 2026) is in Azure US Central (US West 3 next), serves models such as OpenAI GPT on Foundry, and offers a Maia SDK preview. There are no Maia VM SKUs.
+    - On Azure, the practical alternative for training is ND-series NVIDIA or AMD MI300X VMs.
+  pricing:
+    aws: EC2 pricing for Trn instances (On-demand, Savings Plans, Capacity Blocks).
+    azure: Not rentable. Maia benefits reach customers indirectly through Foundry model pricing.
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [inference-chips, gpu-instances]
+  sources:
+    - https://aws.amazon.com/about-aws/whats-new/2025/12/amazon-ec2-trn3-ultraservers/
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
+    - https://blogs.microsoft.com/blog/2026/01/26/maia-200-the-ai-accelerator-built-for-inference/
+
+- id: inference-chips
+  group: infra
+  capability: Custom AI inference silicon (rentable)
+  what_for: Serve models on the cloud vendor's inference-optimized chips for lower cost per token.
+  match: none
+  answer: Azure has no rentable equivalent of AWS Inferentia (Inf2). Microsoft's Maia 200 inference chip isn't offered as customer VMs.
+  providers:
+    aws: [inferentia]
+    azure: [maia]
+  differences:
+    - Inf1 and Inf2 are EC2 instance families you can launch directly, programmed through the Neuron SDK.
+    - Maia 200 runs Microsoft-hosted models (Foundry, Microsoft 365 Copilot), and you only benefit through those services.
+  pricing:
+    aws: EC2 pricing for Inf instances.
+    azure: Not applicable.
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [custom-training-chips, ml-inference-endpoints]
+  sources:
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
+    - https://blogs.microsoft.com/blog/2026/01/26/maia-200-the-ai-accelerator-built-for-inference/
+
+# ───────────────────────── ASSISTANTS ─────────────────────────
+- id: work-assistant
+  group: assistants
+  capability: Enterprise AI work assistant
+  what_for: A chat assistant for employees that answers from company data and automates tasks across work apps.
+  match: partial
+  answer: Microsoft 365 Copilot is the Microsoft counterpart of Amazon Q Business. Q Business is in maintenance (no new customers), and AWS's successor is Amazon Quick.
+  providers:
+    aws: [amazon-quick, amazon-q-business]
+    azure: [m365-copilot, copilot-studio]
+  differences:
+    - Microsoft 365 Copilot is embedded in Word, Excel, Outlook, and Teams, and grounded on Microsoft Graph. It's a SaaS per-user product, not an Azure service.
+    - Amazon Quick combines chat, Quick Index (company data), Quick Flows and Quick Automate (workflow and agentic automation), Research, Spaces, and Quick Sight BI. It connects Slack, Teams, Outlook, CRMs, and databases.
+    - For custom low-code agents, Microsoft's tool is Copilot Studio. Amazon Quick Flows/Automate cover some of the same ground.
+  pricing:
+    aws: Per-user subscription tiers (Quick), plus capacity-based pricing for some features. Q Business uses per-user tiers for existing customers.
+    azure: Microsoft 365 Copilot is a per-user monthly license. Copilot Studio uses tenant capacity packs or pay-as-you-go messages/credits.
+  exams:
+    aws: [AIF-C01]
+    azure: [AB-620]
+  faq:
+    - q: What replaces Amazon Q Business?
+      a: AWS recommends Amazon Quick. You can start by bringing your existing Q Business index to Quick (Bring Your Own Index).
+  related: [coding-assistant, cloud-console-assistant, chatbot-builder]
+  sources:
+    - https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/qbusiness-availability-change.html
+    - https://docs.aws.amazon.com/quick/latest/userguide/what-is.html
+    - https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview
+    - https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio
+  flags:
+    - Licensing details for Quick and Copilot change often. We describe the model only.
+
+- id: coding-assistant
+  group: assistants
+  capability: AI coding assistant / agentic IDE
+  what_for: AI help while coding, including completions, chat, code review, and agents that implement tasks.
+  match: direct
+  answer: GitHub Copilot is Microsoft's equivalent of Amazon Q Developer in the IDE. AWS is replacing the Q Developer IDE plugins with Kiro, and the plugins reach end of support on April 30, 2027.
+  providers:
+    aws: [kiro, amazon-q-developer]
+    azure: [github-copilot]
+  differences:
+    - Kiro is a standalone agentic IDE and CLI built around specs, hooks, steering files, subagents, and Powers. GitHub Copilot works inside existing IDEs and GitHub itself (issues, PRs, code review, coding agent).
+    - Q Developer stopped new signups on May 15, 2026. Its code transformation (Java upgrades, .NET porting) is moving to AWS Transform.
+    - Q Developer in the AWS console and chat apps is not part of the sunset (see Cloud console assistant).
+  pricing:
+    aws: Kiro uses subscription tiers. Q Developer Pro per-user subscriptions continue for existing customers until Apr 30, 2027.
+    azure: GitHub Copilot uses per-user plans (Free, Pro, Business, Enterprise) with premium-request allowances.
+  exams:
+    aws: []
+    azure: [GH-COPILOT]
+  related: [cloud-console-assistant, work-assistant]
+  sources:
+    - https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/
+    - https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/what-is.html
+    - https://docs.github.com/en/copilot/get-started/about-github-copilot
+  flags:
+    - GitHub Copilot plan names are from general GitHub documentation. Confirm on the plans page.
+
+- id: cloud-console-assistant
+  group: assistants
+  capability: Cloud console / operations assistant
+  what_for: Ask the cloud console questions about services and your resources, and get help troubleshooting or operating them.
+  match: direct
+  answer: The Azure equivalent of Amazon Q Developer in the AWS Management Console is Azure Copilot.
+  providers:
+    aws: [amazon-q-developer]
+    azure: [azure-copilot]
+  differences:
+    - Q Developer in the console, docs site, mobile app, and Slack/Teams is not affected by the IDE-plugin sunset.
+    - Azure Copilot works across the Azure portal and other surfaces, using the Azure control plane and your resource context.
+  pricing:
+    aws: Console chat is available to AWS customers, and some advanced capabilities need Q Developer Pro.
+    azure: Included for Azure customers. Check the Azure Copilot overview for any capability-specific licensing.
+  exams:
+    aws: []
+    azure: []
+  related: [coding-assistant]
+  sources:
+    - https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/
+    - https://learn.microsoft.com/en-us/azure/copilot/overview
+  flags:
+    - Pricing for both console assistants was not fully verified. Treat it as indicative.
+
+# ───────────────────────── VISION & DOCUMENTS ─────────────────────────
+- id: image-analysis
+  group: vision-docs
+  capability: Prebuilt image analysis
+  what_for: Detect objects, scenes, text, and unsafe content in images through an API, without training a model.
+  match: partial
+  answer: Amazon Rekognition's image features map partly to Azure Vision Image Analysis, but that API is deprecated and retires on September 25, 2028. Microsoft now recommends Foundry multimodal models and Content Understanding instead.
+  providers:
+    aws: [rekognition]
+    azure: [azure-vision, foundry-models, content-understanding]
+  differences:
+    - Microsoft's own AWS comparison now maps Rekognition to Foundry models plus Azure ML AutoML for vision. It says no single current Azure service covers every Rekognition capability.
+    - Microsoft's Image Analysis migration guide sends OCR to Document Intelligence, faces to the Face API, embeddings to Cohere Embed (Foundry), and everything else to GPT models or Content Understanding.
+    - Rekognition offers celebrity recognition and Face Liveness, which Azure's guidance doesn't cover the same way (Azure Face has liveness under Limited Access).
+  pricing:
+    aws: Per image processed, tiered by monthly volume, plus per face-metadata stored.
+    azure: Per transaction for Image Analysis (until retirement). Model alternatives are billed per token.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-901, AI-103]
+  related: [face-recognition, video-analysis, content-moderation, custom-image-models, document-ocr]
+  sources:
+    - https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview
+    - https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/migration-options
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+- id: face-recognition
+  group: vision-docs
+  capability: Face detection, verification & search
+  what_for: Detect faces, verify that two faces match, search a face collection, and check liveness.
+  match: partial
+  answer: Rekognition face APIs map to Azure Face. Azure Face recognition is Limited Access, so you have to apply and be a Microsoft-managed customer or partner.
+  providers:
+    aws: [rekognition]
+    azure: [azure-face]
+  differences:
+    - Azure has retired the emotion and gender attributes and restricts age, smile, facial hair, hair, and makeup attributes.
+    - Rekognition offers face collections, search, comparison, celebrity recognition, and Face Liveness without an approval process (subject to AWS policies).
+  pricing:
+    aws: Per image processed plus per stored face metadata per month.
+    azure: Per transaction, tiered, plus per stored face per month.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [image-analysis, video-analysis]
+  sources:
+    - https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/face/overview-identity
+  flags:
+    - "\"Without an approval process\" for Rekognition reflects the docs reviewed. Some AWS Regions or use cases may carry additional terms."
+
+- id: video-analysis
+  group: vision-docs
+  capability: Video analysis & indexing
+  what_for: Extract labels, faces, text, speech, and summaries from stored or live video.
+  match: partial
+  answer: Amazon Rekognition Video maps to Azure AI Video Indexer. Video Indexer is a broader "insights" application (transcripts, translation, topics, generative summaries) rather than a low-level detection API.
+  providers:
+    aws: [rekognition]
+    azure: [video-indexer]
+  differences:
+    - Rekognition Video Streaming Events entered maintenance on Mar 31, 2026, and Person Pathing was shut down on Oct 31, 2025.
+    - Video Indexer can run at the edge as an Azure Arc extension, including live video analysis.
+    - For GenAI video understanding, AWS also offers TwelveLabs models and Nova on Bedrock, and Bedrock Data Automation. On Azure, Content Understanding handles video.
+  pricing:
+    aws: Per minute of video analyzed, by feature.
+    azure: Per minute of video/audio indexed, by preset.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [image-analysis, multimodal-extraction]
+  sources:
+    - https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+    - https://learn.microsoft.com/en-us/azure/azure-video-indexer/video-indexer-overview
+
+- id: content-moderation
+  group: vision-docs
+  capability: Image & text content moderation
+  what_for: Automatically flag explicit, violent, or hateful user-generated images and text.
+  match: direct
+  answer: Rekognition content moderation (and Comprehend toxicity detection for text) maps to Azure AI Content Safety.
+  providers:
+    aws: [rekognition, comprehend]
+    azure: [content-safety]
+  differences:
+    - Rekognition Batch Image Content Moderation entered maintenance on Mar 31, 2026. Real-time moderation APIs are unaffected.
+    - Azure Content Safety returns multi-severity scores for hate, sexual, violence, and self-harm, and supports custom categories (preview) and blocklists. The old Azure Content Moderator is retired.
+  pricing:
+    aws: Per image (Rekognition) or per text unit (Comprehend).
+    azure: Per image and per text record, with a free tier.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [guardrails, image-analysis]
+  sources:
+    - https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
+    - https://docs.aws.amazon.com/comprehend/latest/dg/trust-safety.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview
+    - https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services
+
+- id: custom-image-models
+  group: vision-docs
+  capability: Custom image classification & detection
+  what_for: Train your own model to recognize your products, defects, or logos from labeled images.
+  match: partial
+  answer: Rekognition Custom Labels maps to Azure Custom Vision, but Custom Vision is retiring (supported until September 25, 2028). Microsoft recommends Azure ML AutoML for images, Foundry models, or Content Understanding for new work.
+  providers:
+    aws: [rekognition-custom-labels]
+    azure: [custom-vision, azure-ml-automl]
+  differences:
+    - Custom Labels runs as a managed model you start and stop (billed per inference hour).
+    - Azure ML AutoML for images gives you full control (classification, detection, segmentation) but requires you to deploy and manage an endpoint.
+  pricing:
+    aws: Billed per training hour and per inference hour while the model is running.
+    azure: Custom Vision is billed per training hour and per transaction until retirement. AutoML is billed for compute plus endpoint hosting.
+  exams:
+    aws: [AIF-C01, MLA-C01]
+    azure: [AI-103, AI-300]
+  related: [image-analysis, automl, visual-anomaly-detection]
+  sources:
+    - https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/custom-vision-service/overview
+
+- id: visual-anomaly-detection
+  group: vision-docs
+  capability: Visual defect / anomaly detection (manufacturing)
+  what_for: Spot product defects on a production line from camera images.
+  match: none
+  answer: Neither cloud has a current dedicated service. Amazon Lookout for Vision shut down on October 31, 2025, and Azure Custom Vision, the closest Azure tool, is itself retiring.
+  providers:
+    aws: [lookout-for-vision]
+    azure: []
+  differences:
+    - On AWS, the practical replacements are Rekognition Custom Labels or SageMaker AI models. On Azure, Azure ML AutoML for images or Content Understanding.
+  pricing:
+    aws: Not applicable (retired).
+    azure: Not applicable.
+  exams:
+    aws: []
+    azure: []
+  related: [custom-image-models]
+  sources:
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/custom-vision-service/overview
+
+- id: document-ocr
+  group: vision-docs
+  capability: Document OCR & form/table extraction
+  what_for: Pull text, key-value pairs, tables, and fields out of scanned documents, invoices, IDs, and forms.
+  match: direct
+  answer: The Azure equivalent of Amazon Textract is Azure Document Intelligence.
+  providers:
+    aws: [textract]
+    azure: [document-intelligence]
+  differences:
+    - Textract offers DetectDocumentText and AnalyzeDocument (forms, tables, layout), Queries, AnalyzeExpense (invoices and receipts), AnalyzeID (US government IDs), and Analyze Lending.
+    - Document Intelligence has a broader prebuilt catalog (invoice, receipt, ID document, credit card, bank statement, check, pay stub, contract, health insurance card, marriage certificate, US tax forms, US mortgage documents) and trainable custom extraction and classification models. Layout outputs markdown for RAG.
+    - Document Intelligence models can run in Docker containers. We found no container option on the Textract overview.
+    - Versions. Use Document Intelligence v4.0, since v3.0 reaches end of support Mar 30, 2029.
+  pricing:
+    aws: Per page, by API/feature (text detection, tables, forms, queries, expense, ID, lending).
+    azure: Per page, by model type (Read, prebuilt, custom), with commitment tiers and a free tier.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [multimodal-extraction, human-review]
+  sources:
+    - https://docs.aws.amazon.com/textract/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  flags:
+    - Textract container/on-prem availability was only checked against the Textract overview page.
+
+# ───────────────────────── LANGUAGE ─────────────────────────
+- id: text-analytics
+  group: language
+  capability: Text analytics (entities, sentiment, key phrases)
+  what_for: Extract entities, sentiment, key phrases, and language from text through an API.
+  match: direct
+  answer: The Azure equivalent of Amazon Comprehend is Azure Language. Note that Azure now labels sentiment, key phrases, summarization, and entity linking as "legacy" capabilities, supported for existing implementations.
+  providers:
+    aws: [comprehend]
+    azure: [azure-language]
+  differences:
+    - Azure's "core" (recommended) capabilities are PII, language detection, NER, custom NER, and Text Analytics for health. Sentiment and opinion mining, key phrases, entity linking, summarization, and custom text classification are "legacy".
+    - Comprehend topic modeling, event detection, and prompt safety classification are closed to new customers (Mar 31, 2026). AWS points to Bedrock LLMs and Guardrails instead.
+    - Both vendors steer new open-ended NLP (topics, events, summaries) toward LLMs (Bedrock or Foundry models).
+    - Azure Language capabilities are also available as agent tools through the Azure Language MCP server.
+  pricing:
+    aws: Per unit of text (100 characters), with a 3-unit minimum per request, by feature. Custom models add training and endpoint-hour charges.
+    azure: Per text record (1,000 characters), by feature, with a free tier and commitment tiers. Custom features add training and hosting charges.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-901, AI-103]
+  related: [custom-nlp, pii-detection, medical-nlp, translation]
+  sources:
+    - https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html
+    - https://docs.aws.amazon.com/comprehend/latest/dg/comprehend-availability-change.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  flags:
+    - Unit sizes (100 vs 1,000 characters) come from each vendor's pricing structure. Confirm on the pricing pages.
+
+- id: custom-nlp
+  slug: aws-comprehend-custom-vs-azure-language-custom
+  group: language
+  capability: Custom text classification & entity recognition
+  what_for: Train a model on your labeled text to classify documents or extract your own entity types.
+  match: direct
+  answer: Comprehend custom classification and custom entity recognition map to Azure Language custom text classification (legacy) and custom NER (core).
+  providers:
+    aws: [comprehend]
+    azure: [azure-language]
+  differences:
+    - Comprehend custom models accept plain text, and also PDF, Word, and images (for custom classification and entity recognition).
+    - On Azure, custom NER is a "core" capability, while custom text classification is "legacy". For new classification work, Microsoft leans toward Foundry models.
+  pricing:
+    aws: Training time, model storage per month, and real-time endpoint inference units per second (or async per-unit).
+    azure: Training hours, model hosting, and per-text-record inference.
+  exams:
+    aws: [AIF-C01, MLA-C01]
+    azure: [AI-103]
+  related: [text-analytics]
+  sources:
+    - https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
+
+- id: pii-detection
+  slug: aws-comprehend-pii-vs-azure-language-pii
+  group: language
+  capability: PII detection & redaction in text
+  what_for: Find and mask personal data (names, SSNs, addresses) in text and conversations.
+  match: direct
+  answer: Comprehend PII detection maps to Azure Language PII detection, which is a "core" Azure Language capability covering text, conversations, and documents.
+  providers:
+    aws: [comprehend, bedrock-guardrails]
+    azure: [azure-language, foundry-guardrails]
+  differences:
+    - Azure also offers Document PII, a playground in Foundry, and synthetic-replacement anonymization (preview).
+    - For GenAI traffic, PII masking is built into Bedrock Guardrails (sensitive information filters) and Foundry guardrails (PII risk, preview).
+  pricing:
+    aws: Per text unit.
+    azure: Per text record.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [text-analytics, guardrails]
+  sources:
+    - https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
+    - https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
+    - https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
+
+- id: translation
+  group: language
+  capability: Machine translation
+  what_for: Translate text and documents between languages, with custom terminology.
+  match: direct
+  answer: The Azure equivalent of Amazon Translate is Azure Translator.
+  providers:
+    aws: [translate]
+    azure: [translator]
+  differences:
+    - Translator's 2026-06-06 GA API lets you pick specific LLMs for translation and offers "adaptive custom translation" (5–10,000 segment pairs to adapt LLMs such as GPT-5.1).
+    - Translator supports single-file document translation without Blob storage, plus batch document translation, transliteration, and dictionary lookups.
+    - Amazon Translate has custom terminology and Active Custom Translation (parallel data), which applies to batch jobs.
+    - Language counts. Microsoft says 100+ languages and dialects, and AWS lists supported languages on its docs.
+  pricing:
+    aws: Per character translated (standard vs Active Custom Translation rates).
+    azure: Per character (text), per page or character (documents), plus Custom Translator training and hosting. Free tier available.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-901, AI-103]
+  related: [text-analytics, speech-to-text]
+  sources:
+    - https://docs.aws.amazon.com/translate/latest/dg/what-is.html
+    - https://docs.aws.amazon.com/translate/latest/dg/customizing-translations-parallel-data.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/translator/overview
+
+- id: medical-nlp
+  group: language
+  capability: Medical text analytics
+  what_for: Extract medications, conditions, and PHI from clinical notes and link them to medical codes.
+  match: direct
+  answer: The Azure equivalent of Amazon Comprehend Medical is Text Analytics for health in Azure Language.
+  providers:
+    aws: [comprehend-medical]
+    azure: [text-analytics-health]
+  differences:
+    - Comprehend Medical links entities to ICD-10-CM, RxNorm, and SNOMED CT, and is English (US) only.
+    - Text Analytics for health links to UMLS Metathesaurus vocabularies, adds assertion detection and SDOH/ethnicity extraction, and can run in a Docker container.
+    - Neither service is a medical device. Both docs warn that results need clinical review.
+  pricing:
+    aws: Per unit of text (100 characters), by API.
+    azure: Per text record, with a free tier. Container usage is billed through a connected resource.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [fhir-data, clinical-documentation]
+  sources:
+    - https://docs.aws.amazon.com/comprehend-medical/latest/dev/comprehendmedical-welcome.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/text-analytics-for-health/overview
+
+# ───────────────────────── SPEECH & CONVERSATIONAL ─────────────────────────
+- id: speech-to-text
+  group: speech
+  capability: Speech to text
+  what_for: Transcribe audio to text in real time or in batch, with custom vocabularies.
+  match: direct
+  answer: The Azure equivalent of Amazon Transcribe is Azure Speech speech-to-text.
+  providers:
+    aws: [transcribe]
+    azure: [speech]
+  differences:
+    - Azure offers real-time, fast (synchronous file), and batch transcription, custom speech models, pronunciation assessment, and edge containers.
+    - Transcribe offers streaming and batch, custom vocabularies and custom language models, speaker partitioning, PII redaction, and toxicity/content filtering. It's HIPAA-eligible.
+    - Foundry also offers OpenAI speech-to-text models (for example gpt-4o-transcribe family) as an LLM-based alternative.
+  pricing:
+    aws: Per second of audio (with minimums), tiered by monthly volume. Medical and Call Analytics have separate rates.
+    azure: Per audio hour (real-time, fast, and batch rates differ). Custom models add hosting, and a free tier is available.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-901, AI-103]
+  related: [text-to-speech, call-analytics, realtime-voice]
+  sources:
+    - https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+  flags:
+    - The OpenAI transcription model family name on Foundry is indicative. Check the Foundry audio models section.
+
+- id: text-to-speech
+  group: speech
+  capability: Text to speech
+  what_for: Turn text into natural-sounding speech for apps, IVR, and audiobooks.
+  match: direct
+  answer: The Azure equivalent of Amazon Polly is Azure Speech text-to-speech.
+  providers:
+    aws: [polly]
+    azure: [speech]
+  differences:
+    - Polly voice engines are generative, long-form, neural, and standard. Polly supports SSML and lexicons.
+    - Azure has neural voices, batch synthesis, and avatars, plus custom neural voice (brand voice), which is Limited Access and needs Microsoft approval.
+  pricing:
+    aws: Per character synthesized, by voice engine.
+    azure: Per character, by voice type. Custom voice adds training and hosting.
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-901, AI-103]
+  related: [speech-to-text, realtime-voice]
+  sources:
+    - https://docs.aws.amazon.com/polly/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+- id: call-analytics
+  group: speech
+  capability: Contact-center call analytics
+  what_for: Transcribe customer calls and extract sentiment, issues, categories, and summaries.
+  match: partial
+  answer: Amazon Transcribe Call Analytics maps partially to Azure Speech batch transcription combined with Azure Language or Foundry models. Microsoft documents this as a call-center scenario rather than a single API.
+  providers:
+    aws: [transcribe-call-analytics]
+    azure: [speech, azure-language, content-understanding]
+  differences:
+    - Call Analytics is one API with sentiment, issue detection, rule-based categories, and generative call summaries.
+    - On Azure you compose Speech (transcribe, diarize, redact) with Language or Foundry models for sentiment and summary, or use Content Understanding's call-center analyzers.
+    - For a full contact center, Microsoft's comparison maps Amazon Connect to Dynamics 365 Contact Center.
+  pricing:
+    aws: Per second of audio at Call Analytics rates (post-call and real-time).
+    azure: Sum of components (Speech audio hours plus Language records or model tokens).
+  exams:
+    aws: [AIF-C01]
+    azure: [AI-103]
+  related: [speech-to-text, text-analytics]
+  sources:
+    - https://docs.aws.amazon.com/transcribe/latest/dg/call-analytics.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+    - https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/
+
+- id: realtime-voice
+  group: speech
+  capability: Real-time speech-to-speech AI
+  what_for: Build low-latency voice conversations with an AI model, the way you'd talk to a person.
+  match: partial
+  answer: Amazon Nova Sonic (speech-to-speech on Bedrock) maps to Azure Voice Live and voice-based prompt agents in Foundry (preview), which also support realtime audio models.
+  providers:
+    aws: [amazon-nova]
+    azure: [speech, foundry-agent-service]
+  differences:
+    - Nova 2 Sonic is a single speech-to-speech foundation model you call through Bedrock's bidirectional streaming.
+    - Voice Live is a managed orchestration service (speech recognition, turn-taking, model interaction, synthesis) that works with realtime models or a cascaded STT → LLM → TTS chain. Foundry voice agents add telephony and avatar options (preview).
+  pricing:
+    aws: Per input and output speech/text token for Nova Sonic.
+    azure: Voice Live usage plus model usage.
+  exams:
+    aws: [AWS-GAI-PRO]
+    azure: [AI-103]
+  related: [speech-to-text, text-to-speech, first-party-models, managed-agents]
+  sources:
+    - https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+    - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+
+- id: chatbot-builder
+  group: speech
+  capability: Conversational bot builder (intents & dialog)
+  what_for: Build voice and text chatbots with intents, slots, and dialog flows for customer service.
+  match: partial
+  answer: Amazon Lex maps to Microsoft Copilot Studio (low-code agents) together with Azure AI Bot Service (channels). Azure's intent engine, CLU, is deprecated and retires March 31, 2029.
+  providers:
+    aws: [lex]
+    azure: [copilot-studio, bot-service, clu]
+  differences:
+    - Lex is a single AWS service (NLU, ASR, and dialog management) with LLM-assisted NLU, conditional branching, multi-Region replication, and native Amazon Connect integration.
+    - Azure is modular. Copilot Studio (or the Microsoft 365 Agents SDK) handles the agent, Bot Service handles channels such as Teams and web chat, and CLU or LLMs handle intent understanding. LUIS fully retired Mar 31, 2026, and QnA Maker is retired.
+    - Microsoft's own comparison maps Lex to conversational language understanding, but CLU is now on a retirement path. New projects should use Foundry models or Copilot Studio generative orchestration.
+  pricing:
+    aws: Per speech or text request (streaming conversations priced per interval).
+    azure: Copilot Studio uses capacity packs or pay-as-you-go messages/credits. Bot Service charges for premium channels, and standard channels are free.
+  exams:
+    aws: [AIF-C01]
+    azure: [AB-620, AI-103]
+  faq:
+    - q: What replaced LUIS on Azure?
+      a: Conversational language understanding (CLU). But CLU is itself retiring on Mar 31, 2029, and Microsoft directs new projects to Microsoft Foundry.
+  related: [work-assistant, managed-agents, speech-to-text]
+  sources:
+    - https://docs.aws.amazon.com/lexv2/latest/dg/what-is.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/conversational-language-understanding/overview
+    - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/luis/what-is-luis
+    - https://learn.microsoft.com/en-us/azure/bot-service/
+    - https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+
+# ───────────────────────── INDUSTRY & SPECIALIZED ─────────────────────────
+- id: recommendations
+  group: industry
+  capability: Managed recommendation engine
+  what_for: Generate "recommended for you" and "customers also bought" lists from user behavior.
+  match: none
+  answer: Azure has no current equivalent of Amazon Personalize. Azure AI Personalizer retired on August 25, 2026. On Azure, you build recommenders yourself in Azure Machine Learning or Fabric.
+  providers:
+    aws: [personalize]
+    azure: [personalizer, azure-machine-learning]
+  differences:
+    - Personalize remains GA, with domain recommenders (e-commerce, video), custom recipes, real-time and batch recommendations, and user segmentation.
+    - Personalizer was a different design (a reinforcement-learning contextual bandit), not a catalog recommender. It took no new resources after Sep 20, 2023.
+  pricing:
+    aws: Data ingestion, training hours, and recommendations served (per request or per user per month for recommenders).
+    azure: Not applicable (retired). Custom solutions are billed for compute.
+  exams:
+    aws: [MLA-C01]
+    azure: []
+  related: [ml-platform]
+  sources:
+    - https://docs.aws.amazon.com/personalize/latest/dg/what-is-personalize.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/personalizer/what-is-personalizer
+    - https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services
+
+- id: time-series-forecasting
+  group: industry
+  capability: Time-series forecasting
+  what_for: Forecast demand, inventory, traffic, or finance metrics from historical time series.
+  match: partial
+  answer: Amazon Forecast (no new customers since July 2024) maps to Azure Machine Learning AutoML forecasting. AWS itself points Forecast users to SageMaker Canvas.
+  providers:
+    aws: [forecast, sagemaker-canvas]
+    azure: [azure-ml-automl]
+  differences:
+    - Forecast was a turnkey forecasting API. Azure AutoML forecasting trains and deploys models in your workspace, so you manage endpoints and retraining.
+  pricing:
+    aws: Canvas uses session hours plus training and prediction. Forecast is still available to existing customers at its own rates.
+    azure: Compute for AutoML training plus endpoint or batch inference.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [automl, no-code-ml]
+  sources:
+    - https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html
+    - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+
+- id: fraud-detection
+  group: industry
+  capability: Managed fraud detection
+  what_for: Score online transactions and sign-ups for fraud risk with a managed model.
+  match: none
+  answer: Azure has no managed fraud-detection API comparable to Amazon Fraud Detector, and Fraud Detector itself closed to new customers on November 7, 2025. Both clouds now point to building models (AutoGluon on SageMaker AI, or Azure ML AutoML).
+  providers:
+    aws: [fraud-detector]
+    azure: [azure-machine-learning]
+  differences:
+    - AWS suggests AutoGluon on SageMaker AI, and AWS WAF Fraud Control for account-creation fraud.
+    - On Azure, the comparable path is Azure ML AutoML (classification) plus Azure WAF/bot protection at the edge.
+  pricing:
+    aws: Existing customers pay per prediction and training hour.
+    azure: Compute for training and hosting.
+  exams:
+    aws: [MLA-C01]
+    azure: [AI-300]
+  related: [automl]
+  sources:
+    - https://docs.aws.amazon.com/frauddetector/latest/ug/frauddetector-availability-change.html
+    - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+  flags:
+    - Microsoft Dynamics 365 Fraud Protection (a SaaS product, not Azure) wasn't evaluated in this release.
+
+- id: equipment-anomaly
+  group: industry
+  capability: Industrial equipment anomaly detection / predictive maintenance
+  what_for: Detect abnormal machine behavior from sensor data before equipment fails.
+  match: none
+  answer: There's no current managed service on either side. Amazon Lookout for Equipment reached end of support on October 7, 2026, Amazon Monitron is closed to new customers, and Azure AI Anomaly Detector retired on October 1, 2026.
+  providers:
+    aws: [lookout-for-equipment, monitron]
+    azure: [anomaly-detector]
+  differences:
+    - Both vendors' dedicated services are gone or closed. Build on SageMaker AI or Azure ML, or use IoT and analytics platforms, such as Fabric Real-Time Intelligence on Azure.
+  pricing:
+    aws: Monitron charges per sensor per year for existing customers. Lookout for Equipment is no longer applicable.
+    azure: Not applicable (retired).
+  exams:
+    aws: []
+    azure: []
+  related: [metric-anomaly, ml-platform]
+  sources:
+    - https://docs.aws.amazon.com/lookout-for-equipment/latest/ug/what-is.html
+    - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
+    - https://docs.aws.amazon.com/Monitron/latest/user-guide/what-is-monitron.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/anomaly-detector/overview
+
+- id: metric-anomaly
+  group: industry
+  capability: Business-metric anomaly detection
+  what_for: Watch KPIs (revenue, signups) and alert on unusual changes with root-cause hints.
+  match: none
+  answer: There's no current equivalent on either side. Amazon Lookout for Metrics shut down on October 10, 2025, and Azure AI Metrics Advisor retired on May 18, 2026.
+  providers:
+    aws: [lookout-for-metrics]
+    azure: [metrics-advisor]
+  differences:
+    - Alternatives include CloudWatch anomaly detection or QuickSight/Quick Sight ML insights on AWS, and Azure Monitor dynamic thresholds or Fabric/Power BI anomaly detection on Azure (not deeply evaluated here).
+  pricing:
+    aws: Not applicable (retired).
+    azure: Not applicable (retired).
+  exams:
+    aws: []
+    azure: []
+  related: [equipment-anomaly]
+  sources:
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/metrics-advisor/overview
+  flags:
+    - The alternatives listed are pointers, not verified equivalents.
+
+- id: fhir-data
+  group: industry
+  capability: FHIR health data store
+  what_for: Store, query, and exchange healthcare records using the FHIR standard.
+  match: direct
+  answer: The Azure equivalent of AWS HealthLake is the FHIR service in Azure Health Data Services. The older Azure API for FHIR was deprecated on September 30, 2026.
+  providers:
+    aws: [healthlake]
+    azure: [health-data-services]
+  differences:
+    - HealthLake is FHIR R4 with integrated medical NLP and a data-transformation AI agent (C-CDA/CSV → FHIR), and pairs with HealthImaging and HealthOmics.
+    - Azure Health Data Services bundles FHIR, DICOM (imaging), and a de-identification service, and supports SMART on FHIR.
+  pricing:
+    aws: Data store hours, storage, and queries/NLP usage.
+    azure: Structured storage, API requests, and per-service charges (FHIR, DICOM, de-identification).
+  exams:
+    aws: []
+    azure: []
+  related: [medical-nlp, clinical-documentation]
+  sources:
+    - https://docs.aws.amazon.com/healthlake/latest/devguide/what-is.html
+    - https://learn.microsoft.com/en-us/azure/healthcare-apis/healthcare-apis-overview
+
+- id: clinical-documentation
+  group: industry
+  capability: Ambient clinical documentation (AI scribe)
+  what_for: Turn a recorded patient-clinician conversation into a transcript and draft clinical note.
+  match: partial
+  answer: Azure has no documented one-API equivalent of AWS HealthScribe. You can compose it from Azure Speech, Text Analytics for health, and Foundry models (including Microsoft healthcare AI models).
+  providers:
+    aws: [healthscribe]
+    azure: [speech, text-analytics-health, microsoft-models]
+  differences:
+    - HealthScribe is one HIPAA-eligible API that returns a transcript, a structured clinical note, and evidence links. AWS also now offers the Amazon Connect Health ambient agent.
+    - Microsoft's commercial ambient-scribe product (Dragon Copilot) is an application, not an Azure API, and wasn't evaluated in this release.
+  pricing:
+    aws: Per second of audio processed.
+    azure: Sum of the components used.
+  exams:
+    aws: []
+    azure: []
+  related: [medical-nlp, speech-to-text, fhir-data]
+  sources:
+    - https://docs.aws.amazon.com/transcribe/latest/dg/health-scribe.html
+    - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+    - https://learn.microsoft.com/en-us/azure/ai-services/language-service/text-analytics-for-health/overview
+  flags:
+    - Dragon Copilot isn't mapped. Its status and API availability weren't verified.

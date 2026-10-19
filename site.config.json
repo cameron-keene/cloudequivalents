@@ -1,0 +1,9 @@
+{
+  "siteName": "Cloud Equivalents",
+  "tagline": "AWS ↔ Azure service equivalents, verified against official docs",
+  "baseUrl": "https://cameron-keene.github.io/cloudequivalents",
+  "repoUrl": "https://github.com/cameron-keene/cloudequivalents",
+  "repoBranch": "main",
+  "lastBuiltNote": "Data verified against official AWS and Microsoft documentation.",
+  "activeProviders": ["aws", "azure"]
+}

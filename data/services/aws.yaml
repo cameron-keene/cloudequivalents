@@ -1,0 +1,379 @@
+# AWS service registry. status: ga | preview | maintenance | sunset | retired
+#   maintenance = no new customers / no new features (AWS "Maintenance" lifecycle stage)
+#   sunset      = end-of-support date announced
+#   retired     = full shutdown
+# Lifecycle source: https://docs.aws.amazon.com/general/latest/gr/service-lifecycle.html
+- slug: bedrock
+  name: Amazon Bedrock
+  status: ga
+  summary: Fully managed API access to 100+ foundation models (Amazon Nova, Anthropic Claude, OpenAI, xAI Grok, Meta Llama, Mistral, DeepSeek, Qwen, Cohere, and more) plus RAG, guardrails, evaluation, and customization.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-marketplace
+  name: Amazon Bedrock Marketplace
+  status: ga
+  summary: Discover and deploy additional third-party and specialized models onto managed endpoints, used through Bedrock APIs.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/amazon-bedrock-marketplace.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-model-customization
+  name: Amazon Bedrock model customization
+  status: ga
+  summary: Supervised fine-tuning, reinforcement fine-tuning (reward functions in Lambda), and distillation for supported Bedrock models.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-provisioned-throughput
+  name: Amazon Bedrock Provisioned Throughput & cross-Region inference
+  status: ga
+  summary: Reserved model capacity, plus Global and Geo cross-Region inference profiles that route requests across Regions for throughput.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-agentcore
+  name: Amazon Bedrock AgentCore
+  status: ga
+  summary: Modular agent platform. Harness (managed agent loop), Runtime, Memory, Gateway (MCP), Identity, Code Interpreter, Browser, Observability, Evaluations, Optimization, Policy, Registry, Payments. Works with any framework and any model.
+  docs: https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
+  pricing: https://aws.amazon.com/bedrock/agentcore/pricing/
+- slug: bedrock-agents-classic
+  name: Amazon Bedrock Agents Classic
+  status: maintenance
+  status_note: The original Bedrock Agents (launched Nov 2023), renamed Agents Classic. Not open to new customers from July 30, 2026. AWS recommends migrating to AgentCore.
+  summary: Configuration-based agents with action groups and knowledge bases.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/agents-classic-maintenance-mode.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: strands-agents
+  name: Strands Agents SDK
+  status: ga
+  summary: AWS open-source, model-driven SDK for building agents in code. Deployable on AgentCore Runtime or anywhere.
+  docs: https://strandsagents.com/docs/
+  pricing: null
+- slug: bedrock-guardrails
+  name: Amazon Bedrock Guardrails
+  status: ga
+  summary: Content filters (hate, insults, sexual, violence, misconduct, prompt attack), denied topics, word filters, PII filters, contextual grounding checks, and Automated Reasoning checks. Also usable standalone through the ApplyGuardrail API.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-knowledge-bases
+  name: Amazon Bedrock Knowledge Bases
+  status: ga
+  summary: Managed RAG. Managed Knowledge Base (AWS runs ingestion, storage, and agentic retrieval) or customer-managed (bring your own vector store, such as OpenSearch Serverless, Aurora, or Neptune).
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-flows
+  name: Amazon Bedrock Flows & Prompt management
+  status: ga
+  summary: Visual or API-built workflows linking prompts, models, knowledge bases, Lambda, and other AWS services, with versions and aliases.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/flows.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-evaluations
+  name: Amazon Bedrock Evaluations
+  status: ga
+  summary: Automatic, LLM-as-a-judge, and human evaluation jobs for models and RAG sources, including sources outside Bedrock.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/evaluation.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: bedrock-data-automation
+  name: Amazon Bedrock Data Automation
+  status: ga
+  summary: GenAI-based extraction of structured output from documents, images, video, and audio.
+  docs: https://docs.aws.amazon.com/bedrock/latest/userguide/bda.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: amazon-nova
+  name: Amazon Nova
+  status: ga
+  summary: Amazon's first-party foundation models. Understanding (Nova Micro/Lite/Pro, Nova 2 Lite), creative (Nova Canvas image, Nova Reel video), speech-to-speech (Nova 2 Sonic), and multimodal embeddings.
+  docs: https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html
+  pricing: https://aws.amazon.com/bedrock/pricing/
+- slug: kendra
+  name: Amazon Kendra
+  status: maintenance
+  status_note: Maintenance Mode from June 30, 2026. No longer open to new customers from July 30, 2026. AWS recommends Bedrock Managed Knowledge Base.
+  summary: ML-powered enterprise search with connectors and relevance tuning.
+  docs: https://docs.aws.amazon.com/kendra/latest/dg/kendra-availability-change.html
+  pricing: https://aws.amazon.com/kendra/pricing/
+- slug: sagemaker-ai
+  name: Amazon SageMaker AI
+  status: ga
+  status_note: Renamed from "Amazon SageMaker" on Dec 3, 2024. API namespaces are unchanged.
+  summary: Fully managed service to build, train, and deploy ML models.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-unified-studio
+  name: Amazon SageMaker Unified Studio
+  status: ga
+  summary: Single development experience across AWS data, analytics, and AI/ML services, organized as domains and projects. Part of the "next generation of Amazon SageMaker".
+  docs: https://docs.aws.amazon.com/sagemaker-unified-studio/latest/userguide/what-is-sagemaker-unified-studio.html
+  pricing: https://aws.amazon.com/sagemaker/pricing/
+- slug: sagemaker-studio
+  name: Amazon SageMaker Studio
+  status: ga
+  summary: Web IDE suite for ML. JupyterLab, Code Editor (Code-OSS), RStudio, and Studio Classic.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-training
+  name: SageMaker AI training jobs
+  status: ga
+  summary: Managed, ephemeral training clusters with built-in algorithms or your own containers and frameworks. Billed per instance-second.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-hyperpod
+  name: Amazon SageMaker HyperPod
+  status: ga
+  summary: Persistent, resilient clusters for large-scale foundation-model training and inference, orchestrated with Slurm or Amazon EKS. Supports Trainium and NVIDIA (including NVL72 UltraServers).
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-hyperpod.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-inference
+  name: SageMaker AI inference (endpoints)
+  status: ga
+  summary: Real-time, serverless, asynchronous, and batch-transform inference options.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/deploy-model.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-pipelines
+  name: Amazon SageMaker Pipelines
+  status: ga
+  summary: Serverless ML workflow orchestration with a visual editor, SDK, and lineage tracking.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/pipelines.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-feature-store
+  name: Amazon SageMaker Feature Store
+  status: ga
+  summary: Online (low-latency latest values) and offline (historical) feature stores, organized as feature groups.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/feature-store.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-model-registry
+  name: SageMaker Model Registry
+  status: ga
+  summary: Catalog of model versions with metadata, approval status, lineage, and Model Cards.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-mlflow
+  name: Managed MLflow on SageMaker AI
+  status: ga
+  summary: Fully managed MLflow for experiment tracking, a model registry, and GenAI tracing and evaluation.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/mlflow.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-autopilot
+  name: SageMaker Autopilot
+  status: ga
+  status_note: The Autopilot UI moved into SageMaker Canvas (from Nov 30, 2023). The APIs remain.
+  summary: AutoML. Data preprocessing, algorithm selection, tuning, and deployment.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/autopilot-automate-model-development.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-canvas
+  name: Amazon SageMaker Canvas
+  status: ga
+  summary: No-code ML for analysts. Tabular, time series, text, and image predictions, plus access to foundation models.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/canvas.html
+  pricing: https://aws.amazon.com/sagemaker/ai/canvas/pricing/
+- slug: sagemaker-jumpstart
+  name: Amazon SageMaker JumpStart
+  status: ga
+  summary: Hub of pretrained and open-weight models plus solution templates, deployed and fine-tuned on SageMaker infrastructure. Supports private and curated hubs.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/studio-jumpstart.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-clarify
+  name: Amazon SageMaker Clarify
+  status: maintenance
+  status_note: No longer open to new customers (lifecycle announcement June 30, 2026). AWS recommends published monitoring solutions, SHAP, MLflow, and Bedrock Evaluations.
+  summary: Bias detection and explainability (SHAP) for ML models.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/clarify-availability-change.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-model-monitor
+  name: Amazon SageMaker Model Monitor
+  status: maintenance
+  status_note: No longer open to new customers (lifecycle announcement June 30, 2026). AWS recommends open-source SageMaker AI monitoring solutions with QuickSight and CloudWatch.
+  summary: Data quality, model quality, bias, and feature-attribution drift monitoring for endpoints.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor-availability-change.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-ground-truth
+  name: Amazon SageMaker Ground Truth
+  status: maintenance
+  status_note: No longer open to new customers (lifecycle announcement June 30, 2026). Ground Truth Plus fully shut down June 30, 2026. The Mechanical Turk workforce option reached end of support Sep 30, 2026.
+  summary: Human and ML-assisted data labeling with private, vendor, or (formerly) Mechanical Turk workforces.
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/sms.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: sagemaker-a2i
+  name: Amazon Augmented AI (A2I)
+  status: maintenance
+  status_note: No longer open to new customers (lifecycle announcement June 30, 2026).
+  summary: Human review loops for low-confidence ML predictions (Textract, Rekognition, custom models).
+  docs: https://docs.aws.amazon.com/sagemaker/latest/dg/a2i-use-augmented-ai-a2i-human-review-loops.html
+  pricing: https://aws.amazon.com/augmented-ai/pricing/
+- slug: sagemaker-debugger
+  name: SageMaker Debugger & Profiler
+  status: maintenance
+  status_note: Debugger is in maintenance (June 30, 2026). Profiler is in sunset with end of support June 30, 2027.
+  summary: Training-job tensor debugging rules and system/framework profiling.
+  docs: https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
+  pricing: https://aws.amazon.com/sagemaker/ai/pricing/
+- slug: deep-learning-amis
+  name: AWS Deep Learning AMIs
+  status: ga
+  summary: Prebuilt EC2 machine images with GPU drivers and deep learning frameworks.
+  docs: https://docs.aws.amazon.com/dlami/latest/devguide/what-is-dlami.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: ec2-gpu
+  name: Amazon EC2 accelerated computing (NVIDIA GPU)
+  status: ga
+  summary: GPU instances. Training families include P5/P5e/P5en (H100/H200), P6-B200, P6-B300, and P6e-GB200 UltraServers. Inference and graphics families include G6/G6e/G7/G7e.
+  docs: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: trainium
+  name: AWS Trainium (Trn1, Trn2, Trn3)
+  status: ga
+  summary: AWS-designed AI training and inference chips, programmed through the AWS Neuron SDK. Trn3 UltraServers (Trainium3, 3nm) became generally available Dec 2, 2025.
+  docs: https://aws.amazon.com/about-aws/whats-new/2025/12/amazon-ec2-trn3-ultraservers/
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: inferentia
+  name: AWS Inferentia (Inf2)
+  status: ga
+  summary: AWS-designed inference accelerator chips, available as EC2 Inf1 and Inf2 instances through the Neuron SDK.
+  docs: https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: amazon-q-business
+  name: Amazon Q Business
+  status: maintenance
+  status_note: No longer open to new customers (lifecycle announcement June 30, 2026). AWS recommends migrating to Amazon Quick, starting with Bring Your Own Index.
+  summary: GenAI assistant over enterprise data with connectors and plugins.
+  docs: https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/qbusiness-availability-change.html
+  pricing: https://aws.amazon.com/q/business/pricing/
+- slug: amazon-quick
+  name: Amazon Quick
+  status: ga
+  summary: AI assistant for work. Quick Sight (BI), Quick Flows (workflow automation), Quick Automate (agentic process automation), Quick Index (grounding on company data), Research, and Spaces.
+  docs: https://docs.aws.amazon.com/quick/latest/userguide/what-is.html
+  pricing: https://aws.amazon.com/quick/pricing/
+- slug: amazon-q-developer
+  name: Amazon Q Developer
+  status: sunset
+  status_note: The IDE plugins and paid subscriptions reach end of support Apr 30, 2027. New signups stopped May 15, 2026. Q Developer in the AWS console, docs, mobile app, and chat apps (Slack/Teams) is not affected.
+  summary: AI assistant for AWS and software development. IDE chat and completions, plus help in the AWS console.
+  docs: https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/what-is.html
+  pricing: https://aws.amazon.com/q/developer/pricing/
+- slug: kiro
+  name: Kiro
+  status: ga
+  summary: AWS's agentic development environment (IDE + CLI) for spec-driven development, with specs, hooks, steering files, custom subagents, Powers, and MCP. The recommended successor to the Q Developer IDE plugins.
+  docs: https://kiro.dev/docs/
+  pricing: https://kiro.dev/pricing/
+- slug: rekognition
+  name: Amazon Rekognition
+  status: ga
+  status_note: Streaming Events and Batch Image Content Moderation are in maintenance (Mar 31, 2026). Person Pathing was fully shut down Oct 31, 2025.
+  summary: Prebuilt image and video analysis. Labels, text, moderation, face detection, comparison and search, celebrity recognition, and Face Liveness.
+  docs: https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/rekognition/pricing/
+- slug: rekognition-custom-labels
+  name: Amazon Rekognition Custom Labels
+  status: ga
+  summary: Train custom image classification and object detection models from labeled images.
+  docs: https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/what-is.html
+  pricing: https://aws.amazon.com/rekognition/pricing/
+- slug: lookout-for-vision
+  name: Amazon Lookout for Vision
+  status: retired
+  status_note: Fully shut down Oct 31, 2025.
+  summary: Visual anomaly and defect detection for manufacturing.
+  docs: https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+  pricing: null
+- slug: textract
+  name: Amazon Textract
+  status: ga
+  summary: OCR plus forms, tables, Queries, expense (invoices/receipts), ID document, and lending document analysis.
+  docs: https://docs.aws.amazon.com/textract/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/textract/pricing/
+- slug: comprehend
+  name: Amazon Comprehend
+  status: ga
+  status_note: Topic modeling, event detection, and prompt safety classification are no longer available to new customers (maintenance, Mar 31, 2026). Other features are unaffected.
+  summary: NLP. Entities, key phrases, sentiment and targeted sentiment, language detection, PII, syntax, toxicity, and custom classification/entity recognition.
+  docs: https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/comprehend/pricing/
+- slug: comprehend-medical
+  name: Amazon Comprehend Medical
+  status: ga
+  summary: HIPAA-eligible extraction of medical entities, relationships, PHI, and ontology linking (ICD-10-CM, RxNorm, SNOMED CT) from English clinical text.
+  docs: https://docs.aws.amazon.com/comprehend-medical/latest/dev/comprehendmedical-welcome.html
+  pricing: https://aws.amazon.com/comprehend/medical/pricing/
+- slug: translate
+  name: Amazon Translate
+  status: ga
+  summary: Neural machine translation, real-time and batch, with custom terminology and Active Custom Translation (parallel data).
+  docs: https://docs.aws.amazon.com/translate/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/translate/pricing/
+- slug: transcribe
+  name: Amazon Transcribe
+  status: ga
+  summary: Speech-to-text, streaming and batch, with custom vocabularies and language models, speaker partitioning, PII redaction, and content filtering.
+  docs: https://docs.aws.amazon.com/transcribe/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/transcribe/pricing/
+- slug: transcribe-call-analytics
+  name: Amazon Transcribe Call Analytics
+  status: ga
+  summary: Contact-center transcription with sentiment, issue detection, categories, and GenAI call summaries.
+  docs: https://docs.aws.amazon.com/transcribe/latest/dg/call-analytics.html
+  pricing: https://aws.amazon.com/transcribe/pricing/
+- slug: polly
+  name: Amazon Polly
+  status: ga
+  summary: Text-to-speech with generative, long-form, neural, and standard voices, SSML, and lexicons.
+  docs: https://docs.aws.amazon.com/polly/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/polly/pricing/
+- slug: lex
+  name: Amazon Lex V2
+  status: ga
+  summary: Voice and text chatbots with NLU and ASR, LLM-assisted NLU, conditional branching, Lambda fulfillment, and Amazon Connect integration.
+  docs: https://docs.aws.amazon.com/lexv2/latest/dg/what-is.html
+  pricing: https://aws.amazon.com/lex/pricing/
+- slug: healthscribe
+  name: AWS HealthScribe
+  status: ga
+  status_note: AWS now also offers the Amazon Connect Health ambient agent for this workflow.
+  summary: HIPAA-eligible speech recognition plus generative AI that turns patient-clinician conversations into transcripts and draft clinical notes.
+  docs: https://docs.aws.amazon.com/transcribe/latest/dg/health-scribe.html
+  pricing: https://aws.amazon.com/healthscribe/pricing/
+- slug: healthlake
+  name: AWS HealthLake
+  status: ga
+  summary: HIPAA-eligible FHIR R4 data store with integrated medical NLP, an agent that converts C-CDA/CSV to FHIR, and analytics integration.
+  docs: https://docs.aws.amazon.com/healthlake/latest/devguide/what-is.html
+  pricing: https://aws.amazon.com/healthlake/pricing/
+- slug: personalize
+  name: Amazon Personalize
+  status: ga
+  summary: Managed recommendation engine. Recommenders, custom recipes, real-time and batch recommendations, and user segmentation.
+  docs: https://docs.aws.amazon.com/personalize/latest/dg/what-is-personalize.html
+  pricing: https://aws.amazon.com/personalize/pricing/
+- slug: forecast
+  name: Amazon Forecast
+  status: maintenance
+  status_note: No longer available to new customers (announced July 29, 2024). AWS recommends SageMaker Canvas.
+  summary: Managed time-series forecasting.
+  docs: https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html
+  pricing: https://aws.amazon.com/forecast/pricing/
+- slug: fraud-detector
+  name: Amazon Fraud Detector
+  status: maintenance
+  status_note: No longer open to new customers since Nov 7, 2025. AWS suggests AutoGluon on SageMaker AI, and AWS WAF Fraud Control for account-creation fraud.
+  summary: Managed fraud-detection models for online payments, account sign-ups, and more.
+  docs: https://docs.aws.amazon.com/frauddetector/latest/ug/frauddetector-availability-change.html
+  pricing: https://aws.amazon.com/fraud-detector/pricing/
+- slug: lookout-for-equipment
+  name: Amazon Lookout for Equipment
+  status: retired
+  status_note: End of support Oct 7, 2026. The console and resources are no longer accessible.
+  summary: Sensor-based anomaly detection for industrial equipment.
+  docs: https://docs.aws.amazon.com/lookout-for-equipment/latest/ug/what-is.html
+  pricing: null
+- slug: monitron
+  name: Amazon Monitron
+  status: maintenance
+  status_note: No longer open to new customers (announced Oct 31, 2024).
+  summary: End-to-end condition monitoring with AWS sensors, gateways, and an app.
+  docs: https://docs.aws.amazon.com/Monitron/latest/user-guide/what-is-monitron.html
+  pricing: https://aws.amazon.com/monitron/pricing/
+- slug: lookout-for-metrics
+  name: Amazon Lookout for Metrics
+  status: retired
+  status_note: Fully shut down Oct 10, 2025.
+  summary: Anomaly detection on business metrics.
+  docs: https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+  pricing: null

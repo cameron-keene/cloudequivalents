@@ -1,0 +1,94 @@
+# Certification exams. status: current | beta | retiring | retired
+# "Exam relevance" on rows is based on each exam's published scope summary, not a line-by-line
+# objective match. Always check the official study guide.
+- code: AIF-C01
+  provider: aws
+  name: AWS Certified AI Practitioner
+  level: Foundational
+  status: current
+  url: https://aws.amazon.com/certification/certified-ai-practitioner/
+  note: Italian and German versions retire after Oct 15, 2026 (per AWS cert page).
+- code: MLA-C01
+  provider: aws
+  name: AWS Certified Machine Learning Engineer – Associate
+  level: Associate
+  status: retiring
+  url: https://aws.amazon.com/certification/certified-machine-learning-engineer-associate/
+  note: Being updated to MLA-C02 (beta registration opened Sep 1, 2026). Last day for MLA-C01 in English was Sep 28, 2026; Korean, Japanese, and Simplified Chinese remain until MLA-C02 GA.
+- code: AWS-GAI-PRO
+  provider: aws
+  name: AWS Certified Generative AI Developer – Professional
+  level: Professional
+  status: current
+  url: https://aws.amazon.com/certification/certified-generative-ai-developer-professional/
+  note: Exam code not confirmed from the official page at build time; shown by name only.
+  unverified_code: true
+- code: MLS-C01
+  provider: aws
+  name: AWS Certified Machine Learning – Specialty
+  level: Specialty
+  status: retired
+  url: https://aws.amazon.com/certification/certified-machine-learning-specialty/
+  note: Retired; last exam day was Mar 31, 2026.
+- code: AI-901
+  provider: azure
+  name: Microsoft Certified – Azure AI Fundamentals
+  level: Fundamentals
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/
+  note: AI-901 replaces AI-900 for this certification (English version updated Apr 15, 2026). Covers Microsoft Foundry.
+- code: AI-103
+  provider: azure
+  name: Microsoft Certified – Azure AI Apps and Agents Developer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-apps-and-agents-developer-associate/
+  note: Generative AI and agentic solutions with Microsoft Foundry using Python. Successor in scope to the retired AI-102.
+- code: AI-200
+  provider: azure
+  name: Microsoft Certified – Azure AI Cloud Developer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-cloud-developer-associate/
+  note: Back-end services, containers, and architecture for AI solutions on Azure.
+- code: AI-300
+  provider: azure
+  name: Microsoft Certified – Machine Learning Operations Engineer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/operationalizing-machine-learning-and-generative-ai-solutions/
+  note: MLOps and GenAIOps infrastructure on Azure (IaC with Bicep/CLI, GitHub Actions). Closest successor in scope to the retired DP-100.
+- code: AI-500
+  provider: azure
+  name: Microsoft Certified – Multi-Agent AI Solutions Expert
+  level: Expert
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/multi-agent-ai-solutions-expert/
+- code: AB-620
+  provider: azure
+  name: Microsoft Certified – AI Agent Builder Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/ai-agent-builder-associate/
+  note: Copilot Studio, Power Platform, Microsoft 365 Copilot, and Foundry agents.
+- code: GH-COPILOT
+  provider: azure
+  name: GitHub Copilot (GH-300)
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/github-copilot/
+  note: GitHub certification delivered through Microsoft Learn (exam GH-300).
+- code: AI-102
+  provider: azure
+  name: Microsoft Certified – Azure AI Engineer Associate
+  level: Associate
+  status: retired
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-engineer/
+  note: Certification and renewal assessment are retired.
+- code: DP-100
+  provider: azure
+  name: Microsoft Certified – Azure Data Scientist Associate
+  level: Associate
+  status: retired
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-data-scientist/
+  note: Certification and renewal assessment are retired.

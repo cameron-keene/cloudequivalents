@@ -1,0 +1,18 @@
+{
+  "name": "cloudequivalents",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deep AWS \u2194 Azure service equivalents study guide \u2014 verified against official docs",
+  "license": "MIT",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "validate": "node src/validate.mjs",
+    "check-links": "node scripts/check-links.mjs",
+    "preview": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "js-yaml": "^4.1.0"
+  }
+}

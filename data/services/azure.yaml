@@ -1,0 +1,336 @@
+# Azure service registry. status: ga | preview | deprecated (retirement announced) | retired
+# Naming as of Oct 2026: "Azure AI Foundry" is now "Microsoft Foundry". "Azure AI services" are now "Foundry Tools".
+- slug: foundry
+  name: Microsoft Foundry
+  status: ga
+  status_note: Formerly Azure AI Studio and Azure AI Foundry. Azure OpenAI resources can be upgraded to a Foundry resource. Hub-based projects live in the "Foundry (classic)" portal.
+  summary: Unified Azure platform for models, agents, and tools under one resource provider, with tracing, evaluations, RBAC, networking, and policy.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-foundry/
+- slug: foundry-models
+  name: Microsoft Foundry Models (incl. Azure OpenAI)
+  status: ga
+  summary: Catalog of 10,000+ models. "Sold by Azure" (Azure OpenAI GPT family, Microsoft MAI/Phi, xAI Grok, DeepSeek, Meta, Mistral, Cohere, Black Forest Labs, Moonshot) plus partner/community models (Anthropic Claude, Hugging Face, and more). Deploy serverless (per-token) or on managed compute.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-openai/
+- slug: foundry-fine-tuning
+  name: Foundry fine-tuning
+  status: ga
+  summary: Supervised fine-tuning, preference fine-tuning (DPO), and reinforcement fine-tuning (model-specific), plus distillation via teacher-generated data. Deploy serverless or on managed compute (LoRA adapters, preview).
+  docs: https://learn.microsoft.com/en-us/azure/foundry/fine-tuning/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-openai/
+- slug: foundry-deployment-types
+  name: Foundry deployment types (Standard, Provisioned, Batch)
+  status: ga
+  summary: Global, Data Zone, and Regional deployment types, each in Standard (pay-per-token), Provisioned (PTU reserved throughput), or Batch variants.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/deployment-types
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-openai/
+- slug: foundry-agent-service
+  name: Foundry Agent Service
+  status: ga
+  status_note: Voice-based agents and some monitoring/eval/telephony capabilities are in preview.
+  summary: Managed agent platform. Prompt agents (declarative), voice-based prompt agents (Voice Live), and hosted agents (your container or zip, any framework), plus the Responses API for "ephemeral" agents. Shared toolbox via a managed MCP endpoint.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-foundry/
+- slug: microsoft-agent-framework
+  name: Microsoft Agent Framework
+  status: ga
+  summary: Microsoft's open-source SDK for building agents and multi-agent workflows in code. Recommended as the replacement for Prompt flow and as a hosted-agent framework.
+  docs: https://learn.microsoft.com/en-us/agent-framework/overview/
+  pricing: null
+- slug: foundry-guardrails
+  name: Foundry guardrails (content filters)
+  status: ga
+  status_note: Agent guardrails, tool-call/tool-response intervention points, and PII risk are in preview.
+  summary: Named collections of controls applied to models and agents at user input, tool call, tool response, and output, with severity-based blocking.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/content-safety/
+- slug: content-safety
+  name: Azure AI Content Safety
+  status: ga
+  summary: Standalone text and image moderation APIs, Prompt Shields (jailbreak and indirect-attack detection), groundedness detection (preview), protected-material detection, custom categories (preview), and agent task-adherence detection.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/content-safety/
+- slug: foundry-iq
+  name: Foundry IQ (knowledge bases)
+  status: preview
+  status_note: Some features are GA and some are preview, depending on the Search REST API version. The portals expose preview-only access.
+  summary: Multi-source, permission-aware knowledge bases for agents, using agentic retrieval on Azure AI Search, with sources such as Blob, SharePoint, OneLake, and the web.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-foundry-iq
+  pricing: https://azure.microsoft.com/en-us/pricing/details/search/
+- slug: ai-search
+  name: Azure AI Search
+  status: ga
+  status_note: The product docs still say "Azure AI Search", but the Azure pricing page for it is now titled "Foundry IQ".
+  summary: Search and retrieval engine. Full-text, vector, and hybrid search, semantic ranker, integrated vectorization and AI enrichment (indexers and skillsets), and agentic retrieval.
+  docs: https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search
+  pricing: https://azure.microsoft.com/en-us/pricing/details/search/
+- slug: prompt-flow
+  name: Prompt flow
+  status: deprecated
+  status_note: Retires Apr 20, 2027 in Microsoft Foundry and Azure Machine Learning. Container images no longer receive updates. Microsoft recommends Microsoft Agent Framework.
+  summary: Visual/code orchestration of LLM, prompt, and Python tool flows.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/prompt-flow/overview-what-is-prompt-flow
+  pricing: null
+- slug: foundry-observability
+  name: Foundry observability & evaluations
+  status: ga
+  status_note: Some dashboards are in preview.
+  summary: Tracing, built-in and custom evaluators (quality, safety, agent metrics), continuous evaluation, and monitoring dashboards. Also includes Agent optimizer (preview).
+  docs: https://learn.microsoft.com/en-us/azure/foundry/concepts/observability
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-foundry/
+- slug: content-understanding
+  name: Azure Content Understanding
+  status: ga
+  summary: GenAI-based extraction of user-defined schemas from documents, images, audio, and video, with confidence scores, grounding, classification, and prebuilt industry analyzers.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/content-understanding/
+- slug: microsoft-models
+  name: Microsoft models in Foundry (MAI, Phi, Model Router)
+  status: ga
+  summary: Microsoft first-party models sold by Azure, including MAI models (for example MAI-Image), the Phi small language models, Model Router, and healthcare AI models.
+  docs: https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure
+  pricing: https://azure.microsoft.com/en-us/pricing/details/ai-foundry-models/microsoft/
+- slug: azure-machine-learning
+  name: Azure Machine Learning
+  status: ga
+  summary: End-to-end ML platform. Workspaces, data and compute, training jobs, AutoML, pipelines, registries, endpoints, MLflow integration, and responsible AI tooling.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/overview-what-is-azure-machine-learning
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-compute
+  name: Azure ML compute clusters & serverless compute
+  status: ga
+  summary: Managed CPU/GPU clusters and serverless compute for command, sweep, and distributed (multinode) training jobs.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-studio
+  name: Azure Machine Learning studio & compute instances
+  status: ga
+  summary: Web portal with notebooks, plus compute instances (managed dev VMs) that work with JupyterLab and VS Code.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-endpoints
+  name: Azure ML online & batch endpoints
+  status: ga
+  summary: Managed online endpoints (real-time, multiple deployments with traffic split), Kubernetes online endpoints, batch endpoints (async jobs on clusters), and serverless (standard) deployments for catalog models.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-pipelines
+  name: Azure Machine Learning pipelines
+  status: ga
+  summary: Component-based ML workflows (SDK v2/CLI v2/Designer), schedulable and reusable through registries.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-ml-pipelines
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-feature-store
+  name: Azure ML managed feature store
+  status: ga
+  summary: Feature-set specifications with managed materialization to offline and online stores, plus point-in-time joins.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-what-is-managed-feature-store
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-registries
+  name: Azure ML model registry & registries
+  status: ga
+  summary: Workspace model registry plus cross-workspace registries for sharing models, components, and environments (dev to test to prod MLOps).
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/how-to-share-models-pipelines-across-workspaces-with-registries
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-mlflow
+  name: MLflow in Azure Machine Learning
+  status: ga
+  summary: Azure ML workspaces are MLflow-compatible tracking servers and model registries, with no separate MLflow server to run.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-mlflow
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-automl
+  name: Azure ML automated ML (AutoML)
+  status: ga
+  summary: AutoML for classification, regression, forecasting, computer vision, and NLP, from code (SDK/CLI v2) or a no-code studio UI.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-designer
+  name: Azure ML Designer
+  status: ga
+  status_note: Classic prebuilt (v1) components get no new additions. Use custom (v2) components for new projects.
+  summary: Drag-and-drop pipeline builder.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-designer
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: responsible-ai-dashboard
+  name: Responsible AI dashboard (Azure ML)
+  status: ga
+  summary: Error analysis, fairness assessment, model interpretability, counterfactuals, and causal analysis in a single dashboard.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai-dashboard
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-model-monitoring
+  name: Azure ML model monitoring
+  status: ga
+  summary: Built-in signals (data drift, prediction drift, data quality, feature attribution drift, model performance) with thresholds and alerts through Azure ML or Event Grid.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/
+- slug: azure-ml-data-labeling
+  name: Azure ML data labeling
+  status: retired
+  status_note: Retired Sep 30, 2026. Workloads and associated application data were deleted on that date. Microsoft directs customers to third-party labeling providers.
+  summary: Image and text labeling projects with ML-assisted labeling.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-image-labeling-projects
+  pricing: null
+- slug: fabric-data-science
+  name: Microsoft Fabric Data Science
+  status: ga
+  summary: Notebooks, Spark, MLflow-based experiments and models, and SynapseML inside Fabric, integrated with Azure Machine Learning.
+  docs: https://learn.microsoft.com/en-us/fabric/data-science/data-science-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-fabric/
+- slug: data-science-vm
+  name: Data Science Virtual Machines
+  status: ga
+  summary: Preconfigured VM images with Python, R, Jupyter, and deep learning frameworks.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: nd-series
+  name: Azure ND-series GPU VMs
+  status: ga
+  summary: AI training/HPC VMs. ND A100 v4, ND H100 v5, ND H200 v5, ND MI300X v5 (AMD), ND GB200 v6, and ND GB300 v6 (NVIDIA Blackwell).
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-family
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: maia
+  name: Microsoft Maia 200
+  status: preview
+  status_note: Not offered as a rentable VM. Serves models behind Microsoft Foundry and Microsoft 365 Copilot. The Maia SDK is in preview (sign-up). Announced Jan 26, 2026.
+  summary: Microsoft first-party AI inference accelerator (TSMC 3nm, FP8/FP4, 216GB HBM3e), deployed in US Central with US West 3 next.
+  docs: https://blogs.microsoft.com/blog/2026/01/26/maia-200-the-ai-accelerator-built-for-inference/
+  pricing: null
+- slug: m365-copilot
+  name: Microsoft 365 Copilot
+  status: ga
+  status_note: The Microsoft 365 Copilot app is now called "Microsoft Copilot" (URL copilot.cloud.microsoft).
+  summary: Generative AI assistant across Microsoft 365 apps, grounded on Microsoft Graph work data, with agents.
+  docs: https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview
+  pricing: https://www.microsoft.com/en-us/copilot/solutions/enterprise
+- slug: copilot-studio
+  name: Microsoft Copilot Studio
+  status: ga
+  summary: Low-code studio to build agents and workflows, connect them to enterprise data and systems, and publish to Teams, Microsoft 365 Copilot, web, and other channels.
+  docs: https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio
+  pricing: https://www.microsoft.com/en-us/copilot/pricing/copilot-studio
+- slug: github-copilot
+  name: GitHub Copilot
+  status: ga
+  summary: AI coding assistant. Completions, chat, code review, and a coding agent that works on assigned issues inside GitHub and IDEs.
+  docs: https://docs.github.com/en/copilot/get-started/about-github-copilot
+  pricing: https://github.com/features/copilot/plans
+- slug: azure-copilot
+  name: Azure Copilot
+  status: ga
+  summary: AI assistant in the Azure portal, CLI, and other surfaces that answers questions about Azure, and helps inspect and operate your resources.
+  docs: https://learn.microsoft.com/en-us/azure/copilot/overview
+  pricing: null
+- slug: azure-vision
+  name: Azure Vision – Image Analysis
+  status: deprecated
+  status_note: The Image Analysis API (v3.2 and v4.0, cloud and containers) retires Sep 25, 2028. Microsoft recommends Document Intelligence (OCR), Face API, Foundry multimodal/embedding models, and Content Understanding.
+  summary: Prebuilt image tagging, captioning, object detection, OCR (Read), smart crops, and image embeddings.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/computer-vision/
+- slug: azure-face
+  name: Azure Face
+  status: ga
+  status_note: Limited Access. Face recognition requires a Microsoft intake form and is only available to Microsoft-managed customers and partners. Emotion and gender attributes are retired.
+  summary: Face detection, verification, identification, and liveness.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/face/overview-identity
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cognitive-services/face-api/
+- slug: video-indexer
+  name: Azure AI Video Indexer
+  status: ga
+  summary: Video and audio insights (transcription, translation, faces, objects, OCR, topics, generative summaries). Available cloud-based or at the edge through Azure Arc, including live-stream analysis.
+  docs: https://learn.microsoft.com/en-us/azure/azure-video-indexer/video-indexer-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/video-indexer/
+- slug: custom-vision
+  name: Azure Custom Vision
+  status: deprecated
+  status_note: Retirement announced. Full support for existing customers until Sep 25, 2028. Microsoft recommends Azure ML AutoML (images), Foundry models, or Content Understanding.
+  summary: Train custom image classifiers and object detectors.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/custom-vision-service/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cognitive-services/custom-vision-service/
+- slug: document-intelligence
+  name: Azure Document Intelligence
+  status: ga
+  status_note: v4.0 is current. v3.0 reaches end of support Mar 30, 2029, and v2.1 is also retiring.
+  summary: OCR/Read, layout (tables, figures, markdown), prebuilt models (invoice, receipt, ID, tax, mortgage, and more), and custom extraction and classification models.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/document-intelligence/
+- slug: azure-language
+  name: Azure Language
+  status: ga
+  status_note: '"Core" (recommended): PII, language detection, NER, custom NER, and Text Analytics for health. "Legacy" (supported for existing implementations): sentiment and opinion mining, key phrases, entity linking, summarization, custom text classification, question answering, CLU, and orchestration.'
+  summary: Text NLP APIs, also exposed as tools via the Azure Language MCP server.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/language/
+- slug: clu
+  name: Conversational language understanding (CLU)
+  status: deprecated
+  status_note: Retires from Azure Language on Mar 31, 2029. Microsoft directs new projects to Microsoft Foundry. (Its predecessor LUIS fully retired Mar 31, 2026.)
+  summary: Intent and entity models for conversational apps.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/language-service/conversational-language-understanding/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/language/
+- slug: text-analytics-health
+  name: Text Analytics for health
+  status: ga
+  summary: Medical NER, relation extraction, entity linking to UMLS vocabularies, and assertion detection. Hosted API or Docker container.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/language-service/text-analytics-for-health/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/language/
+- slug: translator
+  name: Azure Translator
+  status: ga
+  summary: Neural text translation (2026-06-06 GA API with selectable LLMs and adaptive custom translation), document translation (batch and single-file), transliteration, dictionaries, and Custom Translator.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/translator/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/translator/
+- slug: speech
+  name: Azure Speech
+  status: ga
+  status_note: Custom neural voice and some avatar features are Limited Access.
+  summary: Speech to text (real-time, fast, and batch transcription, custom speech), neural text to speech (custom voice), speech translation, pronunciation assessment, avatars, Voice Live, and edge containers.
+  docs: https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/speech/
+- slug: bot-service
+  name: Azure AI Bot Service
+  status: ga
+  summary: Hosting, registration, and channel connectors (Teams, web chat, and more) for bots and agents built with the Microsoft 365 Agents SDK / Bot Framework or Copilot Studio.
+  docs: https://learn.microsoft.com/en-us/azure/bot-service/
+  pricing: https://azure.microsoft.com/en-us/pricing/details/bot-services/
+- slug: personalizer
+  name: Azure AI Personalizer
+  status: retired
+  status_note: No new resources since Sep 20, 2023. The service retired Aug 25, 2026.
+  summary: Reinforcement-learning-based personalization (contextual bandits).
+  docs: https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/personalizer/what-is-personalizer
+  pricing: null
+- slug: anomaly-detector
+  name: Azure AI Anomaly Detector
+  status: retired
+  status_note: No new resources since Sep 20, 2023. Retired Oct 1, 2026.
+  summary: Univariate and multivariate time-series anomaly detection.
+  docs: https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/anomaly-detector/overview
+  pricing: null
+- slug: metrics-advisor
+  name: Azure AI Metrics Advisor
+  status: retired
+  status_note: Retired May 18, 2026.
+  summary: Metric monitoring and anomaly diagnosis.
+  docs: https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/metrics-advisor/overview
+  pricing: null
+- slug: health-data-services
+  name: Azure Health Data Services
+  status: ga
+  status_note: The older Azure API for FHIR was deprecated Sep 30, 2026. Use the FHIR service in Azure Health Data Services.
+  summary: FHIR service, DICOM service, and a de-identification service for PHI.
+  docs: https://learn.microsoft.com/en-us/azure/healthcare-apis/healthcare-apis-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/health-data-services/
+- slug: aks
+  name: Azure Kubernetes Service (AKS)
+  status: ga
+  summary: Managed Kubernetes, commonly used with GPU node pools for self-managed large-scale training and inference.
+  docs: https://learn.microsoft.com/en-us/azure/aks/what-is-aks
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: azure-ml-kubernetes
+  name: Azure ML on Kubernetes (AKS / Arc)
+  status: ga
+  summary: Attach AKS or Arc-enabled Kubernetes clusters as Azure ML compute targets for training and online inference.
+  docs: https://learn.microsoft.com/en-us/azure/machine-learning/how-to-attach-kubernetes-anywhere
+  pricing: https://azure.microsoft.com/en-us/pricing/details/machine-learning/

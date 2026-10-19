@@ -1,0 +1,22 @@
+# Provider registry. To add a column later (GCP, OCI), set enabled: true,
+# add data/services/<id>.yaml, and add "<id>:" blocks to rows. No code changes needed.
+- id: aws
+  name: AWS
+  long_name: Amazon Web Services
+  color: "#ff9900"
+  enabled: true
+- id: azure
+  name: Azure
+  long_name: Microsoft Azure
+  color: "#3b8eea"
+  enabled: true
+- id: gcp
+  name: GCP
+  long_name: Google Cloud
+  color: "#34a853"
+  enabled: false
+- id: oci
+  name: OCI
+  long_name: Oracle Cloud Infrastructure
+  color: "#c74634"
+  enabled: false
