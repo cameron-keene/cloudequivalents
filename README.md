@@ -25,6 +25,12 @@ An open-source, source-cited study guide that maps cloud services between provid
 
 ![Cards + exam filter](screenshots/04-cards-exam-filter.png)
 
+![Collapsible groups](screenshots/05-groups-collapsed.png)
+
+![Search auto-expands matching groups](screenshots/06-search-auto-expand.png)
+
+![Mobile layout (390px)](screenshots/07-mobile-390.png)
+
 ## Quick start
 
 ```bash
@@ -52,7 +58,7 @@ Requires Node 20 or later. The build needs no network access and no paid service
 
 | URL | What |
 |---|---|
-| `/` | Interactive matrix: Cmd/Ctrl+K or `/` search, group/exam/match filters, detail drawer, and a Matrix/Cards toggle. Filter state is kept in the URL (`?q=&group=&exam=&match=&view=cards`). Without JavaScript it's a plain server-rendered table. |
+| `/` | Interactive matrix: collapsible groups (Expand/Collapse all, remembered), Cmd/Ctrl+K search, group/exam/match filters, jump-to-group nav, detail drawer, and a Matrix/Cards toggle. Filter state is kept in the URL (`?q=&group=&exam=&match=&view=cards`). Without JavaScript it's a plain server-rendered table. |
 | `/compare/aws-<slug>-vs-azure-<slug>/` | One fully pre-rendered page per mapping. Each has a direct answer, an HTML comparison table, differences, pricing, exams, FAQ, related links, sources, a last-verified date, and an edit link. |
 | `/aws/<service>/` and `/azure/<service>/` | Hub pages ("Azure equivalent of X" and the reverse) |
 | `/aws/`, `/azure/` | Service indexes |

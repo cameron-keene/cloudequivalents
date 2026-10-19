@@ -82,11 +82,13 @@ function page({ url, title, description, h1, body, ld = [], ogImage, ogType = 'a
   body = body.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, a, path) => path.startsWith(PREFIX + '/') || path === PREFIX ? `${a}="${path}"` : `${a}="${PREFIX}${path}"`);
   const jsonld = ld.length ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': ld }).replace(/</g, '\\u003c')}</script>` : '';
   const img = abs(ogImage || '/og/default.png');
+  const BOOT = `<script>(function(){document.documentElement.classList.add('js');try{var s=JSON.parse(localStorage.getItem('cc-groups')||'{}');var c=Object.keys(s).filter(function(k){return s[k]===false});if(c.length)document.documentElement.setAttribute('data-cc-closed',c.join(' '))}catch(e){}})()</script>`;
   const html = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+${BOOT}
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <link rel="canonical" href="${abs(url)}">
@@ -116,7 +118,7 @@ ${body}
 </main>
 ${FOOTER}
 <script>window.__PREFIX__=${JSON.stringify(PREFIX)}</script>
-${KEY_JS}${scripts}
+${KEY_JS}<script src="${rel('/assets/site.js')}" defer></script>${scripts}
 </body>
 </html>`;
   return html;
@@ -242,7 +244,17 @@ function hubPage(p, s) {
 <div class="tscroll"><table class="cmp"><thead><tr><th scope="col">Capability</th><th scope="col">${esc(o.name)} equivalent</th><th scope="col">Match</th></tr></thead><tbody>
 ${s.rows.map((r) => `<tr><td><a href="${r.url}">${esc(r.capability)}</a></td><td>${r.svc[o.id].length ? r.svc[o.id].map((x) => `<a href="${x.url}">${esc(x.name)}</a>${statusBadge(x.status, x.status_note)}`).join(', ') : '<span class="muted">None</span>'}</td><td>${matchBadge(r.match)}</td></tr>`).join('')}
 </tbody></table></div>
-${s.rows.map((r) => `<h3><a href="${r.url}">${esc(r.capability)}</a></h3><p>${esc(r.answer)}</p><ul class="diffs">${r.differences.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul><p><a href="${r.url}">Full comparison: ${esc(r.capability)} →</a></p>`).join('')}
+${(() => {
+  const byG = new Map();
+  for (const r of s.rows) { if (!byG.has(r.group)) byG.set(r.group, []); byG.get(r.group).push(r); }
+  return [...byG.entries()].map(([gid, rows]) => {
+    const gname = groupName(catOf(rows[0]), gid);
+    return `<details class="cat-group" id="hub-${esc(gid)}" data-group="${esc(gid)}" open>
+<summary class="cat-sum"><span class="chev" aria-hidden="true"></span><span class="cat-sum-label">${esc(gname)}</span><span class="count">(${rows.length})</span></summary>
+<div class="cat-body">${rows.map((r) => `<div class="cat-row"><h3><a href="${r.url}">${esc(r.capability)}</a> ${matchBadge(r.match)}</h3><p>${esc(r.answer)}</p><ul class="diffs">${r.differences.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul><p><a href="${r.url}">Full comparison →</a></p></div>`).join('')}</div>
+</details>`;
+  }).join('');
+})()}
 </section>
 </article>`;
   const og = `/og/${p.id}/${s.seg}.png`;
@@ -275,9 +287,15 @@ function categoryPage(cat) {
   const body = `${bc.html}<article class="doc wide"><header class="doc-head"><h1>${esc(h1)}</h1>
 <p class="answer"><strong>${cat.rows.length} ${esc(PA.name)} → ${esc(PB.name)} mappings: ${counts.direct} direct, ${counts.partial} partial, ${counts.none} with no equivalent.</strong></p><p class="lede">${esc(cat.description)}</p>
 <p class="meta small">Last verified: <time datetime="${cat.last_verified}">${fmtDate(cat.last_verified)}</time> · <a href="${editUrl(cat.file)}" rel="noopener">Edit on GitHub</a></p></header>
-<nav aria-label="Groups" class="toc"><ul>${cat.groups.map((g) => `<li><a href="#${g.id}">${esc(g.name)}</a></li>`).join('')}</ul></nav>
-${cat.groups.map((g) => { const rows = cat.rows.filter((r) => r.group === g.id); return `<section aria-labelledby="${g.id}"><h2 id="${g.id}">${esc(g.name)}</h2>
-${rows.map((r) => `<div class="cat-row"><h3><a href="${r.url}">${esc(r.capability)}</a> ${matchBadge(r.match)}</h3><p>${esc(r.answer)}</p></div>`).join('')}</section>`; }).join('')}
+<div class="group-controls js-only" role="group" aria-label="Section controls">
+<button type="button" class="btn-text" data-expand-all>Expand all</button>
+<button type="button" class="btn-text" data-collapse-all>Collapse all</button>
+</div>
+<nav aria-label="Groups" class="toc jump-chips"><ul>${cat.groups.map((g) => `<li><a href="#${g.id}">${esc(g.name)} <span class="muted">(${cat.rows.filter((r) => r.group === g.id).length})</span></a></li>`).join('')}</ul></nav>
+${cat.groups.map((g) => { const rows = cat.rows.filter((r) => r.group === g.id); return `<details class="cat-group" id="${g.id}" data-group="${g.id}" open>
+<summary class="cat-sum"><span class="chev" aria-hidden="true"></span><span class="cat-sum-label">${esc(g.name)}</span><span class="count">(${rows.length})</span></summary>
+<div class="cat-body">${rows.map((r) => `<div class="cat-row"><h3><a href="${r.url}">${esc(r.capability)}</a> ${matchBadge(r.match)}</h3><p>${esc(r.answer)}</p></div>`).join('')}</div>
+</details>`; }).join('')}
 </article>`;
   const og = `/og/category/${cat.id}.png`;
   renderOg({ kicker: `${PA.name} vs ${PB.name}`, title: cat.name, subtitle: `${cat.rows.length} mappings: ${counts.direct} direct, ${counts.partial} partial, ${counts.none} none.`, siteName: config.siteName }, path.join(OUT, og));
@@ -328,24 +346,44 @@ function homePage() {
   const counts = { direct: 0, partial: 0, none: 0 }; all.forEach((r) => counts[r.match]++);
   const usedExams = [...exams.values()].filter((e) => all.some((r) => examsFor(r).includes(e.code)));
   const chips = (list) => list.length ? list.map((s) => `<a class="chip svc" href="${s.url}">${esc(s.name)}${statusBadge(s.status, s.status_note)}</a>`).join('') : '<span class="nochip">No equivalent</span>';
+  const allGroups = categories.flatMap((c) => c.groups);
   const matrix = categories.map((cat) => cat.groups.map((g) => {
     const rows = cat.rows.filter((r) => r.group === g.id);
-    return `<tbody data-group="${g.id}"><tr class="grp"><th colspan="${providers.length + 3}" scope="colgroup" id="g-${g.id}">${esc(g.name)} <span class="muted">(${rows.length})</span></th></tr>
+    return `<tbody id="rows-${g.id}" data-group="${g.id}" data-count="${rows.length}">
+<tr class="grp"><th colspan="${providers.length + 3}" scope="colgroup">
+<button type="button" class="grp-toggle" id="g-${g.id}" aria-expanded="true" aria-controls="rows-${g.id}" data-group="${g.id}">
+<span class="chev" aria-hidden="true"></span>
+<span class="grp-label">${esc(g.name)}</span>
+<span class="count" data-count-label>(${rows.length})</span>
+</button>
+</th></tr>
 ${rows.map((r) => `<tr class="row" id="${r.id}" data-id="${r.id}" data-group="${g.id}" data-match="${r.match}" data-exams="${examsFor(r).join(' ')}" data-s="${esc([r.capability, r.what_for, ...providers.flatMap((p) => names(r.svc[p.id]))].join(' ').toLowerCase())}">
 <th scope="row" class="cap"><a href="${r.url}">${esc(r.capability)}</a><span class="what">${esc(r.what_for)}</span></th>
 ${providers.map((p) => `<td class="pcol p-${p.id}" data-label="${esc(p.name)}">${chips(r.svc[p.id])}</td>`).join('')}
 <td class="mcol" data-label="Match">${matchBadge(r.match)}</td>
-<td class="act"><a class="open" href="${r.url}" data-open="${r.id}" aria-label="Details: ${esc(r.capability)}">Details</a></td></tr>`).join('')}</tbody>`;
+<td class="act"><a class="open" href="${r.url}" data-open="${r.id}" aria-label="Details: ${esc(r.capability)}">Details</a></td></tr>`).join('')}
+</tbody>`;
   }).join('')).join('');
   const body = `<section class="hero"><h1>${esc(PA.name)} ↔ ${esc(PB.name)} AI &amp; ML service equivalents</h1>
 <p class="lede">${all.length} capability mappings across ${services[PA.id].size} ${esc(PA.name)} and ${services[PB.id].size} ${esc(PB.name)} services. Each one has a plain-language purpose, match quality, key differences, pricing model, exam mapping and official sources. Retired and maintenance-mode services are flagged.</p>
 <p class="stats"><span>${matchBadge('direct')} ${counts.direct}</span><span>${matchBadge('partial')} ${counts.partial}</span><span>${matchBadge('none')} ${counts.none}</span><span class="small muted">Last verified ${fmtDate(categories[0].last_verified)}</span></p></section>
-<div class="toolbar js-only" role="group" aria-label="Filters">
-<label>Group <select id="f-group"><option value="">All groups</option>${categories.flatMap((c) => c.groups).map((g) => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>
+<div class="home-layout">
+<aside class="jump" aria-label="Jump to group">
+<p class="jump-title">Groups</p>
+<nav class="jump-nav"><ul>${allGroups.map((g) => { const n = all.filter((r) => r.group === g.id).length; return `<li><a href="#g-${g.id}" data-jump="${g.id}">${esc(g.name)} <span class="muted">(${n})</span></a></li>`; }).join('')}</ul></nav>
+</aside>
+<div class="home-main">
+<div class="toolbar sticky-bar js-only" id="toolbar" role="group" aria-label="Filters">
+<label class="jump-mobile">Jump <select id="f-jump" aria-label="Jump to group"><option value="">Jump to group…</option>${allGroups.map((g) => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>
+<label>Group <select id="f-group"><option value="">All groups</option>${allGroups.map((g) => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select></label>
 <label>Exam <select id="f-exam"><option value="">Any exam</option>${providers.map((p) => `<optgroup label="${esc(p.name)}">${usedExams.filter((e) => e.provider === p.id).map((e) => `<option value="${esc(e.code)}">${esc(e.unverified_code ? e.name : e.code + ' · ' + e.name.replace(/^(AWS Certified|Microsoft Certified:)\s*/, ''))}${e.status !== 'current' ? ` (${e.status})` : ''}</option>`).join('')}</optgroup>`).join('')}</select></label>
 <label>Match <select id="f-match"><option value="">Any match</option><option value="direct">Direct</option><option value="partial">Partial</option><option value="none">No equivalent</option></select></label>
 <div class="view" role="radiogroup" aria-label="View"><button type="button" id="v-matrix" role="radio" aria-checked="true">Matrix</button><button type="button" id="v-cards" role="radio" aria-checked="false">Cards</button></div>
+<div class="toolbar-actions">
+<button type="button" class="btn-text" id="expand-all">Expand all</button>
+<button type="button" class="btn-text" id="collapse-all">Collapse all</button>
 <p id="count" class="small muted" aria-live="polite">${all.length} mappings</p>
+</div>
 </div>
 <div class="tscroll" id="mwrap"><table class="matrix" id="matrix">
 <caption class="sr">${esc(PA.name)} to ${esc(PB.name)} AI and ML service matrix</caption>
@@ -353,11 +391,14 @@ ${providers.map((p) => `<td class="pcol p-${p.id}" data-label="${esc(p.name)}">$
 ${matrix}
 </table></div>
 <p id="empty" class="empty" hidden>No mappings match these filters.</p>
-<dialog id="drawer" class="drawer" aria-labelledby="dr-title"><div class="dr-in"><button type="button" class="dr-close" id="dr-close" aria-label="Close">×</button><div id="dr-body"></div></div></dialog>`;
+</div>
+</div>
+<dialog id="drawer" class="drawer" aria-labelledby="dr-title"><div class="dr-in"><button type="button" class="dr-close" id="dr-close" aria-label="Close">×</button><div id="dr-body"></div></div></dialog>
+<button type="button" class="to-top js-only" id="to-top" aria-label="Back to top" hidden>↑</button>`;
   renderOg({ kicker: 'Open-source cloud study guide', title: `${PA.name} ↔ ${PB.name} AI & ML equivalents`, subtitle: `${all.length} verified mappings with differences, pricing models, exams and sources.`, siteName: config.siteName }, path.join(OUT, '/og/default.png'));
   const ld = [{ '@type': 'WebSite', name: config.siteName, url: BASE + '/', potentialAction: { '@type': 'SearchAction', target: BASE + '/?q={query}', 'query-input': 'required name=query' } },
     { '@type': 'ItemList', name: 'AWS to Azure AI & ML mappings', numberOfItems: all.length, itemListElement: all.map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.capability, url: abs(r.url) })) }];
-  write('/', page({ url: '/', title: `${PA.name} vs ${PB.name} AI & ML service equivalents (2026) | ${config.siteName}`, description: clip(`Searchable matrix of ${all.length} AWS to Azure AI/ML service mappings: Bedrock vs Foundry, SageMaker AI vs Azure ML, agents, RAG, MLOps, copilots, with exams and sources.`, 158), h1: `${PA.name} ↔ ${PB.name} AI & ML service equivalents`, body, ld, ogType: 'website', active: 'home', extraHead: '<script>document.documentElement.classList.add("js")</script>\n', scripts: `<script src="${rel('/assets/home.js')}" defer></script>` }));
+  write('/', page({ url: '/', title: `${PA.name} vs ${PB.name} AI & ML service equivalents (2026) | ${config.siteName}`, description: clip(`Searchable matrix of ${all.length} AWS to Azure AI/ML service mappings: Bedrock vs Foundry, SageMaker AI vs Azure ML, agents, RAG, MLOps, copilots, with exams and sources.`, 158), h1: `${PA.name} ↔ ${PB.name} AI & ML service equivalents`, body, ld, ogType: 'website', active: 'home', extraHead: '', scripts: `<script src="${rel('/assets/home.js')}" defer></script>` }));
 
   // Lazy-loaded data for the drawer.
   const idx = all.map((r) => ({ id: r.id, url: rel(r.url), capability: r.capability, what_for: r.what_for, match: r.match, matchLabel: MATCH[r.match][0], answer: r.answer,
@@ -368,6 +409,18 @@ ${matrix}
 
 // ---------- run ----------
 fs.cpSync(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true, filter: (s) => !s.includes('fonts') });
+// Pre-paint collapse rules for every group (matrix rows + category/hub details bodies).
+{
+  const ids = [...new Set(categories.flatMap((c) => c.groups.map((g) => g.id)))];
+  const css = ids.map((id) => [
+    `html[data-cc-closed~="${id}"] tbody[data-group="${id}"]>tr.row{display:none!important}`,
+    `html[data-cc-closed~="${id}"] tbody[data-group="${id}"] .chev{transform:rotate(-90deg)}`,
+    `html[data-cc-closed~="${id}"] .jump a[href="#g-${id}"]{opacity:.55}`,
+    `html[data-cc-closed~="${id}"] details.cat-group[data-group="${id}"]>.cat-body{display:none!important}`,
+    `html[data-cc-closed~="${id}"] details.cat-group[data-group="${id}"]>.cat-sum .chev{transform:rotate(-90deg)!important}`,
+  ].join('')).join('');
+  fs.appendFileSync(path.join(OUT, 'assets/site.css'), '\n/* generated collapse rules */\n' + css + '\n');
+}
 fs.writeFileSync(path.join(OUT, 'favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#0b1220"/><rect x="6" y="9" width="9" height="14" rx="2" fill="#ff9900"/><rect x="17" y="9" width="9" height="14" rx="2" fill="#3b8eea"/></svg>`);
 homePage();
 categories.forEach(categoryPage);
