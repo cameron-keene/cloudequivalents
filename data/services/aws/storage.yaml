@@ -215,8 +215,8 @@
   pricing: https://aws.amazon.com/aws-transfer-family/pricing/
 - slug: snowball-edge
   name: AWS Snowball Edge (Snow Family)
-  status: maintenance
-  status_note: No longer available to new customers. AWS points new customers to DataSync (online), Data Transfer Terminal (physical), or Outposts and partners for edge compute.
+  status: retired
+  status_note: Listed on AWS's full-shutdown page as of November 12, 2025 (along with the V3S and V3G devices). The Snowball developer guide still describes it as unavailable to new customers. AWS points customers to DataSync (online), Data Transfer Terminal (physical), or Outposts and partners for edge compute.
   summary: Rugged shippable storage and compute devices for offline data migration and edge computing.
   docs: https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html
   pricing: https://aws.amazon.com/snowball/pricing/

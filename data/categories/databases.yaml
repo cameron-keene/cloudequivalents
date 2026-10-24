@@ -1,0 +1,866 @@
+# Databases: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: databases
+  name: Databases
+  short: Databases
+  order: 4
+  description: Managed relational engines, cloud-native and serverless SQL, high availability and replication, NoSQL (key-value, document, wide-column, graph), time series, in-memory caches, and database migration. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure databases, side by side: RDS vs Azure Database for PostgreSQL and MySQL, RDS for SQL Server vs Azure SQL, Aurora vs HorizonDB, DynamoDB vs Cosmos DB, DocumentDB vs Azure DocumentDB, ElastiCache vs Azure Managed Redis, and AWS DMS vs Azure DMS."
+  last_verified: "2026-10-24"
+  groups:
+    - id: relational-engines
+      name: Managed relational engines
+    - id: relational-cloud-native
+      name: Cloud-native, serverless & distributed SQL
+    - id: relational-operations
+      name: Availability, scaling & operations
+    - id: nosql
+      name: NoSQL (key-value, document, wide-column, graph)
+    - id: specialty-databases
+      name: Time series, in-memory & ledger
+    - id: database-migration
+      name: Migration & analytics integration
+
+rows:
+# ───────────────────────── RELATIONAL ENGINES ─────────────────────────
+- id: managed-postgresql
+  group: relational-engines
+  capability: Managed PostgreSQL
+  what_for: Run community PostgreSQL without managing servers, patching, backups, or failover.
+  match: direct
+  answer: Amazon RDS for PostgreSQL maps to Azure Database for PostgreSQL (flexible server). Both run community PostgreSQL with automated backups, point-in-time restore, standby-based HA, read replicas, and a large set of extensions.
+  providers:
+    aws: [rds-postgresql]
+    azure: [azure-database-for-postgresql]
+  differences:
+    - Compute tiers. RDS uses DB instance classes (burstable t, general m, memory-optimized r and x). Azure has Burstable, General Purpose, and Memory Optimized tiers, and you can stop a server to save compute cost on both clouds.
+    - HA. RDS Multi-AZ uses a standby instance, or a Multi-AZ DB cluster with two readable standbys. Azure zone-redundant HA keeps a synchronous warm standby in another zone; the standby isn't readable.
+    - Connection pooling. Azure has PgBouncer built into the server (General Purpose and Memory Optimized). On AWS you use RDS Proxy, a separate paid service.
+    - Version lifecycle. RDS offers paid Extended Support after a major version's standard support ends. Azure offers in-place major version upgrades. Check each provider's version calendar.
+  pricing:
+    aws: Per instance-hour by class, plus storage (GB-month, with provisioned IOPS for io1/io2 or gp3 above the baseline), backup storage beyond the free allowance, and Extended Support fees for old versions.
+    azure: Per vCore-hour by tier, plus provisioned storage (and IOPS on Premium SSD v2), backup storage beyond the free allowance, and the standby billed like a second server when HA is on.
+  exams:
+    aws: [SAA-C03, SOA-C03, DVA-C02]
+    azure: [AZ-305, AZ-104]
+  related: [managed-mysql, ha-standby, read-replicas, connection-pooling, cloud-native-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: managed-mysql
+  group: relational-engines
+  capability: Managed MySQL
+  what_for: Run MySQL as a managed service with backups, HA, and replicas handled for you.
+  match: direct
+  answer: Amazon RDS for MySQL maps to Azure Database for MySQL (flexible server). Both run MySQL Community Edition with automated backups, zone-redundant HA, and read replicas.
+  providers:
+    aws: [rds-mysql]
+    azure: [azure-database-for-mysql]
+  differences:
+    - Versions. Azure lists MySQL 5.7, 8.0, and 8.4 for flexible server. RDS also supports current MySQL major versions and charges Extended Support for older ones such as 5.7. Check both version calendars.
+    - Tiers. Azure has Burstable, General Purpose, and Business Critical tiers. RDS uses instance classes, with Multi-AZ DB clusters (two readable standbys) as an extra HA option.
+    - Cloud-native option. On AWS, Aurora MySQL is the higher-end MySQL-compatible engine. Azure's MySQL equivalent is the Business Critical tier of flexible server, not a separate engine.
+  pricing:
+    aws: Per instance-hour by class, plus storage, IOPS, backups beyond the free allowance, and Extended Support fees.
+    azure: Per vCore-hour by tier, plus storage, extra IOPS, backups beyond the free allowance, and a standby when HA is on.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-305]
+  related: [managed-postgresql, managed-mariadb, aurora-mysql-compatible]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html
+    - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: managed-mariadb
+  group: relational-engines
+  capability: Managed MariaDB
+  what_for: Run MariaDB as a managed database service.
+  match: none
+  answer: Azure no longer has a managed MariaDB service. Azure Database for MariaDB retired on Sep 19, 2025, and Microsoft's migration target is Azure Database for MySQL (flexible server). Amazon RDS for MariaDB is still available.
+  providers:
+    aws: [rds-mariadb]
+    azure: [azure-database-for-mariadb]
+  differences:
+    - MariaDB and MySQL have diverged (for example, in JSON handling, system-versioned tables, and some replication features). Test applications against MySQL before moving, or run MariaDB yourself on Azure VMs.
+  pricing:
+    aws: Per instance-hour plus storage, as for other RDS engines.
+    azure: Not applicable (retired).
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [managed-mysql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html
+    - https://learn.microsoft.com/en-us/lifecycle/products/azure-database-for-mariadb
+
+- id: managed-sql-server
+  group: relational-engines
+  capability: Managed Microsoft SQL Server
+  what_for: Run SQL Server databases without managing Windows, SQL Server installs, patching, or backups.
+  match: partial
+  answer: Amazon RDS for SQL Server maps to Azure SQL Managed Instance (instance-level compatibility, closest to RDS) or Azure SQL Database (database-scoped PaaS). Azure is the native home of SQL Server, so it has more options and deeper engine features than RDS.
+  providers:
+    aws: [rds-sql-server]
+    azure: [azure-sql-managed-instance, azure-sql-database]
+  differences:
+    - Compatibility. SQL Managed Instance offers near-100% Enterprise Edition compatibility, including SQL Agent, cross-database queries, CLR, and native VNet integration. RDS for SQL Server supports many instance-level features, but without sysadmin or OS access.
+    - Versions. RDS runs specific SQL Server versions and editions you choose and upgrade. Azure SQL Database and Managed Instance always run the latest engine (Managed Instance also offers an update policy aligned to SQL Server versions).
+    - Licensing. RDS is license-included (or Developer Edition for non-production). Azure lets you bring existing licenses with Azure Hybrid Benefit for a lower vCore price.
+    - Scale. Azure SQL Database Hyperscale scales to 128 TB with up to 30 named read replicas. RDS for SQL Server scales up by instance and storage size (check current limits), and its read replicas need Enterprise Edition.
+    - Hybrid. The Managed Instance link replicates between on-premises SQL Server and Managed Instance for migration or DR. RDS relies on native backup and restore or AWS DMS.
+  pricing:
+    aws: Per instance-hour, including the SQL Server license, by edition and class, plus storage and backups.
+    azure: Per vCore-hour (or DTU for SQL Database), with or without the SQL license (Azure Hybrid Benefit), plus storage and backup storage. SQL Managed Instance has a free trial offer for the first 12 months.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [DP-300, AZ-305]
+  faq:
+    - q: Should I pick Azure SQL Database or SQL Managed Instance when coming from RDS for SQL Server?
+      a: Choose SQL Managed Instance if you use instance-scoped features (SQL Agent jobs, cross-database queries, linked servers, CLR, Service Broker) or want a lift-and-shift. Choose Azure SQL Database (often Hyperscale) for new or single-database apps that don't need those features.
+  related: [sql-server-full-control, serverless-relational, global-database, managed-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SQLServer.html
+    - https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/sql-managed-instance-paas-overview
+    - https://learn.microsoft.com/en-us/azure/azure-sql/database/sql-database-paas-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: sql-server-full-control
+  group: relational-engines
+  capability: SQL Server (or Oracle) with OS-level control
+  what_for: Keep managed backups and patching while still customizing the operating system, database configuration, or third-party agents.
+  match: partial
+  answer: Amazon RDS Custom maps most closely to SQL Server on Azure Virtual Machines with the SQL IaaS Agent extension, which adds automated backup, patching, and license management to a VM you fully control.
+  providers:
+    aws: [rds-custom]
+    azure: [sql-server-on-azure-vms]
+  differences:
+    - Model. RDS Custom is still an RDS service, where AWS automates tasks and you can customize the host. SQL Server on Azure VMs is IaaS, and the free SQL IaaS Agent extension adds management features on top.
+    - Engines. RDS Custom covers Oracle and SQL Server. On Azure, Oracle with OS access means Oracle on Azure VMs, while the managed Oracle option is Oracle AI Database@Azure.
+    - HA. On Azure VMs, you design HA yourself with Always On availability groups or failover cluster instances (shared disks or Azure NetApp Files).
+  pricing:
+    aws: Per instance-hour (license-included for SQL Server, or bring your own media), plus storage.
+    azure: VM pricing plus the SQL Server license (pay-as-you-go per hour, or Azure Hybrid Benefit), plus managed disks. The extension is free.
+  exams:
+    aws: [SAA-C03]
+    azure: [DP-300, AZ-305]
+  related: [managed-sql-server, managed-oracle]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-custom.html
+    - https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-server-on-azure-vm-iaas-what-is-overview
+
+- id: managed-oracle
+  group: relational-engines
+  capability: Managed Oracle Database
+  what_for: Run Oracle Database (including Exadata or Autonomous Database) close to your cloud applications without managing the database infrastructure.
+  match: partial
+  answer: Amazon RDS for Oracle has no Azure-native equivalent. The Azure option is Oracle AI Database@Azure, where Oracle runs Exadata, Autonomous, and Base Database services in Azure data centers. Its direct AWS counterpart is Oracle Database@AWS.
+  providers:
+    aws: [rds-oracle, oracle-database-at-aws]
+    azure: [oracle-database-at-azure]
+  differences:
+    - Who runs it. RDS for Oracle is an AWS service on RDS instances. Oracle Database@Azure and Oracle Database@AWS are operated by Oracle (OCI) on Exadata hardware inside the hyperscaler's data centers, with some management done in the OCI console.
+    - Scope. Oracle Database@Azure offers Exadata (dedicated or Exascale), Autonomous AI Database, and Base Database Service. RDS for Oracle offers single instances with Multi-AZ and read replicas, but not RAC or Exadata.
+    - Buying. Oracle Database@Azure is purchased through an Azure Marketplace private offer, billed by Azure, and counts toward your Azure consumption commitment (MACC). You can bring your own Oracle license.
+  pricing:
+    aws: RDS for Oracle is billed per instance-hour (bring your own license, or license-included for Standard Edition 2), plus storage. Oracle Database@AWS is billed through AWS Marketplace at Oracle's prices.
+    azure: Billed through Azure Marketplace at Oracle's published prices (license-included or bring your own license).
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [sql-server-full-control, managed-db2]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Oracle.html
+    - https://docs.aws.amazon.com/odb/latest/UserGuide/what-is-odb.html
+    - https://learn.microsoft.com/en-us/azure/oracle/oracle-db/database-overview
+
+- id: managed-db2
+  group: relational-engines
+  capability: Managed IBM Db2
+  what_for: Run IBM Db2 as a managed cloud database.
+  match: none
+  answer: Azure has no managed Db2 service. On Azure, Db2 runs on virtual machines you manage, or through IBM or partner offerings in Azure Marketplace. Amazon RDS for Db2 offers Standard and Advanced editions as a managed service.
+  providers:
+    aws: [rds-db2]
+    azure: []
+  differences:
+    - On Azure VMs you're responsible for Db2 installation, HA (for example, HADR or pureScale), backups, and patching.
+  pricing:
+    aws: Per instance-hour plus storage, with the IBM license brought by you or bought through AWS.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [managed-oracle]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Db2.html
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+# ───────────────────────── CLOUD-NATIVE / SERVERLESS ─────────────────────────
+- id: cloud-native-postgresql
+  group: relational-cloud-native
+  capability: Cloud-native PostgreSQL (separate compute and storage)
+  what_for: Get PostgreSQL with shared, auto-growing, zone-resilient storage, fast failover, and many low-lag read replicas.
+  match: partial
+  answer: Microsoft maps Amazon Aurora PostgreSQL to Azure HorizonDB, a PostgreSQL service with disaggregated compute and storage. HorizonDB was in public preview when verified, so for production today the usual Azure target is Azure Database for PostgreSQL (flexible server).
+  providers:
+    aws: [aurora-postgresql]
+    azure: [azure-horizondb, azure-database-for-postgresql]
+  differences:
+    - Maturity. Aurora PostgreSQL has been generally available for years and includes Global Database, Serverless v2, Limitless Database, Babelfish, and zero-ETL. HorizonDB is in preview, and Microsoft advises confirming its status before planning a production migration.
+    - Architecture. Both separate stateless compute from a distributed, zone-resilient storage layer and add read replicas that share storage. HorizonDB uses a database-as-a-log design with separate WAL and data storage fleets.
+    - Flexible server is a classic single-node-plus-standby design. It's mature, but it isn't a shared-storage cluster.
+  pricing:
+    aws: Per instance-hour (or ACU-hour for Serverless v2), plus storage per GB-month, and I/O requests on Aurora Standard (I/O-Optimized has no I/O charge but higher instance and storage prices).
+    azure: HorizonDB is billed for compute and storage per its preview pricing page. Flexible server is billed per vCore-hour plus storage.
+  exams:
+    aws: [SAA-C03, SAP-C02, DVA-C02]
+    azure: [AZ-305]
+  flags:
+    - HorizonDB was in preview when verified. Check for GA, region availability, and pricing before planning on it.
+  related: [managed-postgresql, aurora-mysql-compatible, serverless-relational, sharded-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html
+    - https://learn.microsoft.com/en-us/azure/horizondb/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: aurora-mysql-compatible
+  group: relational-cloud-native
+  capability: Cloud-native MySQL-compatible database
+  what_for: Get a MySQL-compatible engine with shared multi-AZ storage, fast replicas, and higher throughput than standard MySQL.
+  match: partial
+  answer: Azure has no Aurora MySQL-style engine. The closest option is Azure Database for MySQL (flexible server), using the Business Critical tier with zone-redundant HA and read replicas.
+  providers:
+    aws: [aurora-mysql]
+    azure: [azure-database-for-mysql]
+  differences:
+    - Storage. Aurora MySQL keeps data on a shared cluster volume copied across three AZs, and replicas read the same volume. MySQL flexible server uses a primary and standby with their own storage, and read replicas use asynchronous MySQL replication.
+    - Features. Aurora MySQL adds Backtrack, fast cloning, Global Database, and Serverless v2. Flexible server has no equivalents for those.
+  pricing:
+    aws: Per instance-hour or ACU-hour, plus storage and I/O (Standard) or a higher I/O-Optimized price.
+    azure: Per vCore-hour by tier, plus storage and IOPS.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [managed-mysql, cloud-native-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMySQL.html
+    - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview
+
+- id: serverless-relational
+  group: relational-cloud-native
+  capability: Serverless relational database (autoscale and pause)
+  what_for: Pay only for the database compute you use, scale automatically with load, and pause when idle.
+  match: partial
+  answer: Microsoft maps Amazon Aurora Serverless v2 to Azure SQL Database serverless (and SQL database in Microsoft Fabric). Both scale compute between limits you set and can pause when idle, but they run different engines (Aurora is MySQL or PostgreSQL; Azure SQL is SQL Server).
+  providers:
+    aws: [aurora-serverless-v2]
+    azure: [azure-sql-database-serverless, sql-database-in-fabric]
+  differences:
+    - Engine. For serverless PostgreSQL or MySQL on Azure, there's no autoscaling tier. Flexible servers can be stopped and resized, but they don't autoscale.
+    - Scaling. Aurora Serverless v2 scales in 0.5-ACU steps and can scale to 0 ACUs with automatic pause. Azure SQL serverless scales between minimum and maximum vCores, bills per second, and auto-pauses after a delay (General Purpose).
+    - Fabric. SQL database in Fabric runs the Azure SQL engine on shared Fabric capacity and mirrors data into OneLake automatically.
+  pricing:
+    aws: Per ACU-hour consumed plus storage and I/O (or I/O-Optimized).
+    azure: SQL serverless bills compute per vCore-second used (nothing while paused) plus storage. Fabric SQL database draws from the Fabric capacity you buy.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [DP-300, AZ-305]
+  related: [cloud-native-postgresql, managed-sql-server]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html
+    - https://learn.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview
+    - https://learn.microsoft.com/en-us/fabric/database/sql/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: distributed-sql
+  group: relational-cloud-native
+  capability: Serverless, active-active distributed SQL
+  what_for: Run a strongly consistent relational database that's active in several zones or regions at once, with no failover and no instances to manage.
+  match: none
+  answer: Azure has no equivalent of Amazon Aurora DSQL. For multi-region active-active on Azure, Cosmos DB (NoSQL) offers multi-region writes; for relational workloads, Azure SQL failover groups and PostgreSQL cross-region replicas are active-passive.
+  providers:
+    aws: [aurora-dsql]
+    azure: []
+  differences:
+    - Aurora DSQL is PostgreSQL-compatible but not a full PostgreSQL (it uses optimistic concurrency and supports a subset of features), so even on AWS, apps may need changes.
+  pricing:
+    aws: Per distributed processing unit (DPU) consumed plus storage per GB-month.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [global-database, multi-region-nosql]
+  sources:
+    - https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html
+
+- id: sharded-postgresql
+  group: relational-cloud-native
+  capability: Horizontally sharded PostgreSQL
+  what_for: Spread one PostgreSQL database across many nodes to scale writes and storage beyond a single server.
+  match: partial
+  answer: Aurora PostgreSQL Limitless Database maps to elastic clusters in Azure Database for PostgreSQL, which is managed Citus. Azure Cosmos DB for PostgreSQL, the older Citus service, is on a retirement path.
+  providers:
+    aws: [aurora-limitless]
+    azure: [postgresql-elastic-clusters, cosmos-db-for-postgresql]
+  differences:
+    - Engine. Limitless is AWS-built sharding on Aurora's storage. Elastic clusters use the open-source Citus extension on flexible server nodes in a shared-nothing cluster.
+    - Sharding models. Elastic clusters support row-based and schema-based sharding. Limitless uses sharded and reference tables behind a router layer.
+  pricing:
+    aws: Billed per ACU-hour of the shard group (serverless capacity) plus Aurora storage and I/O.
+    azure: Each node is billed like a flexible server (vCore-hours plus storage).
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [cloud-native-postgresql, managed-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/limitless.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/elastic-clusters/concepts-elastic-clusters
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/postgresql/introduction
+
+- id: sql-server-compatibility-layer
+  group: relational-cloud-native
+  capability: Run SQL Server apps on PostgreSQL
+  what_for: Move SQL Server applications to an open-source engine with as few code changes as possible.
+  match: none
+  answer: Azure has no equivalent of Babelfish for Aurora PostgreSQL. On Azure, SQL Server apps usually move to Azure SQL itself, which avoids an engine change.
+  providers:
+    aws: [babelfish-aurora]
+    azure: []
+  differences:
+    - Babelfish accepts SQL Server's TDS protocol and common T-SQL on an Aurora PostgreSQL cluster, so the same data is reachable from both SQL Server and PostgreSQL clients. Compatibility isn't complete, so assess your T-SQL first.
+  pricing:
+    aws: No extra charge beyond Aurora PostgreSQL.
+    azure: Not applicable.
+  exams:
+    aws: [SAP-C02]
+    azure: [DP-300]
+  related: [managed-sql-server]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish.html
+
+# ───────────────────────── OPERATIONS ─────────────────────────
+- id: ha-standby
+  group: relational-operations
+  capability: In-region high availability with automatic failover
+  what_for: Survive the loss of a server or availability zone with a synchronous standby and automatic failover.
+  match: direct
+  answer: RDS Multi-AZ deployments map to zone-redundant high availability in Azure Database for PostgreSQL and MySQL, and to the zone-redundant configurations of Azure SQL Database and Managed Instance.
+  providers:
+    aws: [rds-multi-az]
+    azure: [database-high-availability]
+  differences:
+    - Readable standbys. RDS Multi-AZ DB clusters (MySQL and PostgreSQL) have two readable standbys. Azure PostgreSQL and MySQL standbys aren't readable. Azure SQL Business Critical includes a free readable secondary.
+    - Same-zone option. Azure PostgreSQL and MySQL also offer same-zone HA, where the standby is in the same zone, for lower latency in regions or setups without zone redundancy.
+    - Aurora. Aurora's storage is already spread across three AZs, and any replica can become the writer. Azure's closest match is HorizonDB (preview) or SQL Database Hyperscale.
+  pricing:
+    aws: Multi-AZ roughly doubles instance cost (the standby is billed), plus storage for each copy.
+    azure: The standby is billed like the primary server (compute and storage). In Azure SQL, zone redundancy may add a premium depending on the tier.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [DP-300, AZ-305]
+  related: [read-replicas, global-database, managed-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/high-availability/concepts-high-availability
+    - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-high-availability
+
+- id: read-replicas
+  group: relational-operations
+  capability: Read replicas (in-region and cross-region)
+  what_for: Offload reads, and keep a copy in another region that you can promote in a disaster.
+  match: direct
+  answer: RDS read replicas map to read replicas in Azure Database for PostgreSQL and MySQL. Both use asynchronous native replication, can sit in another region, and can be promoted.
+  providers:
+    aws: [rds-read-replicas]
+    azure: [database-read-replicas]
+  differences:
+    - Endpoints. Azure PostgreSQL has virtual endpoints that keep stable writer and reader hostnames through promotion. On RDS you repoint the application or use Route 53 or RDS Proxy.
+    - Promotion. Azure PostgreSQL can promote a replica to be the new primary (with matching tier and storage) or to an independent server. RDS promotes a replica to a standalone instance.
+  pricing:
+    aws: Each replica is billed as a DB instance, plus cross-Region data transfer.
+    azure: Each replica is billed as a server (compute and storage), plus cross-region data transfer.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-305]
+  related: [ha-standby, global-database]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas
+    - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-read-replicas
+
+- id: global-database
+  group: relational-operations
+  capability: Cross-region relational disaster recovery
+  what_for: Keep a relational database replicated to other regions with low lag and a managed, fast regional failover.
+  match: partial
+  answer: Aurora Global Database maps to Azure SQL active geo-replication and failover groups (for Azure SQL), and to cross-region read replicas for Azure Database for PostgreSQL and MySQL.
+  providers:
+    aws: [aurora-global-database]
+    azure: [sql-failover-groups, database-read-replicas]
+  differences:
+    - Mechanism. Aurora Global Database replicates at the storage layer to up to 10 secondary Regions, with managed switchover and failover and optional write forwarding. Azure SQL replicates asynchronously at the database level. Failover groups give stable read-write and read-only listener endpoints across regions.
+    - Scope. Failover groups can move a group of databases (or a whole Managed Instance) together. Aurora works per cluster.
+  pricing:
+    aws: Secondary clusters are billed as normal Aurora clusters, plus replicated write I/O and cross-Region transfer.
+    azure: Geo-secondaries are billed like primary databases (standby-only replicas can be cheaper with a license discount), plus data transfer.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [DP-300, AZ-305]
+  related: [read-replicas, ha-standby, distributed-sql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html
+    - https://learn.microsoft.com/en-us/azure/azure-sql/database/failover-group-sql-db
+    - https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas
+
+- id: connection-pooling
+  group: relational-operations
+  capability: Database connection pooling
+  what_for: Let many short-lived app or serverless connections share a small pool of database connections, and ride through failovers.
+  match: partial
+  answer: Amazon RDS Proxy maps to the built-in PgBouncer in Azure Database for PostgreSQL. Azure has no managed proxy for MySQL or Azure SQL (Azure SQL handles many connections natively).
+  providers:
+    aws: [rds-proxy]
+    azure: [postgresql-pgbouncer]
+  differences:
+    - Placement. RDS Proxy is a separate, multi-AZ service in your VPC that supports MySQL, PostgreSQL, MariaDB, and SQL Server engines. PgBouncer runs on the same VM as the PostgreSQL server.
+    - Features. RDS Proxy speeds up failover and can enforce IAM authentication with credentials in Secrets Manager. PgBouncer pools connections only, and you connect on a separate port.
+  pricing:
+    aws: Per vCPU-hour (or ACU-hour for Aurora Serverless) of the target database.
+    azure: PgBouncer is included at no extra charge.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [AZ-305]
+  related: [managed-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/connectivity/concepts-pgbouncer
+
+- id: blue-green-upgrades
+  group: relational-operations
+  capability: Blue/green database upgrades
+  what_for: Test a major version upgrade or schema change on a synchronized copy, then switch production over with minimal downtime.
+  match: none
+  answer: Azure has no managed blue/green deployment for databases like Amazon RDS Blue/Green Deployments. Azure PostgreSQL offers in-place major version upgrades, and you can build a blue/green pattern yourself with read replicas or logical replication.
+  providers:
+    aws: [rds-blue-green]
+    azure: [postgresql-major-version-upgrade]
+  differences:
+    - RDS creates and syncs the green environment, then switches over with guardrails (and works with RDS Proxy to reduce downtime). Azure's in-place upgrade keeps the server name and connection string, but involves downtime and can't be tested on a live copy first, so test on a restored copy.
+  pricing:
+    aws: You pay for the green environment's resources while it exists.
+    azure: In-place upgrades are free. Any test copies are billed as normal servers.
+  exams:
+    aws: [SOA-C03, DOP-C02]
+    azure: [AZ-305]
+  related: [managed-postgresql]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html
+    - https://learn.microsoft.com/en-us/azure/postgresql/configure-maintain/concepts-major-version-upgrade
+
+- id: hybrid-database
+  group: relational-operations
+  capability: Managed databases on your own hardware
+  what_for: Run a cloud-managed database service in your own data center for latency or data-residency reasons.
+  match: partial
+  answer: Amazon RDS on Outposts maps most closely to SQL Managed Instance enabled by Azure Arc. RDS on Outposts runs on AWS-owned racks, while Arc runs SQL Managed Instance on Kubernetes on your own infrastructure.
+  providers:
+    aws: [rds-outposts]
+    azure: [arc-sql-managed-instance]
+  differences:
+    - Engines. RDS on Outposts supports SQL Server, MySQL, PostgreSQL, and Oracle. Arc-enabled data services cover SQL Managed Instance.
+    - Hardware. Outposts is AWS hardware installed and maintained by AWS. Arc runs on any supported Kubernetes cluster you operate.
+  pricing:
+    aws: Outposts capacity (a multi-year commitment) plus RDS instance fees.
+    azure: Billed per vCore through Azure Arc (license-included or Azure Hybrid Benefit), on infrastructure you own.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [managed-sql-server]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html
+    - https://learn.microsoft.com/en-us/azure/azure-arc/data/managed-instance-overview
+
+# ───────────────────────── NOSQL ─────────────────────────
+- id: key-value-document
+  group: nosql
+  capability: Serverless key-value and document database
+  what_for: Store items by partition key with single-digit-millisecond reads and writes at any scale, without managing servers.
+  match: direct
+  answer: Amazon DynamoDB maps to Azure Cosmos DB for NoSQL. Both partition data by key, scale throughput elastically, offer serverless and provisioned capacity, and provide change streams and multi-region replication. Their data models, consistency, indexing, and pricing differ, so plan data-model changes rather than a straight port.
+  providers:
+    aws: [dynamodb]
+    azure: [cosmos-db-nosql]
+  differences:
+    - Capacity units. DynamoDB uses on-demand (per request) or provisioned read and write capacity units. Cosmos DB uses request units (RUs) for all operations, with provisioned, autoscale, or serverless accounts.
+    - Indexing and queries. DynamoDB queries by key, with local and global secondary indexes you define. Cosmos DB indexes every property by default and supports a SQL-like query language, including cross-partition queries.
+    - Consistency. DynamoDB offers eventually consistent or strongly consistent reads per request. Cosmos DB has five levels (strong, bounded staleness, session, consistent prefix, and eventual), with session as the default.
+    - Limits. DynamoDB items are limited to 400 KB, and Cosmos DB items to 2 MB. Both cap throughput per partition, so key design matters on both.
+    - Vector search. Cosmos DB for NoSQL has built-in DiskANN vector indexing. DynamoDB typically pairs with OpenSearch or S3 Vectors for vectors.
+  pricing:
+    aws: On-demand per million read and write request units, or provisioned capacity per hour (with reserved capacity), plus storage per GB-month and optional features (backups, streams, global tables).
+    azure: Provisioned RU/s per hour (standard or autoscale, with reserved capacity), or serverless per million RUs, plus storage per GB-month, multiplied by the number of regions.
+  exams:
+    aws: [SAA-C03, DVA-C02, DEA-C01]
+    azure: [DP-420, AZ-305]
+  faq:
+    - q: Is Cosmos DB the same as DynamoDB?
+      a: They solve the same problem and Microsoft maps them, but they aren't API-compatible. Cosmos DB for NoSQL has its own SDKs, query language, and RU-based pricing. Microsoft publishes guidance for migrating DynamoDB apps to Cosmos DB.
+  related: [multi-region-nosql, nosql-change-streams, nosql-cache, simple-table-store, document-database]
+  sources:
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/capacity-mode.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/overview
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/serverless
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: multi-region-nosql
+  group: nosql
+  capability: Multi-region, multi-active NoSQL replication
+  what_for: Let users in several regions read and write the same data locally, and keep running if a region fails.
+  match: direct
+  answer: DynamoDB global tables map to Cosmos DB global distribution with multi-region writes. Both replicate every write to all regions and let any region accept writes.
+  providers:
+    aws: [dynamodb-global-tables]
+    azure: [cosmos-db-global-distribution]
+  differences:
+    - Consistency. Global tables offer multi-Region eventual consistency (default) or multi-Region strong consistency (MRSC), and all replicas in a table must use the same mode. Global tables can also span multiple AWS accounts. Cosmos DB applies its account consistency level, and strong consistency isn't available with multi-region writes.
+    - Conflicts. Global tables use last writer wins (in eventual mode). Cosmos DB offers last writer wins (on a timestamp or custom property) or custom merge procedures.
+    - SLA. Cosmos DB offers a 99.999% read and write availability SLA with multi-region writes. DynamoDB global tables also have a 99.999% SLA.
+  pricing:
+    aws: Replicated write request units in each Region plus storage per Region and cross-Region transfer.
+    azure: Provisioned RU/s and storage billed in every region. Multi-region writes multiply RU costs across regions.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [DP-420, AZ-305]
+  related: [key-value-document, distributed-sql]
+  sources:
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/distribute-data-globally
+
+- id: nosql-change-streams
+  group: nosql
+  capability: NoSQL change data capture stream
+  what_for: React to every insert or update in a table to trigger functions, sync search indexes, or feed analytics.
+  match: direct
+  answer: DynamoDB Streams maps to the Azure Cosmos DB change feed. Both expose an ordered log of item changes that Lambda or Azure Functions can trigger on.
+  providers:
+    aws: [dynamodb-streams]
+    azure: [cosmos-db-change-feed]
+  differences:
+    - Retention. DynamoDB Streams keeps changes for 24 hours. The Cosmos DB change feed in latest-version mode is persistent for as long as the item exists, and you can read it from the beginning.
+    - Deletes. DynamoDB Streams includes deletes and old and new item images. The Cosmos DB default (latest version) mode omits deletes and intermediate versions; the all-versions-and-deletes mode adds them for a retention window.
+    - Consumers. DynamoDB Streams uses Lambda triggers or the Kinesis adapter. Cosmos DB uses Functions triggers, the change feed processor, the pull model, or Spark.
+  pricing:
+    aws: Stream read requests (free for Lambda triggers) per 100,000 requests.
+    azure: Reading the change feed consumes RUs from the container's throughput.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [DP-420]
+  related: [key-value-document]
+  sources:
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed
+
+- id: nosql-cache
+  group: nosql
+  capability: Built-in cache for a NoSQL database
+  what_for: Serve hot reads from memory in front of a NoSQL database without changing application logic much.
+  match: partial
+  answer: DynamoDB Accelerator (DAX) maps to the Azure Cosmos DB integrated cache, which runs on a dedicated gateway. Both are read-through caches tied to the database's own API.
+  providers:
+    aws: [dynamodb-dax]
+    azure: [cosmos-db-integrated-cache]
+  differences:
+    - DAX is a separate cluster that uses a DAX client and offers microsecond reads with write-through. The Cosmos DB integrated cache is an item and query cache inside the dedicated gateway, used by switching the SDK to gateway mode with the dedicated gateway endpoint.
+    - Cached reads on Cosmos DB consume no RUs, which can lower throughput costs.
+    - The integrated cache works only with the API for NoSQL.
+  pricing:
+    aws: Per DAX node-hour by node type.
+    azure: Per dedicated gateway node-hour by size.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [DP-420]
+  related: [key-value-document, in-memory-cache]
+  sources:
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/integrated-cache
+
+- id: simple-table-store
+  group: nosql
+  capability: Low-cost key-attribute table storage
+  what_for: Store simple structured records cheaply by partition key and row key, for logs, metadata, or small apps.
+  match: partial
+  answer: Microsoft also maps DynamoDB to Azure Table Storage (simple and very cheap, in a storage account) and Azure Cosmos DB for Table (the same API with Cosmos DB scale and global distribution). Table Storage is a good fit for simple DynamoDB workloads that don't need its advanced features.
+  providers:
+    aws: [dynamodb]
+    azure: [table-storage]
+  differences:
+    - Table Storage has no secondary indexes, transactions limited to one partition, and fixed scalability targets per account and partition. DynamoDB has secondary indexes, transactions across tables, and per-table elastic capacity.
+    - Cosmos DB for Table lets you start with the Table API and later get Cosmos DB features without changing SDKs.
+  pricing:
+    aws: DynamoDB on-demand or provisioned capacity plus storage (Standard or Standard-IA table class).
+    azure: Table Storage bills per GB-month plus per-10,000 transactions. Cosmos DB for Table uses RU-based pricing.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-104, AZ-305]
+  related: [key-value-document]
+  sources:
+    - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html
+    - https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-overview
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/table/introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: document-database
+  group: nosql
+  capability: MongoDB-compatible document database
+  what_for: Run MongoDB-style apps and drivers on a managed service without operating MongoDB clusters.
+  match: direct
+  answer: Amazon DocumentDB maps to Azure DocumentDB (vCore-based, open-source DocumentDB engine) or Azure Cosmos DB for MongoDB (RU-based). Both clouds implement the MongoDB wire protocol on their own engines rather than running MongoDB itself.
+  providers:
+    aws: [documentdb]
+    azure: [azure-documentdb]
+  differences:
+    - Engine. Amazon DocumentDB is AWS's own engine on Aurora-style storage. Azure DocumentDB is built on the open-source DocumentDB project (PostgreSQL-based), which can also run on-premises or in other clouds.
+    - Scaling. Amazon DocumentDB has instance-based clusters (up to 256 TiB storage on version 8.0) and elastic clusters (sharded). Azure DocumentDB uses vCore-based clusters with sharding. Cosmos DB for MongoDB (RU) is a serverless or provisioned-throughput alternative.
+    - Compatibility. Neither is full MongoDB. Test the commands, aggregation stages, and index types your app uses, and check the supported MongoDB API versions.
+  pricing:
+    aws: Per instance-hour plus storage and I/O (or I/O-optimized), backups, and elastic cluster shard pricing.
+    azure: Azure DocumentDB bills per cluster tier (vCores and memory) plus storage. Cosmos DB for MongoDB (RU) uses RU-based pricing.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [DP-420, AZ-305]
+  flags:
+    - Azure DocumentDB is the new name for the former vCore-based Azure Cosmos DB for MongoDB. Older study materials use the earlier name.
+  related: [key-value-document]
+  sources:
+    - https://docs.aws.amazon.com/documentdb/latest/developerguide/what-is.html
+    - https://learn.microsoft.com/en-us/azure/documentdb/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: wide-column
+  group: nosql
+  capability: Apache Cassandra-compatible wide-column database
+  what_for: Run Cassandra (CQL) workloads without operating Cassandra clusters yourself.
+  match: direct
+  answer: Amazon Keyspaces maps to Azure Cosmos DB for Apache Cassandra (serverless-style, RU-based) or Azure Managed Instance for Apache Cassandra (managed open-source Cassandra clusters).
+  providers:
+    aws: [keyspaces]
+    azure: [cosmos-db-cassandra, managed-instance-cassandra]
+  differences:
+    - Engine. Keyspaces and Cosmos DB for Cassandra both implement CQL on their own engines, so some Cassandra features differ. Managed Instance runs real Apache Cassandra for the highest compatibility.
+    - Hybrid. Managed Instance datacenters can join existing on-premises or other-cloud Cassandra clusters. Keyspaces can't join existing clusters.
+  pricing:
+    aws: On-demand per read and write request unit, or provisioned capacity, plus storage.
+    azure: Cosmos DB for Cassandra uses RU-based pricing. Managed Instance bills per VM node-hour plus disks.
+  exams:
+    aws: [SAA-C03]
+    azure: [DP-420, AZ-305]
+  related: [key-value-document]
+  sources:
+    - https://docs.aws.amazon.com/keyspaces/latest/devguide/what-is-keyspaces.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/cassandra/introduction
+    - https://learn.microsoft.com/en-us/azure/managed-instance-apache-cassandra/introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: graph-database
+  group: nosql
+  capability: Graph database
+  what_for: Store and query highly connected data (social graphs, fraud rings, knowledge graphs) with graph query languages.
+  match: partial
+  answer: Amazon Neptune maps to Azure Cosmos DB for Apache Gremlin for property graphs. Azure has no managed RDF/SPARQL or openCypher service, so those Neptune workloads need another design on Azure.
+  providers:
+    aws: [neptune]
+    azure: [cosmos-db-gremlin]
+  differences:
+    - Query languages. Neptune supports Gremlin, openCypher, and SPARQL (RDF). Cosmos DB for Gremlin supports Gremlin only.
+    - Analytics. Neptune Analytics adds in-memory graph algorithms and vector search. On Azure, graph analytics usually runs in Fabric or third-party graph databases from Azure Marketplace.
+    - Scaling. Cosmos DB for Gremlin is partitioned by a key you choose, with RU throughput and global distribution. Neptune scales with instances (or serverless capacity) and read replicas.
+  pricing:
+    aws: Per instance-hour or serverless NCU-hour, plus storage and I/O. Neptune Analytics bills per memory-optimized capacity-hour.
+    azure: RU-based pricing (provisioned, autoscale, or serverless) plus storage.
+  exams:
+    aws: [SAA-C03]
+    azure: [DP-420]
+  related: [key-value-document]
+  sources:
+    - https://docs.aws.amazon.com/neptune/latest/userguide/intro.html
+    - https://docs.aws.amazon.com/neptune-analytics/latest/userguide/what-is-neptune-analytics.html
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/gremlin/introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+# ───────────────────────── SPECIALTY ─────────────────────────
+- id: time-series
+  group: specialty-databases
+  capability: Serverless time-series database
+  what_for: Store and query timestamped telemetry, metrics, and IoT data, with time-window functions and tiered retention.
+  match: partial
+  answer: Amazon Timestream for LiveAnalytics maps to Azure Data Explorer (or Eventhouse in Microsoft Fabric), which runs on the same engine. Timestream for LiveAnalytics closed to new customers on June 20, 2025, and AWS now steers new workloads to Timestream for InfluxDB.
+  providers:
+    aws: [timestream-liveanalytics]
+    azure: [azure-data-explorer]
+  differences:
+    - Engine. Azure Data Explorer is a general log and telemetry analytics engine queried with KQL, with built-in time-series functions (make-series, anomaly detection, forecasting). Timestream for LiveAnalytics is a purpose-built time-series store queried with SQL.
+    - Operations. Timestream for LiveAnalytics is serverless. Azure Data Explorer runs on clusters you size (with autoscale), and Fabric Eventhouse runs on Fabric capacity.
+    - Status. Existing Timestream for LiveAnalytics customers can keep using it, but don't start new designs on it.
+  pricing:
+    aws: Writes, queries (per TCU-hour), and memory and magnetic storage per GB.
+    azure: Azure Data Explorer bills cluster VMs plus a markup per vCore-hour, and storage. Eventhouse uses Fabric capacity.
+  exams:
+    aws: [DEA-C01]
+    azure: [AZ-305]
+  flags:
+    - Timestream for LiveAnalytics is in maintenance mode (closed to new customers since June 20, 2025). AWS hasn't announced an end-of-support date, so check the service page.
+  related: [influxdb]
+  sources:
+    - https://docs.aws.amazon.com/timestream/latest/developerguide/what-is-timestream.html
+    - https://learn.microsoft.com/en-us/azure/data-explorer/data-explorer-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: influxdb
+  group: specialty-databases
+  capability: Managed InfluxDB
+  what_for: Run open-source InfluxDB for real-time time-series workloads without managing servers.
+  match: none
+  answer: Azure has no first-party managed InfluxDB service like Amazon Timestream for InfluxDB. On Azure, the options are InfluxData's own cloud offering, self-managed InfluxDB on VMs or AKS, or a move to Azure Data Explorer.
+  providers:
+    aws: [timestream-influxdb]
+    azure: []
+  differences:
+    - Timestream for InfluxDB runs open-source InfluxDB instances (single-AZ or Multi-AZ with a standby) that AWS manages, so existing InfluxDB tools and Telegraf work unchanged.
+  pricing:
+    aws: Per instance-hour by size, plus storage per GB-month and IOPS tier.
+    azure: Not applicable.
+  exams:
+    aws: [DEA-C01]
+    azure: [AZ-305]
+  related: [time-series]
+  sources:
+    - https://docs.aws.amazon.com/timestream/latest/developerguide/timestream-for-influxdb.html
+
+- id: in-memory-cache
+  group: specialty-databases
+  capability: Managed in-memory cache (Redis-compatible)
+  what_for: Speed up apps by caching data, sessions, and leaderboards in memory, with sub-millisecond latency.
+  match: direct
+  answer: Amazon ElastiCache maps to Azure Managed Redis. Azure Cache for Redis, the older service, is retiring (Enterprise tiers on March 31, 2027, and Basic, Standard, and Premium tiers on September 30, 2028), so new designs should use Azure Managed Redis.
+  providers:
+    aws: [elasticache]
+    azure: [azure-managed-redis]
+  differences:
+    - Engines. ElastiCache offers Valkey (the open-source Redis fork AWS now favors, priced lower), Redis OSS, and Memcached. Azure Managed Redis runs Redis Enterprise software, with modules such as search, JSON, and time series. Azure has no managed Memcached.
+    - Deployment. ElastiCache offers serverless caches (no capacity planning) or node-based clusters. Azure Managed Redis uses fixed SKUs in Memory Optimized, Balanced, Compute Optimized, and Flash Optimized tiers.
+    - Multi-region. ElastiCache uses Global Datastore (one writable primary Region). Azure Managed Redis supports active geo-replication, where every region can write.
+  pricing:
+    aws: Serverless bills per GB-hour of data stored plus ElastiCache Processing Units. Node-based bills per node-hour (reserved nodes available). Valkey is priced lower than Redis OSS.
+    azure: Per instance-hour by tier and size, with high availability (two nodes) on by default.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [AZ-305]
+  flags:
+    - Azure Cache for Redis retirement dates are from Microsoft's retirement notice. Plan migrations to Azure Managed Redis.
+  related: [durable-in-memory, nosql-cache]
+  sources:
+    - https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/WhatIs.html
+    - https://learn.microsoft.com/en-us/azure/redis/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: durable-in-memory
+  group: specialty-databases
+  capability: Durable in-memory primary database
+  what_for: Use a Redis-compatible store as your primary database, with in-memory speed and no data loss on failure.
+  match: none
+  answer: Microsoft states that Azure has no direct equivalent of Amazon MemoryDB. Azure Managed Redis supports persistence (RDB or AOF) and high availability, but it's designed as a cache, not a durable primary database with a multi-AZ transaction log.
+  providers:
+    aws: [memorydb]
+    azure: []
+  differences:
+    - MemoryDB commits every write to a distributed Multi-AZ transaction log before acknowledging it, so a failover loses no acknowledged writes. Redis persistence on Azure Managed Redis is periodic or append-only to disk and isn't intended as the system of record.
+  pricing:
+    aws: Per node-hour plus data written per GB, and snapshot storage.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [AZ-305]
+  related: [in-memory-cache]
+  sources:
+    - https://docs.aws.amazon.com/memorydb/latest/devguide/what-is-memorydb.html
+    - https://learn.microsoft.com/en-us/azure/redis/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: ledger-database
+  group: specialty-databases
+  capability: Tamper-evident ledger data
+  what_for: Keep a cryptographically verifiable history of changes to records, so auditors can prove nothing was altered.
+  match: partial
+  answer: Amazon QLDB was retired on July 31, 2025, and AWS recommended Aurora PostgreSQL for migrations. On Azure, the ledger feature in Azure SQL Database, SQL Managed Instance, and SQL Server provides tamper-evident tables inside a normal relational database.
+  providers:
+    aws: [qldb]
+    azure: [sql-ledger]
+  differences:
+    - QLDB was a standalone document ledger database with its own PartiQL interface. Azure SQL ledger adds updatable or append-only ledger tables to a relational database, hashes changes into a chain, and stores database digests in immutable storage (such as immutable Blob Storage) for verification.
+  pricing:
+    aws: Not applicable (retired).
+    azure: No extra charge for the feature. You pay for the database and digest storage.
+  exams:
+    aws: []
+    azure: [DP-300]
+  flags:
+    - QLDB is retired. This row is kept for study material that still mentions it.
+  related: [managed-sql-server]
+  sources:
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+    - https://learn.microsoft.com/en-us/sql/relational-databases/security/ledger/ledger-overview
+
+# ───────────────────────── MIGRATION & INTEGRATION ─────────────────────────
+- id: database-migration
+  group: database-migration
+  capability: Database migration and continuous replication
+  what_for: Move a database to the cloud (or between engines) with minimal downtime, using full load plus ongoing change capture.
+  match: partial
+  answer: AWS Database Migration Service maps to Azure Database Migration Service. AWS DMS is a general replication engine with many sources and targets, plus Schema Conversion for engine changes. Azure DMS focuses on migrations to Azure SQL targets and Azure Database for MySQL, while other engines use their own tools (such as the PostgreSQL migration service in flexible server).
+  providers:
+    aws: [database-migration-service]
+    azure: [azure-database-migration-service]
+  differences:
+    - Scope. AWS DMS supports homogeneous and heterogeneous migrations, ongoing CDC replication, and DMS Serverless. Azure DMS supports online and offline migrations to Azure SQL, Managed Instance, SQL Server on VMs, and MySQL. Check its scenario matrix for others.
+    - Schema conversion. AWS has DMS Schema Conversion (and the Schema Conversion Tool). Microsoft uses SQL Server Migration Assistant (SSMA) for Oracle, Db2, and other sources to SQL.
+  pricing:
+    aws: Per replication instance-hour (or DCU-hour for DMS Serverless) plus storage. Schema Conversion has no charge for the feature itself.
+    azure: The Standard tier is free. Premium is billed per vCore-hour, with a free period for new instances.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [DP-300, AZ-305]
+  flags:
+    - Azure DMS supported scenarios change often. Check the current scenario matrix before relying on a source and target pair.
+  related: [operational-analytics]
+  sources:
+    - https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html
+    - https://learn.microsoft.com/en-us/azure/dms/dms-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+
+- id: operational-analytics
+  group: database-migration
+  capability: Zero-ETL replication into analytics
+  what_for: Analyze operational database data in near real time without building or running ETL pipelines.
+  match: partial
+  answer: Aurora and RDS zero-ETL integrations (to Amazon Redshift or a SageMaker lakehouse) map to Microsoft Fabric mirroring, which continuously replicates Azure SQL, Cosmos DB, PostgreSQL, and other sources into OneLake as Delta tables.
+  providers:
+    aws: [rds-zero-etl]
+    azure: [fabric-mirroring]
+  differences:
+    - Target. Zero-ETL lands data in Redshift (or a SageMaker lakehouse) for querying. Fabric mirroring lands open Delta tables in OneLake, readable by every Fabric engine and by other Delta readers.
+    - Sources. Zero-ETL covers Aurora MySQL and PostgreSQL, RDS for MySQL and PostgreSQL, DynamoDB, and others (check the current list). Mirroring covers Azure SQL, Cosmos DB, Azure Database for PostgreSQL, Snowflake, and others, including open mirroring for partners.
+  pricing:
+    aws: No charge for the integration itself. You pay for change processing on the source and for Redshift compute and storage.
+    azure: Mirroring compute for replication is free, with free OneLake storage up to a limit tied to capacity size. Queries use Fabric capacity.
+  exams:
+    aws: [DEA-C01]
+    azure: [AZ-305]
+  related: [database-migration]
+  sources:
+    - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/zero-etl.html
+    - https://learn.microsoft.com/en-us/fabric/mirroring/overview

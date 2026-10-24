@@ -997,7 +997,7 @@ rows:
   capability: Offline bulk data transfer (ship or carry your data)
   what_for: Move tens or hundreds of terabytes when the network is too slow, by moving physical devices instead.
   match: partial
-  answer: Microsoft maps AWS Snowball Edge to Azure Data Box, but Snowball Edge is closed to new customers. AWS now points to Data Transfer Terminal (you bring your own devices to an AWS location) or DataSync. Azure Data Box ships Microsoft devices to you, now in 120 TB and 525 TB next-gen models.
+  answer: Microsoft maps AWS Snowball Edge to Azure Data Box, but AWS's full-shutdown page lists Snowball Edge as shut down on November 12, 2025. AWS now points to Data Transfer Terminal (you bring your own devices to an AWS location) or DataSync. Azure Data Box ships Microsoft devices to you, now in 120 TB and 525 TB next-gen models.
   providers:
     aws: [snowball-edge, data-transfer-terminal]
     azure: [data-box]
@@ -1007,14 +1007,17 @@ rows:
     - Edge compute. Snowball Edge could also run compute at the edge. AWS now recommends Outposts or partners for that, and the Azure counterparts are Azure Local and Azure Stack Edge.
     - Legacy devices. Azure Data Box Heavy is retired, and the 80 TB Data Box is being retired region by region as next-gen devices arrive.
   pricing:
-    aws: Data Transfer Terminal is billed for the time you reserve. Existing Snowball customers pay a per-job fee, daily usage, and shipping.
+    aws: Data Transfer Terminal is billed for the time you reserve. Snowball jobs were billed per job, per day, and for shipping.
     azure: A per-order service fee that includes a set number of days, plus extra days, shipping, and target storage.
   exams:
     aws: [SAA-C03, SAP-C02]
     azure: [AZ-104, AZ-305]
+  flags:
+    - AWS sources conflict. The full-shutdown page lists Snowball Edge as shut down on November 12, 2025, while the Snowball developer guide only says it's unavailable to new customers. Check with AWS if you still depend on it.
   related: [online-data-migration]
   sources:
     - https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
     - https://docs.aws.amazon.com/datatransferterminal/latest/userguide/what-is-dtt.html
     - https://learn.microsoft.com/en-us/azure/databox/data-box-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage

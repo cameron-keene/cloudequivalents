@@ -1,0 +1,207 @@
+# AWS database services (category: databases). Same status vocabulary as ai-ml.yaml.
+- slug: rds-postgresql
+  name: Amazon RDS for PostgreSQL
+  status: ga
+  summary: Managed community PostgreSQL on EC2-based DB instances with EBS storage, automated backups and point-in-time recovery, Multi-AZ (one standby, or a two-readable-standby cluster), read replicas, and paid Extended Support for older major versions.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
+  pricing: https://aws.amazon.com/rds/postgresql/pricing/
+- slug: rds-mysql
+  name: Amazon RDS for MySQL
+  status: ga
+  summary: Managed MySQL Community Edition with Multi-AZ deployments, read replicas, automated backups, and Extended Support for older major versions.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html
+  pricing: https://aws.amazon.com/rds/mysql/pricing/
+- slug: rds-mariadb
+  name: Amazon RDS for MariaDB
+  status: ga
+  summary: Managed MariaDB Community Server with Multi-AZ deployments, read replicas, and automated backups.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html
+  pricing: https://aws.amazon.com/rds/mariadb/pricing/
+- slug: rds-sql-server
+  name: Amazon RDS for SQL Server
+  status: ga
+  summary: Managed Microsoft SQL Server (Express, Web, Standard, Enterprise, and Developer editions) with license-included pricing, Multi-AZ, read replicas (Enterprise), and native backup and restore to S3. No OS or sysadmin access.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SQLServer.html
+  pricing: https://aws.amazon.com/rds/sqlserver/pricing/
+- slug: rds-custom
+  name: Amazon RDS Custom (Oracle and SQL Server)
+  status: ga
+  summary: RDS with access to the database host's operating system and database configuration, for apps that need customization, while AWS still automates backups and other management tasks.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-custom.html
+  pricing: https://aws.amazon.com/rds/custom/pricing/
+- slug: rds-oracle
+  name: Amazon RDS for Oracle
+  status: ga
+  summary: Managed Oracle Database on RDS DB instances (bring your own license, or license-included for Standard Edition Two), with Multi-AZ and read replicas.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Oracle.html
+  pricing: https://aws.amazon.com/rds/oracle/pricing/
+- slug: oracle-database-at-aws
+  name: Oracle Database@AWS
+  status: ga
+  summary: Oracle Exadata Database Service (dedicated infrastructure or Exascale) and Autonomous Database, run by Oracle Cloud Infrastructure inside AWS data centers and connected to your VPCs.
+  docs: https://docs.aws.amazon.com/odb/latest/UserGuide/what-is-odb.html
+  pricing: https://www.oracle.com/cloud/aws/pricing/
+- slug: rds-db2
+  name: Amazon RDS for Db2
+  status: ga
+  summary: Managed IBM Db2 Standard and Advanced editions (versions 11.5 and 12.1), without shell access to the host.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Db2.html
+  pricing: https://aws.amazon.com/rds/db2/pricing/
+- slug: aurora-postgresql
+  name: Amazon Aurora PostgreSQL-Compatible Edition
+  status: ga
+  summary: PostgreSQL-compatible engine with a distributed storage volume that keeps copies across three AZs, up to 15 low-lag read replicas, fast cloning, Global Database, Serverless v2, I/O-Optimized pricing, and Limitless Database.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: aurora-mysql
+  name: Amazon Aurora MySQL-Compatible Edition
+  status: ga
+  summary: MySQL-compatible engine on Aurora's shared, three-AZ storage volume, with up to 15 read replicas, Backtrack, Global Database, and Serverless v2.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMySQL.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: aurora-serverless-v2
+  name: Amazon Aurora Serverless v2
+  status: ga
+  summary: Aurora capacity that scales in 0.5-ACU steps between a minimum and maximum you set, and can scale to 0 ACUs with automatic pause and resume.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-serverless-v2.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: aurora-dsql
+  name: Amazon Aurora DSQL
+  status: ga
+  summary: Serverless, distributed, PostgreSQL-compatible relational database with active-active single-Region (three AZs) and multi-Region clusters, strong consistency, and no instances to manage.
+  docs: https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html
+  pricing: https://aws.amazon.com/rds/aurora/dsql/pricing/
+- slug: aurora-limitless
+  name: Amazon Aurora PostgreSQL Limitless Database
+  status: ga
+  summary: Automated horizontal sharding for Aurora PostgreSQL, spreading data and writes across shards while you connect to a single database endpoint.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/limitless.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: aurora-global-database
+  name: Amazon Aurora Global Database
+  status: ga
+  summary: One primary Region for writes and up to 10 read-only secondary Regions, using storage-level replication, with managed switchover and failover, and optional write forwarding.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: babelfish-aurora
+  name: Babelfish for Aurora PostgreSQL
+  status: ga
+  summary: An extra endpoint on Aurora PostgreSQL that understands SQL Server's TDS wire protocol and common T-SQL, so some SQL Server apps can run with fewer code changes.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish.html
+  pricing: https://aws.amazon.com/rds/aurora/pricing/
+- slug: rds-multi-az
+  name: Amazon RDS Multi-AZ deployments
+  status: ga
+  summary: Synchronous standby in another AZ with automatic failover (Multi-AZ DB instance), or a Multi-AZ DB cluster with two readable standbys for MySQL and PostgreSQL.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html
+  pricing: https://aws.amazon.com/rds/pricing/
+- slug: rds-read-replicas
+  name: Amazon RDS read replicas
+  status: ga
+  summary: Asynchronous read-only copies in the same or another Region, which can be promoted to standalone instances.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html
+  pricing: https://aws.amazon.com/rds/pricing/
+- slug: rds-proxy
+  name: Amazon RDS Proxy
+  status: ga
+  summary: Managed connection pooler for RDS and Aurora that queues and reuses connections, speeds up failover, and can use IAM authentication with credentials in Secrets Manager.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html
+  pricing: https://aws.amazon.com/rds/proxy/pricing/
+- slug: rds-blue-green
+  name: Amazon RDS Blue/Green Deployments
+  status: ga
+  summary: Creates a synchronized staging (green) copy of a production (blue) database for upgrades and schema changes, then switches over with built-in guardrails. Works with RDS Proxy to shorten downtime.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html
+  pricing: https://aws.amazon.com/rds/pricing/
+- slug: rds-outposts
+  name: Amazon RDS on AWS Outposts
+  status: ga
+  summary: RDS for SQL Server, MySQL, PostgreSQL, and Oracle running on Outposts racks in your data center, managed from the AWS Region.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-on-outposts.html
+  pricing: https://aws.amazon.com/rds/outposts/pricing/
+- slug: rds-zero-etl
+  name: Amazon RDS and Aurora zero-ETL integrations
+  status: ga
+  summary: Managed, near-real-time replication of operational database data into Amazon Redshift or a SageMaker lakehouse, with no pipelines to build.
+  docs: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/zero-etl.html
+  pricing: https://aws.amazon.com/rds/pricing/
+- slug: qldb
+  name: Amazon Quantum Ledger Database (QLDB)
+  status: retired
+  status_note: End of support July 31, 2025 (full shutdown). AWS recommended Aurora PostgreSQL for migrations.
+  summary: Ledger database with an immutable, cryptographically verifiable journal.
+  docs: https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+  pricing: https://aws.amazon.com/qldb/pricing/
+- slug: dynamodb
+  name: Amazon DynamoDB
+  status: ga
+  summary: Serverless key-value and document database with single-digit-millisecond performance, on-demand or provisioned capacity, transactions, point-in-time recovery, TTL, global tables, and streams.
+  docs: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html
+  pricing: https://aws.amazon.com/dynamodb/pricing/
+- slug: dynamodb-global-tables
+  name: Amazon DynamoDB global tables
+  status: ga
+  summary: Multi-Region, multi-active tables with multi-Region eventual consistency (the default) or multi-Region strong consistency (MRSC, same-account only). The mode is fixed at creation.
+  docs: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html
+  pricing: https://aws.amazon.com/dynamodb/pricing/
+- slug: dynamodb-streams
+  name: Amazon DynamoDB Streams
+  status: ga
+  summary: Time-ordered log of item-level changes kept for 24 hours, consumed by Lambda triggers or the Kinesis adapter. Kinesis Data Streams is an alternative change destination.
+  docs: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html
+  pricing: https://aws.amazon.com/dynamodb/pricing/
+- slug: dynamodb-dax
+  name: Amazon DynamoDB Accelerator (DAX)
+  status: ga
+  summary: DynamoDB-compatible, in-memory, write-through cache cluster for microsecond read latency.
+  docs: https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html
+  pricing: https://aws.amazon.com/dynamodb/pricing/
+- slug: documentdb
+  name: Amazon DocumentDB (with MongoDB compatibility)
+  status: ga
+  summary: MongoDB API-compatible document database with instance-based clusters (Aurora-style shared storage, standard or I/O-optimized) or elastic clusters (sharded), plus global clusters.
+  docs: https://docs.aws.amazon.com/documentdb/latest/developerguide/what-is.html
+  pricing: https://aws.amazon.com/documentdb/pricing/
+- slug: keyspaces
+  name: Amazon Keyspaces (for Apache Cassandra)
+  status: ga
+  summary: Serverless, Cassandra Query Language (CQL)-compatible wide-column database with on-demand or provisioned capacity and multi-Region replication.
+  docs: https://docs.aws.amazon.com/keyspaces/latest/devguide/what-is-keyspaces.html
+  pricing: https://aws.amazon.com/keyspaces/pricing/
+- slug: neptune
+  name: Amazon Neptune (Database and Analytics)
+  status: ga
+  summary: Managed graph database supporting property graphs (Gremlin and openCypher) and RDF (SPARQL), with read replicas, serverless capacity, and global databases. Neptune Analytics adds in-memory graph analytics and vector search.
+  docs: https://docs.aws.amazon.com/neptune/latest/userguide/intro.html
+  pricing: https://aws.amazon.com/neptune/pricing/
+- slug: timestream-liveanalytics
+  name: Amazon Timestream for LiveAnalytics
+  status: maintenance
+  status_note: Closed to new customers since June 20, 2025. Existing customers can keep using it, and AWS recommends Timestream for InfluxDB for new workloads.
+  summary: Serverless time-series database with memory and magnetic storage tiers and SQL queries.
+  docs: https://docs.aws.amazon.com/timestream/latest/developerguide/what-is-timestream.html
+  pricing: https://aws.amazon.com/timestream/pricing/
+- slug: timestream-influxdb
+  name: Amazon Timestream for InfluxDB
+  status: ga
+  summary: Managed open-source InfluxDB (2.x branch) instances with optional Multi-AZ standby, for real-time time-series workloads.
+  docs: https://docs.aws.amazon.com/timestream/latest/developerguide/timestream-for-influxdb.html
+  pricing: https://aws.amazon.com/timestream/pricing/
+- slug: elasticache
+  name: Amazon ElastiCache
+  status: ga
+  summary: Managed in-memory cache with Valkey, Redis OSS, or Memcached engines, available as serverless caches or node-based clusters.
+  docs: https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/WhatIs.html
+  pricing: https://aws.amazon.com/elasticache/pricing/
+- slug: memorydb
+  name: Amazon MemoryDB
+  status: ga
+  summary: Durable in-memory database compatible with Valkey and Redis OSS. Writes go to a Multi-AZ transactional log, so it can serve as a primary database.
+  docs: https://docs.aws.amazon.com/memorydb/latest/devguide/what-is-memorydb.html
+  pricing: https://aws.amazon.com/memorydb/pricing/
+- slug: database-migration-service
+  name: AWS Database Migration Service (DMS)
+  status: ga
+  summary: Managed one-time and continuous (CDC) database replication between many sources and targets, plus DMS Schema Conversion for converting schemas and code to RDS for MySQL or PostgreSQL targets.
+  docs: https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html
+  pricing: https://aws.amazon.com/dms/pricing/

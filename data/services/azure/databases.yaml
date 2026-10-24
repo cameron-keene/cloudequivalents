@@ -1,0 +1,196 @@
+# Azure database services (category: databases). "onelake" is defined in storage.yaml.
+- slug: azure-database-for-postgresql
+  name: Azure Database for PostgreSQL (flexible server)
+  status: ga
+  summary: Managed community PostgreSQL in Burstable, General Purpose, and Memory Optimized tiers, with same-zone or zone-redundant HA (synchronous warm standby), read replicas, built-in PgBouncer, in-place major version upgrades, stop/start, and extensions such as pgvector.
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: azure-database-for-mysql
+  name: Azure Database for MySQL (flexible server)
+  status: ga
+  summary: Managed MySQL Community Edition (5.7, 8.0, and 8.4) in Burstable, General Purpose, and Business Critical tiers, with same-zone or zone-redundant HA, read replicas, and stop/start.
+  docs: https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/mysql/flexible-server/
+- slug: azure-database-for-mariadb
+  name: Azure Database for MariaDB
+  status: retired
+  status_note: Retired Sep 19, 2025. Remaining servers were deleted, and Microsoft's migration target is Azure Database for MySQL flexible server.
+  summary: Former managed MariaDB service, built on the older single-server platform.
+  docs: https://learn.microsoft.com/en-us/lifecycle/products/azure-database-for-mariadb
+  pricing: https://azure.microsoft.com/en-us/pricing/details/mariadb/
+- slug: azure-sql-database
+  name: Azure SQL Database
+  status: ga
+  summary: Managed database-scoped SQL Server engine (always the latest version) in vCore (General Purpose, Business Critical, Hyperscale up to 128 TB) or DTU models, with serverless compute, elastic pools, active geo-replication, failover groups, and ledger tables.
+  docs: https://learn.microsoft.com/en-us/azure/azure-sql/database/sql-database-paas-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-sql-database/single/
+- slug: azure-sql-managed-instance
+  name: Azure SQL Managed Instance
+  status: ga
+  summary: PaaS SQL Server instance with near-100% compatibility with SQL Server Enterprise Edition (SQL Agent, cross-database queries, CLR, and more), native VNet integration, failover groups, and the Managed Instance link for hybrid replication with SQL Server.
+  docs: https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/sql-managed-instance-paas-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-sql-managed-instance/single/
+- slug: sql-server-on-azure-vms
+  name: SQL Server on Azure Virtual Machines
+  status: ga
+  summary: SQL Server on Windows or Linux VMs with full OS and instance control. The free SQL IaaS Agent extension adds automated backup, patching, and license management (pay-as-you-go or Azure Hybrid Benefit).
+  docs: https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-server-on-azure-vm-iaas-what-is-overview
+  pricing: https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/pricing-guidance
+- slug: oracle-database-at-azure
+  name: Oracle AI Database@Azure
+  status: ga
+  summary: Oracle Exadata Database Service (dedicated or Exascale), Autonomous AI Database, and Base Database Service, run by OCI inside Azure data centers. Bought through an Azure Marketplace private offer, billed through Azure, and counted toward MACC.
+  docs: https://learn.microsoft.com/en-us/azure/oracle/oracle-db/database-overview
+  pricing: https://www.oracle.com/cloud/azure/oracle-database-at-azure/pricing/
+- slug: azure-horizondb
+  name: Azure HorizonDB
+  status: preview
+  status_note: Public preview when verified. Microsoft says to confirm its status before planning a production migration.
+  summary: Cloud-native PostgreSQL service with disaggregated compute and storage and a database-as-a-log design. Storage is zone-resilient by default and grows automatically, and read replicas share the storage.
+  docs: https://learn.microsoft.com/en-us/azure/horizondb/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/horizondb/
+- slug: postgresql-elastic-clusters
+  name: Azure Database for PostgreSQL elastic clusters
+  status: ga
+  summary: Managed Citus on flexible server nodes, for horizontal sharding (row-based or schema-based) across a shared-nothing cluster.
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/elastic-clusters/concepts-elastic-clusters
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: cosmos-db-for-postgresql
+  name: Azure Cosmos DB for PostgreSQL
+  status: deprecated
+  status_note: On a retirement path and not recommended for new projects. Microsoft points to elastic clusters in Azure Database for PostgreSQL.
+  summary: Distributed PostgreSQL built on Citus.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/postgresql/introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: azure-sql-database-serverless
+  name: Azure SQL Database serverless
+  status: ga
+  summary: A compute tier for single databases that autoscales between minimum and maximum vCores, bills compute per second, and can auto-pause after a delay you set (General Purpose). Hyperscale also has a serverless option.
+  docs: https://learn.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-sql-database/single/
+- slug: sql-database-in-fabric
+  name: SQL database in Microsoft Fabric
+  status: ga
+  summary: A transactional database in Fabric built on the Azure SQL Database engine. It's billed through Fabric capacity and automatically mirrored to OneLake for analytics.
+  docs: https://learn.microsoft.com/en-us/fabric/database/sql/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-fabric/
+- slug: database-high-availability
+  name: Zone-redundant high availability (PostgreSQL, MySQL, Azure SQL)
+  status: ga
+  summary: Synchronous standby (PostgreSQL, MySQL) or multiple replicas (SQL Database Business Critical and Hyperscale), placed in another zone, with automatic failover.
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/high-availability/concepts-high-availability
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: database-read-replicas
+  name: Read replicas (PostgreSQL, MySQL)
+  status: ga
+  summary: Asynchronous read-only replicas in the same or another region, which can be promoted, with virtual endpoints for PostgreSQL.
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: sql-failover-groups
+  name: Azure SQL active geo-replication and failover groups
+  status: ga
+  summary: Asynchronous replication of databases to other regions, with failover groups that give stable read-write and read-only listener endpoints across regions.
+  docs: https://learn.microsoft.com/en-us/azure/azure-sql/database/failover-group-sql-db
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-sql-database/single/
+- slug: postgresql-pgbouncer
+  name: Built-in PgBouncer (Azure Database for PostgreSQL)
+  status: ga
+  summary: Optional connection pooler that runs on the same VM as the flexible server (General Purpose and Memory Optimized tiers).
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/connectivity/concepts-pgbouncer
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: postgresql-major-version-upgrade
+  name: In-place major version upgrade (PostgreSQL)
+  status: ga
+  summary: Upgrades a flexible server to a newer supported major version in place, keeping its name and settings, with some downtime.
+  docs: https://learn.microsoft.com/en-us/azure/postgresql/configure-maintain/concepts-major-version-upgrade
+  pricing: https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+- slug: arc-sql-managed-instance
+  name: SQL Managed Instance enabled by Azure Arc
+  status: ga
+  summary: SQL Managed Instance running on Kubernetes on your own infrastructure, managed through Azure Arc.
+  docs: https://learn.microsoft.com/en-us/azure/azure-arc/data/managed-instance-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-arc/data-services/
+- slug: fabric-mirroring
+  name: Mirroring in Microsoft Fabric
+  status: ga
+  summary: Managed, near-real-time replication of databases (Azure SQL, Cosmos DB, PostgreSQL, Snowflake, and others) into OneLake as Delta tables, with a SQL analytics endpoint.
+  docs: https://learn.microsoft.com/en-us/fabric/mirroring/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-fabric/
+- slug: sql-ledger
+  name: Ledger in Azure SQL Database and SQL Server
+  status: ga
+  summary: Tamper-evident updatable and append-only ledger tables. Changes are SHA-256 hashed into a Merkle-tree chain, with database digests stored in immutable storage for verification.
+  docs: https://learn.microsoft.com/en-us/sql/relational-databases/security/ledger/ledger-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-sql-database/single/
+- slug: cosmos-db-nosql
+  name: Azure Cosmos DB for NoSQL
+  status: ga
+  summary: Globally distributed NoSQL document database with request-unit (RU) throughput (provisioned, autoscale, or serverless), automatic indexing, five consistency levels, multi-region writes (99.999% SLA), and integrated DiskANN vector search.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: cosmos-db-global-distribution
+  name: Azure Cosmos DB global distribution and multi-region writes
+  status: ga
+  summary: Add or remove regions at any time, with single-region or multi-region writes, automatic or manual failover, and conflict resolution (last writer wins or custom).
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/distribute-data-globally
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: cosmos-db-change-feed
+  name: Azure Cosmos DB change feed
+  status: ga
+  summary: Persistent, ordered (per partition key) log of changes, read with the change feed processor, Azure Functions triggers, or Spark. Latest-version mode by default, plus an all-versions-and-deletes mode.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: cosmos-db-integrated-cache
+  name: Azure Cosmos DB integrated cache (dedicated gateway)
+  status: ga
+  summary: Item and query cache built into a dedicated gateway that you size by node count and node size, for the API for NoSQL.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/integrated-cache
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: table-storage
+  name: Azure Table Storage and Azure Cosmos DB for Table
+  status: ga
+  summary: Table Storage is a simple, low-cost key-attribute store in a storage account. Cosmos DB for Table uses the same API with Cosmos DB throughput, global distribution, and SLAs.
+  docs: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/tables/
+- slug: azure-documentdb
+  name: Azure DocumentDB (with MongoDB compatibility)
+  status: ga
+  summary: vCore-based MongoDB-compatible database built on the open-source, MIT-licensed DocumentDB engine (PostgreSQL-based, not MongoDB code). Microsoft cites 99.03% MongoDB compatibility, with built-in vector search. Azure Cosmos DB for MongoDB (RU) is the request-unit alternative.
+  docs: https://learn.microsoft.com/en-us/azure/documentdb/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/documentdb/
+- slug: cosmos-db-cassandra
+  name: Azure Cosmos DB for Apache Cassandra
+  status: ga
+  summary: Cassandra Query Language-compatible API on Cosmos DB, with RU-based throughput and Cosmos DB global distribution.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/cassandra/introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: managed-instance-cassandra
+  name: Azure Managed Instance for Apache Cassandra
+  status: ga
+  summary: Managed open-source Apache Cassandra datacenters, deployed into your VNet on VM scale sets, that can join existing on-premises or other-cloud Cassandra clusters.
+  docs: https://learn.microsoft.com/en-us/azure/managed-instance-apache-cassandra/introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-instance-apache-cassandra/
+- slug: cosmos-db-gremlin
+  name: Azure Cosmos DB for Apache Gremlin
+  status: ga
+  summary: Property-graph database using the Gremlin (Apache TinkerPop) query language on Cosmos DB, with RU throughput and global distribution.
+  docs: https://learn.microsoft.com/en-us/azure/cosmos-db/gremlin/introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/autoscale-provisioned/
+- slug: azure-data-explorer
+  name: Azure Data Explorer
+  status: ga
+  summary: Managed analytics engine for log, telemetry, and time-series data queried with Kusto Query Language (KQL), with built-in time-series, anomaly-detection, and forecasting functions. The same engine powers Fabric Eventhouse.
+  docs: https://learn.microsoft.com/en-us/azure/data-explorer/data-explorer-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/data-explorer/
+- slug: azure-managed-redis
+  name: Azure Managed Redis
+  status: ga
+  summary: Managed Redis built on Redis Enterprise, in Memory Optimized, Balanced, Compute Optimized, and Flash Optimized tiers, with active geo-replication and Redis modules. It replaces Azure Cache for Redis, whose Enterprise tiers retire Mar 31, 2027 and Basic/Standard/Premium tiers retire Sep 30, 2028.
+  docs: https://learn.microsoft.com/en-us/azure/redis/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-redis/
+- slug: azure-database-migration-service
+  name: Azure Database Migration Service
+  status: ga
+  summary: Managed online and offline migrations to Azure SQL Database, SQL Managed Instance, and SQL Server on Azure VMs, and migrations to Azure Database for MySQL (including MySQL 8.4). Check the current scenario matrix.
+  docs: https://learn.microsoft.com/en-us/azure/dms/dms-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/database-migration/
