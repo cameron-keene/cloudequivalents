@@ -92,3 +92,159 @@
   status: retired
   url: https://learn.microsoft.com/en-us/credentials/certifications/azure-data-scientist/
   note: Certification and renewal assessment are retired.
+# ---- Core cloud exams (added 2026-10-24; status checked on official certification pages that day) ----
+- code: CLF-C02
+  provider: aws
+  name: AWS Certified Cloud Practitioner
+  level: Foundational
+  status: current
+  url: https://aws.amazon.com/certification/certified-cloud-practitioner/
+  note: Italian and German versions retire after Dec 31, 2026.
+- code: SAA-C03
+  provider: aws
+  name: AWS Certified Solutions Architect – Associate
+  level: Associate
+  status: current
+  url: https://aws.amazon.com/certification/certified-solutions-architect-associate/
+  note: Italian version retires after Dec 31, 2026.
+- code: SAP-C02
+  provider: aws
+  name: AWS Certified Solutions Architect – Professional
+  level: Professional
+  status: retiring
+  url: https://aws.amazon.com/certification/certified-solutions-architect-professional/
+  note: Being updated to SAP-C03. Registration for SAP-C03 opens Oct 27, 2026. Last day to take SAP-C02 is Nov 16, 2026.
+- code: SOA-C03
+  provider: aws
+  name: AWS Certified CloudOps Engineer – Associate
+  level: Associate
+  status: current
+  url: https://aws.amazon.com/certification/certified-cloudops-engineer-associate/
+  note: Replaces AWS Certified SysOps Administrator – Associate (SOA-C02), whose last exam day was Sep 29, 2025. Simplified Chinese and Korean versions retire after Nov 19, 2026.
+- code: DVA-C02
+  provider: aws
+  name: AWS Certified Developer – Associate
+  level: Associate
+  status: retiring
+  url: https://aws.amazon.com/certification/certified-developer-associate/
+  note: Being updated to DVA-C03. Registration for DVA-C03 opens Oct 27, 2026. Last day to take DVA-C02 is Nov 30, 2026.
+- code: SCS-C03
+  provider: aws
+  name: AWS Certified Security – Specialty
+  level: Specialty
+  status: current
+  url: https://aws.amazon.com/certification/certified-security-specialty/
+  note: The current code (SCS-C03) is taken from the exam-prep link on the official certification page. Simplified Chinese, Spanish (Latin America), and Portuguese (Brazil) versions retire after Dec 31, 2026.
+- code: ANS-C01
+  provider: aws
+  name: AWS Certified Advanced Networking – Specialty
+  level: Specialty
+  status: retiring
+  url: https://aws.amazon.com/certification/certified-advanced-networking-specialty/
+  note: The exam is being retired. The last day to take it is Dec 31, 2026. Existing certifications stay active for their three-year period.
+- code: DOP-C02
+  provider: aws
+  name: AWS Certified DevOps Engineer – Professional
+  level: Professional
+  status: current
+  url: https://aws.amazon.com/certification/certified-devops-engineer-professional/
+  note: Korean version retires after Dec 31, 2026.
+- code: DEA-C01
+  provider: aws
+  name: AWS Certified Data Engineer – Associate
+  level: Associate
+  status: current
+  url: https://aws.amazon.com/certification/certified-data-engineer-associate/
+- code: AZ-900
+  provider: azure
+  name: Microsoft Certified – Azure Fundamentals
+  level: Fundamentals
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/
+- code: AZ-104
+  provider: azure
+  name: Microsoft Certified – Azure Administrator Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/
+- code: AZ-305
+  provider: azure
+  name: Microsoft Certified – Azure Solutions Architect Expert
+  level: Expert
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/
+  note: English version updated Apr 17, 2026.
+- code: AZ-700
+  provider: azure
+  name: Microsoft Certified – Azure Network Engineer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-network-engineer-associate/
+- code: AZ-400
+  provider: azure
+  name: Microsoft Certified – DevOps Engineer Expert
+  level: Expert
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/devops-engineer/
+  note: A new Agentic DevOps Engineer Expert certification (exam AZ-401) is in beta.
+- code: AZ-204
+  provider: azure
+  name: Microsoft Certified – Azure Developer Associate
+  level: Associate
+  status: retired
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-developer/
+  note: The certification and renewal assessment are retired (the page doesn't give a date). The closest current developer credential is AI-200 (Azure AI Cloud Developer Associate). That's our reading, not an official mapping.
+- code: AZ-500
+  provider: azure
+  name: Microsoft Certified – Azure Security Engineer Associate
+  level: Associate
+  status: retired
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-security-engineer/
+  note: Certification, exam, and renewal retired on Aug 31, 2026. See SC-500 (Cloud and AI Security Engineer Associate).
+- code: SC-500
+  provider: azure
+  name: Microsoft Certified – Cloud and AI Security Engineer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/cloud-and-ai-security-engineer-associate/
+  note: New certification. A practice assessment isn't available yet, which the page says usually means the exam recently left (or is in) beta.
+- code: SC-300
+  provider: azure
+  name: Microsoft Certified – Identity and Access Administrator Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/identity-and-access-administrator/
+  note: English version will be updated on Oct 28, 2026.
+- code: SC-200
+  provider: azure
+  name: Microsoft Certified – Security Operations Analyst Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/security-operations-analyst/
+- code: SC-100
+  provider: azure
+  name: Microsoft Certified – Cybersecurity Architect Expert
+  level: Expert
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/cybersecurity-architect-expert/
+  note: English version updated Oct 21, 2026.
+- code: SC-900
+  provider: azure
+  name: Microsoft Certified – Security, Compliance, and Identity Fundamentals
+  level: Fundamentals
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/security-compliance-and-identity-fundamentals/
+- code: DP-300
+  provider: azure
+  name: Microsoft Certified – Azure Database Administrator Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-database-administrator-associate/
+  note: English version will be updated on Oct 27, 2026.
+- code: DP-420
+  provider: azure
+  name: Microsoft Certified – Azure Cosmos DB AI Developer Associate
+  level: Associate
+  status: current
+  url: https://learn.microsoft.com/en-us/credentials/certifications/azure-cosmos-db-developer-specialty/
+  note: Renamed from Azure Cosmos DB Developer Specialty and moved to Associate level on Oct 6, 2026.

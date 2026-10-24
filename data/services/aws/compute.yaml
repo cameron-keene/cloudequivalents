@@ -1,0 +1,213 @@
+# AWS compute services (category: compute). Same status vocabulary as ai-ml.yaml.
+- slug: ec2
+  name: Amazon EC2
+  status: ga
+  summary: Resizable virtual servers (instances) on the Nitro System, with On-Demand, Spot, Savings Plans, Reserved Instance, and Dedicated purchase options.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: ec2-instance-types
+  name: Amazon EC2 instance types
+  status: ga
+  summary: Instance families by workload (general purpose M/T, compute C, memory R/X/U, storage I/D/H, accelerated P/G/Inf/Trn, HPC Hpc). Each family uses a generation number and processor/feature suffixes (g = Graviton, a = AMD, i = Intel, d = local NVMe, n = network-enhanced).
+  docs: https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html
+  pricing: https://aws.amazon.com/ec2/pricing/on-demand/
+- slug: graviton
+  name: AWS Graviton (Arm-based EC2)
+  status: ga
+  summary: AWS-designed Arm64 server CPUs behind the "g" instance families. Graviton4 (M8g/C8g/R8g/X8g) is widely available, and Graviton5-based M9g/C9g/R9g families appear in the current-generation list.
+  docs: https://aws.amazon.com/ec2/graviton/
+  pricing: https://aws.amazon.com/ec2/pricing/on-demand/
+- slug: ec2-mac
+  name: Amazon EC2 Mac instances
+  status: ga
+  summary: Bare-metal Apple Mac mini and Mac Studio hardware (Intel, M1, M1 Ultra, M2, M2 Pro, M4, M4 Pro) for macOS and iOS builds. Runs only on Dedicated Hosts with a 24-hour minimum allocation.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-mac-instances.html
+  pricing: https://aws.amazon.com/ec2/dedicated-hosts/pricing/
+- slug: ec2-bare-metal
+  name: Amazon EC2 bare metal instances
+  status: ga
+  summary: ".metal sizes of many instance families. They give the OS direct access to the processor and memory, with no AWS hypervisor, for nested virtualization, special licensing, or low-level tooling."
+  docs: https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html
+  pricing: https://aws.amazon.com/ec2/pricing/on-demand/
+- slug: ami
+  name: Amazon Machine Images (AMIs)
+  status: ga
+  summary: Regional launch images (EBS snapshots plus launch metadata) that you can share with accounts, organizations, or publicly, and copy across Regions.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html
+  pricing: https://aws.amazon.com/ebs/pricing/
+- slug: ec2-image-builder
+  name: EC2 Image Builder
+  status: ga
+  summary: Managed pipelines that build, test, and distribute hardened AMIs and container images on a schedule.
+  docs: https://docs.aws.amazon.com/imagebuilder/latest/userguide/what-is-image-builder.html
+  pricing: https://aws.amazon.com/image-builder/
+- slug: ec2-hibernation
+  name: Amazon EC2 hibernation
+  status: ga
+  summary: Suspend-to-disk for EC2. RAM is saved to the encrypted EBS root volume and restored on start, so warmed-up apps resume quickly.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html
+  pricing: https://aws.amazon.com/ebs/pricing/
+- slug: ec2-spot
+  name: Amazon EC2 Spot Instances
+  status: ga
+  summary: Spare EC2 capacity at a steep discount that can be interrupted with a two-minute notice, plus rebalance-recommendation signals.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
+  pricing: https://aws.amazon.com/ec2/spot/pricing/
+- slug: savings-plans
+  name: Savings Plans (Compute & EC2 Instance)
+  status: ga
+  summary: A 1- or 3-year $/hour spend commitment. Compute Savings Plans apply across EC2 family, size, OS, tenancy, and Region, plus Fargate and Lambda. EC2 Instance Savings Plans lock to a family in a Region for a deeper discount.
+  docs: https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html
+  pricing: https://aws.amazon.com/savingsplans/compute-pricing/
+- slug: reserved-instances
+  name: Amazon EC2 Reserved Instances
+  status: ga
+  summary: A 1- or 3-year billing discount for a specific instance configuration. Standard RIs can be modified and resold on the RI Marketplace. Convertible RIs can be exchanged. Purchases can't be cancelled.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html
+  pricing: https://aws.amazon.com/ec2/pricing/reserved-instances/pricing/
+- slug: capacity-reservations
+  name: EC2 On-Demand Capacity Reservations
+  status: ga
+  summary: Reserve capacity for an instance type in an AZ, either immediately with no commitment or future-dated with a commitment. Billed at On-Demand rates whether you use it or not. Discounts come from Savings Plans or regional RIs.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-reservations.html
+  pricing: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/capacity-reservations-pricing-billing.html
+- slug: dedicated-hosts
+  name: Amazon EC2 Dedicated Hosts & Dedicated Instances
+  status: ga
+  summary: Physical servers dedicated to your account. Dedicated Hosts expose sockets and cores for per-core/per-socket BYOL and give host affinity. Dedicated Instances give hardware isolation without host visibility.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-hosts-overview.html
+  pricing: https://aws.amazon.com/ec2/dedicated-hosts/pricing/
+- slug: license-manager
+  name: AWS License Manager
+  status: ga
+  summary: Track and enforce software license rules (vCPU, core, socket, instance) across EC2, on-premises servers, and Dedicated Hosts. Also offers license-included options for some Microsoft products.
+  docs: https://docs.aws.amazon.com/license-manager/latest/userguide/license-manager.html
+  pricing: https://aws.amazon.com/license-manager/pricing/
+- slug: ec2-auto-scaling
+  name: Amazon EC2 Auto Scaling
+  status: ga
+  summary: Auto Scaling groups that keep a target number of instances healthy and scale with target tracking, step, scheduled, or predictive policies. Mixed instances policies blend Spot and On-Demand. Warm pools are supported.
+  docs: https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+  pricing: https://aws.amazon.com/ec2/autoscaling/pricing/
+- slug: placement-groups
+  name: EC2 placement groups
+  status: ga
+  summary: Placement strategies. Cluster packs instances for low-latency HPC. Partition keeps groups on separate racks. Spread puts each instance on distinct hardware. Precision time places instances near high-precision time sources.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: compute-optimizer
+  name: AWS Compute Optimizer
+  status: ga
+  summary: Rightsizing and idle-resource recommendations for EC2, Auto Scaling groups, EBS, Lambda, ECS on Fargate, RDS/Aurora, commercial licenses, and more, based on utilization history.
+  docs: https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html
+  pricing: https://aws.amazon.com/compute-optimizer/pricing/
+- slug: aws-batch
+  name: AWS Batch
+  status: ga
+  summary: Managed batch job scheduler. It runs containerized jobs and array jobs on EC2 (including Spot), Fargate, or EKS compute environments, using job queues and fair-share scheduling.
+  docs: https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html
+  pricing: https://aws.amazon.com/batch/pricing/
+- slug: parallelcluster
+  name: AWS ParallelCluster
+  status: ga
+  summary: AWS-supported, open-source CLI/API/UI for deploying self-managed Slurm HPC clusters. From v3.16.0 the AWS Batch scheduler option is no longer supported.
+  docs: https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html
+  pricing: https://aws.amazon.com/hpc/parallelcluster/
+- slug: aws-pcs
+  name: AWS Parallel Computing Service (PCS)
+  status: ga
+  summary: Fully managed Slurm. AWS runs the Slurm controller, and you define compute node groups and queues.
+  docs: https://docs.aws.amazon.com/pcs/latest/userguide/what-is-service.html
+  pricing: https://aws.amazon.com/pcs/pricing/
+- slug: efa
+  name: Elastic Fabric Adapter (EFA)
+  status: ga
+  summary: An OS-bypass network interface (SRD protocol) for MPI and NCCL traffic on supported instance types.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html
+  pricing: https://aws.amazon.com/hpc/efa/
+- slug: elastic-beanstalk
+  name: AWS Elastic Beanstalk
+  status: ga
+  summary: Upload-your-code web app platform. Standard mode runs apps on EC2 with load balancing and scaling. The newer Cluster mode runs apps on a service-operated EKS cluster.
+  docs: https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html
+  pricing: https://aws.amazon.com/elasticbeanstalk/pricing/
+- slug: lightsail
+  name: Amazon Lightsail
+  status: ga
+  summary: Simplified virtual private servers, containers, managed databases, CDN, load balancers, and DNS bundled at fixed monthly prices.
+  docs: https://docs.aws.amazon.com/lightsail/latest/userguide/what-is-amazon-lightsail.html
+  pricing: https://aws.amazon.com/lightsail/pricing/
+- slug: workspaces
+  name: Amazon WorkSpaces (Personal & Pools)
+  status: ga
+  status_note: The WorkSpaces Pools and PCoIP protocol end of support is June 30, 2027 (sunset announced June 30, 2026). WorkSpaces Personal on the DCV protocol continues.
+  summary: Managed cloud desktops on Windows, Ubuntu, Rocky Linux, or RHEL. Personal gives persistent per-user desktops, and Pools gives non-persistent ones.
+  docs: https://docs.aws.amazon.com/workspaces/latest/adminguide/amazon-workspaces.html
+  pricing: https://aws.amazon.com/workspaces/pricing/
+- slug: workspaces-applications
+  name: Amazon WorkSpaces Applications (formerly AppStream 2.0)
+  status: ga
+  status_note: Renamed from Amazon AppStream 2.0. API namespaces still use "appstream".
+  summary: Managed application streaming. Desktop apps run on AWS fleets and stream to a client or HTML5 browser.
+  docs: https://docs.aws.amazon.com/appstream2/latest/developerguide/what-is-appstream.html
+  pricing: https://aws.amazon.com/appstream2/pricing/
+- slug: outposts
+  name: AWS Outposts (racks & servers)
+  status: ga
+  summary: AWS-owned and AWS-managed hardware in your data center, as 42U racks or 1U/2U servers, running EC2, EBS, and selected services as an extension of a Region.
+  docs: https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html
+  pricing: https://aws.amazon.com/outposts/rack/pricing/
+- slug: local-zones
+  name: AWS Local Zones
+  status: ga
+  summary: AWS-operated infrastructure in metro areas, extending a parent Region with EC2, EBS, and selected services for single-digit-ms latency or data residency.
+  docs: https://docs.aws.amazon.com/local-zones/latest/ug/what-is-aws-local-zones.html
+  pricing: https://aws.amazon.com/about-aws/global-infrastructure/localzones/pricing/
+- slug: wavelength
+  name: AWS Wavelength
+  status: ga
+  summary: AWS compute and storage inside telecom carriers' 5G networks (Wavelength Zones), reached through a carrier gateway.
+  docs: https://docs.aws.amazon.com/wavelength/latest/developerguide/what-is-wavelength.html
+  pricing: https://aws.amazon.com/wavelength/pricing/
+- slug: evs
+  name: Amazon Elastic VMware Service (EVS)
+  status: ga
+  summary: Self-managed (or partner-managed) VMware Cloud Foundation that AWS deploys onto EC2 bare metal inside your VPC. You bring a portable VCF subscription from Broadcom.
+  docs: https://docs.aws.amazon.com/evs/latest/userguide/what-is-evs.html
+  pricing: https://aws.amazon.com/evs/pricing/
+- slug: nitro-enclaves
+  name: AWS Nitro Enclaves
+  status: ga
+  summary: Isolated, hardened VMs carved out of an EC2 instance's vCPUs and memory, with no network, storage, or interactive access. Attestation integrates with AWS KMS.
+  docs: https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html
+  pricing: https://aws.amazon.com/ec2/nitro/nitro-enclaves/
+- slug: ec2-sev-snp
+  name: AMD SEV-SNP on Amazon EC2
+  status: ga
+  summary: Memory encryption and attestation with AMD SEV-SNP on supported AMD-based instance types (M6a, C6a, and R6a at the time of verification), for shared tenancy or Dedicated Hosts.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html
+  pricing: https://aws.amazon.com/ec2/pricing/on-demand/
+- slug: nitrotpm
+  name: NitroTPM & UEFI Secure Boot
+  status: ga
+  summary: A virtual TPM 2.0 plus UEFI Secure Boot for EC2 instances launched from AMIs configured for them. Enables measured boot and BitLocker-style key sealing.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: session-manager
+  name: AWS Systems Manager Session Manager
+  status: ga
+  summary: Browser or CLI shell access and port forwarding to managed nodes through the SSM Agent, with no open inbound ports, bastion hosts, or SSH keys. Sessions are logged and IAM-controlled.
+  docs: https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
+  pricing: https://aws.amazon.com/systems-manager/pricing/
+- slug: ec2-instance-connect-endpoint
+  name: EC2 Instance Connect Endpoint
+  status: ga
+  summary: A VPC endpoint for SSH or RDP to instances that have no public IP address, authorized with IAM.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html
+  pricing: https://aws.amazon.com/ec2/pricing/
+- slug: patch-manager
+  name: AWS Systems Manager Patch Manager
+  status: ga
+  summary: Scans and installs OS and application patches on managed nodes, using patch baselines, maintenance windows, and Quick Setup patch policies across accounts and Regions.
+  docs: https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager.html
+  pricing: https://aws.amazon.com/systems-manager/pricing/

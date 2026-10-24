@@ -1,0 +1,864 @@
+# Compute: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: compute
+  name: Compute
+  short: Compute
+  order: 1
+  description: Virtual machines, instance families, images, Spot and commitment discounts, dedicated hardware, scaling, HPC, simple hosting, virtual desktops, hybrid and edge, VMware, and VM security. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure compute, side by side: EC2 vs Azure Virtual Machines, Spot, Savings Plans vs Azure savings plan, Auto Scaling vs VMSS, Batch, HPC, Outposts vs Azure Local, and more."
+  last_verified: "2026-10-24"
+  groups:
+    - id: vm-core
+      name: Virtual machines & images
+    - id: vm-pricing
+      name: Purchase options & licensing
+    - id: vm-scaling
+      name: Scaling, placement & rightsizing
+    - id: hpc
+      name: Batch & HPC
+    - id: app-hosting
+      name: Simple hosting & virtual desktops
+    - id: hybrid-edge
+      name: Hybrid, edge & VMware
+    - id: vm-security
+      name: VM security & operations
+
+rows:
+# ───────────────────────── VIRTUAL MACHINES & IMAGES ─────────────────────────
+- id: virtual-servers
+  group: vm-core
+  capability: Virtual machines (IaaS)
+  what_for: Rent a virtual server by the second, pick its CPU, memory, disk, and OS, and run anything you would run on a physical server.
+  match: direct
+  answer: The Azure equivalent of Amazon EC2 is Azure Virtual Machines. Both are general-purpose IaaS VMs with per-second billing, Spot, commitment discounts, and dedicated-host options.
+  providers:
+    aws: [ec2]
+    azure: [virtual-machines]
+  differences:
+    - Networking model. An EC2 instance sits in a VPC subnet with security groups attached to its network interface. An Azure VM's NIC sits in a VNet subnet, filtered by NSGs on the NIC and/or subnet. Public IPs are separate resources on Azure.
+    - Stopping. A stopped EC2 instance isn't billed for compute. On Azure, a VM stopped from inside the OS keeps billing for compute. Only "Stopped (deallocated)" from the portal, CLI, or API stops compute charges.
+    - Disks. EC2 uses EBS volumes plus optional instance store. Azure uses managed disks (Standard HDD/SSD, Premium SSD v1/v2, Ultra) plus an optional temporary or local NVMe disk on "d" sizes.
+    - Resiliency constructs. AWS uses Availability Zones and placement groups. Azure uses availability zones, availability sets (fault/update domains), and scale sets. Azure also has single-instance VM SLAs that depend on disk type.
+    - Security defaults. New Azure Gen2 VMs default to Trusted Launch (Secure Boot plus vTPM). On EC2, UEFI Secure Boot and NitroTPM depend on the AMI's configuration.
+    - Resource organization. Every Azure VM lives in a resource group and subscription, which is the scope for RBAC, policy, and cost. EC2 instances are scoped to an account and Region, with tags.
+  pricing:
+    aws: Per-second On-Demand billing (60-second minimum) for Linux and Windows. Spot, Savings Plans, and Reserved Instances discount it, and Dedicated Hosts are billed per host. EBS, data transfer, and public IPv4 addresses are billed separately.
+    azure: Per-second pay-as-you-go billing for running (allocated) VMs. Spot VMs, reservations, and the savings plan discount it. Azure Hybrid Benefit removes the Windows Server or SQL Server license charge if you bring licenses. Managed disks, bandwidth, and public IPs are billed separately.
+  exams:
+    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C02]
+    azure: [AZ-900, AZ-104, AZ-305]
+  faq:
+    - q: Does a stopped Azure VM cost money?
+      a: Only if it's merely stopped from inside the OS. You stop paying for compute when the VM is "Stopped (deallocated)". Disks and static public IPs keep billing in both cases, just as EBS volumes and Elastic IPs do on AWS.
+  related: [instance-families, machine-images, auto-scaling, purchase-spot]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+
+- id: instance-families
+  group: vm-core
+  capability: Instance types and VM sizes
+  what_for: Choose the right shape (CPU vendor, vCPU-to-memory ratio, local disk, network, accelerators) for a workload.
+  match: direct
+  answer: EC2 instance types map to Azure VM sizes (series). Both group shapes by workload type and use letters in the name for the CPU vendor and features, but the naming schemes are different.
+  slug: aws-ec2-instance-types-vs-azure-vm-sizes
+  providers:
+    aws: [ec2-instance-types]
+    azure: [vm-sizes]
+  differences:
+    - "Rough family mapping: general purpose M/T ↔ D/B, compute optimized C ↔ F, memory optimized R/X/U ↔ E/M, storage optimized I/D ↔ L, GPU P/G ↔ N (ND/NC/NV), HPC Hpc ↔ H (HB/HX)."
+    - "Naming. EC2 is family + generation + suffix + size (m7i.2xlarge, where i = Intel, a = AMD, g = Graviton, d = local NVMe, n = network). Azure is family + vCPUs + features + version (Standard_D8as_v6, where a = AMD, p = Arm, d = local disk, s = premium storage capable, l = low memory)."
+    - Burstable. T-series uses CPU credits, with an "unlimited" mode. Azure B-series uses banked credits as well. Check each side's credit and baseline rules before comparing.
+    - Azure sizes are named by vCPU count, while EC2 uses size words (large, xlarge, and so on). The vCPU:memory ratios per family are similar but not identical, so map by numbers, not names.
+    - End of sale. AWS stopped new launches of U-9tb1 through U-24tb1 (move to U7i). Azure regularly retires older series too (for example, isolated sizes give 12 months' notice). Check both lifecycle pages before standardizing.
+  pricing:
+    aws: Each instance type has its own per-second On-Demand price per Region and OS. Newer generations are usually cheaper per unit of performance.
+    azure: Each size has its own per-second price per region and OS. Newer versions (v6, v7) and AMD or Arm variants usually cost less for the same vCPU count.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [virtual-servers, arm-cpus, gpu-instances, bare-metal]
+  sources:
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
+  flags:
+    - Family letters change as new generations ship. Check the size lists on both sides at decision time.
+
+- id: arm-cpus
+  group: vm-core
+  capability: Cloud provider's own Arm CPUs
+  what_for: Run Linux workloads on cheaper, more power-efficient Arm64 server CPUs designed by the cloud provider.
+  match: direct
+  answer: AWS Graviton maps to Azure Cobalt. Both are provider-designed Arm64 CPUs offered as general-purpose and memory-optimized VM families ("g" on EC2, "p" on Azure).
+  providers:
+    aws: [graviton]
+    azure: [cobalt]
+  differences:
+    - Maturity. Graviton is in its fourth and fifth generations (Graviton4 in M8g/C8g/R8g/X8g; Graviton5 in M9g/C9g/R9g) and covers general, compute, memory, storage, and burstable families. Cobalt 100 is GA (Dpsv6/Dplsv6/Epsv6 and more), and Cobalt 200 has been in early-access preview since June 2026.
+    - Breadth of managed services. Many AWS managed services offer Graviton options (RDS, ElastiCache, Lambda, Fargate, and others). On Azure, Arm options are mostly IaaS VMs and AKS node pools.
+    - Windows. Neither side offers general Windows Server on its Arm VMs. Plan for Linux.
+    - Azure "p" sizes also include older Ampere Altra-based VMs (Dpsv5/Epsv5), so not every "p" size is Cobalt.
+  pricing:
+    aws: Graviton instances are priced per second like other instance types and generally cost less than comparable x86 instances. Savings Plans and RIs apply.
+    azure: Cobalt VMs are priced per second like other sizes. Reservations and the savings plan apply. Cobalt 200 preview pricing may differ from GA.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [instance-families, custom-training-chips]
+  sources:
+    - https://aws.amazon.com/ec2/graviton/
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dpsv6-series
+    - https://azure.microsoft.com/en-us/blog/new-azure-cobalt-200-vms-deliver-50-performance-improvement-fully-optimized-for-modern-agentic-ai-workloads/
+  flags:
+    - Cobalt 200 was in early-access preview (8 regions) when verified. Microsoft said broader availability would come later in 2026, so check for GA.
+    - Graviton5 (M9g/C9g/R9g) is listed as current generation, but regional availability may still be limited.
+
+- id: machine-images
+  group: vm-core
+  capability: VM images and image sharing
+  what_for: Capture a configured server as a reusable image, version it, and share it across accounts and regions to launch identical machines.
+  match: direct
+  answer: Amazon Machine Images (AMIs) map to Azure Compute Gallery image versions. Azure's standalone "managed images" are now documented as legacy.
+  slug: aws-ami-vs-azure-compute-gallery
+  providers:
+    aws: [ami]
+    azure: [azure-compute-gallery]
+  differences:
+    - Structure. An AMI is one regional artifact (snapshots plus launch metadata) that you copy to other Regions. A Compute Gallery has image definitions with numbered versions, and each version replicates to the regions you choose, with a replica count per region.
+    - Sharing. AMIs are shared with accounts, organizations or OUs, or publicly. Gallery images are shared through Azure RBAC, direct shared galleries (subscriptions or tenants), or community galleries (public).
+    - Legacy managed images can't be created from Trusted Launch VMs and don't support versioning or replication. Use Compute Gallery for new work.
+    - Compute Gallery also stores "VM applications" (packages applied at deployment). AWS has no direct counterpart; the closest are Image Builder components or Systems Manager Distributor.
+    - Deprecation. AMIs support deprecation and disable timestamps. Gallery image versions use end-of-life dates and "exclude from latest".
+  pricing:
+    aws: There's no AMI charge. You pay for the EBS snapshots behind the AMI, and copying across Regions incurs data transfer.
+    azure: There's no Compute Gallery charge. You pay snapshot storage for each replica and egress for the first copy of each version to other regions.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104]
+  related: [image-pipelines, virtual-servers]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/azure-compute-gallery
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/capture-image-resource
+
+- id: image-pipelines
+  group: vm-core
+  capability: Automated image build pipelines
+  what_for: Build, patch, test, and publish golden images automatically instead of hand-crafting them.
+  match: direct
+  answer: EC2 Image Builder maps to Azure VM Image Builder. Both are managed services that run your customization steps on a temporary VM and publish the resulting image.
+  providers:
+    aws: [ec2-image-builder]
+    azure: [vm-image-builder]
+  differences:
+    - Engine. Azure VM Image Builder is built on HashiCorp Packer and is driven by an image template (ARM, Bicep, or CLI). EC2 Image Builder uses recipes, reusable components (AWSTOE YAML documents), and pipelines with schedules.
+    - Outputs. EC2 Image Builder outputs AMIs and container images (to ECR). Azure VM Image Builder outputs Compute Gallery versions, managed images, or VHDs. For containers on Azure, use ACR Tasks.
+    - Testing. EC2 Image Builder has built-in test phases and vulnerability scanning (via Inspector). Azure supports validation steps in the template, and scanning is done with Defender for Cloud or your own tools.
+  pricing:
+    aws: There's no charge for Image Builder itself. You pay for the EC2 instances, EBS, and other resources used during builds and for stored images.
+    azure: There's no charge for VM Image Builder itself. You pay for the build VM, storage, networking, and gallery replicas.
+  exams:
+    aws: [SOA-C03, DOP-C02]
+    azure: [AZ-104, AZ-400]
+  related: [machine-images]
+  sources:
+    - https://docs.aws.amazon.com/imagebuilder/latest/userguide/what-is-image-builder.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/image-builder-overview
+
+- id: vm-hibernate
+  group: vm-core
+  capability: VM hibernation
+  what_for: Pause a pre-warmed VM with its memory saved to disk, stop paying for compute, and resume later with apps still running.
+  match: direct
+  answer: EC2 hibernation maps to Azure VM hibernation. Both save RAM to the OS disk and charge only for storage (and IPs) while hibernated.
+  providers:
+    aws: [ec2-hibernation]
+    azure: [vm-hibernation]
+  differences:
+    - Both support only certain instance types or sizes, OS versions, and memory sizes. Check the support matrix on each side.
+    - On EC2, the root EBS volume must be encrypted and large enough to hold RAM, and hibernation must be enabled at launch. On Azure, hibernation must be enabled on the VM, and you must trigger it through the platform (portal, CLI, or API). Hibernating from inside the guest OS keeps the VM billed.
+    - EC2 Spot Instances can use hibernate as the interruption behavior. Azure Spot VMs evict with Deallocate or Delete instead.
+  pricing:
+    aws: No instance charge while hibernated. You pay for EBS storage, including the saved RAM contents.
+    azure: No VM charge while hibernated. You pay for OS and data disks and for static IPs.
+  exams:
+    aws: [SOA-C03]
+    azure: [AZ-104]
+  related: [virtual-servers]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/hibernate-resume
+
+- id: mac-instances
+  group: vm-core
+  capability: macOS cloud machines
+  what_for: Build, sign, and test iOS and macOS apps on real Apple hardware in the cloud.
+  match: none
+  answer: Azure has no first-party macOS VM offering comparable to EC2 Mac instances. On Azure, macOS builds usually run on Microsoft-hosted macOS agents in Azure Pipelines or GitHub Actions, or on third-party Mac hosting.
+  providers:
+    aws: [ec2-mac]
+    azure: []
+  differences:
+    - EC2 Mac instances are bare-metal Mac minis or Mac Studios (Intel, M1, M1 Ultra, M2, M2 Pro, M4, M4 Pro) on Dedicated Hosts, with a 24-hour minimum host allocation and one instance per host.
+    - Hosted CI runners on Azure DevOps or GitHub provide ephemeral macOS build machines, but they're CI jobs, not persistent VMs you administer.
+  pricing:
+    aws: Billed per Dedicated Host per second, with a 24-hour minimum. Savings Plans apply.
+    azure: There's no Azure service to price. Hosted macOS CI minutes are billed by Azure DevOps or GitHub under their own plans.
+  exams:
+    aws: [SAA-C03]
+    azure: []
+  related: [dedicated-hardware]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-mac-instances.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
+  flags:
+    - '"No Azure equivalent" is based on the absence of macOS in the Azure VM size and image catalog. Third-party Mac clouds exist but aren''t covered here.'
+
+- id: bare-metal
+  group: vm-core
+  capability: General-purpose bare-metal servers
+  what_for: Run directly on the physical server without a provider hypervisor, for nested virtualization, low-level tooling, or licensing that requires it.
+  match: partial
+  answer: EC2 offers .metal sizes for many instance families, and Azure doesn't. On Azure, the closest options are Azure Dedicated Host (single-tenant but still virtualized), nested virtualization on supported VM sizes, or purpose-built bare-metal services such as Azure VMware Solution hosts.
+  providers:
+    aws: [ec2-bare-metal]
+    azure: [dedicated-host, azure-vmware-solution]
+  differences:
+    - EC2 bare metal instances behave like regular instances (EBS, VPC, Auto Scaling) and run your own hypervisor if you want one.
+    - Azure Dedicated Host gives physical isolation and host-level control, but VMs still run on the Azure hypervisor.
+    - For VMware workloads specifically, Azure VMware Solution (dedicated bare-metal hosts) and Amazon EVS (EC2 bare metal) are the comparable pair. See the VMware row.
+  pricing:
+    aws: .metal sizes are priced per second like other sizes of the same family.
+    azure: Dedicated Host is billed per host per hour. Azure VMware Solution is billed per host (node), hourly or reserved.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [dedicated-hardware, vmware-cloud]
+  sources:
+    - https://docs.aws.amazon.com/ec2/latest/instancetypes/instance-types.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/dedicated-hosts
+  flags:
+    - Azure also had BareMetal Infrastructure and Large Instances for SAP HANA and similar specialist workloads. Its overview page now redirects, so it's not mapped here.
+
+# ───────────────────────── PURCHASE OPTIONS & LICENSING ─────────────────────────
+- id: purchase-spot
+  group: vm-pricing
+  capability: Spot (interruptible) VMs
+  what_for: Run fault-tolerant work (batch, CI, stateless web, rendering) on spare capacity at a large discount, accepting that it can be reclaimed.
+  match: direct
+  answer: EC2 Spot Instances map to Azure Spot Virtual Machines. Both are steeply discounted spare capacity that can be reclaimed, but the warning time and eviction options differ.
+  providers:
+    aws: [ec2-spot]
+    azure: [spot-vms]
+  differences:
+    - Notice. EC2 gives a two-minute interruption notice plus an earlier "rebalance recommendation" signal. Azure gives up to 30 seconds via Scheduled Events, best effort.
+    - Eviction behavior. EC2 can terminate, stop, or hibernate. Azure can Deallocate (default; disks kept and billed) or Delete.
+    - Price cap. Both let you set a max price. Azure can also evict when the price rises above your cap. With a cap of -1, Azure evicts only for capacity.
+    - Scaling. Both integrate with scale groups (ASG mixed instances policy and capacity rebalancing; VMSS Spot priority mix and instance mix) and with Batch and Kubernetes node pools.
+    - Neither side's Spot capacity is covered by an SLA.
+  pricing:
+    aws: Spot prices vary by instance type and AZ based on long-term supply and demand. Billing is per second. Savings Plans and RIs don't apply.
+    azure: Spot prices vary by size and region. You pay the lower of the current Spot price or your max price. Reservations and the savings plan don't apply.
+  exams:
+    aws: [CLF-C02, SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [auto-scaling, batch-jobs, commitment-savings-plan]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
+
+- id: commitment-savings-plan
+  group: vm-pricing
+  capability: Spend-based commitment discounts (savings plans)
+  what_for: Commit to a steady hourly spend for 1 or 3 years and get a discount that follows your workloads across sizes and regions.
+  match: direct
+  answer: AWS Compute Savings Plans map to the Azure savings plan for compute. Both are a 1- or 3-year $/hour spend commitment applied automatically to eligible compute.
+  providers:
+    aws: [savings-plans]
+    azure: [savings-plan-compute]
+  differences:
+    - Coverage. Compute Savings Plans cover EC2 (any family, size, OS, tenancy, Region), Fargate, and Lambda. EC2 Instance Savings Plans give a deeper discount locked to a family in one Region. The Azure savings plan for compute covers VMs, App Service, Container Apps, Functions Premium, and other compute. A separate Azure savings plan for databases also exists.
+    - Payment. AWS offers All, Partial, or No upfront. Azure bills the commitment monthly or upfront.
+    - Use-it-or-lose-it. On both sides, unused hourly commitment expires.
+    - Reservation trade-in. Azure lets you trade eligible reservations into a savings plan. AWS has no RI-to-Savings-Plan trade-in.
+    - AWS also offers SageMaker AI Savings Plans and Database Savings Plans. Compare those separately.
+  pricing:
+    aws: Discounts of up to 72% vs On-Demand, depending on plan type, term, and payment option.
+    azure: Discounts vary by product and term (not by commitment size) and are applied hourly to the highest-discount usage first.
+  exams:
+    aws: [CLF-C02, SAA-C03, SAP-C02]
+    azure: [AZ-900, AZ-104, AZ-305]
+  related: [commitment-reserved, purchase-spot]
+  sources:
+    - https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html
+    - https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/savings-plan-compute-overview
+
+- id: commitment-reserved
+  group: vm-pricing
+  capability: Reserved instances
+  what_for: Get the deepest discount for a stable VM footprint by committing to a specific family and region for 1 or 3 years.
+  match: direct
+  answer: EC2 Reserved Instances map to Azure Reservations (Reserved VM Instances). Both are 1- or 3-year discounts tied to a VM configuration and region, and both providers now steer flexible workloads toward savings plans.
+  providers:
+    aws: [reserved-instances]
+    azure: [azure-reservations]
+  differences:
+    - Flexibility. Regional EC2 RIs (Linux, default tenancy) have instance size flexibility within a family. Azure reservations have instance size flexibility within a size group.
+    - Changing your mind. EC2 Standard RIs can be modified and sold on the RI Marketplace, and Convertible RIs can be exchanged. Neither can be cancelled. Azure reservations can be cancelled (subject to a USD 50,000 per 12-month cap) or traded in for a savings plan.
+    - Policy change. From Feb 1, 2027, new Azure reservations for services covered by savings plans (including VMs) can't be exchanged, and older ones keep one final exchange.
+    - Capacity. Zonal EC2 RIs also reserve capacity in an AZ. Azure reservations are billing-only, so use on-demand capacity reservations for guaranteed capacity.
+  pricing:
+    aws: All, Partial, or No upfront, with 1- or 3-year terms. Standard RIs discount more than Convertible.
+    azure: Paid upfront or monthly for 1- or 3-year terms. The discount applies automatically to matching running VMs every hour.
+  exams:
+    aws: [CLF-C02, SAA-C03, SAP-C02]
+    azure: [AZ-900, AZ-104, AZ-305]
+  related: [commitment-savings-plan, capacity-reserve]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html
+    - https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations
+    - https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/exchange-and-refund-azure-reservations
+
+- id: capacity-reserve
+  group: vm-pricing
+  capability: Capacity reservations
+  what_for: Guarantee that VM capacity of a given size is there when you need it (DR, launches, events), separately from discounts.
+  match: direct
+  answer: EC2 On-Demand Capacity Reservations map to Azure on-demand capacity reservation. Both hold capacity at pay-as-you-go rates whether you use it or not, and both stack with commitment discounts.
+  providers:
+    aws: [capacity-reservations]
+    azure: [capacity-reservation]
+  differences:
+    - Scope. EC2 reserves in one Availability Zone. Azure reserves in a region or a specific availability zone, and it carries an SLA.
+    - Future-dated. EC2 can schedule future-dated reservations (with a commitment period, at least 32 vCPUs, and C/G/I/M/R/T/U/X families). EC2 also has interruptible capacity reservations and, for ML, Capacity Blocks.
+    - Discounts. On AWS, Savings Plans and regional RIs apply, but zonal RI discounts don't. On Azure, reservations and the savings plan apply.
+  pricing:
+    aws: Billed at the On-Demand rate for the reserved instance type, used or unused. Immediate reservations have no term, and future-dated ones carry a minimum commitment.
+    azure: Billed at the pay-as-you-go rate for the reserved size, used or unused. No term commitment.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [commitment-reserved, gpu-instances]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-reservations.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/capacity-reservation-overview
+
+- id: dedicated-hardware
+  group: vm-pricing
+  capability: Dedicated (single-tenant) hosts
+  what_for: Run VMs on a physical server only you use, for compliance or for licenses counted per socket or core.
+  match: direct
+  answer: EC2 Dedicated Hosts map to Azure Dedicated Host. Both give you a whole physical server, billed per host, with control over placement.
+  providers:
+    aws: [dedicated-hosts]
+    azure: [dedicated-host]
+  differences:
+    - AWS has two options. Dedicated Hosts expose sockets and cores and support host affinity and broad BYOL. Dedicated Instances give hardware isolation without host visibility. Azure Dedicated Host is the only host-level product, and Azure also has "isolated" VM sizes that take a whole host.
+    - Maintenance. Azure Dedicated Host lets you control platform maintenance windows through maintenance configurations. EC2 Dedicated Hosts support host recovery and host maintenance settings.
+    - Licensing. On EC2, AWS-provided RHEL or SUSE AMIs can't be used on Dedicated Hosts (you must bring your own AMI). Azure Dedicated Host is commonly used with Azure Hybrid Benefit for Windows Server and SQL Server.
+    - Sharing. EC2 Dedicated Hosts can be shared across accounts with AWS RAM. Azure host groups are shared through RBAC across subscriptions in a tenant.
+  pricing:
+    aws: Billed per host per second, with On-Demand, Savings Plans, or host reservations available. Instances on the host have no separate instance charge.
+    azure: Billed per host. VMs on the host show a price of zero, and software licenses, storage, and network are billed separately. Reservations are available.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [license-byol, mac-instances, bare-metal]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-hosts-overview.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/dedicated-hosts
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/isolation
+
+- id: license-byol
+  group: vm-pricing
+  capability: Bring-your-own-license and license tracking
+  what_for: Reuse existing Windows Server, SQL Server, RHEL, or SUSE licenses in the cloud and stay compliant.
+  match: partial
+  answer: AWS License Manager (tracking and enforcement) plus Dedicated Hosts for BYOL map loosely to Azure Hybrid Benefit. Azure's offering is a licensing benefit applied per VM, not a license-tracking service.
+  providers:
+    aws: [license-manager]
+    azure: [hybrid-benefit]
+  differences:
+    - Microsoft licensing. Azure Hybrid Benefit lets Windows Server and SQL Server licenses with active Software Assurance (or qualifying subscriptions) run on shared Azure VMs at the base compute rate. On AWS, Microsoft licenses without License Mobility generally require Dedicated Hosts, and License Manager tracks the rules.
+    - Linux. Both support bring-your-own RHEL or SLES subscriptions (Azure Hybrid Benefit for Linux BYOS; on EC2, your own AMIs through the vendors' cloud access programs).
+    - Tracking. License Manager enforces vCPU, core, socket, or instance limits and can discover software. On Azure, usage tracking is done in Cost Management and, for SQL, through SQL Server enabled by Azure Arc. There's no general-purpose license-rule engine.
+  pricing:
+    aws: License Manager has no extra charge for license tracking. Some license-included and user-based subscription features are billed.
+    azure: Azure Hybrid Benefit is free to apply. It removes the license component of the VM price, and you must hold eligible licenses.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [dedicated-hardware]
+  sources:
+    - https://docs.aws.amazon.com/license-manager/latest/userguide/license-manager.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/linux/azure-hybrid-benefit-linux
+  flags:
+    - Microsoft licensing terms for other clouds ("Listed Providers") change over time. Confirm with the current Microsoft Product Terms before relying on BYOL to AWS.
+
+# ───────────────────────── SCALING & PLACEMENT ─────────────────────────
+- id: auto-scaling
+  group: vm-scaling
+  capability: VM auto scaling groups
+  what_for: Keep a fleet of identical (or mixed) VMs healthy and grow or shrink it automatically with demand or a schedule.
+  match: direct
+  answer: Amazon EC2 Auto Scaling maps to Azure Virtual Machine Scale Sets with autoscale. Both manage a group of VMs, replace unhealthy ones, and scale on metrics, schedules, or forecasts.
+  slug: aws-ec2-auto-scaling-vs-azure-vmss
+  providers:
+    aws: [ec2-auto-scaling]
+    azure: [vmss]
+  differences:
+    - Templates. An ASG launches from a launch template. A scale set embeds its VM model (or, in Flexible mode, can manage VMs you attach).
+    - Modes. Azure has Flexible orchestration (recommended; members are standard VMs) and Uniform orchestration (identical scale-set VMs managed through VMSS APIs). AWS has one ASG model.
+    - Policies. ASGs offer target tracking, step, simple, scheduled, and predictive scaling. Azure autoscale (Azure Monitor) offers metric rules, schedules, and predictive autoscale (CPU-based, scale sets only).
+    - Warm capacity. ASG warm pools keep pre-initialized instances stopped or running. VMSS standby pools do the same for scale sets.
+    - Spot mixing. ASG mixed instances policies set On-Demand/Spot ratios and allocation strategies. VMSS offers a Spot priority mix and instance mix (several VM sizes).
+    - Upgrades. ASG instance refresh rolls out new templates. VMSS uses upgrade policies (manual, automatic, or rolling) and automatic OS image upgrades.
+  pricing:
+    aws: There's no charge for EC2 Auto Scaling. You pay for the instances and CloudWatch alarms or metrics used.
+    azure: There's no charge for scale sets or autoscale. You pay for the VMs, disks, and networking.
+  exams:
+    aws: [SAA-C03, SOA-C03, DOP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [virtual-servers, purchase-spot, placement-control]
+  sources:
+    - https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
+    - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-orchestration-modes
+    - https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-predictive
+
+- id: placement-control
+  group: vm-scaling
+  capability: VM placement control
+  what_for: Pack VMs close together for low latency, or spread them across hardware so one failure doesn't take down replicas.
+  match: partial
+  answer: EC2 placement groups have no single Azure equivalent. Cluster placement maps to proximity placement groups, while spread and partition placement map to availability sets or scale-set fault domains.
+  providers:
+    aws: [placement-groups]
+    azure: [proximity-placement-groups]
+  differences:
+    - Cluster ↔ proximity placement group. Both co-locate VMs for low latency. Azure pins the group to one datacenter when the first VM deploys, so declare all needed sizes up front (the "intent") to avoid allocation failures.
+    - Spread and partition ↔ availability sets or fault domains. Azure spreads VMs across fault and update domains inside a datacenter, or across zones with zonal deployments. EC2 spread puts each instance on distinct racks, and partition gives named rack groups (Hadoop, Kafka, Cassandra).
+    - EC2 also has a "precision time" strategy (hosts close to high-precision time sources). Azure has no named equivalent.
+  pricing:
+    aws: Placement groups are free.
+    azure: Proximity placement groups and availability sets are free.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [auto-scaling, hpc-networking]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/co-location
+
+- id: rightsizing
+  group: vm-scaling
+  capability: Rightsizing recommendations
+  what_for: Find over-provisioned or idle VMs and get specific suggestions to downsize or shut them down.
+  match: partial
+  answer: AWS Compute Optimizer maps partly to Azure Advisor's cost recommendations. Advisor is a broader best-practice engine; Compute Optimizer is a dedicated, deeper rightsizing service.
+  providers:
+    aws: [compute-optimizer]
+    azure: [azure-advisor]
+  differences:
+    - Scope. Compute Optimizer covers EC2, Auto Scaling groups, EBS, Lambda, ECS on Fargate, RDS/Aurora, commercial licenses, and more, with performance-risk ratings and Graviton migration suggestions. Advisor covers VM and VMSS right-sizing or shutdown along with reliability, security, performance, and operational recommendations across many Azure services.
+    - Data. Compute Optimizer uses CloudWatch metrics (optionally enhanced, with longer lookback). Advisor uses Azure Monitor utilization with configurable CPU thresholds and lookback.
+    - On AWS, Cost Optimization Hub aggregates Compute Optimizer and other savings recommendations. On Azure, Advisor score and Cost Management fill that role.
+  pricing:
+    aws: Basic recommendations are free. Enhanced infrastructure metrics are billed per resource per hour.
+    azure: Azure Advisor is free.
+  exams:
+    aws: [SOA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [instance-families, commitment-savings-plan]
+  sources:
+    - https://docs.aws.amazon.com/compute-optimizer/latest/ug/what-is-compute-optimizer.html
+    - https://learn.microsoft.com/en-us/azure/advisor/advisor-overview
+
+# ───────────────────────── BATCH & HPC ─────────────────────────
+- id: batch-jobs
+  group: hpc
+  capability: Managed batch computing
+  what_for: Queue thousands of independent or array jobs and let the service provision, scale, and tear down the compute.
+  match: direct
+  answer: AWS Batch maps to Azure Batch. Both are free schedulers that run jobs on pools of VMs (including Spot) that you pay for.
+  slug: aws-batch-vs-azure-batch
+  providers:
+    aws: [aws-batch]
+    azure: [azure-batch]
+  differences:
+    - Workload format. AWS Batch jobs are container-based (job definitions) on EC2, Fargate, or EKS compute environments. Azure Batch runs tasks as command lines, with optional containers, on VM pools you define (image, size, start task, application packages).
+    - Scheduling. AWS Batch has job queues with priorities, fair-share scheduling, array jobs, dependencies, and multi-node parallel jobs. Azure Batch has jobs, tasks, task dependencies, job schedules, multi-instance (MPI) tasks, and pool autoscale formulas.
+    - Azure Batch accounts use either Batch service or user subscription pool allocation mode. The second puts pool VMs in your subscription, so your quotas and reservations apply.
+  pricing:
+    aws: There's no extra charge for AWS Batch. You pay for the EC2, Fargate, or EKS resources it launches.
+    azure: Azure Batch is free. You pay for the pool VMs, storage, and networking. Spot VMs reduce pool costs.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [hpc-clusters, purchase-spot]
+  sources:
+    - https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html
+    - https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview
+    - https://learn.microsoft.com/en-us/azure/batch/plan-to-manage-costs
+
+- id: hpc-clusters
+  group: hpc
+  capability: HPC cluster management (Slurm and other schedulers)
+  what_for: Stand up a traditional HPC cluster (head node, scheduler, autoscaling compute, shared file system) for simulations or AI training.
+  match: direct
+  answer: AWS ParallelCluster (self-managed) and AWS Parallel Computing Service (managed Slurm) map to Azure CycleCloud and CycleCloud Workspace for Slurm.
+  providers:
+    aws: [parallelcluster, aws-pcs]
+    azure: [cyclecloud]
+  differences:
+    - Managed vs self-managed. AWS PCS runs the Slurm controller for you. On Azure, CycleCloud (and the Workspace for Slurm template) deploy a CycleCloud server and Slurm cluster in your subscription that you operate.
+    - Schedulers. ParallelCluster and PCS are Slurm-only (ParallelCluster dropped the AWS Batch scheduler in v3.16.0). CycleCloud supports Slurm, PBS Pro, LSF, Grid Engine, and HTCondor.
+    - Packaging. Workspace for Slurm comes preconfigured with PMIx, Pyxis, and enroot for containerized AI/HPC jobs. PCS and ParallelCluster integrate with FSx for Lustre, EFA, and AMIs you build.
+  pricing:
+    aws: ParallelCluster has no charge, so you pay for the resources. PCS charges an hourly cluster-controller fee (by controller size) and an hourly node-management fee per EC2 instance (an advanced tier for P and Trn families), plus the EC2 instances. Slurm accounting is optional and billed extra.
+    azure: You pay for the VMs (including the CycleCloud server VM), storage, and networking that CycleCloud deploys.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [batch-jobs, hpc-networking, large-scale-training-clusters]
+  sources:
+    - https://docs.aws.amazon.com/parallelcluster/latest/ug/what-is-aws-parallelcluster.html
+    - https://docs.aws.amazon.com/pcs/latest/userguide/what-is-service.html
+    - https://learn.microsoft.com/en-us/azure/cyclecloud/overview
+    - https://learn.microsoft.com/en-us/azure/cyclecloud/overview-ccws
+
+- id: hpc-networking
+  group: hpc
+  capability: Low-latency HPC interconnect
+  what_for: Give tightly coupled MPI or multi-node GPU jobs a fast network with OS bypass and RDMA.
+  match: partial
+  answer: AWS Elastic Fabric Adapter (EFA) maps to InfiniBand on Azure H-series and ND-series VMs. Both give OS-bypass, RDMA-class networking for MPI and NCCL, but the technologies differ.
+  providers:
+    aws: [efa]
+    azure: [hpc-infiniband]
+  differences:
+    - Technology. EFA is AWS's own Ethernet-based fabric using the SRD protocol through libfabric. Azure uses NVIDIA (Mellanox) InfiniBand, with standard verbs, UCX, or HPC-X MPI stacks.
+    - Scope. EFA works on many supported instance types (HPC, GPU, and some general purpose) within a subnet or AZ, usually with cluster placement groups. Azure InfiniBand is available only on RDMA-capable H- and ND-series sizes, within one scale set or availability set.
+  pricing:
+    aws: No extra charge for EFA. It comes with supported instance types.
+    azure: No separate charge. InfiniBand is included in the price of RDMA-capable sizes.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [hpc-clusters, placement-control, gpu-instances]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/efa.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/high-performance-compute/setup-infiniband
+
+# ───────────────────────── SIMPLE HOSTING & VIRTUAL DESKTOPS ─────────────────────────
+- id: app-platform
+  group: app-hosting
+  capability: Managed web app platform
+  what_for: Deploy a web app or API from code and let the platform handle servers, load balancing, scaling, and patching.
+  match: partial
+  answer: AWS Elastic Beanstalk maps to Azure App Service. Both deploy code to a managed web platform, but App Service is a fully managed PaaS while Beanstalk orchestrates EC2 (or EKS) resources in your account.
+  providers:
+    aws: [elastic-beanstalk]
+    azure: [app-service]
+  differences:
+    - Control. Beanstalk creates visible EC2 instances, an ALB, and Auto Scaling groups that you can SSH into and customize (Standard mode), or deploys onto a service-operated EKS cluster (Cluster mode). App Service runs your app on managed workers in an App Service plan, without VM access.
+    - Features only on App Service. Deployment slots with swap, built-in authentication (Easy Auth), free managed certificates, hybrid connections, and App Service Environment v3 for single-tenant isolation.
+    - Runtimes. Both support .NET, Java, Node.js, Python, PHP, and containers. Beanstalk also supports Go, Ruby, and Docker multi-container. App Service supports Windows and Linux plans.
+    - For new container-first apps, also compare AWS App Runner (now in maintenance) and ECS with Azure Container Apps. See the Containers & serverless category.
+  pricing:
+    aws: There's no additional charge for Elastic Beanstalk. You pay for the EC2, load balancer, and storage resources it creates.
+    azure: You pay per App Service plan (tier, instance size, and count), whatever the number of apps on it. There are Free and Shared tiers for testing, and the savings plan and reservations apply to some tiers.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AZ-104]
+  related: [simple-vps]
+  sources:
+    - https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html
+    - https://learn.microsoft.com/en-us/azure/app-service/overview
+
+- id: simple-vps
+  group: app-hosting
+  capability: Simple fixed-price VPS bundles
+  what_for: Get a small server, database, or website running with a predictable monthly bill and minimal cloud knowledge.
+  match: none
+  answer: Azure has no equivalent of Amazon Lightsail's fixed-price bundles. The usual Azure substitutes are a B-series VM, App Service (Free/Basic tiers), or Azure Static Web Apps, all billed by usage.
+  providers:
+    aws: [lightsail]
+    azure: []
+  differences:
+    - Lightsail bundles a VPS with storage, transfer allowance, static IP, and DNS at a flat monthly price, and also offers managed databases, containers, CDN, and load balancers in the same simplified console.
+    - On Azure you assemble the pieces (VM, disk, public IP, bandwidth, DNS zone), each billed separately, or use PaaS tiers.
+  pricing:
+    aws: Fixed monthly bundle prices that include a data-transfer allowance. Overage is billed per GB.
+    azure: No bundled equivalent. Compare a B-series VM plus disk and IP, or App Service Basic, using the pricing calculator.
+  exams:
+    aws: [CLF-C02]
+    azure: []
+  related: [app-platform, virtual-servers]
+  sources:
+    - https://docs.aws.amazon.com/lightsail/latest/userguide/what-is-amazon-lightsail.html
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+
+- id: virtual-desktops
+  group: app-hosting
+  capability: Virtual desktops (DaaS/VDI)
+  what_for: Give employees or contractors a managed Windows or Linux desktop they can reach from any device.
+  match: partial
+  answer: Amazon WorkSpaces maps to Azure Virtual Desktop (you run the session hosts) and Windows 365 (fully managed per-user Cloud PCs). WorkSpaces Personal is closest to Windows 365, and WorkSpaces Pools is closest to pooled Azure Virtual Desktop.
+  providers:
+    aws: [workspaces]
+    azure: [azure-virtual-desktop, windows-365]
+  differences:
+    - Multi-session. Windows 11/10 Enterprise multi-session (many users per VM) is exclusive to Azure Virtual Desktop, which can lower costs for pooled desktops. WorkSpaces Pools uses per-user sessions on ephemeral infrastructure.
+    - Lifecycle. WorkSpaces Pools and the PCoIP protocol reach end of support on June 30, 2027, so new WorkSpaces deployments should use Personal on DCV. Azure Virtual Desktop (classic) retired Sep 30, 2026, so use ARM host pools.
+    - Operating systems. WorkSpaces offers Windows, Ubuntu, Rocky Linux, and RHEL desktops. Azure Virtual Desktop and Windows 365 are Windows-focused.
+    - Management. Windows 365 is managed through Intune like a physical PC. Azure Virtual Desktop session hosts are Azure VMs (or Azure Local) that you size, patch, and scale. WorkSpaces is managed in the WorkSpaces console with directory integration.
+  pricing:
+    aws: Per WorkSpace, monthly or hourly by bundle, with optional license-included Windows or Microsoft 365 apps.
+    azure: Azure Virtual Desktop is billed for the session-host VMs, storage, and networking, plus per-user access rights (often included in Microsoft 365 or Windows E3/E5 licenses). Windows 365 is a fixed per-user per-month license by Cloud PC size.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  related: [app-streaming]
+  sources:
+    - https://docs.aws.amazon.com/workspaces/latest/adminguide/amazon-workspaces.html
+    - https://learn.microsoft.com/en-us/azure/virtual-desktop/overview
+    - https://learn.microsoft.com/en-us/windows-365/enterprise/overview
+    - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
+  flags:
+    - Azure Virtual Desktop has its own specialty exam (AZ-140), which isn't tracked on this site.
+
+- id: app-streaming
+  group: app-hosting
+  capability: Application streaming
+  what_for: Stream individual desktop applications (not full desktops) to users' browsers or clients.
+  match: partial
+  answer: Amazon WorkSpaces Applications (formerly AppStream 2.0) maps to RemoteApp in Azure Virtual Desktop, which publishes individual apps from session hosts.
+  providers:
+    aws: [workspaces-applications]
+    azure: [azure-virtual-desktop]
+  differences:
+    - WorkSpaces Applications is a managed fleet service (always-on, on-demand, or elastic fleets) with HTML5 browser access. RemoteApp in Azure Virtual Desktop runs on session-host VMs that you manage.
+    - WorkSpaces Applications now offers MCP tools so AI agents can operate desktop apps. Azure Virtual Desktop has no equivalent built in.
+  pricing:
+    aws: Per-instance-hour fleet pricing plus per-user Microsoft RDS SAL fees for Windows fleets (unless you bring your own).
+    azure: Session-host VM, storage, and network costs plus user access rights. Per-user access pricing is available for external users.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  related: [virtual-desktops]
+  sources:
+    - https://docs.aws.amazon.com/appstream2/latest/developerguide/what-is-appstream.html
+    - https://learn.microsoft.com/en-us/azure/virtual-desktop/overview
+
+# ───────────────────────── HYBRID, EDGE & VMWARE ─────────────────────────
+- id: on-prem-cloud
+  group: hybrid-edge
+  capability: Provider infrastructure in your data center
+  what_for: Run the cloud provider's compute and services on-premises for latency, data residency, or local processing, managed from the cloud console.
+  match: partial
+  answer: AWS Outposts maps to Azure Local (formerly Azure Stack HCI). The key difference is ownership. AWS owns and manages Outposts hardware, while Azure Local runs on validated hardware you buy from partners.
+  providers:
+    aws: [outposts]
+    azure: [azure-local]
+  differences:
+    - Hardware. Outposts racks (42U) and servers (1U/2U) are delivered, installed, and maintained by AWS. Azure Local runs on customer-owned hardware from a partner catalog with prescriptive bills of materials.
+    - Connectivity. Outposts needs a reliable connection to its parent Region (the control plane is in the Region). Azure Local supports connected operation through Azure Arc, and disconnected operation with a locally hosted control plane.
+    - Services. Outposts runs EC2, EBS, S3 on Outposts, ECS/EKS, RDS, and ElastiCache, among others. Azure Local runs Arc-managed VMs, AKS, Azure Virtual Desktop, and Arc-enabled data services.
+    - For locations too small for a rack, Outposts servers compare with Azure Local single-node or small clusters.
+  pricing:
+    aws: Outposts racks have 3-year terms (All, Partial, or No upfront) by configuration. Outposts servers have their own 3-year pricing. Hardware is AWS-owned.
+    azure: A per-physical-core monthly host service fee (with different tiers for hyperconverged, multi-rack or external storage, and disconnected deployments). You also buy the hardware and pay for guest licensing and Azure services.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [metro-edge-zones, vmware-cloud]
+  sources:
+    - https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html
+    - https://learn.microsoft.com/en-us/azure/azure-local/overview
+    - https://azure.microsoft.com/en-us/pricing/details/azure-local/
+
+- id: metro-edge-zones
+  group: hybrid-edge
+  capability: Metro edge locations
+  what_for: Place VMs in a provider-run site in a specific city for single-digit-millisecond latency or local data residency.
+  match: partial
+  answer: AWS Local Zones map to Azure Extended Zones. Both are small provider-run extensions of a parent region in metro areas, but Extended Zones are fewer, access is by request, and fewer services are offered.
+  providers:
+    aws: [local-zones]
+    azure: [extended-zones]
+  differences:
+    - Footprint. Local Zones cover many metros worldwide, and you opt in per zone. Azure Extended Zones need an access request, and the list of zones is provided during that process.
+    - Services. Local Zones support EC2, EBS, VPC, ECS/EKS, and selected services (some zones add RDS, ElastiCache, FSx, Direct Connect). Extended Zones support VMs (A/B/D/E/F and NVadsA10 v5), scale sets, AKS, managed disks, premium storage, and core networking. Some services, such as Azure Virtual Desktop, are preview there.
+  pricing:
+    aws: Local Zone pricing differs from the parent Region and is listed per zone.
+    azure: Resources in Extended Zones are billed at their own rates per zone. See each service's pricing page and the pricing calculator.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [carrier-5g-edge, on-prem-cloud]
+  sources:
+    - https://docs.aws.amazon.com/local-zones/latest/ug/what-is-aws-local-zones.html
+    - https://learn.microsoft.com/en-us/azure/extended-zones/overview
+  flags:
+    - Microsoft doesn't publish a public list of Extended Zone locations on the overview page. Availability is disclosed during the access request.
+
+- id: carrier-5g-edge
+  group: hybrid-edge
+  capability: Compute inside telecom 5G networks
+  what_for: Run latency-critical apps (game streaming, AR/VR, connected vehicles) inside a mobile carrier's network, a hop away from 5G devices.
+  match: none
+  answer: AWS Wavelength has no current Azure equivalent. Azure public MEC, Microsoft's carrier-edge offering, now lives only in Microsoft's "previous versions" documentation archive. Azure Extended Zones are the nearest current option, but they're metro sites, not inside carrier networks.
+  providers:
+    aws: [wavelength]
+    azure: [extended-zones]
+  differences:
+    - Wavelength Zones sit in partner carriers' networks and are reached through a carrier gateway, extending a VPC with EC2, EBS, and EKS.
+    - Azure public MEC docs are archived. Private 5G edge needs on Azure are typically met with Azure Local or partner solutions.
+  pricing:
+    aws: Wavelength resources are billed at Wavelength Zone rates, plus data transfer through the carrier gateway.
+    azure: No carrier-edge service to price. Extended Zones are billed per resource.
+  exams:
+    aws: [SAP-C02]
+    azure: []
+  related: [metro-edge-zones]
+  sources:
+    - https://docs.aws.amazon.com/wavelength/latest/developerguide/what-is-wavelength.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/public-multi-access-edge-compute-mec/overview
+  flags:
+    - Microsoft hasn't published a retirement notice for Azure public MEC that we could find. The status "archived" is inferred from the move of its docs to previous-versions.
+
+- id: vmware-cloud
+  group: hybrid-edge
+  capability: VMware environment in the cloud
+  what_for: Lift VMware vSphere workloads to the cloud without converting VMs, keeping vCenter, NSX, and existing runbooks.
+  match: partial
+  answer: Amazon Elastic VMware Service (EVS) maps to Azure VMware Solution. Both run VMware Cloud Foundation on the provider's bare metal, and both now require a portable VCF subscription from Broadcom. The difference is operations. EVS is self-managed (or partner-managed), while Azure VMware Solution is operated by Microsoft.
+  providers:
+    aws: [evs]
+    azure: [azure-vmware-solution]
+  differences:
+    - Operations. With EVS, AWS deploys VCF into your VPC, then you (or a partner) operate it with full admin access. Azure VMware Solution is a first-party service where Microsoft manages the hosts, vSphere, vSAN, and NSX lifecycle.
+    - Licensing. Both require you to bring a portable VMware Cloud Foundation subscription from Broadcom. Azure VMware Solution's pricing page lists every host SKU as "VCF BYOL" and says prices exclude the VCF subscription.
+    - Minimum size. Azure VMware Solution private clouds need at least three nodes. EVS deploys onto EC2 bare-metal hosts (i4i.metal at launch).
+    - Networking. EVS hosts run inside your VPC. Azure VMware Solution Gen 1 connects to VNets over Microsoft-managed ExpressRoute, and Gen 2 (AV64 only) attaches hosts directly to Azure virtual networks.
+    - VMware Cloud on AWS is a separate offering sold by Broadcom (VMware), not an AWS-managed service, so it isn't mapped here.
+  pricing:
+    aws: EVS has a service fee plus the EC2 bare-metal instances (On-Demand, 1-year, or 3-year). VCF licenses are your own.
+    azure: Billed per host (node) by SKU, hourly or with 1-year or 3-year reservations (availability varies by SKU). The infrastructure and managed service are included, but the Broadcom VCF subscription isn't.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [bare-metal, on-prem-cloud]
+  sources:
+    - https://docs.aws.amazon.com/evs/latest/userguide/what-is-evs.html
+    - https://aws.amazon.com/about-aws/whats-new/2025/08/aws-general-availability-amazon-elastic-evs/
+    - https://learn.microsoft.com/en-us/azure/azure-vmware/introduction
+  flags:
+    - VMware licensing changed after Broadcom's acquisition, and the BYOL-only model on both sides is recent. Confirm Broadcom subscription terms before costing.
+
+# ───────────────────────── VM SECURITY & OPERATIONS ─────────────────────────
+- id: confidential-compute
+  group: vm-security
+  capability: Confidential computing
+  what_for: Protect data while it's being processed (in memory) from the cloud operator and host admins, with hardware attestation.
+  match: partial
+  answer: AWS Nitro Enclaves and AMD SEV-SNP on EC2 map to Azure confidential computing (confidential VMs and SGX application enclaves). Azure has a broader confidential VM lineup; AWS relies more on its Nitro System isolation plus enclaves.
+  providers:
+    aws: [nitro-enclaves, ec2-sev-snp]
+    azure: [confidential-vms]
+  differences:
+    - Whole-VM. Azure confidential VMs support AMD SEV-SNP (DCasv5/v6, ECasv5/v6) and Intel TDX (DCesv6, ECesv6), plus H100 confidential GPUs, with confidential OS-disk encryption and Azure Attestation. EC2 supports SEV-SNP on a smaller set of AMD types (M6a, C6a, R6a at verification).
+    - Enclaves. Nitro Enclaves split vCPUs and memory off a parent instance into a hardened VM with no network, storage, or shell, and integrate attestation with AWS KMS key policies. Azure's application-enclave option is Intel SGX.
+    - Baseline. AWS states that the Nitro System prevents operator access and that memory is always encrypted on recent processors. Azure positions confidential VMs and Trusted Launch as separate tiers.
+  pricing:
+    aws: There's no extra charge for Nitro Enclaves or SEV-SNP. You pay for the parent instance.
+    azure: Confidential VM sizes have their own per-hour prices, plus a small charge for the VM guest state disk.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-500, AZ-305]
+  related: [secure-boot-vtpm]
+  sources:
+    - https://docs.aws.amazon.com/enclaves/latest/user/nitro-enclave.html
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html
+    - https://learn.microsoft.com/en-us/azure/confidential-computing/confidential-vm-overview
+    - https://learn.microsoft.com/en-us/azure/confidential-computing/application-development
+
+- id: secure-boot-vtpm
+  group: vm-security
+  capability: Secure Boot and virtual TPM
+  what_for: Stop bootkits and rootkits, and seal keys (BitLocker and similar) to a known-good boot state.
+  match: direct
+  answer: EC2 UEFI Secure Boot plus NitroTPM maps to Azure Trusted Launch (Secure Boot, vTPM, and boot integrity monitoring).
+  providers:
+    aws: [nitrotpm]
+    azure: [trusted-launch]
+  differences:
+    - Defaults. Trusted Launch is the default for new Azure Gen2 VMs and scale sets, and existing Gen1 VMs can be upgraded. On EC2, NitroTPM and Secure Boot must be enabled in the AMI (boot mode UEFI, TPM support).
+    - Monitoring. Azure adds guest attestation and boot integrity monitoring surfaced in Defender for Cloud. AWS exposes NitroTPM attestation documents for your own checks.
+    - Driver gotchas. On Azure, installing CUDA on Secure Boot Linux VMs other than Ubuntu needs Secure Boot disabled. Check GPU driver signing on both sides.
+  pricing:
+    aws: No extra charge.
+    azure: No extra charge for Trusted Launch. Defender for Cloud features are billed separately.
+  exams:
+    aws: [SCS-C03]
+    azure: [AZ-104, SC-500]
+  related: [confidential-compute]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch
+
+- id: vm-remote-access
+  group: vm-security
+  capability: Secure remote access to VMs
+  what_for: SSH or RDP into private VMs without public IPs, open inbound ports, or self-managed jump boxes.
+  match: partial
+  answer: AWS Systems Manager Session Manager and EC2 Instance Connect Endpoint map to Azure Bastion. Bastion is a managed RDP/SSH gateway, while Session Manager is agent-based shell access through the Systems Manager service.
+  providers:
+    aws: [session-manager, ec2-instance-connect-endpoint]
+    azure: [bastion]
+  differences:
+    - How it works. Session Manager uses the SSM Agent's outbound connection, with no inbound ports and IAM-controlled, logged sessions. EC2 Instance Connect Endpoint is a VPC endpoint that proxies SSH or RDP to private IPs. Bastion is a managed service in your VNet (or shared, for the Developer SKU) that brokers RDP and SSH over TLS.
+    - Logging. Session Manager can log session content to CloudWatch Logs or S3. Bastion Premium offers graphical session recording.
+    - Azure Run Command and serial console cover the "run a script without logging in" case (like SSM Run Command).
+  pricing:
+    aws: Session Manager is free for EC2 (advanced-tier on-premises instances are billed). EC2 Instance Connect Endpoint is free, apart from cross-AZ data transfer.
+    azure: Billed hourly per Bastion SKU and scale unit, plus outbound data. The Developer SKU is free.
+  exams:
+    aws: [SOA-C03, SCS-C03]
+    azure: [AZ-104, AZ-700, SC-500]
+  related: [patching]
+  sources:
+    - https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html
+    - https://learn.microsoft.com/en-us/azure/bastion/bastion-overview
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/run-command-overview
+
+- id: patching
+  group: vm-security
+  capability: OS patch management
+  what_for: Assess and install OS updates across fleets of servers on a schedule, with compliance reporting.
+  match: direct
+  answer: AWS Systems Manager Patch Manager maps to Azure Update Manager. Both scan and patch Windows and Linux machines on schedules, in the cloud and on-premises (through hybrid activations or Azure Arc).
+  providers:
+    aws: [patch-manager]
+    azure: [update-manager]
+  differences:
+    - Control. Patch Manager uses patch baselines (approval rules), patch groups, maintenance windows, and Quick Setup patch policies across accounts and Regions. Update Manager uses maintenance configurations, dynamic scopes, periodic assessment, and Azure Policy.
+    - Azure extras. Hotpatching (critical updates without reboot on supported Windows Server editions) and automatic VM guest patching.
+    - Hybrid. On AWS, on-premises nodes register as hybrid managed nodes. On Azure, they must be Arc-enabled servers.
+  pricing:
+    aws: Patch Manager is free for EC2. On-premises nodes on the advanced tier are billed per node-hour.
+    azure: Free for Azure VMs. Arc-enabled servers are billed per server per day when managed, unless included with Azure Local, Arc-enabled ESUs, or Defender for Servers Plan 2.
+  exams:
+    aws: [SOA-C03]
+    azure: [AZ-104]
+  related: [vm-remote-access]
+  sources:
+    - https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager.html
+    - https://learn.microsoft.com/en-us/azure/update-manager/overview
+    - https://azure.microsoft.com/en-us/pricing/details/azure-update-management-center/

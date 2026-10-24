@@ -7,7 +7,10 @@
 category:
   id: ai-ml
   name: AI & Machine Learning
+  short: "AI & ML"
+  order: 7
   description: Foundation models, agents, RAG, ML platforms, MLOps, AI chips, assistants, and prebuilt AI services. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure AI & ML, side by side: Bedrock vs Microsoft Foundry, SageMaker AI vs Azure Machine Learning, agents, RAG, AI chips, and prebuilt AI services."
   last_verified: "2026-10-19"
   groups:
     - id: genai

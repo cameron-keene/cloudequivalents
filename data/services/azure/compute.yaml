@@ -1,0 +1,174 @@
+# Azure compute services (category: compute). Same status vocabulary as ai-ml.yaml.
+- slug: virtual-machines
+  name: Azure Virtual Machines
+  status: ga
+  summary: On-demand Windows and Linux VMs with managed disks. Gen2 VMs default to Trusted Launch. Pay as you go, Spot, reservations, savings plan, and Azure Hybrid Benefit pricing.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: vm-sizes
+  name: Azure VM sizes (series)
+  status: ga
+  summary: VM series grouped by type (general purpose B/D, compute F, memory E/M, storage L, GPU N, HPC H). Names encode the CPU vendor (a = AMD, p = Arm) and features (d = local disk, s = premium storage, l = low memory) plus a version, for example Dasv6.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: cobalt
+  name: Azure Cobalt (Arm-based VMs)
+  status: ga
+  status_note: Cobalt 100 VMs (Dpsv6, Dplsv6, Epsv6 families) are GA. Cobalt 200 VMs entered early-access preview at Build (June 2, 2026).
+  summary: Microsoft-designed Arm64 CPUs. Cobalt 100 runs at 3.4 GHz with one full physical core per vCPU. "p" series also include older Ampere Altra-based sizes.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/general-purpose/dpsv6-series
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: azure-compute-gallery
+  name: Azure Compute Gallery (and legacy managed images)
+  status: ga
+  status_note: Docs now call standalone managed images "legacy managed images". You can't create them from Trusted Launch VMs. Compute Gallery is the recommended image store.
+  summary: Versioned image definitions with replication across regions, sharing through RBAC, direct shared galleries, or community galleries, plus VM application packages.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/azure-compute-gallery
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-disks/
+- slug: vm-image-builder
+  name: Azure VM Image Builder
+  status: ga
+  summary: A managed service (built on HashiCorp Packer) that customizes marketplace or custom images and distributes them to Compute Gallery, managed images, or VHDs.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/image-builder-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/image-builder/
+- slug: vm-hibernation
+  name: Azure VM hibernation
+  status: ga
+  summary: Suspend-to-disk for Azure VMs. Memory is written to the OS disk and the VM is deallocated, so you pay only for disks and IPs while it's hibernated. Supported sizes and OS versions are limited.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/hibernate-resume
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: spot-vms
+  name: Azure Spot Virtual Machines
+  status: ga
+  summary: Unused Azure capacity at a discount, evicted when Azure needs capacity or the price exceeds your max price. The eviction policy is Deallocate (the default) or Delete. Scheduled Events gives up to 30 seconds of notice, best effort.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
+  pricing: https://azure.microsoft.com/en-us/pricing/spot-advisor/
+- slug: savings-plan-compute
+  name: Azure savings plan for compute
+  status: ga
+  summary: A 1- or 3-year fixed $/hour spend commitment that applies automatically across eligible compute services and regions. A separate savings plan for databases also exists. Unused hourly commitment doesn't roll over.
+  docs: https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/savings-plan-compute-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/offers/savings-plans/
+- slug: azure-reservations
+  name: Azure Reservations (Reserved VM Instances)
+  status: ga
+  status_note: From Feb 1, 2027, reservations bought for services covered by savings plans (VMs, App Service, SQL Database, and more) can't be exchanged. Older reservations keep one final exchange. Cancellations stay capped at USD 50,000 per rolling 12 months.
+  summary: A 1- or 3-year commitment to a VM size family in a region, with instance size flexibility. Discounts apply automatically to matching usage.
+  docs: https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations
+  pricing: https://azure.microsoft.com/en-us/pricing/offers/reservations/vm-instances
+- slug: capacity-reservation
+  name: Azure on-demand capacity reservation
+  status: ga
+  summary: Reserve VM capacity in a region or availability zone for any duration, with no term commitment and an SLA. Billed at pay-as-you-go rates. It can be combined with reservations for a discount.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/capacity-reservation-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: dedicated-host
+  name: Azure Dedicated Host
+  status: ga
+  summary: Single-tenant physical servers grouped into host groups, with control over maintenance and placement. Billed per host. VMs on the host show a price of zero.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/dedicated-hosts
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/dedicated-host/
+- slug: hybrid-benefit
+  name: Azure Hybrid Benefit
+  status: ga
+  summary: Apply existing Windows Server or SQL Server licenses with active Software Assurance (or qualifying subscriptions) to Azure, paying only base compute rates. RHEL and SLES subscriptions are also supported.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/windows/hybrid-use-benefit-licensing
+  pricing: https://azure.microsoft.com/en-us/pricing/offers/hybrid-benefit/
+- slug: vmss
+  name: Azure Virtual Machine Scale Sets
+  status: ga
+  summary: Groups of VMs managed as one, with autoscale (metrics, schedule, or predictive), zone/fault-domain spreading, instance mix, Spot priority mix, standby pools, and upgrade policies. Flexible orchestration is the recommended mode.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machine-scale-sets/linux/
+- slug: proximity-placement-groups
+  name: Proximity placement groups & availability sets
+  status: ga
+  summary: A proximity placement group co-locates VMs, scale sets, and availability sets in one datacenter for low latency. Availability sets and scale-set fault domains spread VMs across racks.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/co-location
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: azure-advisor
+  name: Azure Advisor
+  status: ga
+  summary: Free recommendations for cost (including VM right-sizing and shutdown), reliability, security, performance, and operational excellence.
+  docs: https://learn.microsoft.com/en-us/azure/advisor/advisor-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/advisor/
+- slug: azure-batch
+  name: Azure Batch
+  status: ga
+  summary: Free job scheduling and pool management for large parallel and HPC jobs on VM pools (including Spot), with tasks, job schedules, and autoscale formulas. You pay for the underlying resources.
+  docs: https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/batch/
+- slug: cyclecloud
+  name: Azure CycleCloud & CycleCloud Workspace for Slurm
+  status: ga
+  summary: Orchestrates HPC clusters with standard schedulers (Slurm, PBS Pro, LSF, Grid Engine, HTCondor). Workspace for Slurm is a Marketplace template that deploys a ready Slurm environment (PMIx, Pyxis, enroot).
+  docs: https://learn.microsoft.com/en-us/azure/cyclecloud/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: hpc-infiniband
+  name: InfiniBand on Azure HPC and GPU VMs
+  status: ga
+  summary: RDMA-capable InfiniBand on H-series (HB, HX) and ND-series VMs for MPI and NCCL. It works within a scale set or availability set.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/high-performance-compute/setup-infiniband
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: app-service
+  name: Azure App Service
+  status: ga
+  summary: A managed PaaS for web apps, APIs, and containers (Windows or Linux). It includes deployment slots, autoscale, built-in auth, managed certificates, and App Service Environment for isolation.
+  docs: https://learn.microsoft.com/en-us/azure/app-service/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/app-service/linux/
+- slug: azure-virtual-desktop
+  name: Azure Virtual Desktop
+  status: ga
+  status_note: Azure Virtual Desktop (classic) retired Sep 30, 2026. Only ARM-based host pools are supported.
+  summary: Desktop and app virtualization on session hosts you run in Azure (or on Azure Local). Windows 11/10 Enterprise multi-session is exclusive to it. Supports RemoteApp.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-desktop/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-desktop/
+- slug: windows-365
+  name: Windows 365 (Cloud PC)
+  status: ga
+  summary: Per-user Cloud PCs licensed per user per month and managed with Microsoft Intune. Microsoft runs the infrastructure.
+  docs: https://learn.microsoft.com/en-us/windows-365/enterprise/overview
+  pricing: https://learn.microsoft.com/en-us/windows-365/enterprise/overview
+- slug: azure-local
+  name: Azure Local (formerly Azure Stack HCI)
+  status: ga
+  summary: Microsoft's distributed infrastructure on customer-owned validated hardware, managed through Azure Arc, running VMs, AKS, and Azure Virtual Desktop. Connected or disconnected operation.
+  docs: https://learn.microsoft.com/en-us/azure/azure-local/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-local/
+- slug: extended-zones
+  name: Azure Extended Zones
+  status: ga
+  status_note: Access is by request. Several services, such as Azure Virtual Desktop, are in preview inside extended zones even though they're GA in regions.
+  summary: Small-footprint Azure extensions in metro areas or specific jurisdictions for low latency and data residency. VMs, scale sets, AKS, managed disks, and core networking are available, and the control plane stays in the parent region.
+  docs: https://learn.microsoft.com/en-us/azure/extended-zones/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: azure-vmware-solution
+  name: Azure VMware Solution
+  status: ga
+  summary: Microsoft-operated VMware vSphere, vSAN, and NSX private clouds on dedicated Azure bare-metal hosts (AV36/AV36P/AV48/AV52/AV64, with a three-node minimum). All SKUs require a portable VCF subscription from Broadcom. Generation 2 (AV64 only) attaches hosts directly to Azure virtual networks.
+  docs: https://learn.microsoft.com/en-us/azure/azure-vmware/introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-vmware/
+- slug: confidential-vms
+  name: Azure confidential computing (confidential VMs & enclaves)
+  status: ga
+  summary: Confidential VMs use AMD SEV-SNP (DCasv5/v6, ECasv5/v6) or Intel TDX (DCesv6, ECesv6), plus H100 confidential GPUs. Azure Attestation and confidential OS disk encryption are available, and Intel SGX application enclaves are offered too.
+  docs: https://learn.microsoft.com/en-us/azure/confidential-computing/confidential-vm-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: trusted-launch
+  name: Trusted Launch for Azure VMs
+  status: ga
+  summary: Secure Boot, vTPM 2.0, and boot integrity monitoring for Gen2 VMs and scale sets. It's the default for new Gen2 VMs, and existing Gen1 VMs can be upgraded.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: bastion
+  name: Azure Bastion
+  status: ga
+  summary: A managed jump service for RDP and SSH to VMs over TLS from the portal or a native client, with no public IPs on the VMs. Available SKUs are Developer (free, shared), Basic, Standard, and Premium (session recording, private-only).
+  docs: https://learn.microsoft.com/en-us/azure/bastion/bastion-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-bastion/
+- slug: update-manager
+  name: Azure Update Manager
+  status: ga
+  summary: Assess and install OS updates on Azure VMs and Arc-enabled servers, with maintenance configurations, periodic assessment, and hotpatching.
+  docs: https://learn.microsoft.com/en-us/azure/update-manager/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-update-management-center/

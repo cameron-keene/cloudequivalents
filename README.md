@@ -12,7 +12,7 @@ An open-source, source-cited study guide that maps cloud services between provid
 - lifecycle status (preview, maintenance, sunset, deprecated, retired)
 - official documentation sources
 
-**Current scope:** AI & Machine Learning: 65 mappings, 59 AWS services, 52 Azure services, last verified 2026-10-19. The data schema already supports more providers (GCP and OCI are registered but disabled).
+**Current scope:** Compute (32 mappings) and AI & Machine Learning (65 mappings): 97 mappings, 94 AWS services, 80 Azure services. Last verified 2026-10-24. Containers & serverless, storage, databases, networking, and identity & security are being added one category at a time. The data schema already supports more providers (GCP and OCI are registered but disabled).
 
 
 ## Screenshots
@@ -58,11 +58,11 @@ Requires Node 20 or later. The build needs no network access and no paid service
 
 | URL | What |
 |---|---|
-| `/` | Interactive matrix: collapsible groups (Expand/Collapse all, remembered), Cmd/Ctrl+K search, group/exam/match filters, jump-to-group nav, detail drawer, and a Matrix/Cards toggle. Filter state is kept in the URL (`?q=&group=&exam=&match=&view=cards`). Without JavaScript it's a plain server-rendered table. |
+| `/` | Interactive matrix with one section per category: collapsible groups (Expand/Collapse all, remembered), Cmd/Ctrl+K search, category/group/exam/match filters, jump-to-category and jump-to-group nav, detail drawer, and a Matrix/Cards toggle. Filter state is kept in the URL (`?q=&cat=&group=&exam=&match=&view=cards`). Without JavaScript it's a plain server-rendered table. |
 | `/compare/aws-<slug>-vs-azure-<slug>/` | One fully pre-rendered page per mapping. Each has a direct answer, an HTML comparison table, differences, pricing, exams, FAQ, related links, sources, a last-verified date, and an edit link. |
 | `/aws/<service>/` and `/azure/<service>/` | Hub pages ("Azure equivalent of X" and the reverse) |
 | `/aws/`, `/azure/` | Service indexes |
-| `/category/ai-ml/` | Category overview |
+| `/category/` and `/category/<id>/` | Category index and per-category overviews (groups are collapsible) |
 | `/exams/` | Certification exams mapped to comparisons |
 | `/about/` | Methodology |
 
@@ -73,7 +73,7 @@ SEO and performance features:
 - JSON-LD (BreadcrumbList, TechArticle, FAQPage, plus WebSite/ItemList/CollectionPage where relevant)
 - `sitemap.xml`, `robots.txt`, and a `noindex` 404 page
 - system fonts only, with no layout shift
-- content pages ship one ~300-byte inline script; the matrix JS (~6 KB) loads only on `/`, and drawer data (`/data/rows.json`) loads only when the drawer is first opened
+- content pages ship one ~300-byte inline script; the matrix JS (~6 KB) loads only on `/`, and drawer data (`/data/rows-<category>.json`) loads only when the drawer is first opened for that category
 
 ## Data layout (one file per category, PR-friendly)
 
@@ -81,9 +81,9 @@ SEO and performance features:
 data/
   providers.yaml          # provider registry (aws, azure, gcp*, oci*); *disabled
   exams.yaml              # certification exams, status (current/beta/retiring/retired), notes
-  services/aws.yaml       # one entry per service: slug, name, status, status_note, summary, docs, pricing
-  services/azure.yaml
-  categories/ai-ml.yaml   # category metadata, groups, and the mapping rows
+  services/<provider>/<category>.yaml   # one entry per service: slug, name, status, status_note, summary, docs, pricing
+                                        # (slugs are unique per provider across all files)
+  categories/<category>.yaml            # category metadata (id, name, short, order, groups) and the mapping rows
 ```
 
 A row (`data/categories/*.yaml`):
@@ -115,7 +115,7 @@ Service URL segments drop a redundant provider prefix (`azure-language` becomes 
 
 ## Adding a provider (GCP, OCI, …)
 
-1. Create `data/services/gcp.yaml` using the same fields.
+1. Create `data/services/gcp/<category>.yaml` files using the same fields.
 2. Add `gcp: [...]` to `providers` (and optionally `pricing`/`exams`) on the rows.
 3. Set `enabled: true` in `data/providers.yaml` and add `"gcp"` to `activeProviders`.
 
@@ -123,7 +123,7 @@ The matrix columns, comparison tables, pricing blocks, drawer, and hub pages are
 
 ## Adding a category
 
-Copy `data/categories/ai-ml.yaml` to a new file (for example `compute.yaml`) with its own `category:` block and `rows:`. Add any new services to `data/services/*.yaml`.
+Create `data/categories/<id>.yaml` with a `category:` block (`id`, `name`, `short`, `order`, `description`, optional `seo_description`, `last_verified`, `groups`) and `rows:`. Put new services in `data/services/<provider>/<id>.yaml`. Group ids must be unique across all categories. A service already defined in another category's file can be reused by slug. The nav, home matrix, category pages, hubs, exams page, and sitemap pick up the new category automatically.
 
 ## Verification policy
 

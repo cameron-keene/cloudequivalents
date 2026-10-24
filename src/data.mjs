@@ -19,14 +19,25 @@ export function loadData() {
   const providers = allProviders.filter((p) => p.enabled && config.activeProviders.includes(p.id));
   const exams = new Map(read('data/exams.yaml').map((e) => [e.code, e]));
   const services = {};
+  const errors = [];
   for (const p of providers) {
-    const list = read(`data/services/${p.id}.yaml`) || [];
-    services[p.id] = new Map(list.map((s) => [s.slug, { ...s, provider: p.id, seg: serviceSeg(p.id, s.slug) }]));
+    // Services live in data/services/<provider>.yaml and/or data/services/<provider>/*.yaml (one file per category).
+    const files = [];
+    if (fs.existsSync(path.join(ROOT, `data/services/${p.id}.yaml`))) files.push(`data/services/${p.id}.yaml`);
+    const dir = path.join(ROOT, `data/services/${p.id}`);
+    if (fs.existsSync(dir)) for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.yaml')).sort()) files.push(`data/services/${p.id}/${f}`);
+    services[p.id] = new Map();
+    for (const file of files) for (const s of read(file) || []) {
+      if (services[p.id].has(s.slug)) errors.push(`${p.id}: duplicate service slug ${s.slug} (${file})`);
+      services[p.id].set(s.slug, { ...s, provider: p.id, seg: serviceSeg(p.id, s.slug), file });
+    }
   }
   const categories = fs.readdirSync(path.join(ROOT, 'data/categories')).filter((f) => f.endsWith('.yaml')).sort()
-    .map((f) => { const d = read(`data/categories/${f}`); return { ...d.category, file: `data/categories/${f}`, rows: d.rows }; });
+    .map((f) => { const d = read(`data/categories/${f}`); return { ...d.category, file: `data/categories/${f}`, rows: d.rows }; })
+    .sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  const gids = new Set();
+  for (const c of categories) for (const g of c.groups) { if (gids.has(g.id)) errors.push(`duplicate group id ${g.id} (${c.id})`); gids.add(g.id); }
 
-  const errors = [];
   const [pa, pb] = providers; // primary comparison pair (AWS, Azure)
   const slugs = new Map();
   const rowIds = new Set();
