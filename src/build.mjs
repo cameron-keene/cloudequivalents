@@ -456,4 +456,6 @@ pages.splice(pages.indexOf('/404.html'), 1);
 const today = categories.map((c) => c.last_verified).sort().pop();
 write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 write('/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${abs('/sitemap.xml')}\n`);
+// IndexNow (Bing, Yandex, etc.) ownership key file
+if (config.indexNowKey) write(`/${config.indexNowKey}.txt`, config.indexNowKey);
 console.log(`Built ${pages.length} pages (${rowsById.size} compare pages) into dist/`);

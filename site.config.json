@@ -5,5 +5,9 @@
   "repoUrl": "https://github.com/cameron-keene/cloudequivalents",
   "repoBranch": "main",
   "lastBuiltNote": "Data verified against official AWS and Microsoft documentation.",
-  "activeProviders": ["aws", "azure"]
+  "activeProviders": [
+    "aws",
+    "azure"
+  ],
+  "indexNowKey": "02525af08bc0d637b5aec3789c6b55a9"
 }
