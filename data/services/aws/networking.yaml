@@ -1,0 +1,242 @@
+# AWS networking & content delivery services (category: networking).
+- slug: vpc
+  name: Amazon VPC
+  status: ga
+  summary: Logically isolated virtual network in a Region, with your own IPv4 and IPv6 ranges, subnets, route tables, gateways, and security controls.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-subnets
+  name: VPC subnets
+  status: ga
+  summary: IP ranges within a VPC. Each subnet lives in exactly one Availability Zone (or Local Zone or Outpost), so multi-AZ designs need one subnet per AZ.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: security-groups
+  name: Security groups
+  status: ga
+  summary: Stateful, allow-only virtual firewalls attached to network interfaces. Rules can reference other security groups instead of IP ranges.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: network-acls
+  name: Network ACLs
+  status: ga
+  summary: Stateless, numbered allow and deny rules applied at the subnet boundary, evaluated in order for inbound and outbound traffic.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-route-tables
+  name: VPC route tables
+  status: ga
+  summary: Routes associated with subnets, gateways (edge association), or a VPC's main table, directing traffic to gateways, endpoints, peering connections, and network interfaces.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-route-server
+  name: Amazon VPC Route Server
+  status: ga
+  summary: Peers with appliances in your VPC over BGP and dynamically updates VPC, subnet, and internet gateway route tables for routing fault tolerance.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/dynamic-routing-route-server.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: internet-gateway
+  name: Internet gateway (and egress-only internet gateway)
+  status: ga
+  summary: Horizontally scaled VPC component that allows internet traffic to and from resources with public IPs. The egress-only variant allows outbound-only IPv6.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: nat-gateway
+  name: NAT gateway (zonal and regional)
+  status: ga
+  summary: Managed NAT that lets private subnets reach the internet or other networks. Zonal NAT gateways live in one AZ; regional NAT gateways expand across AZs automatically.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-block-public-access
+  name: VPC Block Public Access
+  status: ga
+  summary: Account- or Region-wide switch that blocks internet gateway traffic to and from VPCs and subnets, with exclusions for subnets that need it.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/security-vpc-bpa.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: elastic-ip
+  name: Elastic IP addresses (and BYOIP)
+  status: ga
+  summary: Static public IPv4 addresses you allocate to your account and remap between resources. You can also bring your own IP ranges (BYOIP).
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-eips.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-ipam
+  name: Amazon VPC IP Address Manager (IPAM)
+  status: ga
+  summary: Plans, allocates, tracks, and audits IP addresses across accounts and Regions with hierarchical pools and compliance monitoring.
+  docs: https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: vpc-peering
+  name: VPC peering
+  status: ga
+  summary: Private, non-transitive connection between two VPCs (same or different accounts and Regions).
+  docs: https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: transit-gateway
+  name: AWS Transit Gateway
+  status: ga
+  summary: Regional cloud router that connects VPCs, VPNs, Direct Connect, and peered transit gateways in a hub-and-spoke design, with multiple route tables for segmentation.
+  docs: https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html
+  pricing: https://aws.amazon.com/transit-gateway/pricing/
+- slug: cloud-wan
+  name: AWS Cloud WAN
+  status: ga
+  summary: Managed global network built from a central, policy-defined core network, with segments and core network edges in the Regions you choose.
+  docs: https://docs.aws.amazon.com/network-manager/latest/cloudwan/what-is-cloudwan.html
+  pricing: https://aws.amazon.com/cloud-wan/pricing/
+- slug: privatelink
+  name: AWS PrivateLink (interface endpoints)
+  status: ga
+  summary: Private access to AWS services, your own endpoint services, and partner services through elastic network interfaces in your subnets.
+  docs: https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html
+  pricing: https://aws.amazon.com/privatelink/pricing/
+- slug: gateway-endpoints
+  name: Gateway VPC endpoints
+  status: ga
+  summary: Free route-table targets that give a VPC private access to Amazon S3 and DynamoDB without an internet or NAT gateway.
+  docs: https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html
+  pricing: https://aws.amazon.com/privatelink/pricing/
+- slug: vpc-lattice
+  name: Amazon VPC Lattice
+  status: ga
+  summary: Application networking service that connects, secures, and monitors service-to-service and resource traffic across VPCs and accounts, with IAM auth policies.
+  docs: https://docs.aws.amazon.com/vpc-lattice/latest/ug/what-is-vpc-lattice.html
+  pricing: https://aws.amazon.com/vpc/lattice/pricing/
+- slug: site-to-site-vpn
+  name: AWS Site-to-Site VPN
+  status: ga
+  summary: IPsec VPN connections with two tunnels each, terminating on a virtual private gateway, transit gateway, or Cloud WAN. Large bandwidth tunnels (up to 5 Gbps) are available on Transit Gateway and Cloud WAN.
+  docs: https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html
+  pricing: https://aws.amazon.com/vpn/pricing/
+- slug: client-vpn
+  name: AWS Client VPN
+  status: ga
+  summary: Managed OpenVPN-based remote-access VPN with certificate, Active Directory, or SAML federated authentication.
+  docs: https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/what-is.html
+  pricing: https://aws.amazon.com/vpn/pricing/
+- slug: direct-connect
+  name: AWS Direct Connect
+  status: ga
+  summary: Dedicated or hosted private connections from your network to AWS at Direct Connect locations, with private, public, and transit virtual interfaces.
+  docs: https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html
+  pricing: https://aws.amazon.com/directconnect/pricing/
+- slug: direct-connect-gateway
+  name: Direct Connect gateway
+  status: ga
+  summary: Global resource that connects Direct Connect virtual interfaces to VPCs and transit gateways in any Region (except China). With SiteLink enabled on virtual interfaces, it also links your Direct Connect locations to each other over the AWS network.
+  docs: https://docs.aws.amazon.com/directconnect/latest/UserGuide/direct-connect-gateways-intro.html
+  pricing: https://aws.amazon.com/directconnect/pricing/
+- slug: route-53
+  name: Amazon Route 53 (DNS hosting and domains)
+  status: ga
+  summary: Authoritative DNS hosting with public hosted zones, DNSSEC signing, and domain registration.
+  docs: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html
+  pricing: https://aws.amazon.com/route53/pricing/
+- slug: route-53-routing
+  name: Route 53 routing policies and health checks
+  status: ga
+  summary: DNS-based traffic routing (weighted, latency, failover, geolocation, geoproximity, IP-based, multivalue) with health checks.
+  docs: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html
+  pricing: https://aws.amazon.com/route53/pricing/
+- slug: route-53-private-zones
+  name: Route 53 private hosted zones
+  status: ga
+  summary: DNS zones that resolve only inside the VPCs you associate with them.
+  docs: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html
+  pricing: https://aws.amazon.com/route53/pricing/
+- slug: route-53-resolver
+  name: Route 53 Resolver (endpoints and rules)
+  status: ga
+  summary: The VPC's built-in recursive resolver, plus inbound and outbound endpoints and forwarding rules for hybrid DNS with on-premises networks.
+  docs: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver.html
+  pricing: https://aws.amazon.com/route53/pricing/
+- slug: route-53-dns-firewall
+  name: Route 53 Resolver DNS Firewall
+  status: ga
+  summary: Filters outbound DNS queries from VPCs with allow, block, and alert rules on domain lists, including AWS-managed threat lists.
+  docs: https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver-dns-firewall.html
+  pricing: https://aws.amazon.com/route53/pricing/
+- slug: application-load-balancer
+  name: Application Load Balancer
+  status: ga
+  summary: Layer 7 load balancer with host, path, header, and query routing, TLS offload, authentication (OIDC and Cognito), gRPC, WebSockets, and Lambda targets.
+  docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
+  pricing: https://aws.amazon.com/elasticloadbalancing/pricing/
+- slug: network-load-balancer
+  name: Network Load Balancer
+  status: ga
+  summary: Layer 4 (TCP, UDP, TLS) load balancer for very high throughput and low latency, with static IPs per AZ and source IP preservation.
+  docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html
+  pricing: https://aws.amazon.com/elasticloadbalancing/pricing/
+- slug: gateway-load-balancer
+  name: Gateway Load Balancer
+  status: ga
+  summary: Transparently inserts fleets of third-party virtual appliances (firewalls, IDS) into traffic paths using GENEVE encapsulation and GWLB endpoints.
+  docs: https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html
+  pricing: https://aws.amazon.com/elasticloadbalancing/pricing/
+- slug: cloudfront
+  name: Amazon CloudFront
+  status: ga
+  summary: Global CDN for static and dynamic content, APIs, and video, with edge caching, origin shield, TLS, WAF and Shield integration, and pay-as-you-go or flat-rate pricing plans.
+  docs: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html
+  pricing: https://aws.amazon.com/cloudfront/pricing/
+- slug: cloudfront-functions
+  name: CloudFront Functions
+  status: ga
+  summary: Lightweight JavaScript functions that run at CloudFront edge locations on viewer requests and responses, with sub-millisecond startup and an optional key-value store.
+  docs: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html
+  pricing: https://aws.amazon.com/cloudfront/pricing/
+- slug: lambda-at-edge
+  name: Lambda@Edge
+  status: ga
+  summary: Node.js or Python Lambda functions authored in US East (N. Virginia) and run at AWS locations close to viewers, triggered on CloudFront viewer and origin requests and responses.
+  docs: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-at-the-edge.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: global-accelerator
+  name: AWS Global Accelerator
+  status: ga
+  summary: Static anycast IP addresses that route TCP and UDP traffic over the AWS global network to the best healthy regional endpoint.
+  docs: https://docs.aws.amazon.com/global-accelerator/latest/dg/what-is-global-accelerator.html
+  pricing: https://aws.amazon.com/global-accelerator/pricing/
+- slug: network-firewall
+  name: AWS Network Firewall
+  status: ga
+  summary: Managed, stateful network firewall and IPS for VPCs, with Suricata-compatible rules, domain filtering, TLS inspection, and AWS-managed threat signatures.
+  docs: https://docs.aws.amazon.com/network-firewall/latest/developerguide/what-is-aws-network-firewall.html
+  pricing: https://aws.amazon.com/network-firewall/pricing/
+- slug: aws-waf
+  name: AWS WAF
+  status: ga
+  summary: Web application firewall for CloudFront, ALB, API Gateway, AppSync, Cognito, App Runner, and Verified Access, with managed rule groups, rate limiting, bot control, and fraud control.
+  status_note: AWS WAF Classic is going through a planned end-of-life process, with Region-specific dates in the AWS Health Dashboard. Migrate to the current AWS WAF.
+  docs: https://docs.aws.amazon.com/waf/latest/developerguide/what-is-aws-waf.html
+  pricing: https://aws.amazon.com/waf/pricing/
+- slug: shield
+  name: AWS Shield (Standard and Advanced)
+  status: ga
+  summary: DDoS protection. Shield Standard is automatic and free. Shield Advanced adds protection for specific resources, the Shield Response Team, cost protection, and attack visibility.
+  docs: https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html
+  pricing: https://aws.amazon.com/shield/pricing/
+- slug: firewall-manager
+  name: AWS Firewall Manager
+  status: ga
+  summary: Centrally applies WAF, Shield Advanced, security group, Network Firewall, and DNS Firewall policies across accounts in AWS Organizations.
+  docs: https://docs.aws.amazon.com/waf/latest/developerguide/fms-chapter.html
+  pricing: https://aws.amazon.com/firewall-manager/pricing/
+- slug: vpc-flow-logs
+  name: VPC Flow Logs
+  status: ga
+  summary: Captures IP traffic metadata for VPCs, subnets, and network interfaces to CloudWatch Logs, S3, or Firehose.
+  docs: https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html
+  pricing: https://aws.amazon.com/cloudwatch/pricing/
+- slug: reachability-analyzer
+  name: VPC Reachability Analyzer and Network Access Analyzer
+  status: ga
+  summary: Reachability Analyzer checks whether a path exists between two resources by analyzing configuration. Network Access Analyzer finds unintended network access against rules you define.
+  docs: https://docs.aws.amazon.com/vpc/latest/reachability/what-is-reachability-analyzer.html
+  pricing: https://aws.amazon.com/vpc/pricing/
+- slug: traffic-mirroring
+  name: VPC Traffic Mirroring
+  status: ga
+  summary: Copies network traffic from elastic network interfaces of supported instance types to monitoring appliances for deep packet inspection.
+  docs: https://docs.aws.amazon.com/vpc/latest/mirroring/what-is-traffic-mirroring.html
+  pricing: https://aws.amazon.com/vpc/pricing/

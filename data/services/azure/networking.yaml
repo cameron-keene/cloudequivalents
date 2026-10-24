@@ -1,0 +1,217 @@
+# Azure networking & content delivery services (category: networking).
+- slug: virtual-network
+  name: Azure Virtual Network
+  status: ga
+  summary: Isolated private network in a region, with your own IPv4 and IPv6 address space, subnets, routing, and security. Subnets are regional and span availability zones.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: private-subnets
+  name: Private subnets (default outbound access off)
+  status: ga
+  summary: Subnets with default outbound access turned off, so VMs need an explicit outbound method (NAT Gateway, Standard Load Balancer outbound rules, public IP, or firewall). New virtual networks created with API versions released after March 31, 2026 default to private subnets.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: network-security-groups
+  name: Network security groups and application security groups
+  status: ga
+  summary: Stateful, prioritized allow and deny rules applied to subnets or network interfaces. Application security groups let rules target groups of VMs instead of IP ranges.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: user-defined-routes
+  name: User-defined routes (route tables)
+  status: ga
+  summary: Custom static routes in route tables associated with subnets, overriding Azure's default system routes (for example, to send traffic through a firewall).
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: route-server
+  name: Azure Route Server
+  status: ga
+  summary: Managed BGP route reflector that exchanges routes between network virtual appliances and the virtual network, without manual route-table updates.
+  docs: https://learn.microsoft.com/en-us/azure/route-server/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/route-server/
+- slug: azure-nat-gateway
+  name: Azure NAT Gateway
+  status: ga
+  summary: Managed outbound-only NAT for subnets, using up to 16 static public IPv4 addresses (and, on the zone-redundant StandardV2 SKU, up to 16 IPv6 addresses), with no unsolicited inbound connections.
+  docs: https://learn.microsoft.com/en-us/azure/nat-gateway/nat-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-nat-gateway/
+- slug: public-ip-addresses
+  name: Public IP addresses and prefixes
+  status: ga
+  summary: Standard SKU static public IPv4 and IPv6 addresses, contiguous public IP prefixes, and custom IP prefixes (bring your own IP). Basic SKU public IPs retired September 30, 2025.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses
+  pricing: https://azure.microsoft.com/en-us/pricing/details/ip-addresses/
+- slug: virtual-network-manager
+  name: Azure Virtual Network Manager
+  status: ga
+  summary: Centrally groups virtual networks across subscriptions and regions to deploy connectivity (mesh or hub-and-spoke), security admin rules, routing, and IP address management (IPAM) pools.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network-manager/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network-manager/
+- slug: vnet-peering
+  name: Virtual network peering
+  status: ga
+  summary: Connects virtual networks in the same region or across regions (global peering) over the Microsoft backbone. Peering is non-transitive.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: virtual-wan
+  name: Azure Virtual WAN
+  status: ga
+  summary: Microsoft-managed hubs (full mesh in the Standard type) that connect virtual networks, branches (VPN and SD-WAN), remote users, and ExpressRoute, with optional secured hubs using Azure Firewall.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-wan/
+- slug: private-link
+  name: Azure Private Link and private endpoints
+  status: ga
+  summary: Private endpoints place a private IP for an Azure PaaS resource, partner service, or your own Private Link service inside your virtual network.
+  docs: https://learn.microsoft.com/en-us/azure/private-link/private-link-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/private-link/
+- slug: service-endpoints
+  name: Virtual network service endpoints
+  status: ga
+  summary: Free subnet setting that routes traffic to supported Azure services (such as Storage and SQL) over the Azure backbone using the subnet's identity, so the service firewall can allow that subnet.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+- slug: app-gateway-for-containers
+  name: Application Gateway for Containers
+  status: ga
+  summary: Layer 7 load balancing and traffic management for AKS workloads, configured through Kubernetes Gateway API or Ingress resources.
+  docs: https://learn.microsoft.com/en-us/azure/application-gateway/for-containers/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/application-gateway/
+- slug: vpn-gateway
+  name: Azure VPN Gateway (site-to-site)
+  status: ga
+  summary: IPsec/IKE VPN gateways for site-to-site and VNet-to-VNet connections, in active-standby or active-active mode, with route-based or policy-based VPNs. Microsoft is moving all SKUs to zone-redundant (AZ) SKUs.
+  docs: https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways
+  pricing: https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/
+- slug: point-to-site-vpn
+  name: Azure VPN Gateway point-to-site
+  status: ga
+  summary: Remote-access VPN over OpenVPN, IKEv2, or SSTP, with certificate, RADIUS, or Microsoft Entra ID authentication.
+  docs: https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about
+  pricing: https://azure.microsoft.com/en-us/pricing/details/vpn-gateway/
+- slug: expressroute
+  name: Azure ExpressRoute
+  status: ga
+  summary: Private connections from your network to Microsoft through a connectivity provider or ExpressRoute Direct, with private peering (virtual networks) and Microsoft peering (Microsoft 365 and public PaaS).
+  docs: https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/expressroute/
+- slug: expressroute-global-reach
+  name: ExpressRoute Global Reach
+  status: ga
+  summary: Links ExpressRoute circuits together so on-premises sites can exchange traffic over the Microsoft backbone. Circuits in different geopolitical regions need the Premium SKU.
+  docs: https://learn.microsoft.com/en-us/azure/expressroute/expressroute-global-reach
+  pricing: https://azure.microsoft.com/en-us/pricing/details/expressroute/
+- slug: azure-dns
+  name: Azure DNS (public zones)
+  status: ga
+  summary: Authoritative DNS hosting on Azure's anycast name servers, with DNSSEC signing, alias records, and Azure RBAC. Domain registration is separate (for example, App Service domains).
+  docs: https://learn.microsoft.com/en-us/azure/dns/dns-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/dns/
+- slug: azure-private-dns
+  name: Azure Private DNS zones
+  status: ga
+  summary: DNS zones that resolve inside linked virtual networks, with optional auto-registration of VM records.
+  docs: https://learn.microsoft.com/en-us/azure/dns/private-dns-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/dns/
+- slug: dns-private-resolver
+  name: Azure DNS Private Resolver
+  status: ga
+  summary: Managed inbound and outbound DNS endpoints and forwarding rulesets for hybrid DNS between Azure and on-premises networks.
+  docs: https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/dns/
+- slug: dns-resolver-policy
+  name: DNS resolver policy (with threat intelligence)
+  status: ga
+  summary: Filters and logs DNS queries at the virtual network level with allow, alert, and block rules on domain lists, plus an optional Microsoft-managed threat intelligence feed.
+  docs: https://learn.microsoft.com/en-us/azure/dns/dns-security-policy
+  pricing: https://azure.microsoft.com/en-us/pricing/details/dns/
+- slug: traffic-manager
+  name: Azure Traffic Manager
+  status: ga
+  summary: DNS-based global traffic routing (priority, weighted, performance, geographic, multivalue, subnet) with endpoint health monitoring and nested profiles.
+  docs: https://learn.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/traffic-manager/
+- slug: application-gateway
+  name: Azure Application Gateway (v2)
+  status: ga
+  summary: Regional layer 7 load balancer with path and host routing, TLS termination, autoscaling, zone redundancy, rewrites, and an optional WAF. Application Gateway v1 retired April 28, 2026.
+  docs: https://learn.microsoft.com/en-us/azure/application-gateway/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/application-gateway/
+- slug: azure-load-balancer
+  name: Azure Load Balancer (Standard)
+  status: ga
+  summary: Layer 4 (TCP and UDP) load balancer, public or internal, zone-redundant, with outbound rules and HA ports. Basic Load Balancer retired September 30, 2025.
+  docs: https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/load-balancer/
+- slug: gateway-load-balancer
+  name: Azure Gateway Load Balancer
+  status: ga
+  summary: Chains network virtual appliances transparently in front of a Standard public load balancer or VM IP configuration, using VXLAN encapsulation.
+  docs: https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/load-balancer/
+- slug: cross-region-load-balancer
+  name: Azure global (cross-region) load balancer
+  status: ga
+  summary: Global tier of Standard Load Balancer that provides a static anycast public IP in front of regional Standard load balancers, for layer 4 geo-redundancy.
+  docs: https://learn.microsoft.com/en-us/azure/load-balancer/cross-region-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/load-balancer/
+- slug: front-door
+  name: Azure Front Door (Standard and Premium)
+  status: ga
+  summary: Global layer 7 CDN and application delivery network with caching, global load balancing, WAF, bot protection, and Private Link origins (Premium). Front Door (classic) retires March 31, 2027, and Azure CDN Standard from Microsoft (classic) retires September 30, 2027.
+  docs: https://learn.microsoft.com/en-us/azure/frontdoor/front-door-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/frontdoor/
+- slug: front-door-rules-engine
+  name: Azure Front Door rule sets
+  status: ga
+  summary: No-code rules that match on request properties and modify headers, rewrite or redirect URLs, override caching, and change origin groups at the edge.
+  docs: https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine
+  pricing: https://azure.microsoft.com/en-us/pricing/details/frontdoor/
+- slug: front-door-edge-actions
+  name: Azure Front Door edge actions
+  status: preview
+  summary: Custom JavaScript that runs at Front Door PoPs on client requests (header changes, URL rewrite and redirect, request rejection, origin selection, JWT validation), with a 16 KB code and 10 ms execution limit in preview.
+  docs: https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions
+  pricing: https://azure.microsoft.com/en-us/pricing/details/frontdoor/
+- slug: azure-firewall
+  name: Azure Firewall
+  status: ga
+  summary: Managed, stateful, autoscaling network firewall in Basic, Standard, and Premium tiers, with FQDN filtering, threat intelligence, and (Premium) TLS inspection and IDPS.
+  docs: https://learn.microsoft.com/en-us/azure/firewall/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-firewall/
+- slug: azure-waf
+  name: Azure Web Application Firewall
+  status: ga
+  summary: WAF policies with managed rule sets (OWASP-based default rules), custom rules, rate limiting, and bot protection, deployed on Application Gateway (regional) or Front Door (global).
+  docs: https://learn.microsoft.com/en-us/azure/web-application-firewall/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/web-application-firewall/
+- slug: ddos-protection
+  name: Azure DDoS Protection
+  status: ga
+  summary: Infrastructure DDoS protection is free and automatic. Paid DDoS Network Protection (priced per 100 protected public IPs) and DDoS IP Protection (per protected IP) add tuned mitigation, telemetry, and alerts. Network Protection also adds rapid response support, cost protection, and a WAF discount.
+  docs: https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/ddos-protection/
+- slug: azure-firewall-manager
+  name: Azure Firewall Manager
+  status: ga
+  summary: Central management of firewall policies and security routing for Azure Firewall in hub virtual networks and secured Virtual WAN hubs, plus DDoS and WAF policy association.
+  docs: https://learn.microsoft.com/en-us/azure/firewall-manager/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/firewall-manager/
+- slug: vnet-flow-logs
+  name: Virtual network flow logs
+  status: ga
+  summary: Network Watcher feature that records IP traffic through virtual networks, subnets, or NICs to a storage account, with optional traffic analytics. It replaces NSG flow logs, which retire September 30, 2027.
+  docs: https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/network-watcher/
+- slug: network-watcher
+  name: Azure Network Watcher
+  status: ga
+  summary: Network monitoring and diagnostics, including connection troubleshoot, IP flow verify, next hop, effective security rules, packet capture, connection monitor, and topology.
+  docs: https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/network-watcher/
+- slug: virtual-network-tap
+  name: Virtual network TAP
+  status: preview
+  summary: Continuously mirrors VM network traffic to a packet collector or analytics tool. In public preview in select regions when verified.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-tap-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/

@@ -1,0 +1,1040 @@
+# Networking & content delivery: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: networking
+  name: Networking & Content Delivery
+  short: Networking
+  order: 5
+  description: Virtual networks, subnets, routing, internet egress, network security and firewalls, hybrid connectivity, private service access, DNS, load balancing, CDN and edge compute, and network monitoring. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure networking, side by side: VPC vs Virtual Network, security groups vs NSGs, Transit Gateway vs Virtual WAN, Direct Connect vs ExpressRoute, Route 53 vs Azure DNS and Traffic Manager, ALB vs Application Gateway, CloudFront vs Front Door, and Lambda@Edge vs Front Door edge actions."
+  last_verified: "2026-10-24"
+  groups:
+    - id: virtual-networks
+      name: Virtual networks, subnets & IP addressing
+    - id: routing-egress
+      name: Routing & internet access
+    - id: network-security
+      name: Network security & firewalls
+    - id: hybrid-connectivity
+      name: Network-to-network & hybrid connectivity
+    - id: private-access
+      name: Private access to services
+    - id: dns
+      name: DNS & DNS-based routing
+    - id: load-balancing
+      name: Load balancing
+    - id: edge-delivery
+      name: CDN, edge compute & global acceleration
+    - id: network-monitoring
+      name: Network monitoring & diagnostics
+
+rows:
+# ───────────────────────── VIRTUAL NETWORKS ─────────────────────────
+- id: virtual-network
+  group: virtual-networks
+  capability: Private virtual network
+  what_for: Give your cloud resources an isolated private network with your own IP ranges, subnets, routing, and security rules.
+  match: direct
+  answer: Amazon VPC maps to Azure Virtual Network (VNet). Both are regional, isolated networks with your own IPv4 and IPv6 address space, divided into subnets with routing and security controls.
+  providers:
+    aws: [vpc]
+    azure: [virtual-network]
+  differences:
+    - Subnets and zones. An AWS subnet sits in one Availability Zone, so you create one subnet per AZ. An Azure subnet is regional and spans all zones, so one subnet can hold zone-redundant resources.
+    - Internet access. A VPC reaches the internet only through gateways you attach (internet gateway, NAT gateway). Azure has no internet gateway object. Outbound access comes from NAT Gateway, load balancer outbound rules, public IPs, or a firewall, and new VNets now default to private subnets.
+    - Reserved addresses. Both clouds reserve five IP addresses in each subnet.
+  pricing:
+    aws: The VPC itself is free. You pay for NAT gateways, endpoints, public IPv4 addresses, VPN, Transit Gateway, and data transfer.
+    azure: Virtual networks are free (up to limits). You pay for peering traffic, gateways, NAT Gateway, public IPs, and data transfer.
+  exams:
+    aws: [CLF-C02, SAA-C03, ANS-C01]
+    azure: [AZ-900, AZ-104, AZ-700]
+  faq:
+    - q: Is an Azure VNet the same as an AWS VPC?
+      a: Close enough to map one-to-one in most designs. The biggest practical difference is that Azure subnets span availability zones, while AWS subnets are tied to a single AZ.
+  related: [subnets-zones, route-tables, vnet-peering, internet-egress]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: subnets-zones
+  group: virtual-networks
+  capability: Subnets and availability zone placement
+  what_for: Split a network into address ranges for tiers (web, app, data) and spread them across failure zones.
+  match: partial
+  answer: VPC subnets map to Azure virtual network subnets, but placement differs. AWS subnets belong to one Availability Zone, while Azure subnets are regional and you pick the zone per resource.
+  providers:
+    aws: [vpc-subnets]
+    azure: [virtual-network]
+  differences:
+    - High availability. On AWS, a three-AZ tier needs three subnets. On Azure, one subnet can serve all zones. If you move a resource to another zone, whether it keeps its private IP depends on the resource type.
+    - Public and private. AWS calls a subnet public if its route table points to an internet gateway. On Azure, private subnets turn off default outbound access, and new VNets created with API versions released after March 31, 2026 default to private.
+    - Delegation. Some Azure PaaS services need a dedicated, delegated subnet. AWS services usually just place network interfaces in your subnets.
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [virtual-network, internet-egress]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: public-ip-addresses
+  group: virtual-networks
+  capability: Static public IP addresses
+  what_for: Keep a fixed public IP for an app, NAT, or allowlisting, and optionally bring your own IP ranges.
+  match: direct
+  answer: Elastic IP addresses map to Azure Standard public IP addresses. Public IP prefixes give contiguous ranges, and custom IP prefixes let you bring your own ranges (like AWS BYOIP).
+  providers:
+    aws: [elastic-ip]
+    azure: [public-ip-addresses]
+  differences:
+    - Lifecycle. Basic SKU public IPs retired on September 30, 2025, so use Standard (static, zone-redundant, secure by default) on Azure.
+    - Charges. AWS charges for every public IPv4 address, whether attached or idle. Azure charges per public IP and prefix, by SKU.
+  pricing:
+    aws: Per public IPv4 address-hour (in use or idle). BYOIP addresses aren't charged.
+    azure: Per public IP or prefix-hour, by SKU and tier.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [nat-gateway, internet-egress]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-eips.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-basic-upgrade-guidance
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/custom-ip-address-prefix
+
+- id: ip-address-management
+  group: virtual-networks
+  capability: IP address management (IPAM)
+  what_for: Plan and allocate non-overlapping IP ranges across many networks, accounts, and regions, and track usage.
+  match: partial
+  answer: Amazon VPC IPAM maps to IP address management in Azure Virtual Network Manager, which allocates non-overlapping ranges from IP address pools.
+  providers:
+    aws: [vpc-ipam]
+    azure: [virtual-network-manager]
+  differences:
+    - Scope. VPC IPAM integrates with AWS Organizations, monitors compliance, tracks public IPs, and keeps historical IP data. Azure IPAM is one feature of Virtual Network Manager, which also deploys connectivity and security admin rules.
+  pricing:
+    aws: Free tier, or the Advanced tier billed per active IP address-hour.
+    azure: Virtual Network Manager is billed per managed virtual network (or subscription, depending on the pricing model), and IPAM is part of it.
+  exams:
+    aws: [ANS-C01]
+    azure: [AZ-700]
+  flags:
+    - Virtual Network Manager pricing has changed over time. Check the current pricing page.
+  related: [virtual-network, global-network]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/ipam/what-it-is-ipam.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-ip-address-management
+
+# ───────────────────────── ROUTING & EGRESS ─────────────────────────
+- id: route-tables
+  group: routing-egress
+  capability: Custom route tables
+  what_for: Control where subnet traffic goes, for example through a firewall, a gateway, or a peered network.
+  match: direct
+  answer: VPC route tables map to Azure user-defined routes (UDRs) in route tables associated with subnets.
+  providers:
+    aws: [vpc-route-tables]
+    azure: [user-defined-routes]
+  differences:
+    - Defaults. A VPC has a main route table, and only routes you add send traffic out. Azure adds system routes automatically (including to the internet), and UDRs override them.
+    - Next hops. AWS routes target gateways, endpoints, peering connections, and network interfaces. Azure UDRs target a virtual appliance IP, virtual network gateway, internet, or none (drop).
+    - Gateway routing. AWS can attach route tables to internet and virtual private gateways (ingress routing). Azure uses UDRs on the GatewaySubnet for similar designs.
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [dynamic-routing, managed-firewall]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: dynamic-routing
+  group: routing-egress
+  capability: BGP routing with network appliances
+  what_for: Let third-party routers, firewalls, or SD-WAN appliances inside the cloud network advertise routes dynamically and fail over automatically.
+  match: direct
+  answer: Amazon VPC Route Server maps to Azure Route Server. Both peer with your appliances over BGP and program the learned routes into the virtual network.
+  providers:
+    aws: [vpc-route-server]
+    azure: [route-server]
+  differences:
+    - VPC Route Server updates VPC, subnet, and internet gateway route tables. For transit gateway route tables, AWS uses Transit Gateway Connect instead.
+    - Azure Route Server also exchanges routes with ExpressRoute and VPN gateways in the same virtual network (branch-to-branch, if enabled).
+  pricing:
+    aws: Billed hourly (see the VPC Route Server tab on the VPC pricing page).
+    azure: Billed per hour while the route server is deployed.
+  exams:
+    aws: [ANS-C01]
+    azure: [AZ-700]
+  related: [route-tables, transit-hub]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/dynamic-routing-route-server.html
+    - https://learn.microsoft.com/en-us/azure/route-server/overview
+
+- id: internet-egress
+  group: routing-egress
+  capability: Internet gateway (inbound and outbound internet access)
+  what_for: Allow resources with public IPs to talk to the internet.
+  match: partial
+  answer: Azure has no internet gateway resource. Resources reach the internet through a public IP, NAT Gateway, load balancer outbound rules, or Azure Firewall. Default outbound access (implicit internet access for VMs) is being phased out with private subnets.
+  providers:
+    aws: [internet-gateway]
+    azure: [public-ip-addresses, private-subnets]
+  differences:
+    - Control. On AWS, a subnet without a route to an internet gateway has no internet path. On Azure, VMs in older subnets could get implicit default outbound access, which Microsoft is retiring in favor of explicit outbound methods.
+    - IPv6 egress-only. AWS has an egress-only internet gateway for IPv6. On Azure, use NAT Gateway StandardV2 (IPv6) or NSG rules.
+  pricing:
+    aws: Internet gateways are free. You pay for public IPv4 addresses and data transfer.
+    azure: You pay for public IPs, NAT Gateway, or Firewall, plus data transfer.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  flags:
+    - Microsoft's default outbound change applies to new virtual networks created with API versions released after March 31, 2026. Existing virtual networks aren't changed.
+  related: [nat-gateway, block-public-access, subnets-zones]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+
+- id: nat-gateway
+  group: routing-egress
+  capability: Managed NAT for outbound traffic
+  what_for: Let private resources reach the internet (for updates or APIs) from fixed public IPs, without accepting inbound connections.
+  match: direct
+  answer: AWS NAT gateway maps to Azure NAT Gateway. Both give private subnets outbound-only internet access from static public IPs.
+  providers:
+    aws: [nat-gateway]
+    azure: [azure-nat-gateway]
+  differences:
+    - Zones. A standard (zonal) AWS NAT gateway lives in one AZ, so you deploy one per AZ. Regional NAT gateways now expand across AZs automatically. Azure NAT Gateway Standard is zonal, and StandardV2 is zone-redundant.
+    - IPs. Azure NAT Gateway can use up to 16 public IPs (or prefixes) for more SNAT ports. Microsoft's comparison notes that AWS NAT gateways have a single public IP by default, but check current AWS limits for secondary addresses.
+    - Private NAT. AWS NAT gateways also support private NAT (to other networks without a public IP). Azure NAT Gateway is for internet egress only.
+  pricing:
+    aws: Per NAT gateway-hour plus per GB processed.
+    azure: Per NAT gateway-hour plus per GB processed, plus the public IPs.
+  exams:
+    aws: [SAA-C03, ANS-C01, SOA-C03]
+    azure: [AZ-104, AZ-700]
+  related: [internet-egress, public-ip-addresses]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html
+    - https://docs.aws.amazon.com/vpc/latest/userguide/nat-gateways-regional.html
+    - https://learn.microsoft.com/en-us/azure/nat-gateway/nat-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+# ───────────────────────── NETWORK SECURITY ─────────────────────────
+- id: instance-firewall
+  group: network-security
+  capability: Stateful instance-level firewall rules
+  what_for: Allow only the traffic each server needs, for example letting the web tier reach the database on one port.
+  match: direct
+  answer: Security groups map to Azure network security groups (NSGs), with application security groups (ASGs) standing in for rules that reference other security groups.
+  providers:
+    aws: [security-groups]
+    azure: [network-security-groups]
+  differences:
+    - Rule types. Security groups have allow rules only (everything else is denied). NSGs have prioritized allow and deny rules, plus default rules that allow traffic within the virtual network and from the load balancer.
+    - Attachment. Security groups attach to network interfaces. NSGs attach to subnets, NICs, or both, and both levels are evaluated.
+    - References. Security group rules can reference other security groups. NSG rules reference ASGs or service tags (such as Storage or AzureLoadBalancer).
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, SCS-C03, ANS-C01]
+    azure: [AZ-104, AZ-700, SC-500]
+  related: [subnet-acl, managed-firewall]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
+    - https://learn.microsoft.com/en-us/azure/virtual-network/application-security-groups
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: subnet-acl
+  group: network-security
+  capability: Stateless subnet access control lists
+  what_for: Add a coarse allow or deny layer at the subnet boundary, such as blocking a known bad IP range.
+  match: partial
+  answer: Azure has no stateless network ACL. The closest option is an NSG associated with the subnet, which is stateful and supports deny rules. Virtual Network Manager security admin rules can enforce organization-wide rules that override NSGs.
+  providers:
+    aws: [network-acls]
+    azure: [network-security-groups, virtual-network-manager]
+  differences:
+    - Statefulness. Network ACLs are stateless, so return traffic needs its own rule (including ephemeral ports). NSGs are stateful.
+    - Central rules. Virtual Network Manager security admin rules apply across many virtual networks and are evaluated before NSGs, which is useful for guardrails like blocking high-risk ports.
+  pricing:
+    aws: Free.
+    azure: NSGs are free. Virtual Network Manager is billed separately.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-700]
+  related: [instance-firewall]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
+    - https://learn.microsoft.com/en-us/azure/virtual-network-manager/overview
+
+- id: block-public-access
+  group: network-security
+  capability: Block internet access at the account level
+  what_for: Guarantee that networks can't reach or be reached from the internet unless explicitly exempted.
+  match: partial
+  answer: VPC Block Public Access has no single Azure switch. The closest combination is private subnets (no default outbound access) plus Azure Policy rules that deny public IPs and internet-facing resources.
+  providers:
+    aws: [vpc-block-public-access]
+    azure: [private-subnets]
+  differences:
+    - VPC Block Public Access blocks internet gateway traffic for an account and Region in one setting, with exclusions per VPC or subnet. On Azure, the guardrail is assembled from private subnets, policies, NSG or security admin rules, and routing through Azure Firewall.
+  pricing:
+    aws: Free.
+    azure: Private subnets and Azure Policy are free.
+  exams:
+    aws: [SCS-C03, ANS-C01]
+    azure: [AZ-700, SC-500]
+  related: [internet-egress, subnet-acl]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/security-vpc-bpa.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+
+- id: managed-firewall
+  group: network-security
+  capability: Managed network firewall
+  what_for: Inspect and filter traffic between networks and to the internet, with domain filtering, threat intelligence, and intrusion prevention.
+  match: direct
+  answer: AWS Network Firewall maps to Azure Firewall. Both are managed, stateful, autoscaling firewalls with domain filtering, threat intelligence, and intrusion prevention.
+  providers:
+    aws: [network-firewall]
+    azure: [azure-firewall]
+  differences:
+    - Rules. Network Firewall uses stateless rules plus Suricata-compatible stateful rules (and AWS-managed threat signatures). Azure Firewall uses network, application (FQDN), and DNAT rule collections in a firewall policy, with IDPS and TLS inspection in the Premium tier.
+    - Deployment. Network Firewall places endpoints in a subnet in each AZ, and you route traffic through them. Azure Firewall is deployed in a hub virtual network (or a secured Virtual WAN hub), with UDRs sending spoke traffic to it.
+    - Tiers. Azure Firewall comes in Basic (up to 250 Mbps), Standard, and Premium. Network Firewall has a single tier with optional features.
+  pricing:
+    aws: Per firewall endpoint-hour plus per GB processed (and advanced inspection for TLS).
+    azure: Per deployment-hour by tier plus per GB processed.
+  exams:
+    aws: [SCS-C03, ANS-C01]
+    azure: [AZ-700, SC-500]
+  related: [web-application-firewall, firewall-policy-management, route-tables]
+  sources:
+    - https://docs.aws.amazon.com/network-firewall/latest/developerguide/what-is-aws-network-firewall.html
+    - https://learn.microsoft.com/en-us/azure/firewall/overview
+    - https://learn.microsoft.com/en-us/azure/firewall/choose-firewall-sku
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: web-application-firewall
+  group: network-security
+  capability: Web application firewall (WAF)
+  what_for: Block common web attacks (SQL injection, cross-site scripting, bots, floods) before they reach your app.
+  match: direct
+  answer: AWS WAF maps to Azure Web Application Firewall, which runs on Application Gateway (regional) or Front Door (global).
+  providers:
+    aws: [aws-waf]
+    azure: [azure-waf]
+  differences:
+    - Attachment. AWS WAF web ACLs attach to CloudFront, ALB, API Gateway, AppSync, Cognito, App Runner, and Verified Access. Azure WAF policies attach to Application Gateway, Front Door, or Application Gateway for Containers.
+    - Rule sets. AWS offers managed rule groups (including paid Bot Control and Fraud Control) and marketplace rules. Azure offers Microsoft's default rule set (OWASP-based), bot manager rules, custom rules, and rate limiting.
+    - AWS WAF Classic is going through a planned end-of-life process, so migrate any Classic web ACLs.
+  pricing:
+    aws: Per web ACL and rule per month plus per million requests, and extra for Bot Control and Fraud Control.
+    azure: On Application Gateway, the WAF_v2 tier's hourly and capacity unit pricing. On Front Door, Premium includes managed rules, and Standard supports custom rules only.
+  exams:
+    aws: [SCS-C03, SAA-C03]
+    azure: [AZ-700, SC-500]
+  related: [managed-firewall, ddos-protection, cdn]
+  sources:
+    - https://docs.aws.amazon.com/waf/latest/developerguide/what-is-aws-waf.html
+    - https://docs.aws.amazon.com/waf/latest/developerguide/classic-waf-chapter.html
+    - https://learn.microsoft.com/en-us/azure/web-application-firewall/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: ddos-protection
+  group: network-security
+  capability: DDoS protection
+  what_for: Keep apps available during volumetric and protocol floods, with expert help and cost protection for critical workloads.
+  match: direct
+  answer: AWS Shield maps to Azure DDoS Protection. Both include free, always-on baseline protection (Shield Standard and Azure infrastructure DDoS protection) and a paid tier (Shield Advanced, and DDoS Network Protection or IP Protection).
+  providers:
+    aws: [shield]
+    azure: [ddos-protection]
+  differences:
+    - Billing. Shield Advanced is a monthly subscription per organization (one-year commitment) plus data transfer out. DDoS Network Protection is a monthly price covering up to 100 public IPs, and DDoS IP Protection is priced per protected IP.
+    - Extras. Shield Advanced and DDoS Network Protection both include rapid response and cost protection. DDoS IP Protection doesn't.
+  pricing:
+    aws: Shield Standard is free. Shield Advanced is a monthly fee plus data transfer usage fees.
+    azure: Infrastructure protection is free. Network Protection is a monthly fee (covering up to 100 IPs, with overage per IP), and IP Protection is per IP per month.
+  exams:
+    aws: [SCS-C03, SAA-C03]
+    azure: [AZ-700, SC-500]
+  related: [web-application-firewall]
+  sources:
+    - https://docs.aws.amazon.com/waf/latest/developerguide/shield-chapter.html
+    - https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-overview
+    - https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-sku-comparison
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: firewall-policy-management
+  group: network-security
+  capability: Central firewall and security policy management
+  what_for: Apply the same firewall, WAF, and DDoS policies across many accounts or subscriptions and keep new resources compliant.
+  match: partial
+  answer: AWS Firewall Manager maps to Azure Firewall Manager for firewall policies. Azure Policy fills the gap for enforcing WAF, DDoS, and NSG settings across subscriptions.
+  providers:
+    aws: [firewall-manager]
+    azure: [azure-firewall-manager]
+  differences:
+    - Scope. Firewall Manager on AWS covers WAF, Shield Advanced, security groups, Network Firewall, DNS Firewall, and third-party firewalls across an organization, and auto-remediates. Azure Firewall Manager centers on Azure Firewall policies and secured hubs, with DDoS and WAF policy association.
+  pricing:
+    aws: Per policy per Region per month, plus the AWS Config rules it uses.
+    azure: Firewall Manager itself is free. You pay for the firewall policies and deployments created through it (policy pricing is on the pricing page).
+  exams:
+    aws: [SCS-C03]
+    azure: [AZ-700, SC-500]
+  related: [managed-firewall, web-application-firewall]
+  sources:
+    - https://docs.aws.amazon.com/waf/latest/developerguide/fms-chapter.html
+    - https://learn.microsoft.com/en-us/azure/firewall-manager/overview
+
+# ───────────────────────── HYBRID & NETWORK-TO-NETWORK ─────────────────────────
+- id: vnet-peering
+  group: hybrid-connectivity
+  capability: Network peering
+  what_for: Connect two private networks directly so their resources can talk over private IPs.
+  match: direct
+  answer: VPC peering maps to virtual network peering (local or global). Both are non-transitive and route over the provider's backbone.
+  providers:
+    aws: [vpc-peering]
+    azure: [vnet-peering]
+  differences:
+    - Gateway transit. Azure peering supports gateway transit, so spokes can use a hub's VPN or ExpressRoute gateway. VPC peering can't share gateways (use Transit Gateway for that).
+    - Transitive routing. Neither is transitive. Azure hub-and-spoke designs add a firewall or NVA in the hub, or use Virtual WAN or Virtual Network Manager connectivity.
+  pricing:
+    aws: Free to create. Data transfer within an AZ over peering is free, and cross-AZ and cross-Region transfer is charged.
+    azure: Per GB of inbound and outbound data on each side of the peering, with higher rates for global peering.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [transit-hub, virtual-network]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: transit-hub
+  group: hybrid-connectivity
+  capability: Hub-and-spoke transit routing
+  what_for: Connect many networks, VPNs, and private circuits through a central router instead of a mesh of peerings.
+  match: partial
+  answer: AWS Transit Gateway maps to Azure Virtual WAN. Many Azure designs instead build a customer-managed hub virtual network (with Azure Firewall or an NVA, plus gateways), optionally deployed with Virtual Network Manager.
+  providers:
+    aws: [transit-gateway]
+    azure: [virtual-wan, virtual-network-manager]
+  differences:
+    - Scope. Transit Gateway is regional and peers with other transit gateways across Regions. Virtual WAN hubs in a Standard virtual WAN are fully meshed across regions automatically.
+    - Security. Virtual WAN can host Azure Firewall or partner NVAs in secured hubs, managed through Firewall Manager. On AWS, inspection usually uses an inspection VPC with Network Firewall or a Gateway Load Balancer, or native Network Firewall attachments.
+    - Routes. Microsoft's comparison notes that Transit Gateway allows 100 BGP prefixes per attachment, while Virtual WAN private peering allows 1,000. Check current quotas for your design.
+  pricing:
+    aws: Per attachment-hour plus per GB processed.
+    azure: Virtual WAN Standard hubs are billed per hub-hour plus data processed and per connection unit (VPN, ExpressRoute, and user VPN scale units).
+  exams:
+    aws: [SAA-C03, ANS-C01, SAP-C02]
+    azure: [AZ-700, AZ-305]
+  related: [vnet-peering, global-network, managed-firewall]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html
+    - https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: global-network
+  group: hybrid-connectivity
+  capability: Policy-defined global WAN
+  what_for: Run a global network across many regions and branch sites from one central policy, with segments that isolate traffic.
+  match: partial
+  answer: AWS Cloud WAN maps most closely to Azure Virtual WAN, with Virtual Network Manager for policy-based grouping and security rules.
+  providers:
+    aws: [cloud-wan]
+    azure: [virtual-wan, virtual-network-manager]
+  differences:
+    - Policy model. Cloud WAN is driven by a single JSON core network policy that defines Regions, segments, and attachment rules. Virtual WAN uses hubs, route tables, and routing intent; Virtual Network Manager adds network groups and admin rules.
+    - Segmentation. Cloud WAN segments are global routing domains. Virtual WAN segments with custom route tables and labels in each hub.
+  pricing:
+    aws: Per core network edge-hour, per attachment-hour, and per GB processed.
+    azure: Virtual WAN hub, connection, and data processing charges. Virtual Network Manager is billed separately.
+  exams:
+    aws: [ANS-C01, SAP-C02]
+    azure: [AZ-700]
+  related: [transit-hub, site-to-site-vpn]
+  sources:
+    - https://docs.aws.amazon.com/network-manager/latest/cloudwan/what-is-cloudwan.html
+    - https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about
+    - https://learn.microsoft.com/en-us/azure/virtual-network-manager/overview
+
+- id: site-to-site-vpn
+  group: hybrid-connectivity
+  capability: Site-to-site IPsec VPN
+  what_for: Connect an office or data center to the cloud network over an encrypted tunnel across the internet.
+  match: direct
+  answer: AWS Site-to-Site VPN maps to Azure VPN Gateway (or VPN in a Virtual WAN hub).
+  providers:
+    aws: [site-to-site-vpn]
+    azure: [vpn-gateway]
+  differences:
+    - Throughput. Standard AWS tunnels support up to 1.25 Gbps each, and large bandwidth tunnels (Transit Gateway or Cloud WAN) up to 5 Gbps. Azure VPN Gateway SKUs range up to 10 Gbps aggregate on the largest SKUs.
+    - Form factor. An AWS VPN connection is a managed resource with two tunnels and no gateway VM to size. Azure VPN Gateway is a gateway you deploy into a GatewaySubnet and size by SKU, in active-standby or active-active mode. Microsoft is moving all VPN Gateway SKUs to zone-redundant AZ SKUs.
+    - Policy-based VPNs. Azure supports both route-based and policy-based VPNs. AWS VPNs are route-based (static or BGP).
+  pricing:
+    aws: Per VPN connection-hour plus data transfer out.
+    azure: Per gateway-hour by SKU plus data transfer out (and per-tunnel fees beyond the included number).
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  flags:
+    - Azure VPN Gateway non-AZ SKUs are being consolidated into AZ SKUs. Check the migration timeline before choosing a SKU.
+  related: [remote-access-vpn, dedicated-connection, transit-hub]
+  sources:
+    - https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html
+    - https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways
+    - https://learn.microsoft.com/en-us/azure/vpn-gateway/about-gateway-skus
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: remote-access-vpn
+  group: hybrid-connectivity
+  capability: Remote-access (client) VPN
+  what_for: Let individual users connect their laptops securely to private cloud networks.
+  match: direct
+  answer: AWS Client VPN maps to point-to-site VPN on Azure VPN Gateway (or user VPN in Virtual WAN).
+  providers:
+    aws: [client-vpn]
+    azure: [point-to-site-vpn]
+  differences:
+    - Protocols. Client VPN is OpenVPN-based. Azure point-to-site supports OpenVPN, IKEv2, and SSTP (Windows only).
+    - Authentication. Client VPN supports certificates, Active Directory, and SAML federation. Azure supports certificates, RADIUS, and Microsoft Entra ID (OpenVPN only).
+    - Zero trust alternatives. For app-level access without a network VPN, AWS has Verified Access and Microsoft has Entra Private Access (covered under identity and security).
+  pricing:
+    aws: Per endpoint association-hour plus per active connection-hour.
+    azure: Included with the VPN gateway SKU (up to a connection limit), billed per gateway-hour. Virtual WAN user VPN is billed per scale unit and connection.
+  exams:
+    aws: [ANS-C01, SCS-C03]
+    azure: [AZ-700]
+  related: [site-to-site-vpn]
+  sources:
+    - https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/what-is.html
+    - https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about
+
+- id: dedicated-connection
+  group: hybrid-connectivity
+  capability: Dedicated private connection to the cloud
+  what_for: Get predictable bandwidth and latency between your data center and the cloud over a private circuit, not the internet.
+  match: direct
+  answer: AWS Direct Connect maps to Azure ExpressRoute. Both offer provider-hosted circuits and direct ports at colocation facilities.
+  providers:
+    aws: [direct-connect]
+    azure: [expressroute]
+  differences:
+    - Speeds. Direct Connect ranges from 50 Mbps (hosted, through partners) to 400 Gbps dedicated ports. ExpressRoute provider circuits range from 50 Mbps to 10 Gbps, and ExpressRoute Direct ports are 10, 100, or 400 Gbps.
+    - Microsoft services. ExpressRoute Microsoft peering reaches Microsoft 365 and Azure public services. Direct Connect public virtual interfaces reach AWS public endpoints.
+    - Scope. An ExpressRoute circuit reaches all regions in its geopolitical region (Standard), or worldwide with Premium. Direct Connect reaches any Region through a Direct Connect gateway.
+    - Encryption. Neither encrypts by default. Both support MACsec on dedicated or direct ports, or IPsec VPN over the circuit.
+  pricing:
+    aws: Per port-hour plus data transfer out per GB, by location.
+    azure: Monthly circuit fee by bandwidth, metered (per GB outbound) or unlimited data plans, plus the gateway, and Premium add-on if needed.
+  exams:
+    aws: [SAA-C03, ANS-C01, SAP-C02]
+    azure: [AZ-700, AZ-305]
+  related: [site-to-site-vpn, multi-region-private-connectivity]
+  sources:
+    - https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html
+    - https://docs.aws.amazon.com/directconnect/latest/UserGuide/MACsec.html
+    - https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction
+    - https://learn.microsoft.com/en-us/azure/expressroute/expressroute-howto-macsec
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: multi-region-private-connectivity
+  group: hybrid-connectivity
+  capability: Private circuits spanning regions and sites
+  what_for: Use one private connection to reach networks in several cloud regions, or link your own sites over the cloud backbone.
+  match: partial
+  answer: Microsoft maps Direct Connect gateways to ExpressRoute Global Reach. The closest AWS feature for linking your own sites over the cloud backbone is Direct Connect SiteLink, which works through a Direct Connect gateway. A Direct Connect gateway also connects one circuit to VPCs and transit gateways in many Regions.
+  providers:
+    aws: [direct-connect-gateway]
+    azure: [expressroute-global-reach]
+  differences:
+    - On Azure, reaching virtual networks in many regions from one circuit is a property of the circuit itself (Standard covers the geopolitical region, and Premium covers the world).
+    - Site-to-site over the backbone. Global Reach links ExpressRoute circuits so your sites exchange traffic over Microsoft's network. SiteLink does the same for SiteLink-enabled private or transit virtual interfaces attached to the same Direct Connect gateway, bypassing AWS Regions.
+  pricing:
+    aws: Direct Connect gateways are free. You pay for ports and data transfer, and SiteLink has its own hourly and per-GB charges.
+    azure: Global Reach is billed per GB, in both directions, between circuits. Premium is a monthly add-on.
+  exams:
+    aws: [ANS-C01]
+    azure: [AZ-700]
+  related: [dedicated-connection]
+  sources:
+    - https://docs.aws.amazon.com/directconnect/latest/UserGuide/direct-connect-gateways-intro.html
+    - https://docs.aws.amazon.com/directconnect/latest/UserGuide/WorkingWithVirtualInterfaces.html
+    - https://learn.microsoft.com/en-us/azure/expressroute/expressroute-global-reach
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+# ───────────────────────── PRIVATE ACCESS ─────────────────────────
+- id: private-endpoints
+  group: private-access
+  capability: Private endpoints for cloud and partner services
+  what_for: Reach managed services (storage, databases, APIs) or another team's service through a private IP in your network, with no internet path.
+  match: direct
+  answer: AWS PrivateLink (interface VPC endpoints and endpoint services) maps to Azure Private Link (private endpoints and Private Link services).
+  providers:
+    aws: [privatelink]
+    azure: [private-link]
+  differences:
+    - DNS. AWS interface endpoints can turn on private DNS for the service's default name automatically. Azure private endpoints usually rely on Azure Private DNS zones (privatelink.* zones) linked to the virtual network, often managed centrally with Azure Policy.
+    - Granularity. An Azure private endpoint maps to one specific resource instance (for example, one storage account). Many AWS interface endpoints map to a whole service in a Region, controlled with endpoint policies.
+  pricing:
+    aws: Per endpoint per AZ-hour plus per GB processed.
+    azure: Per private endpoint-hour plus per GB inbound and outbound.
+  exams:
+    aws: [SAA-C03, ANS-C01, SCS-C03]
+    azure: [AZ-104, AZ-700, AZ-305]
+  related: [service-endpoints, private-dns]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/privatelink/what-is-privatelink.html
+    - https://learn.microsoft.com/en-us/azure/private-link/private-link-overview
+    - https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: service-endpoints
+  group: private-access
+  capability: Free backbone access to storage services
+  what_for: Let private subnets reach object storage and similar services over the provider backbone, without NAT and at no extra charge.
+  match: partial
+  answer: Gateway VPC endpoints (for S3 and DynamoDB) map most closely to Azure virtual network service endpoints. Both are free, use route or subnet configuration rather than an IP in your network, and let the service lock access to your network.
+  providers:
+    aws: [gateway-endpoints]
+    azure: [service-endpoints]
+  differences:
+    - Mechanism. A gateway endpoint adds a prefix-list route to your route tables, and bucket policies can require the endpoint. A service endpoint tags traffic with the subnet identity, and the service's firewall allows that subnet.
+    - Coverage. Gateway endpoints cover only S3 and DynamoDB. Service endpoints cover more Azure services (such as Storage, SQL, Key Vault, and Cosmos DB). Standard service endpoints add network identifiers and network security perimeter integration for some services.
+    - On-premises. Neither works from on-premises networks. Use interface endpoints or private endpoints for that.
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [private-endpoints]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview
+
+- id: service-networking
+  group: private-access
+  capability: Service-to-service application networking
+  what_for: Connect microservices and resources across many networks and accounts, with identity-based access policies, without managing peering or load balancers.
+  match: partial
+  answer: Microsoft states there's no single Azure equivalent of Amazon VPC Lattice. Depending on the scenario, combine Private Link (private access to services), Application Gateway for Containers (layer 7 routing for AKS), and API Management (centralized exposure and policy).
+  providers:
+    aws: [vpc-lattice]
+    azure: [private-link, app-gateway-for-containers, api-management]
+  differences:
+    - VPC Lattice provides service networks that span VPCs and accounts, with IAM auth policies, layer 7 routing, and resource configurations for TCP resources such as databases. On Azure, those capabilities come from separate services you configure together.
+  pricing:
+    aws: Per service-hour, per GB processed, and per request (and per resource-configuration-hour for resources).
+    azure: Each service is billed separately.
+  exams:
+    aws: [ANS-C01, SAP-C02]
+    azure: [AZ-700, AZ-305]
+  related: [private-endpoints, application-load-balancing]
+  sources:
+    - https://docs.aws.amazon.com/vpc-lattice/latest/ug/what-is-vpc-lattice.html
+    - https://learn.microsoft.com/en-us/azure/application-gateway/for-containers/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+# ───────────────────────── DNS ─────────────────────────
+- id: public-dns
+  group: dns
+  capability: Public authoritative DNS hosting
+  what_for: Host your domain's DNS records on a highly available, globally distributed name service.
+  match: direct
+  answer: Route 53 public hosted zones map to Azure DNS public zones. Both support DNSSEC and alias records that point at cloud resources.
+  providers:
+    aws: [route-53]
+    azure: [azure-dns]
+  differences:
+    - Domains. Route 53 also registers domains. Azure DNS hosts zones only (domains can be bought through App Service domains or any registrar).
+    - Routing. Route 53 combines hosting with routing policies and health checks. Azure splits routing into Traffic Manager (see the DNS-based routing row).
+  pricing:
+    aws: Per hosted zone per month plus per million queries (alias queries to AWS resources are free).
+    azure: Per zone per month plus per million queries.
+  exams:
+    aws: [CLF-C02, SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [dns-traffic-routing, private-dns]
+  sources:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html
+    - https://learn.microsoft.com/en-us/azure/dns/dns-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: private-dns
+  group: dns
+  capability: Private DNS zones
+  what_for: Use your own internal domain names for resources inside private networks.
+  match: direct
+  answer: Route 53 private hosted zones map to Azure Private DNS zones, linked to virtual networks.
+  providers:
+    aws: [route-53-private-zones]
+    azure: [azure-private-dns]
+  differences:
+    - Auto-registration. Azure Private DNS can automatically register VM records in linked virtual networks. Route 53 private zones don't register instances automatically (EC2 gets provider-assigned hostnames instead).
+    - Routing. Route 53 private zones support routing policies, including geoproximity. Azure Private DNS doesn't.
+  pricing:
+    aws: Per hosted zone per month plus queries.
+    azure: Per zone per month plus queries.
+  exams:
+    aws: [ANS-C01]
+    azure: [AZ-700]
+  related: [hybrid-dns, private-endpoints]
+  sources:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html
+    - https://learn.microsoft.com/en-us/azure/dns/private-dns-overview
+
+- id: hybrid-dns
+  group: dns
+  capability: Hybrid DNS resolution
+  what_for: Let on-premises systems resolve cloud private names and cloud resources resolve on-premises names, without running DNS servers.
+  match: direct
+  answer: Route 53 Resolver endpoints and forwarding rules map to Azure DNS Private Resolver inbound and outbound endpoints with forwarding rulesets.
+  providers:
+    aws: [route-53-resolver]
+    azure: [dns-private-resolver]
+  differences:
+    - Sharing. Route 53 forwarding rules can be shared across accounts with AWS RAM. Azure forwarding rulesets are linked to virtual networks, including across subscriptions.
+  pricing:
+    aws: Per endpoint ENI-hour plus per million queries.
+    azure: Per endpoint per month plus per ruleset and per million queries.
+  exams:
+    aws: [ANS-C01, SAA-C03]
+    azure: [AZ-700]
+  related: [private-dns, dns-firewall]
+  sources:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver.html
+    - https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview
+
+- id: dns-firewall
+  group: dns
+  capability: DNS query filtering
+  what_for: Block workloads from resolving malicious or unapproved domains, and log DNS queries for investigation.
+  match: direct
+  answer: Route 53 Resolver DNS Firewall maps to Azure DNS resolver policy, which can use a Microsoft-managed threat intelligence feed.
+  providers:
+    aws: [route-53-dns-firewall]
+    azure: [dns-resolver-policy]
+  differences:
+    - Managed lists. DNS Firewall offers AWS-managed domain lists (for example, malware and botnet command-and-control domains). Azure offers a managed threat intelligence feed sourced from the Microsoft Security Response Center.
+    - Logging. Azure resolver policy can log queries to Log Analytics, storage, or Event Hubs. On AWS, query logging is a separate Resolver feature.
+  pricing:
+    aws: Per domain stored per month plus per million queries processed.
+    azure: Per policy and per million queries processed (see DNS pricing).
+  exams:
+    aws: [SCS-C03, ANS-C01]
+    azure: [AZ-700, SC-500]
+  flags:
+    - Microsoft's docs now call this feature DNS resolver policy, while its URL and some older material use the name DNS security policy.
+  related: [hybrid-dns, managed-firewall]
+  sources:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver-dns-firewall.html
+    - https://learn.microsoft.com/en-us/azure/dns/dns-security-policy
+
+- id: dns-traffic-routing
+  group: dns
+  capability: DNS-based traffic routing and failover
+  what_for: Send users to the nearest or healthiest endpoint, split traffic by weight, or fail over between regions using DNS answers.
+  match: direct
+  answer: Route 53 routing policies and health checks map to Azure Traffic Manager.
+  providers:
+    aws: [route-53-routing]
+    azure: [traffic-manager]
+  differences:
+    - Methods. Route 53 has simple, weighted, latency, failover, geolocation, geoproximity, IP-based, and multivalue routing. Traffic Manager has priority, weighted, performance, geographic, multivalue, and subnet routing, and nested profiles to combine them.
+    - Integration. Route 53 routing lives in your hosted zone. Traffic Manager is a separate profile with its own trafficmanager.net name, which you point to with a CNAME (or an Azure DNS alias record).
+    - Alternatives. For HTTP apps, Microsoft recommends Front Door for faster failover than DNS.
+  pricing:
+    aws: Routing policy queries are charged per million (higher for latency, geo, and IP-based), plus per health check per month.
+    azure: Per million DNS queries plus per monitored endpoint per month.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  related: [public-dns, cdn, global-anycast]
+  sources:
+    - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/routing-policy.html
+    - https://learn.microsoft.com/en-us/azure/traffic-manager/traffic-manager-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+# ───────────────────────── LOAD BALANCING ─────────────────────────
+- id: application-load-balancing
+  group: load-balancing
+  capability: Layer 7 (HTTP/HTTPS) load balancing
+  what_for: Route web and API requests by host name, path, or header across healthy backends, with TLS termination.
+  match: direct
+  answer: Application Load Balancer maps to Azure Application Gateway v2 (with an optional WAF). For AKS, Application Gateway for Containers is the Kubernetes-native option. Application Gateway v1 retired on April 28, 2026.
+  providers:
+    aws: [application-load-balancer]
+    azure: [application-gateway, app-gateway-for-containers]
+  differences:
+    - Deployment. ALB is a managed endpoint that needs no dedicated subnet sizing. Application Gateway v2 is deployed into its own dedicated subnet and autoscales in capacity units.
+    - Features. ALB can authenticate users (OIDC or Cognito) and invoke Lambda targets. Application Gateway offers URL rewrites, mutual TLS, and Private Link, with WAF built in on the WAF_v2 tier.
+    - Global. Both are regional. For global HTTP load balancing, use CloudFront or Global Accelerator on AWS, and Front Door on Azure.
+  pricing:
+    aws: Per ALB-hour plus per Load Balancer Capacity Unit (LCU)-hour.
+    azure: Fixed gateway-hour plus per capacity unit-hour, by tier (Standard_v2 or WAF_v2).
+  exams:
+    aws: [SAA-C03, ANS-C01, SOA-C03]
+    azure: [AZ-104, AZ-700]
+  flags:
+    - Application Gateway v1 retired April 28, 2026, and Microsoft is decommissioning remaining v1 deployments. Older study material may still show v1 SKUs.
+  related: [network-load-balancing, web-application-firewall, cdn]
+  sources:
+    - https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html
+    - https://learn.microsoft.com/en-us/azure/application-gateway/overview
+    - https://learn.microsoft.com/en-us/azure/application-gateway/v1-retirement
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: network-load-balancing
+  group: load-balancing
+  capability: Layer 4 (TCP/UDP) load balancing
+  what_for: Spread TCP or UDP connections across servers with very high throughput and low latency, for non-HTTP protocols or extreme scale.
+  match: direct
+  answer: Network Load Balancer maps to Azure Load Balancer (Standard). Basic Load Balancer retired on September 30, 2025.
+  providers:
+    aws: [network-load-balancer]
+    azure: [azure-load-balancer]
+  differences:
+    - Architecture. Azure Load Balancer is a pass-through, software-defined service with no proxy. NLB also passes traffic through but can terminate TLS.
+    - Features. Azure Load Balancer adds outbound rules (SNAT for backends), HA ports (all ports and protocols on internal load balancers, often for NVAs), and inbound NAT rules. NLB offers static or Elastic IPs per AZ, TLS listeners, and security groups.
+  pricing:
+    aws: Per NLB-hour plus per NLCU-hour.
+    azure: Per rule-hour (the first five rules at a flat rate, then per extra rule) plus per GB processed, inbound and outbound. There's no hourly charge when no rules are configured.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  flags:
+    - Basic Load Balancer retired September 30, 2025. Existing Basic load balancers keep running without support or an SLA, so upgrade to Standard.
+  related: [application-load-balancing, appliance-load-balancing, global-anycast]
+  sources:
+    - https://docs.aws.amazon.com/elasticloadbalancing/latest/network/introduction.html
+    - https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
+    - https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-basic-upgrade-guidance
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: appliance-load-balancing
+  group: load-balancing
+  capability: Transparent load balancing for network appliances
+  what_for: Insert scalable third-party firewalls or inspection appliances into traffic paths without changing source and destination addresses.
+  match: direct
+  answer: Gateway Load Balancer maps to Azure Gateway Load Balancer. Both transparently steer traffic through a pool of virtual appliances using encapsulation.
+  providers:
+    aws: [gateway-load-balancer]
+    azure: [gateway-load-balancer]
+  differences:
+    - Encapsulation. AWS uses GENEVE. Azure uses VXLAN.
+    - Insertion. AWS inserts appliances with Gateway Load Balancer endpoints in route tables. Azure chains the Gateway Load Balancer to a Standard public load balancer frontend or a VM's public IP configuration.
+  pricing:
+    aws: Per GWLB-hour and GLCU-hour, plus GWLB endpoint-hours and data processed.
+    azure: Billed like Standard Load Balancer (rules and data processed).
+  exams:
+    aws: [ANS-C01, SCS-C03]
+    azure: [AZ-700]
+  related: [managed-firewall, network-load-balancing]
+  sources:
+    - https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/introduction.html
+    - https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview
+
+# ───────────────────────── EDGE ─────────────────────────
+- id: cdn
+  group: edge-delivery
+  capability: Content delivery network (CDN)
+  what_for: Cache and accelerate websites, APIs, downloads, and video from edge locations near users, with TLS and attack protection.
+  match: direct
+  answer: Amazon CloudFront maps to Azure Front Door (Standard or Premium), which combines CDN caching with global layer 7 load balancing and WAF. Front Door (classic) retires March 31, 2027, Azure CDN Standard from Microsoft (classic) retires September 30, 2027, and Azure CDN from Edgio shut down on January 15, 2025.
+  providers:
+    aws: [cloudfront]
+    azure: [front-door]
+  differences:
+    - Tiers. Front Door Standard covers content delivery and custom WAF rules. Premium adds managed WAF rules, bot protection, and Private Link to origins. CloudFront has one service with optional features, plus flat-rate plans (Free, Pro, Business, and Premium) that bundle CloudFront with WAF, DDoS protection, and other services.
+    - Load balancing. Front Door is also a global HTTP load balancer with origin groups and health probes. CloudFront supports origin groups for failover, and multi-region routing usually adds Route 53 or Global Accelerator.
+    - Edge compute. CloudFront has CloudFront Functions and Lambda@Edge. Front Door has rule sets and edge actions (preview).
+  pricing:
+    aws: Pay-as-you-go per GB out to the internet and per 10,000 requests, by region (with a free tier), or a flat monthly plan.
+    azure: A monthly base fee per profile by tier, plus per GB out (edge to client and edge to origin) and per 10,000 requests.
+  exams:
+    aws: [CLF-C02, SAA-C03, ANS-C01]
+    azure: [AZ-700, AZ-305]
+  faq:
+    - q: Should I use Azure CDN or Front Door?
+      a: Use Front Door Standard or Premium. Microsoft's classic CDN and classic Front Door tiers no longer accept new profiles and are retiring, and Azure CDN from Edgio has already shut down.
+  related: [edge-functions-lightweight, edge-functions-full, web-application-firewall, global-anycast]
+  sources:
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html
+    - https://learn.microsoft.com/en-us/azure/frontdoor/front-door-overview
+    - https://learn.microsoft.com/en-us/azure/frontdoor/classic-retirement-faq
+    - https://learn.microsoft.com/en-us/azure/cdn/classic-cdn-retirement-faq
+    - https://learn.microsoft.com/en-us/previous-versions/azure/cdn/edgio-retirement-faq
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: edge-functions-lightweight
+  group: edge-delivery
+  capability: Lightweight edge request logic
+  what_for: Rewrite URLs, redirect, add security headers, validate tokens, or run A/B tests at the edge on every request.
+  match: partial
+  answer: CloudFront Functions maps to Azure Front Door rule sets (no-code rules) and Front Door edge actions (custom JavaScript, in preview).
+  providers:
+    aws: [cloudfront-functions]
+    azure: [front-door-rules-engine, front-door-edge-actions]
+  differences:
+    - Code. CloudFront Functions run JavaScript on viewer request and viewer response events, with sub-millisecond startup and an optional CloudFront KeyValueStore. Edge actions run JavaScript on client requests only during preview, with a 16 KB code limit and a 10 ms execution limit.
+    - No-code. Many CloudFront Functions use cases (redirects, header changes, URL rewrites) are handled on Azure by rule set actions without code.
+    - Maturity. CloudFront Functions is generally available. Edge actions was in preview when verified.
+  pricing:
+    aws: Per million invocations (included in flat-rate plans).
+    azure: Rule sets are included in Front Door pricing (with limits by tier). Check the pricing page for edge actions.
+  exams:
+    aws: [DVA-C02, ANS-C01]
+    azure: [AZ-700]
+  flags:
+    - Front Door edge actions was in public preview when verified, so limits and pricing may change at GA.
+  related: [edge-functions-full, cdn]
+  sources:
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html
+    - https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine
+    - https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions
+
+- id: edge-functions-full
+  group: edge-delivery
+  capability: Full serverless functions at the CDN edge
+  what_for: Run richer logic close to users, such as calling other services, generating responses, or changing origin requests and responses.
+  match: none
+  answer: Azure has no equivalent of Lambda@Edge. Front Door edge actions (preview) covers lightweight request logic only, so heavier logic usually runs in Azure Functions or Container Apps in one or more regions behind Front Door.
+  providers:
+    aws: [lambda-at-edge]
+    azure: []
+  differences:
+    - Lambda@Edge runs Node.js or Python, can trigger on all four CloudFront events (viewer and origin requests and responses), and can make network calls. CloudFront Functions is cheaper and faster for simple viewer-side logic.
+  pricing:
+    aws: Per request plus duration in GB-seconds (higher rates than regional Lambda).
+    azure: Not applicable.
+  exams:
+    aws: [DVA-C02, ANS-C01]
+    azure: [AZ-700]
+  related: [edge-functions-lightweight, cdn]
+  sources:
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-at-the-edge.html
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html
+
+- id: global-anycast
+  group: edge-delivery
+  capability: Global anycast entry point for TCP/UDP apps
+  what_for: Give a global app fixed anycast IPs that route users over the provider backbone to the nearest healthy region, with fast failover.
+  match: partial
+  answer: AWS Global Accelerator maps to the Azure global (cross-region) load balancer for layer 4, or Front Door for HTTP(S). Microsoft says the global load balancer most closely matches Global Accelerator's layer 4 behavior.
+  providers:
+    aws: [global-accelerator]
+    azure: [cross-region-load-balancer]
+  differences:
+    - Backends. Global Accelerator endpoints can be ALBs, NLBs, EC2 instances, or Elastic IPs in multiple Regions. Azure's global load balancer fronts regional Standard public load balancers only.
+    - Traffic control. Global Accelerator has traffic dials and endpoint weights, and custom routing accelerators for mapping users to specific instances. Azure's global load balancer routes to the closest healthy regional load balancer.
+  pricing:
+    aws: Fixed fee per accelerator-hour plus a data transfer premium per GB.
+    azure: Billed like Standard Load Balancer (rules and data processed) on the global tier.
+  exams:
+    aws: [SAA-C03, ANS-C01]
+    azure: [AZ-700]
+  related: [network-load-balancing, cdn, dns-traffic-routing]
+  sources:
+    - https://docs.aws.amazon.com/global-accelerator/latest/dg/what-is-global-accelerator.html
+    - https://learn.microsoft.com/en-us/azure/load-balancer/cross-region-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+# ───────────────────────── MONITORING ─────────────────────────
+- id: flow-logs
+  group: network-monitoring
+  capability: Network flow logs
+  what_for: Record which IPs and ports talked to each other, for troubleshooting, security investigations, and cost analysis.
+  match: direct
+  answer: VPC Flow Logs maps to virtual network flow logs in Azure Network Watcher. NSG flow logs, the older option, can't be created anymore and retire on September 30, 2027.
+  providers:
+    aws: [vpc-flow-logs]
+    azure: [vnet-flow-logs]
+  differences:
+    - Destinations. VPC Flow Logs go to CloudWatch Logs, S3, or Firehose. Azure flow logs go to a storage account, and traffic analytics can process them into Log Analytics.
+    - Scope. Both can be enabled per network, subnet, or network interface.
+  pricing:
+    aws: Billed as vended logs by GB ingested, by destination.
+    azure: Per GB of flow logs collected, plus storage and optional traffic analytics.
+  exams:
+    aws: [SOA-C03, SCS-C03, ANS-C01]
+    azure: [AZ-104, AZ-700]
+  flags:
+    - Azure NSG flow logs retire September 30, 2027, and after that date Microsoft deletes the existing NSG flow log resources.
+  related: [network-diagnostics, traffic-mirroring]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs.html
+    - https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview
+    - https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+
+- id: network-diagnostics
+  group: network-monitoring
+  capability: Network path and access analysis
+  what_for: Find out why two resources can't connect, or prove that no unintended path exists.
+  match: partial
+  answer: VPC Reachability Analyzer and Network Access Analyzer map to Azure Network Watcher tools such as connection troubleshoot, IP flow verify, next hop, and effective security rules.
+  providers:
+    aws: [reachability-analyzer]
+    azure: [network-watcher]
+  differences:
+    - Method. Reachability Analyzer analyzes configuration without sending packets and explains which component blocks a path. Network Watcher combines configuration checks (IP flow verify, next hop, effective rules) with active tests (connection troubleshoot, connection monitor) and packet capture.
+    - Audit. Network Access Analyzer checks for unintended access across your network against scopes you define. Azure has no single equivalent, so you combine Network Watcher, Azure Policy, and Defender for Cloud.
+  pricing:
+    aws: Per analysis.
+    azure: Per diagnostic check and connection monitor test (with free monthly amounts).
+  exams:
+    aws: [ANS-C01, SOA-C03]
+    azure: [AZ-104, AZ-700]
+  related: [flow-logs, traffic-mirroring]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/reachability/what-is-reachability-analyzer.html
+    - https://docs.aws.amazon.com/vpc/latest/network-access-analyzer/what-is-network-access-analyzer.html
+    - https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview
+
+- id: traffic-mirroring
+  group: network-monitoring
+  capability: Packet mirroring
+  what_for: Copy live network traffic to security or monitoring appliances for intrusion detection and deep troubleshooting.
+  match: partial
+  answer: VPC Traffic Mirroring maps to Azure virtual network TAP, which was in public preview in select regions when verified. For one-off captures, Network Watcher packet capture is generally available.
+  providers:
+    aws: [traffic-mirroring]
+    azure: [virtual-network-tap, network-watcher]
+  differences:
+    - Status. VPC Traffic Mirroring is generally available. Virtual network TAP is in preview with limitations (for example, VMs behind a Basic Load Balancer can't be sources).
+    - Filters. Traffic Mirroring supports filters and session priorities. Check the preview docs for current virtual network TAP filtering options.
+  pricing:
+    aws: Per mirrored network interface-hour.
+    azure: Check the preview terms and pricing page for virtual network TAP.
+  exams:
+    aws: [ANS-C01, SCS-C03]
+    azure: [AZ-700]
+  flags:
+    - Virtual network TAP was in public preview in select regions when verified.
+  related: [flow-logs, network-diagnostics]
+  sources:
+    - https://docs.aws.amazon.com/vpc/latest/mirroring/what-is-traffic-mirroring.html
+    - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-tap-overview
