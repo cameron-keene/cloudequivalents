@@ -1,0 +1,177 @@
+# AWS identity, governance & security services (category: identity-security).
+- slug: iam
+  name: AWS Identity and Access Management (IAM)
+  status: ga
+  summary: Users, groups, roles, and JSON policies that authorize every AWS API call, with identity-based and resource-based policies, permissions boundaries, and conditions.
+  docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+  pricing: https://aws.amazon.com/iam/pricing/
+- slug: iam-roles
+  name: IAM roles for AWS services
+  status: ga
+  summary: Roles assumed by EC2 instance profiles, Lambda execution roles, ECS task roles, and EKS Pod Identity, giving workloads temporary credentials from AWS STS with no stored keys.
+  docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+  pricing: https://aws.amazon.com/iam/pricing/
+- slug: iam-roles-anywhere
+  name: IAM Roles Anywhere
+  status: ga
+  summary: Lets workloads outside AWS get temporary AWS credentials by presenting X.509 certificates from a CA you register as a trust anchor.
+  docs: https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html
+  pricing: https://aws.amazon.com/iam/pricing/
+- slug: iam-identity-center
+  name: AWS IAM Identity Center
+  status: ga
+  summary: Workforce sign-in and single sign-on to AWS accounts (through permission sets) and applications, using its own directory or an external IdP such as Microsoft Entra ID or Okta.
+  docs: https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+  pricing: https://aws.amazon.com/iam/identity-center/
+- slug: organizations
+  name: AWS Organizations
+  status: ga
+  summary: Groups AWS accounts into organizational units under a management account, with consolidated billing, delegated administration, and organization policies.
+  docs: https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html
+  pricing: https://aws.amazon.com/organizations/faqs/
+- slug: service-control-policies
+  name: Service control policies and resource control policies
+  status: ga
+  summary: Organization guardrails. SCPs cap the maximum permissions of principals in member accounts, and RCPs cap the permissions that can be granted on supported resources.
+  docs: https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
+  pricing: https://aws.amazon.com/organizations/faqs/
+- slug: control-tower
+  name: AWS Control Tower
+  status: ga
+  summary: Sets up and governs a multi-account landing zone on Organizations and Identity Center, with account vending and preventive, detective, and proactive controls.
+  docs: https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html
+  pricing: https://aws.amazon.com/controltower/pricing/
+- slug: cognito
+  name: Amazon Cognito
+  status: ga
+  summary: Customer identity for apps. User pools handle sign-up, sign-in, MFA, federation (social, SAML, OIDC), and managed login. Identity pools exchange tokens for temporary AWS credentials.
+  docs: https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html
+  pricing: https://aws.amazon.com/cognito/pricing/
+- slug: directory-service
+  name: AWS Directory Service
+  status: ga
+  summary: AWS Managed Microsoft AD (real Windows Server AD run by AWS, with trusts to on-premises AD), AD Connector (a proxy to your AD), and Simple AD (Samba-based).
+  docs: https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html
+  pricing: https://aws.amazon.com/directoryservice/pricing/
+- slug: iam-access-analyzer
+  name: IAM Access Analyzer
+  status: ga
+  summary: Finds resources shared externally or internally, identifies unused roles, keys, and permissions, validates policies, runs custom policy checks, and generates least-privilege policies from CloudTrail activity.
+  docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html
+  pricing: https://aws.amazon.com/iam/access-analyzer/pricing/
+- slug: resource-access-manager
+  name: AWS Resource Access Manager (RAM)
+  status: ga
+  summary: Shares resources such as subnets, transit gateways, Resolver rules, and license configurations across accounts or the whole organization.
+  docs: https://docs.aws.amazon.com/ram/latest/userguide/what-is.html
+  pricing: https://aws.amazon.com/ram/faqs/
+- slug: verified-permissions
+  name: Amazon Verified Permissions
+  status: ga
+  summary: Managed fine-grained authorization for your own applications, using policies written in the open-source Cedar language.
+  docs: https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/what-is-avp.html
+  pricing: https://aws.amazon.com/verified-permissions/pricing/
+- slug: verified-access
+  name: AWS Verified Access
+  status: ga
+  summary: Zero trust access to private HTTP and TCP applications without a VPN, evaluating each request against identity and device posture policies.
+  docs: https://docs.aws.amazon.com/verified-access/latest/ug/what-is-verified-access.html
+  pricing: https://aws.amazon.com/verified-access/pricing/
+- slug: kms
+  name: AWS Key Management Service (KMS)
+  status: ga
+  summary: Managed encryption keys (symmetric, asymmetric, and HMAC) protected by FIPS-validated HSMs and integrated with most AWS services, with key policies, grants, and automatic rotation.
+  docs: https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
+  pricing: https://aws.amazon.com/kms/pricing/
+- slug: cloudhsm
+  name: AWS CloudHSM
+  status: ga
+  summary: Single-tenant HSM clusters in your VPC, FIPS 140-2 or 140-3 Level 3 validated in FIPS mode, accessed through PKCS#11, JCE, and OpenSSL libraries.
+  docs: https://docs.aws.amazon.com/cloudhsm/latest/userguide/introduction.html
+  pricing: https://aws.amazon.com/cloudhsm/pricing/
+- slug: secrets-manager
+  name: AWS Secrets Manager
+  status: ga
+  summary: Stores, retrieves, and automatically rotates database credentials, API keys, OAuth tokens, and other secrets on a schedule.
+  docs: https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
+  pricing: https://aws.amazon.com/secrets-manager/pricing/
+- slug: acm
+  name: AWS Certificate Manager (ACM)
+  status: ga
+  summary: Issues, deploys, and auto-renews public and private TLS certificates for integrated services such as ELB, CloudFront, and API Gateway.
+  docs: https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html
+  pricing: https://aws.amazon.com/certificate-manager/pricing/
+- slug: private-ca
+  name: AWS Private Certificate Authority
+  status: ga
+  summary: Managed private root and subordinate CAs for internal TLS, device, and workload certificates, with general-purpose and short-lived certificate modes.
+  docs: https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html
+  pricing: https://aws.amazon.com/private-ca/pricing/
+- slug: guardduty
+  name: Amazon GuardDuty
+  status: ga
+  summary: Threat detection from CloudTrail, VPC Flow Logs, and DNS logs, plus protection plans for S3, EKS, runtime (EC2, ECS, EKS), malware, RDS logins, and Lambda.
+  docs: https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html
+  pricing: https://aws.amazon.com/guardduty/pricing/
+- slug: security-hub
+  name: AWS Security Hub
+  status: ga
+  summary: Unified cloud security service that correlates findings from Security Hub CSPM, GuardDuty, Inspector, and Macie into prioritized exposures, with OCSF findings and response automation.
+  docs: https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html
+  pricing: https://aws.amazon.com/security-hub/pricing/
+- slug: security-hub-cspm
+  name: AWS Security Hub CSPM
+  status: ga
+  summary: Cloud security posture management with automated control checks against standards such as AWS Foundational Security Best Practices, CIS, PCI DSS, and NIST (formerly just called Security Hub).
+  docs: https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html
+  pricing: https://aws.amazon.com/security-hub/pricing/
+- slug: inspector
+  name: Amazon Inspector
+  status: ga
+  summary: Continuous scanning of EC2 instances, ECR container images, and Lambda functions for software vulnerabilities and unintended network exposure.
+  status_note: Inspector Classic (the original version) was shut down May 20, 2026, per AWS's full-shutdown list. Use the current Amazon Inspector.
+  docs: https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html
+  pricing: https://aws.amazon.com/inspector/pricing/
+- slug: macie
+  name: Amazon Macie
+  status: ga
+  summary: Discovers sensitive data in S3 with machine learning and pattern matching, and monitors S3 bucket security and access controls.
+  docs: https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html
+  pricing: https://aws.amazon.com/macie/pricing/
+- slug: detective
+  name: Amazon Detective
+  status: ga
+  summary: Automatically collects log data into a behavior graph and links activity to GuardDuty findings, so you can investigate and group related security findings.
+  docs: https://docs.aws.amazon.com/detective/latest/userguide/what-is-detective.html
+  pricing: https://aws.amazon.com/detective/pricing/
+- slug: security-lake
+  name: Amazon Security Lake
+  status: ga
+  summary: Centralizes security logs from AWS, SaaS, and on-premises sources into an S3-based data lake you own, normalized to OCSF in Apache Parquet.
+  docs: https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html
+  pricing: https://aws.amazon.com/security-lake/pricing/
+- slug: cloudtrail
+  name: AWS CloudTrail
+  status: ga
+  summary: Records API activity. Event history gives 90 days of management events for free, trails deliver events to S3 and CloudWatch Logs, and CloudTrail Lake stores and queries events with SQL.
+  docs: https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
+  pricing: https://aws.amazon.com/cloudtrail/pricing/
+- slug: aws-config
+  name: AWS Config
+  status: ga
+  summary: Records resource configuration history and relationships, and evaluates resources against managed or custom rules and conformance packs, with remediation.
+  docs: https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
+  pricing: https://aws.amazon.com/config/pricing/
+- slug: audit-manager
+  name: AWS Audit Manager
+  status: maintenance
+  status_note: In maintenance mode and no longer open to new customers. Since April 30, 2026, it can't be set up in new accounts, and existing customers can't extend it to new Regions or organizations.
+  summary: Continuously collects evidence from AWS services and maps it to control frameworks such as SOC 2, PCI DSS, and HIPAA for audit-ready reports.
+  docs: https://docs.aws.amazon.com/audit-manager/latest/userguide/audit-manager-availability-change.html
+  pricing: https://aws.amazon.com/audit-manager/pricing/
+- slug: artifact
+  name: AWS Artifact
+  status: ga
+  summary: On-demand downloads of AWS compliance reports (SOC, ISO, PCI) and certifications, and acceptance of agreements such as the BAA.
+  docs: https://docs.aws.amazon.com/artifact/latest/ug/what-is-aws-artifact.html
+  pricing: https://aws.amazon.com/artifact/

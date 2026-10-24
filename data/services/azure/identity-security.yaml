@@ -1,0 +1,160 @@
+# Azure / Microsoft identity, governance & security services (category: identity-security).
+- slug: entra-id
+  name: Microsoft Entra ID
+  status: ga
+  summary: Microsoft's cloud identity provider for users, groups, apps, and devices, with SSO (SAML, OIDC), MFA, Conditional Access, app registrations, and hybrid sync from on-premises AD.
+  docs: https://learn.microsoft.com/en-us/entra/fundamentals/what-is-entra
+  pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
+- slug: azure-rbac
+  name: Azure role-based access control (Azure RBAC)
+  status: ga
+  summary: Authorizes access to Azure resources by assigning built-in or custom roles to Entra principals at management group, subscription, resource group, or resource scope, with deny assignments and ABAC conditions.
+  docs: https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
+  pricing: https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
+- slug: managed-identities
+  name: Managed identities for Azure resources
+  status: ga
+  summary: System-assigned or user-assigned Entra identities for Azure resources, so code gets tokens for Azure services without storing credentials.
+  docs: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview
+  pricing: https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview
+- slug: workload-identity-federation
+  name: Microsoft Entra workload identity federation
+  status: ga
+  summary: Lets an app registration or user-assigned managed identity trust tokens from external IdPs (GitHub Actions, Kubernetes, Google, AWS, other OIDC issuers) instead of using secrets.
+  docs: https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation
+  pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
+- slug: management-groups
+  name: Azure management groups and subscriptions
+  status: ga
+  summary: A hierarchy of management groups (up to six levels of depth, not counting the root and subscriptions) containing subscriptions, where policy and RBAC assignments are inherited.
+  docs: https://learn.microsoft.com/en-us/azure/governance/management-groups/overview
+  pricing: https://learn.microsoft.com/en-us/azure/governance/management-groups/overview
+- slug: azure-policy
+  name: Azure Policy
+  status: ga
+  summary: Evaluates and enforces rules on Azure resources (deny, audit, modify, deployIfNotExists), grouped into initiatives and assigned at any scope, with compliance reporting and remediation.
+  docs: https://learn.microsoft.com/en-us/azure/governance/policy/overview
+  pricing: https://learn.microsoft.com/en-us/azure/governance/policy/overview
+- slug: azure-landing-zones
+  name: Azure landing zones (Cloud Adoption Framework)
+  status: ga
+  summary: Microsoft's reference architecture and deployable implementations (portal accelerator, Bicep, Terraform) for management groups, policies, identity, networking, and management at scale.
+  status_note: Azure Blueprints (preview), an older way to package governance artifacts, retires January 31, 2027, in a phased retirement that began July 31, 2026.
+  docs: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
+  pricing: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
+- slug: entra-external-id
+  name: Microsoft Entra External ID
+  status: ga
+  summary: Customer and partner identity. External tenants handle consumer and business-customer sign-up and sign-in with social and enterprise IdPs, and B2B collaboration handles guest access in workforce tenants.
+  status_note: Azure AD B2C, the previous customer identity service, has been unavailable to new customers since May 1, 2025. Existing B2C tenants remain supported.
+  docs: https://learn.microsoft.com/en-us/entra/external-id/external-identities-overview
+  pricing: https://learn.microsoft.com/en-us/entra/external-id/external-identities-pricing
+- slug: entra-domain-services
+  name: Microsoft Entra Domain Services
+  status: ga
+  summary: Managed domain (domain join, Group Policy, LDAP, Kerberos and NTLM) synced from Entra ID, without deploying domain controllers.
+  docs: https://learn.microsoft.com/en-us/entra/identity/domain-services/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-entra-ds/
+- slug: entra-pim
+  name: Microsoft Entra Privileged Identity Management (PIM)
+  status: ga
+  summary: Just-in-time, time-bound, approval-based activation of Entra and Azure roles, with access reviews and audit history.
+  docs: https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+  pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
+- slug: entra-id-governance
+  name: Microsoft Entra ID Governance (access reviews)
+  status: ga
+  summary: Identity lifecycle workflows, entitlement management, and recurring access reviews of group memberships, app assignments, and role assignments.
+  status_note: Microsoft Entra Permissions Management, the former multicloud CIEM product, retired November 1, 2025.
+  docs: https://learn.microsoft.com/en-us/entra/id-governance/identity-governance-overview
+  pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
+- slug: entra-private-access
+  name: Microsoft Entra Private Access
+  status: ga
+  summary: Identity-centric zero trust network access (part of Global Secure Access) to private apps by FQDN or IP, without a traditional VPN, with Conditional Access per app.
+  docs: https://learn.microsoft.com/en-us/entra/global-secure-access/concept-private-access
+  pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
+- slug: key-vault
+  name: Azure Key Vault
+  status: ga
+  summary: Stores keys, secrets, and certificates. Standard uses software-protected keys, and Premium adds HSM-protected keys (FIPS 140-3 Level 3 HSMs), with RBAC, soft delete, and purge protection.
+  docs: https://learn.microsoft.com/en-us/azure/key-vault/general/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/key-vault/
+- slug: managed-hsm
+  name: Azure Key Vault Managed HSM
+  status: ga
+  summary: Fully managed, single-tenant HSM pools (FIPS 140-3 Level 3) for keys only, with local RBAC and customer-controlled security domain.
+  docs: https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/key-vault/
+- slug: azure-cloud-hsm
+  name: Azure Cloud HSM
+  status: ga
+  summary: Highly available, single-tenant HSM clusters (FIPS 140-3 Level 3) where you have full administrative control, accessed through PKCS#11, JCE, and OpenSSL. It succeeds Azure Dedicated HSM, which is closed to new customers and supported until July 31, 2028.
+  docs: https://learn.microsoft.com/en-us/azure/cloud-hsm/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-cloud-hsm/
+- slug: key-vault-certificates
+  name: Key Vault certificates
+  status: ga
+  summary: Creates, imports, and auto-renews X.509 certificates, self-signed or issued through integrated public CAs (DigiCert, GlobalSign), and deploys them to App Service, Application Gateway, and Front Door.
+  docs: https://learn.microsoft.com/en-us/azure/key-vault/certificates/about-certificates
+  pricing: https://azure.microsoft.com/en-us/pricing/details/key-vault/
+- slug: defender-for-cloud
+  name: Microsoft Defender for Cloud (workload protection)
+  status: ga
+  summary: Cloud-native application protection with paid Defender plans for servers, containers, storage, databases, App Service, Key Vault, Resource Manager, APIs, and AI, across Azure, AWS, and GCP.
+  docs: https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/
+- slug: defender-cspm
+  name: Defender for Cloud CSPM (Foundational and Defender CSPM)
+  status: ga
+  summary: Posture management. Free Foundational CSPM gives secure score and Microsoft Cloud Security Benchmark recommendations, and paid Defender CSPM adds attack paths, the security explorer, agentless scanning, and regulatory compliance standards.
+  docs: https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management
+  pricing: https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/
+- slug: defender-for-servers
+  name: Defender for Servers (with Defender Vulnerability Management)
+  status: ga
+  summary: Server protection in Plan 1 and Plan 2, integrating Defender for Endpoint and Defender Vulnerability Management, with agentless vulnerability and secrets scanning in Plan 2.
+  docs: https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-servers-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/
+- slug: purview-data-security
+  name: Microsoft Purview (data classification and DSPM)
+  status: ga
+  summary: Data governance and security, including Data Map scanning with sensitive-information classifiers, Information Protection labels, DLP, and Data Security Posture Management.
+  docs: https://learn.microsoft.com/en-us/purview/purview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/purview/
+- slug: microsoft-sentinel
+  name: Microsoft Sentinel
+  status: ga
+  summary: Cloud-native SIEM and SOAR with data connectors, analytics rules, UEBA, hunting, incidents, and playbooks. Sentinel is moving to the Microsoft Defender portal and is no longer supported in the Azure portal after March 31, 2027.
+  docs: https://learn.microsoft.com/en-us/azure/sentinel/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-sentinel/
+- slug: sentinel-data-lake
+  name: Microsoft Sentinel data lake
+  status: ga
+  summary: Low-cost, long-retention security data lake in open format with tiered storage and a single copy of data, queryable with KQL, notebooks, and jobs alongside Sentinel analytics.
+  docs: https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-lake-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-sentinel/
+- slug: activity-log
+  name: Azure Monitor activity log (and Entra audit logs)
+  status: ga
+  summary: Subscription-level control-plane events (create, update, delete, and actions) kept for 90 days, exportable through diagnostic settings to Log Analytics, storage, or Event Hubs. Entra audit and sign-in logs cover identity events.
+  docs: https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log
+  pricing: https://azure.microsoft.com/en-us/pricing/details/monitor/
+- slug: resource-graph
+  name: Azure Resource Graph (inventory and change analysis)
+  status: ga
+  summary: KQL queries across subscriptions for resource inventory, policy compliance, and resource property changes (change history).
+  docs: https://learn.microsoft.com/en-us/azure/governance/resource-graph/overview
+  pricing: https://learn.microsoft.com/en-us/azure/governance/resource-graph/overview
+- slug: compliance-manager
+  name: Microsoft Purview Compliance Manager
+  status: ga
+  summary: Pre-built and custom assessments for regulations and standards, with improvement actions and a compliance score (available assessments depend on licensing).
+  docs: https://learn.microsoft.com/en-us/purview/compliance-manager
+  pricing: https://learn.microsoft.com/en-us/purview/compliance-manager
+- slug: service-trust-portal
+  name: Microsoft Service Trust Portal
+  status: ga
+  summary: Microsoft's audit reports (SOC, ISO, PCI, FedRAMP), compliance guides, and trust documents for its cloud services.
+  docs: https://learn.microsoft.com/en-us/purview/get-started-with-service-trust-portal
+  pricing: https://servicetrust.microsoft.com/

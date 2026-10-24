@@ -1,0 +1,737 @@
+# Identity & security: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: identity-security
+  name: Identity & Security
+  short: Identity & Security
+  order: 6
+  description: Identity and access management, workforce and customer identity, directories, multi-account governance and guardrails, audit and compliance, keys, secrets and certificates, and threat detection and security operations. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure identity and security, side by side: IAM vs Entra ID and Azure RBAC, IAM Identity Center vs Entra SSO, Organizations and SCPs vs management groups and Azure Policy, Cognito vs Entra External ID, KMS vs Key Vault, GuardDuty and Security Hub vs Defender for Cloud, and CloudTrail vs Activity Log."
+  last_verified: "2026-10-24"
+  groups:
+    - id: identity-access
+      name: Identity & access management
+    - id: app-identity
+      name: Customer identity, directories & app access
+    - id: governance
+      name: Multi-account governance & guardrails
+    - id: audit-compliance
+      name: Audit, configuration & compliance
+    - id: keys-secrets
+      name: Keys, secrets & certificates
+    - id: threat-detection
+      name: Threat detection, posture & security operations
+
+rows:
+# ───────────────────────── IDENTITY & ACCESS ─────────────────────────
+- id: cloud-iam
+  group: identity-access
+  capability: Cloud identity and access management
+  what_for: Decide who (people and workloads) can do what on which cloud resources.
+  match: partial
+  answer: AWS IAM maps to two Azure services. Microsoft Entra ID holds the identities (users, groups, apps, managed identities), and Azure RBAC grants them roles on resources. AWS IAM does both jobs inside each account.
+  providers:
+    aws: [iam]
+    azure: [entra-id, azure-rbac]
+  differences:
+    - Where identities live. IAM users and roles live in each AWS account (workforce users usually come through Identity Center). Entra ID is one tenant-wide directory shared by Azure, Microsoft 365, and your apps.
+    - Policy model. IAM uses JSON policies attached to identities or resources, with explicit deny, conditions, and permissions boundaries. Azure RBAC assigns roles (sets of actions) at a scope that inherits downward, with deny assignments and attribute-based conditions in limited cases.
+    - Data plane. Some Azure services use separate data-plane roles (for example, Storage Blob Data Reader or Key Vault Secrets User). IAM actions cover both management and data APIs.
+  pricing:
+    aws: IAM is free.
+    azure: Azure RBAC is free. Entra ID has Free, P1, and P2 tiers (and suites), with Conditional Access and PIM in paid tiers.
+  exams:
+    aws: [CLF-C02, SAA-C03, SCS-C03]
+    azure: [AZ-900, AZ-104, SC-300, SC-500]
+  faq:
+    - q: Is Azure RBAC the same as IAM policies?
+      a: They play the same role, but Azure RBAC grants roles at a scope (management group, subscription, resource group, or resource), and those roles inherit downward. IAM attaches JSON policy documents to identities and resources within an account.
+  related: [workforce-sso, workload-identity, privileged-access, org-guardrails]
+  sources:
+    - https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+    - https://learn.microsoft.com/en-us/entra/fundamentals/what-is-entra
+    - https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: workforce-sso
+  group: identity-access
+  capability: Workforce single sign-on and MFA
+  what_for: Give employees one sign-in, with MFA, to cloud consoles and business applications.
+  match: direct
+  answer: AWS IAM Identity Center maps to Microsoft Entra ID single sign-on, with Entra MFA and Conditional Access. Many organizations connect Entra ID to Identity Center as its external identity provider.
+  providers:
+    aws: [iam-identity-center]
+    azure: [entra-id]
+  differences:
+    - Scope. Identity Center focuses on access to AWS accounts (through permission sets) and AWS-integrated or SAML apps. Entra ID is a full identity provider for thousands of SaaS apps, devices, and Microsoft 365.
+    - Risk-based access. Entra Conditional Access evaluates user, device, location, and risk signals on every sign-in. Identity Center relies on MFA settings and on the external IdP for richer policies.
+    - Instances. Identity Center recommends an organization instance. Account instances are for limited app use only.
+  pricing:
+    aws: Free.
+    azure: SSO and MFA are in Entra ID Free. Conditional Access needs P1, and risk-based policies need P2.
+  exams:
+    aws: [SAA-C03, SCS-C03, SOA-C03]
+    azure: [SC-300, AZ-104]
+  related: [cloud-iam, privileged-access]
+  sources:
+    - https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+    - https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/what-is-single-sign-on
+    - https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: workload-identity
+  group: identity-access
+  capability: Credential-free identities for cloud workloads
+  what_for: Let VMs, functions, and containers call other cloud services without storing keys or passwords.
+  match: direct
+  answer: IAM roles for EC2, Lambda, ECS, and EKS map to Azure managed identities (system-assigned or user-assigned). Both hand short-lived tokens to code through the platform.
+  providers:
+    aws: [iam-roles]
+    azure: [managed-identities]
+  differences:
+    - Lifecycle. A system-assigned managed identity is created and deleted with its resource, while a user-assigned identity is standalone and reusable, much like an IAM role shared by many instances.
+    - Kubernetes. EKS uses Pod Identity or IRSA, and AKS uses Microsoft Entra Workload ID (federation to a managed identity).
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, DVA-C02, SCS-C03]
+    azure: [AZ-104, AI-200, SC-500]
+  related: [external-workload-federation, cloud-iam, secrets-management]
+  sources:
+    - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
+    - https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview
+
+- id: external-workload-federation
+  group: identity-access
+  capability: Federation for workloads outside the cloud
+  what_for: Let CI/CD pipelines, on-premises servers, or other clouds get short-lived cloud credentials without long-lived secrets.
+  match: partial
+  answer: IAM Roles Anywhere (X.509 certificates) and IAM OIDC identity providers map to Microsoft Entra workload identity federation, which trusts OIDC tokens from external issuers such as GitHub Actions, Kubernetes, Google, or AWS.
+  providers:
+    aws: [iam-roles-anywhere, iam]
+    azure: [workload-identity-federation]
+  differences:
+    - Trust type. Roles Anywhere trusts certificates from a CA you register. Entra workload identity federation trusts OIDC tokens. For certificate-based workloads on Azure, use app registrations with certificate credentials, or Azure Arc-enabled servers with managed identities for on-premises machines.
+    - Cross-cloud. To call Azure from AWS, Microsoft documents exchanging an AWS-issued OIDC token (for example, through Cognito) for an Entra token. To call AWS from Azure, configure Entra ID as an IAM OIDC provider.
+  pricing:
+    aws: IAM and Roles Anywhere are free (Private CA, if used, is billed).
+    azure: Free.
+  exams:
+    aws: [SCS-C03, DOP-C02]
+    azure: [SC-300, AZ-400]
+  related: [workload-identity]
+  sources:
+    - https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html
+    - https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: privileged-access
+  group: identity-access
+  capability: Just-in-time privileged access
+  what_for: Grant admin rights only when needed, for a limited time, with approval and audit.
+  match: partial
+  answer: Azure has Microsoft Entra Privileged Identity Management (PIM) as a built-in service. On AWS, Microsoft notes that the equivalent is the open-source temporary elevated access solution built on IAM Identity Center, or partner products.
+  providers:
+    aws: [iam-identity-center]
+    azure: [entra-pim]
+  differences:
+    - PIM activates eligible Entra and Azure roles with approval, MFA, justification, and time limits, and adds access reviews. On AWS, you assemble similar workflows from Identity Center permission sets, the open-source solution, and CloudTrail auditing.
+  pricing:
+    aws: Identity Center is free. You pay for any resources the open-source solution deploys.
+    azure: Requires Entra ID P2 or Entra ID Governance licenses.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-300, SC-500]
+  related: [workforce-sso, access-review]
+  sources:
+    - https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: access-review
+  group: identity-access
+  capability: Find excessive, unused, or external access
+  what_for: Spot unused permissions and resources shared outside the organization, and trim access to least privilege.
+  match: partial
+  answer: Microsoft maps IAM Access Analyzer to Microsoft Entra access reviews (part of Entra ID Governance). Access Analyzer is automated policy analysis, while access reviews are periodic human attestations. Entra Permissions Management, Microsoft's former multicloud permissions analyzer, retired November 1, 2025.
+  providers:
+    aws: [iam-access-analyzer]
+    azure: [entra-id-governance]
+  differences:
+    - Method. Access Analyzer uses automated reasoning to find external and internal access paths, flags unused roles, keys, and permissions, and validates policies. Access reviews ask owners or managers to confirm who still needs access.
+    - Automated analysis on Azure. The closest automated counterpart is the cloud infrastructure entitlement management (CIEM) capability in the Defender CSPM plan, which assesses identity and access permissions across Azure, AWS, and GCP.
+  pricing:
+    aws: External access analysis is free. Unused and internal access analysis and custom policy checks are billed.
+    azure: Access reviews need Entra ID P2 or Entra ID Governance licenses.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-300]
+  flags:
+    - Entra Permissions Management retired November 1, 2025. Some older study material still maps Access Analyzer to it.
+  related: [privileged-access, cloud-iam, security-posture]
+  sources:
+    - https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html
+    - https://learn.microsoft.com/en-us/entra/id-governance/identity-governance-overview
+    - https://learn.microsoft.com/en-us/entra/permissions-management/overview
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/permissions-management
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: resource-sharing
+  group: identity-access
+  capability: Share resources across accounts
+  what_for: Let one team's network, rules, or other resources be used by other accounts in the organization.
+  match: partial
+  answer: Microsoft maps AWS Resource Access Manager to Azure RBAC. Because Azure subscriptions share one Entra tenant, you usually share by granting roles on a resource, rather than by creating resource shares.
+  providers:
+    aws: [resource-access-manager]
+    azure: [azure-rbac]
+  differences:
+    - On AWS, accounts are hard boundaries, so RAM explicitly shares subnets, transit gateways, and similar resources. On Azure, cross-subscription access works through role assignments in the same tenant, and some services have their own sharing (for example, Azure Compute Gallery or virtual network peering).
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAP-C02, ANS-C01]
+    azure: [AZ-104, AZ-305]
+  related: [cloud-iam, multi-account-organization]
+  sources:
+    - https://docs.aws.amazon.com/ram/latest/userguide/what-is.html
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+# ───────────────────────── CUSTOMER IDENTITY & APP ACCESS ─────────────────────────
+- id: customer-identity
+  group: app-identity
+  capability: Customer identity and access management (CIAM)
+  what_for: Add sign-up, sign-in, social login, and MFA for your app's customers or partners.
+  match: partial
+  answer: Amazon Cognito user pools map to Microsoft Entra External ID in an external tenant. Azure AD B2C, the older Azure CIAM service, has been unavailable to new customers since May 1, 2025. Cognito identity pools, which swap tokens for AWS credentials, have no direct Azure counterpart.
+  providers:
+    aws: [cognito]
+    azure: [entra-external-id]
+  differences:
+    - Platform. Cognito is a standalone AWS service. External ID runs on the same Microsoft Entra platform as workforce identity, in a separate external tenant, and also covers B2B guest collaboration in workforce tenants.
+    - Customization. Cognito uses managed login pages, Lambda triggers, and custom auth flows. External ID uses customizable user flows, custom authentication extensions, and branding. Azure AD B2C custom policies (Identity Experience Framework) don't carry over.
+    - AWS access. Identity pools give app users temporary AWS credentials for S3 or DynamoDB. On Azure, apps usually call their own API, which then uses a managed identity.
+  pricing:
+    aws: Per monthly active user, by feature plan (Lite, Essentials, Plus), with a free tier, plus SMS and advanced security charges.
+    azure: Per monthly active user, with a free tier, plus add-ons (such as SMS MFA).
+  exams:
+    aws: [DVA-C02, SCS-C03, SAA-C03]
+    azure: [SC-300, AI-200]
+  flags:
+    - Azure AD B2C is closed to new customers (since May 1, 2025), but existing tenants are still supported. Plan new apps on Entra External ID.
+  related: [workforce-sso, app-authorization]
+  sources:
+    - https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html
+    - https://learn.microsoft.com/en-us/entra/external-id/external-identities-overview
+    - https://learn.microsoft.com/en-us/azure/active-directory-b2c/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: managed-directory
+  group: app-identity
+  capability: Managed Active Directory
+  what_for: Run domain-joined Windows servers and LDAP or Kerberos apps in the cloud without operating domain controllers.
+  match: partial
+  answer: AWS Directory Service maps to Microsoft Entra Domain Services. Both provide managed domain join, Group Policy, LDAP, and Kerberos or NTLM authentication.
+  providers:
+    aws: [directory-service]
+    azure: [entra-domain-services]
+  differences:
+    - Source of identities. AWS Managed Microsoft AD is a real AD forest you administer (with delegated admin rights), and it can create trusts with on-premises AD. Entra Domain Services is a standalone managed domain whose users sync one way from Entra ID, with limited admin rights. You can configure forest trusts with on-premises AD DS for hybrid access.
+    - Proxy. AD Connector proxies requests to your existing AD with no cloud directory. On Azure, the equivalent pattern is to run your own domain controllers on Azure VMs, or use Entra Connect to sync identities.
+  pricing:
+    aws: Per directory-hour by edition (Standard or Enterprise for Managed Microsoft AD), and per AD Connector-hour.
+    azure: Per hour by SKU (Standard, Enterprise, Premium).
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, SC-300]
+  related: [workforce-sso]
+  sources:
+    - https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html
+    - https://learn.microsoft.com/en-us/entra/identity/domain-services/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: app-authorization
+  group: app-identity
+  capability: Fine-grained authorization for your own apps
+  what_for: Move "who can see or edit this record" logic out of application code into central, auditable policies.
+  match: none
+  answer: Azure has no managed equivalent of Amazon Verified Permissions. On Azure, apps use Entra app roles, groups, and token claims, and implement fine-grained rules in code or with open-source policy engines.
+  providers:
+    aws: [verified-permissions]
+    azure: []
+  differences:
+    - Verified Permissions stores Cedar policies and evaluates authorization requests through an API, integrating with Cognito or other OIDC identity sources. Entra ID answers "who is this user and what roles do they have," not record-level decisions.
+  pricing:
+    aws: Per authorization request, and per policy management operation.
+    azure: Not applicable.
+  exams:
+    aws: [DVA-C02, SCS-C03]
+    azure: [SC-300]
+  related: [customer-identity]
+  sources:
+    - https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/what-is-avp.html
+
+- id: zero-trust-app-access
+  group: app-identity
+  capability: Zero trust access to private apps (VPN replacement)
+  what_for: Let employees reach internal apps securely from anywhere, with identity and device checks on every request, without a network VPN.
+  match: partial
+  answer: AWS Verified Access maps to Microsoft Entra Private Access, part of Microsoft's Global Secure Access security service edge.
+  providers:
+    aws: [verified-access]
+    azure: [entra-private-access]
+  differences:
+    - Delivery. Verified Access is an AWS-hosted endpoint in front of apps in your VPCs, evaluating Cedar-based policies with identity and device trust providers. Entra Private Access uses the Global Secure Access client and connectors, with Conditional Access per app, and can reach apps on-premises or in any cloud.
+    - Scope. Entra Private Access is part of a broader suite (Entra Internet Access for web traffic). Verified Access covers private HTTP and TCP apps.
+  pricing:
+    aws: Per application-hour plus per GB processed.
+    azure: Per user license (Entra Private Access or the Entra Suite).
+  exams:
+    aws: [SCS-C03, ANS-C01]
+    azure: [SC-300]
+  related: [remote-access-vpn, workforce-sso]
+  sources:
+    - https://docs.aws.amazon.com/verified-access/latest/ug/what-is-verified-access.html
+    - https://learn.microsoft.com/en-us/entra/global-secure-access/concept-private-access
+
+# ───────────────────────── GOVERNANCE ─────────────────────────
+- id: multi-account-organization
+  group: governance
+  capability: Multi-account organization hierarchy
+  what_for: Organize many accounts or subscriptions into a hierarchy for billing, isolation, and inherited governance.
+  match: direct
+  answer: AWS Organizations maps to Azure management groups. AWS accounts correspond roughly to Azure subscriptions, and organizational units to management groups.
+  providers:
+    aws: [organizations]
+    azure: [management-groups]
+  differences:
+    - Boundaries. An AWS account is a hard security and billing boundary. An Azure subscription is a billing and management boundary inside one Entra tenant, and resource groups add another level below it.
+    - Depth. Management group trees support up to six levels of depth below the root. AWS OUs can nest up to five levels under the root.
+    - Billing. Organizations provides consolidated billing. Azure billing is handled through billing accounts and agreements (EA, MCA), separate from management groups.
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [SAA-C03, SAP-C02, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [org-guardrails, landing-zones]
+  sources:
+    - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html
+    - https://learn.microsoft.com/en-us/azure/governance/management-groups/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: org-guardrails
+  group: governance
+  capability: Organization-wide guardrail policies
+  what_for: Prevent anyone, even admins, from doing forbidden things, such as using unapproved regions or disabling logging.
+  match: partial
+  answer: Service control policies (and resource control policies) map most closely to Azure Policy assigned at management groups, which can deny, audit, or fix resource configurations. Azure RBAC deny assignments cover only limited scenarios.
+  providers:
+    aws: [service-control-policies]
+    azure: [azure-policy]
+  differences:
+    - What's controlled. SCPs limit which API actions principals in member accounts can call, and RCPs limit what can be granted on resources (for example, blocking external access to S3). Azure Policy evaluates resource properties at deployment and continuously, so it can deny a public IP or require tags, but it doesn't restrict which management actions an identity may call in general.
+    - Remediation. Azure Policy can modify resources or deploy missing settings (deployIfNotExists), with compliance reports. SCPs only allow or deny, and AWS uses Config rules or Control Tower proactive controls for configuration checks.
+  pricing:
+    aws: Free.
+    azure: Free for Azure resources (some guest configuration and Arc scenarios are billed).
+  exams:
+    aws: [SCS-C03, SAP-C02]
+    azure: [AZ-104, AZ-305, SC-500]
+  related: [multi-account-organization, config-compliance, landing-zones]
+  sources:
+    - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
+    - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html
+    - https://learn.microsoft.com/en-us/azure/governance/policy/overview
+
+- id: landing-zones
+  group: governance
+  capability: Landing zone setup and account vending
+  what_for: Stand up a well-governed multi-account cloud foundation (logging, security, networking, guardrails) and create new accounts that follow it.
+  match: partial
+  answer: AWS Control Tower maps to Azure landing zones from the Cloud Adoption Framework, deployed with the portal accelerator, Bicep, or Terraform, plus subscription vending modules. Azure Blueprints, an older option, retires January 31, 2027.
+  providers:
+    aws: [control-tower]
+    azure: [azure-landing-zones]
+  differences:
+    - Managed service vs. reference. Control Tower is a managed service that builds and maintains the landing zone, detects drift, and vends accounts through Account Factory. Azure landing zones are a reference architecture with deployable code that you own and update.
+    - Controls. Control Tower ships preventive (SCP), detective (Config), and proactive (CloudFormation hook) controls. Azure landing zones apply a curated set of Azure Policy assignments.
+  pricing:
+    aws: No charge for Control Tower itself. You pay for the services it sets up (Config, CloudTrail, and others).
+    azure: No charge for the reference implementation. You pay for deployed resources (Log Analytics, Firewall, Defender, and others).
+  exams:
+    aws: [SAP-C02, SOA-C03]
+    azure: [AZ-305]
+  flags:
+    - Azure Blueprints (preview) began a phased retirement on July 31, 2026, and fully retires January 31, 2027. Microsoft recommends migrating to Deployment Stacks.
+  related: [multi-account-organization, org-guardrails]
+  sources:
+    - https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html
+    - https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
+    - https://learn.microsoft.com/en-us/azure/governance/blueprints/overview
+
+# ───────────────────────── AUDIT & COMPLIANCE ─────────────────────────
+- id: audit-logging
+  group: audit-compliance
+  capability: API and control-plane audit logs
+  what_for: Record who did what, when, and from where, for security investigations and compliance.
+  match: direct
+  answer: AWS CloudTrail maps to the Azure Monitor activity log for resource operations, plus Microsoft Entra audit and sign-in logs for identity events. Resource-level data-plane logs come from each service's diagnostic settings.
+  providers:
+    aws: [cloudtrail]
+    azure: [activity-log]
+  differences:
+    - Retention. CloudTrail event history keeps 90 days of management events free, and trails or CloudTrail Lake keep events longer. The activity log keeps 90 days free, and diagnostic settings export it to Log Analytics, storage, or Event Hubs for longer retention.
+    - Data events. CloudTrail data events (for example, S3 object reads) are opt-in on trails. On Azure, data-plane activity comes from resource logs (such as Storage or Key Vault diagnostic logs).
+    - Organization-wide. CloudTrail organization trails cover all accounts. On Azure, apply diagnostic settings at scale with Azure Policy.
+  pricing:
+    aws: The first copy of management events in trails is free. Data events, extra copies, and CloudTrail Lake are billed.
+    azure: Activity log entries are free for 90 days. You pay for Log Analytics ingestion or storage when exporting.
+  exams:
+    aws: [SAA-C03, SOA-C03, SCS-C03]
+    azure: [AZ-104, SC-500]
+  related: [config-compliance, security-investigation]
+  sources:
+    - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
+    - https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+
+- id: config-compliance
+  group: audit-compliance
+  capability: Resource configuration history and compliance rules
+  what_for: Track how resources were configured over time and continuously check them against rules.
+  match: partial
+  answer: AWS Config maps to a combination of Azure Policy (compliance evaluation and remediation) and Azure Resource Graph (inventory and change history).
+  providers:
+    aws: [aws-config]
+    azure: [azure-policy, resource-graph]
+  differences:
+    - Recording. Config records configuration items and relationships continuously for the resource types you select, with history you can keep for years. Resource Graph change analysis covers recent property changes, so long-term history needs exports.
+    - Rules. Config rules (managed or custom Lambda or Guard) and conformance packs map to Azure Policy definitions and initiatives. Azure Policy can also block non-compliant deployments up front.
+  pricing:
+    aws: Per configuration item recorded, plus per rule evaluation and conformance pack evaluation.
+    azure: Azure Policy and Resource Graph are free for Azure resources.
+  exams:
+    aws: [SOA-C03, SCS-C03]
+    azure: [AZ-104, AZ-305]
+  related: [org-guardrails, audit-evidence]
+  sources:
+    - https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
+    - https://learn.microsoft.com/en-us/azure/governance/policy/overview
+    - https://learn.microsoft.com/en-us/azure/governance/resource-graph/overview
+
+- id: audit-evidence
+  group: audit-compliance
+  capability: Compliance assessments and audit evidence
+  what_for: Map cloud controls to frameworks such as SOC 2, PCI DSS, or HIPAA, and collect evidence for auditors.
+  match: partial
+  answer: AWS Audit Manager maps to Microsoft Purview Compliance Manager and the regulatory compliance dashboard in Defender for Cloud. Audit Manager is in maintenance mode, and since April 30, 2026 it can't be set up in new accounts.
+  providers:
+    aws: [audit-manager]
+    azure: [compliance-manager, defender-cspm]
+  differences:
+    - Evidence. Audit Manager automatically collected evidence from Config, Security Hub, and CloudTrail into assessments. On Azure, Defender for Cloud regulatory compliance maps resource assessments to standards, and Compliance Manager tracks improvement actions and a compliance score.
+    - AWS alternatives. For new AWS customers, Security Hub CSPM standards and Config conformance packs cover much of the control-checking side.
+  pricing:
+    aws: Per resource assessment (existing customers only).
+    azure: Regulatory compliance standards beyond the Microsoft Cloud Security Benchmark need Defender CSPM. Compliance Manager is licensed through Microsoft 365 or Purview plans.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-500, SC-100]
+  flags:
+    - AWS Audit Manager is in maintenance mode. Existing setups keep working, but there are no new frameworks, Regions, or accounts.
+  related: [config-compliance, compliance-reports, security-posture]
+  sources:
+    - https://docs.aws.amazon.com/audit-manager/latest/userguide/audit-manager-availability-change.html
+    - https://learn.microsoft.com/en-us/purview/compliance-manager
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/regulatory-compliance-dashboard
+
+- id: compliance-reports
+  group: audit-compliance
+  capability: Provider compliance reports and agreements
+  what_for: Download the cloud provider's own audit reports (SOC, ISO, PCI) and certifications for your auditors.
+  match: direct
+  answer: AWS Artifact maps to the Microsoft Service Trust Portal.
+  providers:
+    aws: [artifact]
+    azure: [service-trust-portal]
+  differences:
+    - Artifact also lets you accept agreements such as the Business Associate Addendum (BAA) for an account or organization. Microsoft covers the HIPAA BAA through its Product Terms, and the Service Trust Portal is for documents.
+  pricing:
+    aws: Free.
+    azure: Free.
+  exams:
+    aws: [CLF-C02, SCS-C03]
+    azure: [AZ-900, SC-900]
+  related: [audit-evidence]
+  sources:
+    - https://docs.aws.amazon.com/artifact/latest/ug/what-is-aws-artifact.html
+    - https://learn.microsoft.com/en-us/purview/get-started-with-service-trust-portal
+
+# ───────────────────────── KEYS, SECRETS & CERTIFICATES ─────────────────────────
+- id: key-management
+  group: keys-secrets
+  capability: Managed encryption keys
+  what_for: Create and control the keys that encrypt your data in cloud services, with rotation, audit, and access policies.
+  match: direct
+  answer: AWS KMS maps to Azure Key Vault (keys), or Key Vault Managed HSM for single-tenant, HSM-only key storage.
+  providers:
+    aws: [kms]
+    azure: [key-vault, managed-hsm]
+  differences:
+    - Integration. KMS keys are used directly by most AWS services for encryption at rest. On Azure, platform-managed keys are the default, and customer-managed keys in Key Vault or Managed HSM are an opt-in per service.
+    - Scope. KMS is one regional service per account. Key Vault is a resource you create (often one per app per environment) that holds keys, secrets, and certificates together.
+    - HSM protection. All KMS keys are protected by FIPS-validated HSMs. Key Vault Standard uses software-protected keys, and Premium or Managed HSM uses FIPS 140-3 Level 3 HSMs.
+  pricing:
+    aws: Per customer-managed key per month plus per 10,000 requests.
+    azure: Per key operation (with higher rates for HSM keys and per-key monthly fees for HSM keys in Premium). Managed HSM is billed per HSM pool-hour.
+  exams:
+    aws: [SAA-C03, SCS-C03, DVA-C02]
+    azure: [AZ-104, SC-500]
+  related: [dedicated-hsm, secrets-management]
+  sources:
+    - https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
+    - https://learn.microsoft.com/en-us/azure/key-vault/general/overview
+    - https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview
+
+- id: dedicated-hsm
+  group: keys-secrets
+  capability: Single-tenant HSMs under your control
+  what_for: Run your own hardware security modules for PKCS#11 apps, CA keys, TLS offload, or database TDE, with full administrative control.
+  match: direct
+  answer: AWS CloudHSM maps to Azure Cloud HSM. Azure Dedicated HSM, the older option, is closed to new customers and supported until July 31, 2028.
+  providers:
+    aws: [cloudhsm]
+    azure: [azure-cloud-hsm]
+  differences:
+    - Both are single-tenant, highly available HSM clusters that you administer, with PKCS#11, JCE, and OpenSSL client libraries. CloudHSM clusters run in FIPS or non-FIPS mode. Azure Cloud HSM is FIPS 140-3 Level 3 validated.
+    - For keys that Azure services use for encryption at rest, Managed HSM is usually the better fit, because Cloud HSM targets IaaS and custom application workloads.
+  pricing:
+    aws: Per HSM-hour.
+    azure: Per HSM cluster-hour (see the pricing page).
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-500]
+  flags:
+    - Azure Dedicated HSM is closed to new customers and supported until July 31, 2028. Use Cloud HSM or Managed HSM.
+  related: [key-management]
+  sources:
+    - https://docs.aws.amazon.com/cloudhsm/latest/userguide/introduction.html
+    - https://learn.microsoft.com/en-us/azure/cloud-hsm/overview
+    - https://learn.microsoft.com/en-us/azure/dedicated-hsm/overview
+
+- id: secrets-management
+  group: keys-secrets
+  capability: Secrets storage and rotation
+  what_for: Keep database passwords, API keys, and tokens out of code and config, and rotate them automatically.
+  match: direct
+  answer: AWS Secrets Manager maps to Azure Key Vault secrets.
+  providers:
+    aws: [secrets-manager]
+    azure: [key-vault]
+  differences:
+    - Rotation. Secrets Manager has built-in rotation (managed for RDS and other services, or Lambda-based). Key Vault raises near-expiry events through Event Grid, and you rotate with Azure Functions or automation. Better still, use managed identities so there's no secret to rotate.
+    - Cheaper alternative on AWS. Systems Manager Parameter Store also holds secrets (SecureString) without built-in rotation.
+  pricing:
+    aws: Per secret per month plus per 10,000 API calls.
+    azure: Per 10,000 secret operations, with no per-secret monthly fee.
+  exams:
+    aws: [SAA-C03, DVA-C02, SCS-C03]
+    azure: [AZ-104, AI-200, SC-500]
+  related: [key-management, workload-identity]
+  sources:
+    - https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
+    - https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html
+    - https://learn.microsoft.com/en-us/azure/key-vault/general/overview
+
+- id: tls-certificates
+  group: keys-secrets
+  capability: Managed TLS certificates
+  what_for: Get, deploy, and automatically renew TLS certificates for websites, load balancers, and APIs.
+  match: partial
+  answer: AWS Certificate Manager maps to Key Vault certificates, plus free managed certificates built into App Service and Front Door.
+  providers:
+    aws: [acm]
+    azure: [key-vault-certificates]
+  differences:
+    - Issuance. ACM issues free public certificates (Amazon-issued) for integrated services. Key Vault doesn't issue public certificates itself; it orders them from integrated CAs (DigiCert or GlobalSign, billed by the CA) or stores imported ones. App Service and Front Door can issue free managed certificates for custom domains.
+    - Deployment. ACM certificates attach directly to ELB, CloudFront, and API Gateway. Key Vault certificates are referenced by App Service, Application Gateway, and Front Door.
+  pricing:
+    aws: Public certificates for integrated services are free. Private certificates are billed through Private CA.
+    azure: Key Vault charges for certificate operations and renewals. CA-issued certificates are billed by the CA. App Service and Front Door managed certificates are free.
+  exams:
+    aws: [SAA-C03, SCS-C03]
+    azure: [AZ-104, AZ-700]
+  related: [private-ca, key-management]
+  sources:
+    - https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html
+    - https://learn.microsoft.com/en-us/azure/key-vault/certificates/about-certificates
+
+- id: private-ca
+  group: keys-secrets
+  capability: Managed private certificate authority
+  what_for: Issue internal certificates for services, devices, and mutual TLS without running your own PKI servers.
+  match: none
+  answer: Azure has no general-purpose managed private CA like AWS Private CA. Key Vault can create self-signed certificates or integrate with external CAs, and Azure Cloud HSM can protect the keys of a CA you run yourself (for example, AD Certificate Services).
+  providers:
+    aws: [private-ca]
+    azure: []
+  differences:
+    - AWS Private CA provides managed root and subordinate CAs, certificate revocation (CRL and OCSP), short-lived certificate mode, and integration with ACM, IAM Roles Anywhere, and EKS.
+  pricing:
+    aws: Per CA per month (lower for short-lived mode) plus per certificate issued.
+    azure: Not applicable.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-500]
+  related: [tls-certificates, external-workload-federation]
+  sources:
+    - https://docs.aws.amazon.com/privateca/latest/userguide/PcaWelcome.html
+    - https://learn.microsoft.com/en-us/azure/key-vault/certificates/how-to-integrate-certificate-authority
+
+# ───────────────────────── THREAT DETECTION & SECOPS ─────────────────────────
+- id: threat-detection
+  group: threat-detection
+  capability: Managed threat detection
+  what_for: Detect compromised credentials, crypto mining, malware, and suspicious activity across accounts and workloads, without deploying a SIEM.
+  match: partial
+  answer: Amazon GuardDuty maps to the workload protection plans in Microsoft Defender for Cloud (Defender for Servers, Containers, Storage, Databases, Resource Manager, and others).
+  providers:
+    aws: [guardduty]
+    azure: [defender-for-cloud]
+  differences:
+    - Packaging. GuardDuty is one service with foundational detection (CloudTrail, VPC Flow Logs, DNS logs) plus optional protection plans. Defender for Cloud enables a separate paid plan per resource type, with Defender for Endpoint integrated in Defender for Servers.
+    - Multicloud. Defender for Cloud can also protect AWS and GCP resources through connectors. GuardDuty covers AWS only.
+    - Alerts go to Security Hub (AWS) or Defender XDR and Sentinel (Microsoft).
+  pricing:
+    aws: Based on volume of analyzed events and logs, and per protection plan usage (with a 30-day free trial).
+    azure: Per plan, usually per protected resource per hour or month (for example, per server or per storage account), with a 30-day trial for most plans.
+  exams:
+    aws: [SCS-C03, SAA-C03]
+    azure: [SC-500, SC-200]
+  related: [security-posture, security-investigation, vulnerability-scanning]
+  sources:
+    - https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction
+
+- id: security-posture
+  group: threat-detection
+  capability: Cloud security posture management (CSPM)
+  what_for: Continuously check cloud resources against security best practices and standards, and prioritize the riskiest issues.
+  match: direct
+  answer: AWS Security Hub CSPM (the control checks formerly called Security Hub) maps to Defender for Cloud's free Foundational CSPM and the paid Defender CSPM plan. The newer AWS Security Hub, which correlates findings into exposures, maps to Defender CSPM's attack path analysis and risk prioritization.
+  providers:
+    aws: [security-hub-cspm, security-hub]
+    azure: [defender-cspm]
+  differences:
+    - Standards. Security Hub CSPM runs checks for AWS Foundational Security Best Practices, CIS, PCI DSS, and NIST. Foundational CSPM uses the Microsoft Cloud Security Benchmark and secure score, and Defender CSPM adds regulatory standards, attack paths, the cloud security explorer, and agentless scanning.
+    - Naming. AWS renamed the original service Security Hub CSPM when it launched the new unified Security Hub. Older study material uses "Security Hub" for the control checks.
+  pricing:
+    aws: Security Hub CSPM is billed per security check and finding ingestion. The new Security Hub has its own resource-based pricing.
+    azure: Foundational CSPM is free. Defender CSPM is billed per billable resource per month.
+  exams:
+    aws: [SCS-C03, SOA-C03]
+    azure: [SC-500, SC-100]
+  flags:
+    - AWS split Security Hub into Security Hub (unified exposure management) and Security Hub CSPM (control checks). Check which one a study source means.
+  related: [threat-detection, vulnerability-scanning, audit-evidence]
+  sources:
+    - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html
+    - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management
+
+- id: vulnerability-scanning
+  group: threat-detection
+  capability: Vulnerability scanning for servers, containers, and functions
+  what_for: Find known software vulnerabilities and network exposure in VMs, container images, and serverless functions, continuously.
+  match: partial
+  answer: Amazon Inspector maps to Defender for Servers (with Microsoft Defender Vulnerability Management) for VMs, and Defender for Containers or Defender CSPM for container image scanning.
+  providers:
+    aws: [inspector]
+    azure: [defender-for-servers]
+  differences:
+    - Coverage. Inspector scans EC2, ECR images, and Lambda functions in one service. On Azure, coverage is split across Defender plans, and scanning of serverless functions is more limited.
+    - Agentless. Both offer agentless scanning (Inspector for EC2 and Defender for Servers Plan 2 or Defender CSPM).
+    - Inspector Classic, the first version, was shut down on May 20, 2026.
+  pricing:
+    aws: Per EC2 instance scanned per month, per container image scan, and per Lambda function per month.
+    azure: Included in Defender for Servers (per server per hour) and Defender for Containers (per vCore) pricing.
+  exams:
+    aws: [SCS-C03, SOA-C03]
+    azure: [SC-500]
+  related: [threat-detection, security-posture]
+  sources:
+    - https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-servers-overview
+    - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+
+- id: sensitive-data-discovery
+  group: threat-detection
+  capability: Sensitive data discovery
+  what_for: Find personal, financial, or secret data in storage, and see where it's exposed.
+  match: partial
+  answer: Amazon Macie maps to Microsoft Purview (Data Map classification and Data Security Posture Management), and to sensitive data threat detection in Defender for Storage and Defender CSPM.
+  providers:
+    aws: [macie]
+    azure: [purview-data-security]
+  differences:
+    - Scope. Macie focuses on S3 buckets (sensitive data discovery and bucket security posture). Purview scans many sources across Azure, Microsoft 365, other clouds, and on-premises, and adds labeling, DLP, and governance.
+  pricing:
+    aws: Per S3 bucket monitored, per object monitored for automated discovery, and per GB inspected.
+    azure: Purview Data Map is billed per capacity unit-hour and scanning vCore-hour. Information Protection and DSPM are licensed through Microsoft 365 or Purview plans.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-500]
+  related: [security-posture]
+  sources:
+    - https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html
+    - https://learn.microsoft.com/en-us/purview/purview
+    - https://learn.microsoft.com/en-us/purview/data-map-classification
+
+- id: security-investigation
+  group: threat-detection
+  capability: Security investigation and incident analysis
+  what_for: Investigate a security finding by seeing related users, IPs, resources, and activity over time.
+  match: partial
+  answer: Amazon Detective maps most closely to Microsoft Sentinel's incident investigation, entity pages, and UEBA, now in the Microsoft Defender portal. Sentinel is a full SIEM and SOAR, while Detective is an investigation tool, and AWS has no first-party SIEM.
+  providers:
+    aws: [detective]
+    azure: [microsoft-sentinel]
+  differences:
+    - Scope. Detective builds a behavior graph from AWS logs and GuardDuty findings automatically, with no queries to write. Sentinel ingests data from many sources, uses KQL analytics rules, and adds playbooks for automated response.
+    - Portal. Sentinel is moving to the Microsoft Defender portal and won't be supported in the Azure portal after March 31, 2027.
+  pricing:
+    aws: Per GB of data ingested into the behavior graph (with a 30-day free trial).
+    azure: Per GB ingested (pay-as-you-go or commitment tiers) into analytics tiers, with cheaper data lake tiers.
+  exams:
+    aws: [SCS-C03]
+    azure: [SC-200]
+  flags:
+    - Microsoft Sentinel won't be supported in the Azure portal after March 31, 2027. Study material showing Azure portal steps is aging.
+  related: [threat-detection, security-data-lake, audit-logging]
+  sources:
+    - https://docs.aws.amazon.com/detective/latest/userguide/what-is-detective.html
+    - https://learn.microsoft.com/en-us/azure/sentinel/overview
+    - https://learn.microsoft.com/en-us/azure/sentinel/microsoft-sentinel-defender-portal
+
+- id: security-data-lake
+  group: threat-detection
+  capability: Security data lake
+  what_for: Keep large volumes of security logs cheaply for years in an open format, and query them for hunting and compliance.
+  match: partial
+  answer: Amazon Security Lake maps to the Microsoft Sentinel data lake.
+  providers:
+    aws: [security-lake]
+    azure: [sentinel-data-lake]
+  differences:
+    - Format and ownership. Security Lake stores OCSF-normalized Parquet in S3 buckets in your account, which any tool (Athena, OpenSearch, partner SIEMs) can query. Sentinel data lake is a Microsoft-managed lake tier with a single copy of data, queried with KQL, notebooks, and jobs alongside Sentinel analytics.
+  pricing:
+    aws: Per GB ingested and normalized, plus S3 storage and query costs.
+    azure: Per GB ingested into the data lake tier, plus storage retention and query or processing charges.
+  exams:
+    aws: [SCS-C03, DEA-C01]
+    azure: [SC-200]
+  related: [security-investigation, audit-logging]
+  sources:
+    - https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html
+    - https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-lake-overview
