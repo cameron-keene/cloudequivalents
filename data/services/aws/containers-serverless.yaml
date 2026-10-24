@@ -1,0 +1,199 @@
+# AWS container and serverless services (category: containers-serverless).
+- slug: eks
+  name: Amazon EKS
+  status: ga
+  summary: Managed Kubernetes control plane across three AZs. You choose the nodes, which can be managed node groups, self-managed nodes, Karpenter, Fargate, Auto Mode, or Hybrid Nodes.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: eks-auto-mode
+  name: Amazon EKS Auto Mode
+  status: ga
+  summary: AWS also manages the cluster's compute (Karpenter-based), pod networking, load balancing, DNS, block storage, and GPU support. Nodes are EC2 instances that AWS patches and replaces.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/automode.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: eks-extended-support
+  name: Amazon EKS Kubernetes version support (standard & extended)
+  status: ga
+  summary: Each Kubernetes minor version gets 14 months of standard support, then 12 months of extended support (on by default, billed at a higher per-cluster-hour rate). After that, clusters are auto-upgraded.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: eks-pod-identity
+  name: EKS Pod Identity (and IRSA)
+  status: ga
+  summary: Map Kubernetes service accounts to IAM roles so pods get temporary AWS credentials. Pod Identity uses an EKS agent and association API. IAM Roles for Service Accounts (IRSA) uses OIDC federation.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: eks-hybrid-nodes
+  name: Amazon EKS Hybrid Nodes & EKS Anywhere
+  status: ga
+  summary: Hybrid Nodes attach your on-premises or edge machines to an EKS control plane running in the Region. EKS Anywhere is customer-managed Kubernetes (Cluster API) for vSphere, bare metal, Nutanix, and CloudStack, including air-gapped sites.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/hybrid-nodes-overview.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: eks-capabilities
+  name: Amazon EKS Capabilities (Argo CD, ACK, kro)
+  status: ga
+  summary: AWS-managed platform features that run in EKS rather than on your nodes. Argo CD for GitOps, AWS Controllers for Kubernetes (ACK) to manage AWS resources, and kro for composing resources.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html
+  pricing: https://aws.amazon.com/eks/pricing/
+- slug: rosa
+  name: Red Hat OpenShift Service on AWS (ROSA)
+  status: ga
+  summary: Managed OpenShift jointly supported by Red Hat and AWS, documented primarily as ROSA with hosted control planes (HCP). Billing goes through AWS, with service fees per 4 vCPUs of worker nodes plus a cluster fee for HCP.
+  docs: https://docs.aws.amazon.com/rosa/latest/userguide/what-is-rosa.html
+  pricing: https://aws.amazon.com/rosa/pricing/
+- slug: app-mesh
+  name: AWS App Mesh
+  status: retired
+  status_note: End of support Sep 30, 2026 (announced Sep 24, 2024). The console and App Mesh resources are no longer accessible. AWS recommends ECS Service Connect (or VPC Lattice).
+  summary: Envoy-based service mesh for ECS, EKS, and EC2.
+  docs: https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html
+  pricing: https://aws.amazon.com/app-mesh/pricing/
+- slug: ecs-service-connect
+  name: Amazon ECS Service Connect
+  status: ga
+  summary: Built-in service discovery and service-to-service traffic for ECS (managed Envoy proxy plus Cloud Map namespaces), with retries, timeouts, and traffic metrics. AWS's recommended replacement for App Mesh on ECS.
+  docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html
+  pricing: https://aws.amazon.com/ecs/pricing/
+- slug: ecs
+  name: Amazon ECS
+  status: ga
+  summary: AWS's own container orchestrator (task definitions, services, clusters). Capacity options are Fargate, ECS Managed Instances, EC2 capacity providers, and ECS Anywhere (external instances).
+  docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html
+  pricing: https://aws.amazon.com/ecs/pricing/
+- slug: fargate
+  name: AWS Fargate
+  status: ga
+  summary: Serverless compute for ECS tasks and EKS pods. Each task or pod gets its own isolated, right-sized environment (Linux x86/Arm and Windows Server on ECS).
+  docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html
+  pricing: https://aws.amazon.com/fargate/pricing/
+- slug: ecs-express-mode
+  name: Amazon ECS Express Mode
+  status: ga
+  summary: One API call (container image plus two IAM roles) creates a Fargate ECS service with an HTTPS URL, ALB with TLS, auto scaling, monitoring, and networking. No extra charge.
+  docs: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-overview.html
+  pricing: https://aws.amazon.com/ecs/pricing/
+- slug: app-runner
+  name: AWS App Runner
+  status: maintenance
+  status_note: Closed to new customers (availability change announced Mar 31, 2026). Existing customers can keep creating services, but no new features are planned. AWS recommends ECS Express Mode.
+  summary: Fully managed web app and API service from source code or a container image, with automatic HTTPS, scaling, and load balancing.
+  docs: https://docs.aws.amazon.com/apprunner/latest/dg/what-is-apprunner.html
+  pricing: https://aws.amazon.com/apprunner/pricing/
+- slug: ecr
+  name: Amazon ECR
+  status: ga
+  summary: Private and public OCI registries with lifecycle policies, scan-on-push (basic or enhanced through Inspector), cross-Region and cross-account replication, pull-through cache, and managed signing.
+  docs: https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
+  pricing: https://aws.amazon.com/ecr/pricing/
+- slug: lambda
+  name: AWS Lambda (Event Functions)
+  status: ga
+  status_note: '"Event Functions" is the new name (Oct 2026) for classic Lambda functions. The APIs, ARNs, and SDKs are unchanged.'
+  summary: Event-driven functions triggered by 200+ AWS services or API calls. Invocations run up to 15 minutes, with one request per execution environment, billed per request and per GB-second.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-provisioned-concurrency
+  name: Lambda provisioned concurrency
+  status: ga
+  summary: Keeps a set number of execution environments initialized for a function version or alias, so requests skip cold starts. Can be scaled with Application Auto Scaling.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-snapstart
+  name: Lambda SnapStart
+  status: ga
+  summary: Lambda snapshots (Firecracker) the initialized execution environment when you publish a version and resumes from the cache on cold starts. Supports Java 11+, Python 3.12+, and .NET 8+.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-layers
+  name: Lambda layers
+  status: ga
+  summary: Shared .zip archives (libraries, runtimes, config) mounted into /opt. Up to five per function, for .zip-packaged functions only.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-function-urls
+  name: Lambda function URLs
+  status: ga
+  summary: A dedicated HTTPS endpoint for a function, with IAM (AWS_IAM) or public (NONE) auth, CORS, and response streaming.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/urls-configuration.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-web-functions
+  name: AWS Lambda Web Functions
+  status: ga
+  status_note: Launched Oct 12, 2026 in five Regions, with Node.js 24 on Arm64 only at launch.
+  summary: Run standard port-listening Node.js web apps (Express, Hono, Next.js) on Lambda without adapters. Each environment handles many concurrent requests, with active-CPU billing and optional multi-Region latency routing.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/web-functions.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-durable-functions
+  name: Lambda durable functions
+  status: ga
+  summary: Multi-step workflows written as code (Durable Execution SDK) that checkpoint progress, replay after failures, and wait without compute charges. Runs up to one year.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-microvms
+  name: AWS Lambda MicroVMs
+  status: ga
+  status_note: Launched June 2026. Available in 14 Regions as of Oct 22, 2026, on Arm64.
+  summary: Stateful Firecracker sandboxes for running user- or AI-generated code. Each has its own HTTPS endpoint (HTTP/2, gRPC, WebSockets), suspend and resume, and sessions of up to 8 hours.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: lambda-managed-instances
+  name: Lambda Managed Instances
+  status: ga
+  summary: Run Lambda Event Functions on current-generation EC2 instances (including Graviton4) that Lambda manages. Multiple concurrent requests per environment, and EC2 Savings Plans and RIs apply.
+  docs: https://docs.aws.amazon.com/lambda/latest/dg/lambda-managed-instances.html
+  pricing: https://aws.amazon.com/lambda/pricing/
+- slug: step-functions
+  name: AWS Step Functions
+  status: ga
+  summary: Visual state-machine workflows (Amazon States Language). Standard workflows are exactly-once and run up to a year. Express workflows are at-least-once and run up to 5 minutes. Optimized and AWS SDK service integrations are available.
+  docs: https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+  pricing: https://aws.amazon.com/step-functions/pricing/
+- slug: eventbridge
+  name: Amazon EventBridge (event buses & Pipes)
+  status: ga
+  summary: Serverless event buses (default and custom) with rules, archive and replay, cross-account and cross-Region delivery, SaaS partner sources, API destinations, and Pipes (point-to-point source-to-target integrations).
+  docs: https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html
+  pricing: https://aws.amazon.com/eventbridge/pricing/
+- slug: eventbridge-scheduler
+  name: Amazon EventBridge Scheduler
+  status: ga
+  summary: Serverless scheduler for one-time, rate, or cron schedules (with time zones) that invokes 270+ AWS services, with retries and flexible time windows.
+  docs: https://docs.aws.amazon.com/scheduler/latest/UserGuide/what-is-scheduler.html
+  pricing: https://aws.amazon.com/eventbridge/pricing/
+- slug: sqs
+  name: Amazon SQS
+  status: ga
+  summary: Fully managed message queues. Standard queues are at-least-once with near-unlimited throughput. FIFO queues give ordered, exactly-once processing per message group. Dead-letter queues are supported.
+  docs: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+  pricing: https://aws.amazon.com/sqs/pricing/
+- slug: sns
+  name: Amazon SNS
+  status: ga
+  status_note: SNS Message Data Protection entered maintenance (Mar 31, 2026).
+  summary: Pub/sub topics (Standard and FIFO) that fan out to SQS, Lambda, HTTP, Firehose, email, SMS, and mobile push, with filter policies.
+  docs: https://docs.aws.amazon.com/sns/latest/dg/welcome.html
+  pricing: https://aws.amazon.com/sns/pricing/
+- slug: amazon-mq
+  name: Amazon MQ
+  status: ga
+  summary: Managed Apache ActiveMQ and RabbitMQ brokers for apps that use JMS, AMQP 0-9-1, MQTT, STOMP, or OpenWire without rewriting.
+  docs: https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/welcome.html
+  pricing: https://aws.amazon.com/amazon-mq/pricing/
+- slug: api-gateway
+  name: Amazon API Gateway
+  status: ga
+  summary: Managed REST APIs (usage plans, API keys, caching, private APIs), lower-cost HTTP APIs, and WebSocket APIs, fronting Lambda, HTTP backends, or AWS services.
+  docs: https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+  pricing: https://aws.amazon.com/api-gateway/pricing/
+- slug: appsync
+  name: AWS AppSync
+  status: ga
+  summary: Managed GraphQL APIs (resolvers to DynamoDB, Lambda, RDS, HTTP, and more, with merged APIs and subscriptions) and AppSync Events for serverless WebSocket pub/sub.
+  docs: https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html
+  pricing: https://aws.amazon.com/appsync/pricing/
+- slug: amplify-hosting
+  name: AWS Amplify Hosting
+  status: ga
+  summary: Git-based CI/CD and hosting for static sites, SPAs, and SSR frameworks (such as Next.js) on the AWS CDN, with preview branches and custom domains.
+  docs: https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html
+  pricing: https://aws.amazon.com/amplify/pricing/

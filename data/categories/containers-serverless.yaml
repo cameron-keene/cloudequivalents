@@ -1,0 +1,781 @@
+# Containers & serverless: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: containers-serverless
+  name: Containers & Serverless
+  short: Containers & serverless
+  order: 2
+  description: Kubernetes, container platforms and registries, serverless functions (including Lambda's newest features), workflows, and the event, queue, and API services that connect them. AWS mapped to Azure, verified against official docs.
+  seo_description: "AWS vs Azure containers and serverless, side by side: EKS vs AKS, ECS and Fargate vs Container Apps, ECR vs ACR, Lambda vs Azure Functions, Step Functions vs Logic Apps, SQS/SNS/EventBridge vs Service Bus and Event Grid."
+  last_verified: "2026-10-24"
+  groups:
+    - id: kubernetes
+      name: Kubernetes
+    - id: container-platforms
+      name: Container platforms & registries
+    - id: functions
+      name: Serverless functions
+    - id: workflows
+      name: Workflows & orchestration
+    - id: messaging
+      name: Events, queues & pub/sub
+    - id: apis-web
+      name: APIs & web front ends
+
+rows:
+# ───────────────────────── KUBERNETES ─────────────────────────
+- id: managed-kubernetes
+  group: kubernetes
+  capability: Managed Kubernetes
+  what_for: Run standard Kubernetes without operating the control plane yourself.
+  match: direct
+  answer: The Azure equivalent of Amazon EKS is Azure Kubernetes Service (AKS). Both are conformant managed Kubernetes services where the provider runs the control plane and you choose how nodes are managed.
+  providers:
+    aws: [eks]
+    azure: [aks]
+  differences:
+    - Control-plane pricing. EKS charges a per-cluster hourly fee (higher in extended support). AKS has a Free tier (no SLA, for under 10 nodes), a Standard tier (uptime SLA, up to 5,000 nodes), and a Premium tier (adds LTS).
+    - Nodes. EKS uses managed node groups, self-managed nodes, Karpenter, Fargate, Auto Mode, or Hybrid Nodes. AKS uses node pools backed by VM scale sets, node autoprovisioning (Karpenter-based), virtual nodes (ACI), or the Automatic SKU.
+    - Networking. The EKS default is the Amazon VPC CNI (pods get VPC IPs). AKS offers Azure CNI (VNet or overlay) and Azure CNI powered by Cilium. Kubenet is legacy.
+    - Identity. EKS authenticates users with IAM (access entries) and pods with Pod Identity or IRSA. AKS uses Microsoft Entra ID with Azure RBAC or Kubernetes RBAC, and Workload ID for pods.
+    - Add-ons. EKS add-ons (VPC CNI, CoreDNS, EBS CSI, and others) and EKS Capabilities (Argo CD, ACK, kro). AKS add-ons and extensions (Istio, KEDA, Flux, Argo CD, Dapr, App Routing, Container Insights).
+  pricing:
+    aws: A per-cluster hourly fee (standard or extended support), plus the EC2, Fargate, or Auto Mode compute. Auto Mode adds a per-instance management fee, and Hybrid Nodes are billed per vCPU.
+    azure: Free tier has no control-plane fee. Standard and Premium tiers are billed per cluster-hour. Node VMs, disks, load balancers, and public IPs are billed separately.
+  exams:
+    aws: [SAA-C03, DOP-C02, SAP-C02]
+    azure: [AZ-104, AZ-305, AI-200]
+  related: [kubernetes-automatic, kubernetes-versions, pod-identity, container-orchestrator]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html
+    - https://learn.microsoft.com/en-us/azure/aks/what-is-aks
+    - https://learn.microsoft.com/en-us/azure/aks/free-standard-pricing-tiers
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+
+- id: kubernetes-automatic
+  group: kubernetes
+  capability: Fully managed Kubernetes nodes ("autopilot" mode)
+  what_for: Let the provider pick, scale, patch, and replace worker nodes and core add-ons so you only deploy workloads.
+  match: direct
+  answer: Amazon EKS Auto Mode maps to AKS Automatic. Both run Karpenter-based node provisioning and preconfigure networking, storage, and security, while still exposing the full Kubernetes API.
+  providers:
+    aws: [eks-auto-mode]
+    azure: [aks-automatic]
+  differences:
+    - Scope. EKS Auto Mode manages compute autoscaling, pod and service networking, load balancing, cluster DNS, EBS block storage, and GPU support. AKS Automatic also preconfigures node autoprovisioning, deployment safeguards, workload identity, Managed Prometheus, and automatic upgrade channels.
+    - Enablement. EKS Auto Mode can be turned on for existing clusters. AKS Automatic is a cluster SKU chosen at creation, and AKS Standard clusters can enable node autoprovisioning on their own.
+    - Billing. EKS Auto Mode adds a management fee per managed EC2 instance on top of the instance price. AKS Automatic runs on the Standard tier (per-cluster fee) plus node VMs.
+  pricing:
+    aws: EKS cluster fee plus EC2 instances plus a per-instance Auto Mode management fee.
+    azure: AKS Standard-tier cluster fee plus the VMs that node autoprovisioning creates.
+  exams:
+    aws: [SAA-C03, DOP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [managed-kubernetes, serverless-containers]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/automode.html
+    - https://learn.microsoft.com/en-us/azure/aks/intro-aks-automatic
+    - https://learn.microsoft.com/en-us/azure/aks/node-autoprovision
+
+- id: kubernetes-versions
+  group: kubernetes
+  capability: Kubernetes version support windows
+  what_for: Know how long a Kubernetes minor version gets patches, and what it costs to stay on an older one.
+  match: direct
+  answer: EKS standard plus extended support maps to AKS community support plus Long Term Support (LTS). Both give about two years per minor version if you pay for the extension.
+  providers:
+    aws: [eks-extended-support]
+    azure: [aks-lts]
+  differences:
+    - Length. EKS gives 14 months of standard support plus 12 months of extended support (26 months). AKS gives about 12 months of community support plus 12 months of LTS (about 24 months).
+    - Opt-in. EKS extended support is on by default and billed automatically when a cluster passes standard support (you can disable it). AKS LTS requires the Premium tier and explicitly choosing the LTS support plan.
+    - Forced upgrades. EKS auto-upgrades clusters at the end of extended support. AKS will upgrade clusters left on unsupported versions after a 60-day grace period, starting June 1, 2027, and those upgrades ignore maintenance windows.
+    - Node OS. Azure Linux 2.0 is out of support on AKS (node images frozen). Plan for Azure Linux 3.0. On EKS, check AMI and Bottlerocket support separately.
+  pricing:
+    aws: The standard-support cluster fee, then a higher per-cluster-hour fee during extended support.
+    azure: Community support is included in all tiers. LTS requires the Premium tier, which is billed per cluster-hour.
+  exams:
+    aws: [DOP-C02, SOA-C03]
+    azure: [AZ-104]
+  related: [managed-kubernetes]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
+    - https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
+    - https://learn.microsoft.com/en-us/azure/aks/long-term-support
+
+- id: pod-identity
+  group: kubernetes
+  capability: Pod-level cloud identity
+  what_for: Give each Kubernetes workload its own cloud identity to call cloud APIs, with no stored secrets.
+  match: direct
+  answer: EKS Pod Identity (and IAM Roles for Service Accounts) maps to Microsoft Entra Workload ID for AKS. Both exchange a Kubernetes service account token for short-lived cloud credentials.
+  providers:
+    aws: [eks-pod-identity]
+    azure: [workload-identity]
+  differences:
+    - Mechanism. Pod Identity uses an EKS Pod Identity Agent and association API, with no OIDC provider setup per cluster. IRSA and Workload ID both use the cluster's OIDC issuer and a federated credential or trust policy.
+    - The credentials are AWS STS credentials for an IAM role on AWS, versus Microsoft Entra access tokens for a user-assigned managed identity or app registration on Azure (then authorized with Azure RBAC).
+    - The older AAD Pod Identity add-on on AKS is deprecated in favor of Workload ID.
+  pricing:
+    aws: No extra charge.
+    azure: No extra charge.
+  exams:
+    aws: [SCS-C03, DOP-C02]
+    azure: [AZ-104, SC-500]
+  related: [managed-kubernetes]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html
+    - https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview
+
+- id: kubernetes-hybrid
+  group: kubernetes
+  capability: Managed Kubernetes on-premises and at the edge
+  what_for: Run the cloud provider's Kubernetes distribution in your data centers or edge sites, managed from the cloud.
+  match: partial
+  answer: Amazon EKS Hybrid Nodes and EKS Anywhere map to AKS Hybrid and Edge (AKS enabled by Azure Arc). Azure manages on-premises clusters through Arc, while AWS either keeps the control plane in the Region (Hybrid Nodes) or leaves the cluster fully customer-managed (EKS Anywhere).
+  providers:
+    aws: [eks-hybrid-nodes]
+    azure: [aks-hybrid-edge]
+  differences:
+    - Control plane location. With EKS Hybrid Nodes, the control plane stays in an AWS Region, so you need reliable connectivity. With EKS on Outposts, the control plane is in the Region or local. AKS on Azure Local runs the cluster locally and projects it into Azure through Arc.
+    - Air-gapped. EKS Anywhere supports air-gapped sites (customer-managed, optional Enterprise Subscription). Azure Local supports disconnected operations with a locally hosted control plane.
+    - Any cluster. Azure Arc-enabled Kubernetes can attach any CNCF-conformant cluster (including EKS) for policy, GitOps, and monitoring. AWS has the EKS Connector for read-only console visibility.
+  pricing:
+    aws: Hybrid Nodes are billed per vCPU-hour on top of the EKS cluster fee. EKS Anywhere is free to use, with optional paid Enterprise Subscriptions for support.
+    azure: AKS on Azure Local is included with Azure Local host fees (check current terms). Arc-enabled Kubernetes features such as Defender and Monitor are billed per vCPU or per usage.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [managed-kubernetes, on-prem-cloud]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/hybrid-nodes-overview.html
+    - https://docs.aws.amazon.com/eks/latest/userguide/eks-deployment-options.html
+    - https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-overview
+  flags:
+    - AKS pricing on Azure Local and other hybrid substrates differs by deployment option and has changed several times. Confirm on the Azure Local and Arc pricing pages.
+
+- id: kubernetes-platform-addons
+  group: kubernetes
+  capability: Managed GitOps and platform add-ons for Kubernetes
+  what_for: Get GitOps continuous delivery and cloud-resource controllers for Kubernetes as managed features instead of installing them yourself.
+  match: partial
+  answer: Amazon EKS Capabilities (managed Argo CD, ACK, and kro) map partly to AKS GitOps extensions (Flux v2 and Argo CD). AWS runs these components outside your cluster, while Azure installs them as managed cluster extensions.
+  providers:
+    aws: [eks-capabilities]
+    azure: [aks-gitops]
+  differences:
+    - Where it runs. EKS Capabilities run in EKS-owned infrastructure, not on your worker nodes. Azure GitOps extensions run in your cluster and are lifecycle-managed by Azure.
+    - Cloud resources from Kubernetes. ACK manages AWS resources with Kubernetes CRDs. The Azure counterpart is Azure Service Operator (open source, self-installed), which isn't a managed extension.
+    - Fleet. Azure Kubernetes Fleet Manager adds multi-cluster update orchestration and resource propagation (some features in preview). AWS has no first-party fleet manager for EKS beyond Argo CD multi-cluster.
+  pricing:
+    aws: EKS Capabilities are billed per capability per cluster-hour (see the EKS pricing page).
+    azure: The Flux and Argo CD extensions are free on AKS. On Arc-enabled clusters, GitOps is billed per vCPU.
+  exams:
+    aws: [DOP-C02]
+    azure: [AZ-400]
+  related: [managed-kubernetes]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html
+    - https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-gitops-flux2
+    - https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-gitops-argocd
+    - https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview
+  flags:
+    - The billing models for EKS Capabilities and for Arc GitOps were summarized from the pricing pages' structure. Check current rates.
+
+- id: managed-openshift
+  group: kubernetes
+  capability: Managed Red Hat OpenShift
+  what_for: Run OpenShift (Red Hat's Kubernetes platform) as a managed service, billed by the cloud provider.
+  match: direct
+  answer: Red Hat OpenShift Service on AWS (ROSA) maps to Azure Red Hat OpenShift (ARO). Both are jointly supported by Red Hat and the cloud provider and billed on the cloud bill.
+  providers:
+    aws: [rosa]
+    azure: [aro]
+  differences:
+    - Both offer a hosted control plane architecture. ARO also keeps a standard (self-contained) architecture.
+    - Operations. ARO is jointly engineered and operated by Microsoft and Red Hat. ROSA is operated by Red Hat SRE with AWS integration.
+  pricing:
+    aws: ROSA service fees per 4 vCPUs of worker nodes (hourly or under annual contracts), plus a cluster fee for HCP, plus EC2 and other AWS resources.
+    azure: VM costs plus OpenShift license fees for worker nodes (hourly or reserved). Control-plane cost depends on architecture.
+  exams:
+    aws: [SAP-C02]
+    azure: [AZ-305]
+  related: [managed-kubernetes]
+  sources:
+    - https://docs.aws.amazon.com/rosa/latest/userguide/what-is-rosa.html
+    - https://learn.microsoft.com/en-us/azure/openshift/intro-openshift
+
+- id: service-mesh
+  group: kubernetes
+  capability: Service mesh
+  what_for: Add mTLS, retries, traffic shifting, and service-to-service telemetry between microservices without changing code.
+  match: partial
+  answer: AWS App Mesh was retired on Sep 30, 2026, and AWS points ECS users to ECS Service Connect (and VPC Lattice for cross-service networking). On Azure, the supported mesh is the Istio-based add-on for AKS. The Open Service Mesh add-on loses support on Sep 30, 2027.
+  providers:
+    aws: [ecs-service-connect, app-mesh]
+    azure: [istio-aks, open-service-mesh]
+  differences:
+    - Both clouds retired their first-party Envoy/SMI-style meshes (App Mesh, OSM) in favor of other options. AWS chose ECS-native Service Connect and VPC Lattice. Azure chose managed Istio.
+    - On EKS, AWS has no managed mesh, so run Istio, Linkerd, or Cilium yourself, or use VPC Lattice. On Azure Container Apps, Dapr and the built-in Envoy ingress cover many mesh use cases.
+    - The Istio add-on has its own version support window and revision-based (canary) upgrades. It doesn't support automatic upgrades, even on AKS Automatic.
+  pricing:
+    aws: There's no extra charge for Service Connect beyond the proxy's task resources. VPC Lattice is billed per service-hour, data, and requests.
+    azure: The Istio add-on has no separate fee. You pay for the sidecar and gateway compute in your node pools.
+  exams:
+    aws: [DOP-C02, ANS-C01]
+    azure: [AZ-305]
+  related: [managed-kubernetes, container-orchestrator]
+  sources:
+    - https://docs.aws.amazon.com/app-mesh/latest/userguide/what-is-app-mesh.html
+    - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/service-connect.html
+    - https://learn.microsoft.com/en-us/azure/aks/istio-about
+    - https://learn.microsoft.com/en-us/azure/aks/open-service-mesh-about
+
+# ───────────────────────── CONTAINER PLATFORMS ─────────────────────────
+- id: container-orchestrator
+  group: container-platforms
+  capability: Provider-native container orchestrator
+  what_for: Run long-running containerized services and jobs without learning or operating Kubernetes.
+  match: partial
+  answer: Amazon ECS maps most closely to Azure Container Apps. Both hide Kubernetes and run services with scaling, revisions, and load balancing. ECS gives more infrastructure control (EC2 capacity, task placement, managed instances), while Container Apps is more opinionated and serverless-first.
+  providers:
+    aws: [ecs]
+    azure: [container-apps]
+  differences:
+    - Abstraction. ECS uses task definitions, services, and clusters on Fargate, ECS Managed Instances, or EC2. Container Apps uses apps, revisions, jobs, and environments on Consumption or Dedicated workload profiles. It's built on Kubernetes, KEDA, Envoy, and Dapr, but you can't reach the Kubernetes API.
+    - Scaling. ECS uses Application Auto Scaling (target tracking, step) and capacity providers. Container Apps scales on HTTP, TCP, or any KEDA scaler, including scale to zero.
+    - Service-to-service traffic. ECS uses Service Connect or Cloud Map. Container Apps has built-in DNS discovery, Dapr service invocation, and an Envoy-based ingress with traffic splitting across revisions.
+    - Windows containers. ECS supports Windows on EC2 and Fargate. Container Apps runs Linux containers only. On Azure, use AKS Windows node pools or ACI for Windows.
+  pricing:
+    aws: ECS itself is free. You pay for Fargate (vCPU and GB per second), EC2 instances, or ECS Managed Instances (EC2 plus a management fee).
+    azure: Consumption is billed per vCPU-second and GiB-second plus requests, with a monthly free grant. Dedicated workload profiles are billed per profile instance plus an environment management fee.
+  exams:
+    aws: [SAA-C03, DVA-C02, DOP-C02]
+    azure: [AZ-104, AI-200]
+  related: [serverless-containers, simple-container-web, managed-kubernetes]
+  sources:
+    - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html
+    - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ManagedInstances.html
+    - https://learn.microsoft.com/en-us/azure/container-apps/overview
+    - https://learn.microsoft.com/en-us/azure/container-apps/plans
+
+- id: serverless-containers
+  group: container-platforms
+  capability: Serverless container compute
+  what_for: Run a container or pod without provisioning or patching any servers, paying only for the resources it requests.
+  match: partial
+  answer: AWS Fargate maps to Azure Container Instances (single container groups and AKS virtual nodes) and to Azure Container Apps' Consumption profile. Fargate is a compute engine for ECS and EKS, while ACI is a standalone service.
+  providers:
+    aws: [fargate]
+    azure: [container-instances, container-apps]
+  differences:
+    - Fargate isn't used on its own. It's the capacity behind ECS tasks or EKS pods (selected through Fargate profiles). ACI can be called directly (container groups) or used as AKS virtual nodes. Virtual Nodes v2 is in preview.
+    - OS and options. Fargate on ECS supports Linux (x86 and Arm) and Windows Server. ACI supports Linux and Windows, plus confidential containers, Spot containers, NGroups, and standby pools.
+    - Fargate Spot gives interruptible capacity at a discount for ECS. ACI has Spot containers.
+  pricing:
+    aws: Per-second billing for requested vCPU, memory, and extra ephemeral storage (1-minute minimum). Fargate Spot and Compute Savings Plans discount it.
+    azure: ACI is billed per second for vCPU and memory of the container group (Windows has a surcharge). Container Apps Consumption is billed per vCPU-second and GiB-second.
+  exams:
+    aws: [SAA-C03, DVA-C02]
+    azure: [AZ-104, AI-200]
+  related: [container-orchestrator, kubernetes-automatic]
+  sources:
+    - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/AWS_Fargate.html
+    - https://docs.aws.amazon.com/eks/latest/userguide/fargate.html
+    - https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview
+    - https://learn.microsoft.com/en-us/azure/aks/virtual-nodes
+
+- id: simple-container-web
+  group: container-platforms
+  capability: Simplest way to run a containerized web app
+  what_for: Hand over a container image and get an HTTPS URL with autoscaling, with as little cloud configuration as possible.
+  match: partial
+  answer: On AWS this is now Amazon ECS Express Mode, since App Runner is closed to new customers. On Azure, the equivalent is Azure Container Apps (or App Service for containers).
+  providers:
+    aws: [ecs-express-mode, app-runner]
+    azure: [container-apps, app-service]
+  differences:
+    - App Runner (source code or image to URL) entered maintenance on Mar 31, 2026. Existing customers can still create services, but no new features are coming. AWS publishes a blue/green migration path to ECS Express Mode.
+    - ECS Express Mode creates visible resources in your account (ECS service on Fargate, ALB with TLS, auto scaling, networking) from one API call. Container Apps is a managed environment where you deploy with az containerapp up or from source.
+    - Scale to zero. Container Apps can scale to zero. ECS Express Mode services run at least one Fargate task, so check the minimum task count.
+  pricing:
+    aws: ECS Express Mode has no extra charge. You pay for Fargate, the ALB, and other resources. App Runner bills per vCPU and GB for active and provisioned instances.
+    azure: Container Apps Consumption is billed per vCPU-second, GiB-second, and requests, with a free monthly grant. App Service is billed per plan.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-104, AI-200]
+  related: [container-orchestrator, app-platform]
+  sources:
+    - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-overview.html
+    - https://docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html
+    - https://learn.microsoft.com/en-us/azure/container-apps/overview
+
+- id: container-registry
+  group: container-platforms
+  capability: Container registry
+  what_for: Store, scan, replicate, and serve container images and other OCI artifacts (Helm charts, signatures) privately.
+  match: direct
+  answer: Amazon ECR maps to Azure Container Registry (ACR). Both are private OCI registries with vulnerability scanning, replication, and upstream caching.
+  providers:
+    aws: [ecr]
+    azure: [acr]
+  differences:
+    - Pricing model. ECR has no tiers and bills per GB stored and data transferred. ACR has Basic, Standard, and Premium tiers with included storage. Geo-replication and private endpoints need Premium.
+    - Replication. ECR does cross-Region and cross-account replication as a registry setting. ACR Premium geo-replication gives one registry name served from many regions.
+    - Builds. ACR Tasks build and patch images in the cloud (including base-image update triggers). AWS uses CodeBuild or EC2 Image Builder for container recipes.
+    - Scanning and signing. ECR has basic or enhanced scanning (Inspector) and managed signing. ACR uses Microsoft Defender for Cloud (Defender for Containers) for scanning, and Notation with Key Vault or Trusted Signing for signatures.
+    - Public images. ECR Public hosts public repositories. ACR supports anonymous pull on Standard and Premium, and Microsoft's own images ship through MCR.
+  pricing:
+    aws: Per GB-month of storage plus data transfer out. Enhanced scanning is billed through Inspector.
+    azure: A daily fee per tier with included storage, plus overage per GB and ACR Tasks build minutes. Defender scanning is billed separately.
+  exams:
+    aws: [DVA-C02, DOP-C02]
+    azure: [AZ-104, AI-200]
+  related: [image-pipelines, container-orchestrator]
+  sources:
+    - https://docs.aws.amazon.com/AmazonECR/latest/userguide/what-is-ecr.html
+    - https://learn.microsoft.com/en-us/azure/container-registry/container-registry-intro
+    - https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus
+
+# ───────────────────────── SERVERLESS FUNCTIONS ─────────────────────────
+- id: serverless-functions
+  group: functions
+  capability: Serverless functions (FaaS)
+  what_for: Run small pieces of code in response to events or HTTP requests, scaling to zero and paying only when they run.
+  match: direct
+  answer: The Azure equivalent of AWS Lambda is Azure Functions. Both run event-triggered code on managed infrastructure, but Azure Functions has several hosting plans, and its declarative bindings have no counterpart on Lambda.
+  providers:
+    aws: [lambda]
+    azure: [azure-functions]
+  differences:
+    - Hosting. Lambda has one service, with optional Managed Instances. Azure Functions runs on Flex Consumption (recommended serverless), Premium, Dedicated (App Service), Container Apps, or legacy Consumption. The Linux Consumption plan retires Sep 30, 2028.
+    - Triggers and bindings. Lambda uses event source mappings and service integrations (200+ AWS services). Azure Functions uses triggers plus input and output bindings that read from and write to services declaratively.
+    - Concurrency. A Lambda Event Function handles one request per environment by default. Flex Consumption has configurable per-instance concurrency.
+    - Limits. Lambda invocations run up to 15 minutes (up to 90 minutes for some invocations on Managed Instances). Azure timeouts depend on the plan, and Premium and Dedicated allow longer or unbounded runs.
+    - Naming. AWS now calls classic functions "Event Functions" to separate them from Web Functions and MicroVMs. The APIs are unchanged.
+  pricing:
+    aws: Per request plus GB-seconds of duration (x86 or Arm rates), with a monthly free tier. Provisioned concurrency and SnapStart are billed separately. Compute Savings Plans apply.
+    azure: Flex Consumption bills per execution plus GB-seconds of on-demand instances, with always-ready instances billed at their own rate. Premium bills per vCPU and GB of instances, and Dedicated bills per App Service plan.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AZ-305]
+  related: [function-cold-start, function-http-endpoint, durable-workflows-code, web-app-functions]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/welcome.html
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
+    - https://learn.microsoft.com/en-us/azure/azure-functions/consumption-plan
+
+- id: function-cold-start
+  group: functions
+  capability: Cold-start mitigation for functions
+  what_for: Keep serverless functions warm or start them from snapshots so latency-sensitive requests don't wait for initialization.
+  match: partial
+  answer: Lambda provisioned concurrency and SnapStart map to always-ready instances in Azure Functions (Flex Consumption and Premium plans). Azure has no snapshot-restore equivalent of SnapStart.
+  providers:
+    aws: [lambda-provisioned-concurrency, lambda-snapstart]
+    azure: [functions-flex-consumption, functions-premium]
+  differences:
+    - Pre-warming. Provisioned concurrency keeps N initialized environments per version or alias and can be scaled on a schedule or by target tracking. Azure always-ready instances keep a baseline of instances per function or group (Flex) or per app (Premium, which also has prewarmed buffer instances).
+    - Snapshots. SnapStart snapshots the initialized environment (Java 11+, Python 3.12+, .NET 8+) and restores it on cold start. Azure has nothing comparable, so reduce init time in code or keep instances warm.
+    - Lambda Managed Instances avoid cold starts by running on dedicated EC2 capacity. The closest Azure parallel is the Premium or Dedicated plan.
+  pricing:
+    aws: Provisioned concurrency is billed per GB-second configured, plus a lower duration rate. SnapStart has no extra charge for Java but charges caching and restore for Python and .NET.
+    azure: Always-ready instances in Flex Consumption are billed for baseline memory time plus execution. Premium bills for minimum instances continuously.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [serverless-functions, function-dedicated-compute]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/provisioned-concurrency.html
+    - https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html
+    - https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
+  flags:
+    - SnapStart pricing for Python and .NET (caching plus restore charges) is summarized from the Lambda pricing page's structure.
+
+- id: function-layers
+  group: functions
+  capability: Shared function dependencies (layers)
+  what_for: Share libraries, custom runtimes, or config across many functions without bundling them into every deployment package.
+  match: none
+  answer: Azure Functions has no equivalent of Lambda layers. On Azure, dependencies are packaged with each function app, or you use a custom container image to share a base layer.
+  providers:
+    aws: [lambda-layers]
+    azure: []
+  differences:
+    - Lambda layers are versioned .zip archives mounted at /opt, up to five per function, and only for .zip-packaged functions. Container-image functions use image layers instead.
+    - On Azure Functions, one function app holds many functions that share one deployment package and dependency set, which removes some of the reasons for layers. For cross-app sharing, use internal package feeds or a shared base container image.
+  pricing:
+    aws: Layers have no extra charge (storage counts toward the code storage quota).
+    azure: Not applicable.
+  exams:
+    aws: [DVA-C02]
+    azure: []
+  related: [serverless-functions]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+
+- id: function-http-endpoint
+  group: functions
+  capability: Built-in HTTPS endpoint for a function
+  what_for: Call a function directly over HTTPS without setting up an API gateway.
+  match: direct
+  answer: Lambda function URLs map to the HTTP trigger in Azure Functions. Both give a function its own HTTPS endpoint with built-in auth options.
+  providers:
+    aws: [lambda-function-urls]
+    azure: [azure-functions]
+  differences:
+    - Auth. Function URLs use AWS_IAM (SigV4) or NONE (public) with resource policies. Azure HTTP triggers use function, host, or admin keys or anonymous access, plus App Service Authentication (Entra ID and other providers).
+    - Streaming. Function URLs support response streaming. Azure Functions supports HTTP streams in the isolated .NET and Python models (check language support).
+    - Routing. A function URL maps to one function. Azure function apps host many HTTP functions under one host name with route templates.
+  pricing:
+    aws: No extra charge beyond Lambda requests and duration.
+    azure: No extra charge beyond the hosting plan's execution charges.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [serverless-functions, api-gateway-managed]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/urls-configuration.html
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+
+- id: web-app-functions
+  group: functions
+  capability: Serverless hosting for port-listening web apps
+  what_for: Deploy an ordinary web framework app (Express, Next.js) to serverless infrastructure without rewriting it as event handlers.
+  match: partial
+  answer: AWS Lambda Web Functions (launched Oct 2026) map partly to Azure Container Apps and Azure App Service. Azure has no function-branded equivalent; the nearest serverless option is Container Apps with scale to zero.
+  providers:
+    aws: [lambda-web-functions]
+    azure: [container-apps, app-service]
+  differences:
+    - Lambda Web Functions run Node.js 24 apps on Arm64 (at launch), deployed as .zip. Each environment serves multiple concurrent requests, billed on active CPU and memory, with built-in multi-Region latency routing.
+    - Container Apps runs any container image with HTTP scaling and scale to zero. App Service runs code or containers on always-on plan instances. Multi-region needs Front Door on Azure.
+    - Azure Functions custom handlers can wrap a web server, but they still use the Functions host and trigger model.
+  pricing:
+    aws: Per request plus active CPU time plus memory over the environment's lifetime, plus data transfer.
+    azure: Container Apps is billed per vCPU-second, GiB-second, and requests. App Service is billed per plan instance.
+  exams:
+    aws: [DVA-C02]
+    azure: [AI-200]
+  related: [serverless-functions, simple-container-web, app-platform]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/web-functions.html
+    - https://aws.amazon.com/blogs/aws/announcing-aws-lambda-web-functions-for-fast-consistent-web-app-performance-anywhere/
+    - https://learn.microsoft.com/en-us/azure/container-apps/overview
+  flags:
+    - Lambda Web Functions launched Oct 12, 2026 in five Regions. Runtime and Region coverage is expected to expand.
+
+- id: function-dedicated-compute
+  group: functions
+  capability: Functions on dedicated or reserved instances
+  what_for: Run serverless functions on specific instance types (Graviton, high network) with steady-state pricing, while the platform manages the servers.
+  match: partial
+  answer: Lambda Managed Instances map to the Azure Functions Premium and Dedicated (App Service) plans. On both, functions run on provider-managed instances you pay for continuously, but only AWS lets you pick EC2 instance types and apply EC2 commitments.
+  providers:
+    aws: [lambda-managed-instances]
+    azure: [functions-premium]
+  differences:
+    - Instance choice. Lambda Managed Instances run on current-generation EC2 types you choose (including Graviton4 and network-optimized). Azure Premium uses EP1–EP3 plan sizes. Dedicated uses App Service plan SKUs.
+    - Concurrency and duration. Managed Instances allow multiple concurrent requests per environment and up to 90-minute async invocations. The Azure Premium and Dedicated plans support longer or unbounded runs.
+    - Discounts. EC2 Savings Plans and RIs apply to Lambda Managed Instances. The Azure savings plan for compute covers the Functions Premium plan.
+  pricing:
+    aws: EC2 instance price plus a Lambda management fee, plus request charges.
+    azure: Premium is billed per vCPU-second and GB-second of allocated instances (with a minimum instance count). Dedicated is billed per App Service plan.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [function-cold-start, serverless-functions]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/lambda-managed-instances.html
+    - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
+
+- id: code-sandboxes
+  group: functions
+  capability: Isolated sandboxes for untrusted or AI-generated code
+  what_for: Give each user, agent, or job its own fast-starting, strongly isolated environment to execute code safely.
+  match: partial
+  answer: AWS Lambda MicroVMs map to Azure Container Apps dynamic sessions. Both provide VM-grade isolation (Firecracker on AWS, Hyper-V on Azure) for running untrusted code, but they differ in lifecycle and state.
+  providers:
+    aws: [lambda-microvms]
+    azure: [aca-dynamic-sessions]
+  differences:
+    - Lifecycle. MicroVMs are stateful, with suspend and resume, sessions up to 8 hours, and their own HTTPS endpoint (HTTP/2, gRPC, WebSockets). Dynamic sessions are allocated from a pre-warmed pool by session ID and reclaimed after a cooldown period.
+    - Images. MicroVMs launch from snapshot images built from your Dockerfile. Dynamic sessions offer a built-in code interpreter (Python, Node.js) or your own container image.
+    - Networking. MicroVMs have internet egress by default and VPC access through a Lambda Network Connector. Dynamic sessions offer optional network egress controls.
+    - See also Amazon Bedrock AgentCore Code Interpreter and Foundry agent tools for agent-specific code execution.
+  pricing:
+    aws: Billed for MicroVM resources while running, at a lower rate while suspended. See the Lambda pricing page.
+    azure: Code interpreter sessions are billed per session-hour. Custom container sessions are billed by the session pool's resource consumption.
+  exams:
+    aws: [DVA-C02]
+    azure: [AI-200]
+  related: [agent-tools, serverless-functions]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/lambda-microvms-guide.html
+    - https://aws.amazon.com/blogs/aws/run-isolated-sandboxes-with-full-lifecycle-control-aws-lambda-introduces-microvms/
+    - https://learn.microsoft.com/en-us/azure/container-apps/sessions
+  flags:
+    - The MicroVM suspended-state billing and the Azure per-session-hour model are summarized from the pricing pages. Rates aren't quoted.
+
+# ───────────────────────── WORKFLOWS ─────────────────────────
+- id: workflow-orchestration
+  group: workflows
+  capability: Visual workflow orchestration
+  what_for: Coordinate multi-step processes (calls to services, retries, branching, human approval) as a managed workflow instead of hand-written glue code.
+  match: partial
+  answer: AWS Step Functions maps to Azure Logic Apps for visual, service-integration workflows. Code-first orchestration is in the separate Durable Functions row.
+  providers:
+    aws: [step-functions]
+    azure: [logic-apps]
+  differences:
+    - Model. Step Functions are JSON or YAML state machines (Amazon States Language) with Standard (exactly-once, up to 1 year) and Express (at-least-once, up to 5 minutes) types. Logic Apps are trigger-and-action workflows with 1,400+ connectors, in Consumption (multitenant) or Standard (single-tenant, stateful or stateless workflows, VNet integration).
+    - Integration focus. Step Functions targets AWS service orchestration (optimized and SDK integrations, Distributed Map for large-scale parallel processing). Logic Apps targets enterprise integration (SaaS and on-premises connectors through the data gateway, B2B/EDI with integration accounts).
+    - Local development. Logic Apps Standard workflows can be built and run locally in VS Code. Step Functions offers Workflow Studio and local testing with the TestState API.
+  pricing:
+    aws: Standard is billed per state transition. Express is billed per execution plus duration and memory.
+    azure: Consumption is billed per action and connector execution. Standard is billed per hosting plan (vCPU and memory), plus standard connector calls.
+  exams:
+    aws: [DVA-C02, SAA-C03, DOP-C02]
+    azure: [AZ-204, AZ-305]
+  related: [durable-workflows-code, event-bus]
+  sources:
+    - https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html
+    - https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html
+    - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+    - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+
+- id: durable-workflows-code
+  group: workflows
+  capability: Durable workflows written as code
+  what_for: Write long-running, stateful workflows in a normal programming language, with checkpoints and automatic recovery.
+  match: direct
+  answer: Lambda durable functions map to Azure Durable Functions (with the Durable Task Scheduler backend). Both checkpoint progress and replay code to resume after failures or long waits.
+  providers:
+    aws: [lambda-durable-functions]
+    azure: [durable-functions]
+  differences:
+    - Maturity. Durable Functions has been GA on Azure for years, with orchestrator, activity, and entity functions, sub-orchestrations, and external events. Lambda durable functions are newer and use the AWS Durable Execution SDK (steps, waits, callbacks) inside a single Lambda function.
+    - Duration. Lambda durable executions can run up to one year. Durable Functions orchestrations can run indefinitely (eternal orchestrations).
+    - Backends. Azure lets you choose a state store (storage provider). Microsoft recommends the Durable Task Scheduler, a managed backend with Dedicated or Consumption SKUs, over bring-your-own storage providers. Lambda manages state for you.
+    - Step Functions remains AWS's option for visual or ASL workflows. Azure has Logic Apps.
+  pricing:
+    aws: Standard Lambda request and duration charges for active steps, plus durable-execution charges (see the Lambda pricing page). Waits don't incur compute charges.
+    azure: Function execution charges under the hosting plan, plus the state backend. The Durable Task Scheduler is billed by SKU (Dedicated capacity units or Consumption per action).
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [workflow-orchestration, serverless-functions]
+  sources:
+    - https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html
+    - https://learn.microsoft.com/en-us/azure/durable-task/durable-functions/durable-functions-overview
+    - https://learn.microsoft.com/en-us/azure/durable-task/scheduler/durable-task-scheduler
+  flags:
+    - The pricing dimensions for Lambda durable executions were checked against the pricing page's structure only. Confirm current rates there.
+
+- id: scheduled-jobs
+  group: workflows
+  capability: Serverless scheduler
+  what_for: Run a task on a cron or one-time schedule (time zones, retries) without keeping a server up.
+  match: partial
+  answer: Amazon EventBridge Scheduler has no single-service Azure equivalent. On Azure, schedules are built with the Functions timer trigger, Logic Apps recurrence or schedule triggers, or Container Apps scheduled jobs.
+  providers:
+    aws: [eventbridge-scheduler]
+    azure: [logic-apps, azure-functions]
+  differences:
+    - EventBridge Scheduler is one central service for millions of schedules (cron, rate, one-time, time zones, flexible windows) that invoke 270 AWS services directly.
+    - On Azure, scheduling is a feature of each compute service. Timer triggers (NCRONTAB) in Functions, recurrence triggers in Logic Apps, and cron-based Container Apps jobs. Service Bus scheduled messages cover one-time delayed delivery.
+  pricing:
+    aws: Per million scheduled invocations, with a monthly free tier.
+    azure: The cost of the compute or workflow that runs on the schedule (function executions, Logic Apps actions, job runtime).
+  exams:
+    aws: [DVA-C02, SOA-C03]
+    azure: [AZ-204]
+  related: [event-bus, workflow-orchestration]
+  sources:
+    - https://docs.aws.amazon.com/scheduler/latest/UserGuide/what-is-scheduler.html
+    - https://learn.microsoft.com/en-us/azure/logic-apps/concepts-schedule-automated-recurring-tasks-workflows
+    - https://learn.microsoft.com/en-us/azure/container-apps/jobs
+
+# ───────────────────────── MESSAGING ─────────────────────────
+- id: event-bus
+  group: messaging
+  capability: Event bus and event routing
+  what_for: Route events from cloud services, SaaS apps, and your own code to the right consumers with filtering rules.
+  match: partial
+  answer: Amazon EventBridge maps to Azure Event Grid. Both are serverless event routers with filtering and native cloud-service events, but they differ in schema, delivery modes, and extras such as archive and replay (EventBridge) or MQTT (Event Grid).
+  providers:
+    aws: [eventbridge]
+    azure: [event-grid]
+  differences:
+    - Sources. EventBridge gets AWS service events on the default bus, SaaS partner event sources, and custom buses. Event Grid gets Azure resource events on system topics, plus custom topics and namespaces. Partner events are also supported.
+    - Format. EventBridge uses its own event envelope with JSON pattern matching. Event Grid supports CloudEvents 1.0 (recommended) and the Event Grid schema, with advanced filters.
+    - Delivery. EventBridge pushes to targets (Lambda, SQS, Step Functions, API destinations) and supports archive and replay. Event Grid namespaces add pull delivery and an MQTT broker. Push delivery has retries and dead-lettering.
+    - Point-to-point. EventBridge Pipes connects a source (SQS, Kinesis, DynamoDB streams, and others) through filtering and enrichment to a target. On Azure, that's typically Functions or Logic Apps.
+  pricing:
+    aws: Per million custom or partner events published (AWS service events on the default bus are free), plus per-GB fees for archive, replay, and Pipes requests.
+    azure: Per million operations, with a monthly free grant on basic topics. Namespaces are billed per throughput unit plus operations, and MQTT adds connections.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AI-200]
+  related: [pubsub-fanout, message-queues, scheduled-jobs]
+  sources:
+    - https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-what-is.html
+    - https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html
+    - https://learn.microsoft.com/en-us/azure/event-grid/overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/messaging
+
+- id: message-queues
+  group: messaging
+  capability: Message queues
+  what_for: Decouple producers and consumers with a durable queue so work is buffered, retried, and processed at the consumer's pace.
+  match: direct
+  answer: Amazon SQS maps to Azure Service Bus queues (feature parity, including FIFO via sessions) or Azure Queue Storage (simple, cheap queues).
+  providers:
+    aws: [sqs]
+    azure: [service-bus, queue-storage]
+  differences:
+    - Ordering. SQS FIFO queues order messages per message group ID with exactly-once processing. Service Bus uses sessions for ordered, grouped processing and duplicate detection. Queue Storage has no ordering guarantees.
+    - Features. Service Bus adds transactions, scheduled delivery, deferral, auto-forwarding, and AMQP 1.0. SQS adds long polling, delay queues, and a visibility timeout. Both have dead-letter queues.
+    - Limits. SQS messages can be up to 1 MiB (larger with the extended client library and S3). Queue Storage messages are up to 64 KB. Service Bus allows 256 KB on Standard and up to 100 MB on Premium.
+    - Tiers. SQS has no tiers. Service Bus has Basic (queues only), Standard (topics), and Premium (dedicated capacity, VNet, larger messages).
+  pricing:
+    aws: Per million requests (64 KB chunks), with FIFO priced higher, plus a monthly free tier and data transfer.
+    azure: Service Bus Basic and Standard are billed per million operations (Standard adds a base charge). Premium is billed per messaging unit-hour. Queue Storage is billed per GB stored plus per 10,000 operations.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AI-200]
+  related: [pubsub-fanout, managed-message-broker, event-bus]
+  sources:
+    - https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/welcome.html
+    - https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
+    - https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction
+  flags:
+    - The SQS 1 MiB message size comes from the current SQS developer guide. The Service Bus per-tier message size limits come from Service Bus quota documentation, not the overview page.
+
+- id: pubsub-fanout
+  group: messaging
+  capability: Pub/sub fan-out and notifications
+  what_for: Publish a message once and deliver it to many subscribers (queues, functions, webhooks, email, SMS, mobile push).
+  match: partial
+  answer: Amazon SNS maps to Azure Service Bus topics (durable fan-out to subscriptions) and Azure Event Grid (push to webhooks and services). For SMS, email, and mobile push, Azure uses Azure Communication Services and Notification Hubs, which aren't mapped here.
+  providers:
+    aws: [sns]
+    azure: [service-bus, event-grid]
+  differences:
+    - SNS combines app-to-app fan-out (to SQS, Lambda, HTTP, Firehose) and app-to-person delivery (SMS, email, mobile push) in one service. Azure splits these across Service Bus topics or Event Grid (A2A) and Communication Services or Notification Hubs (A2P).
+    - Filtering. SNS uses subscription filter policies on attributes or the body. Service Bus subscriptions use SQL or correlation filters. Event Grid has subject and advanced filters.
+    - FIFO. SNS FIFO topics pair with SQS FIFO queues. Service Bus sessions on topic subscriptions provide ordering.
+  pricing:
+    aws: Per million publishes plus per-delivery charges that vary by endpoint type (HTTP, SQS, and Lambda are cheap, while SMS is priced per message by country).
+    azure: Service Bus Standard and Premium pricing (operations or messaging units). Event Grid per million operations.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AI-200]
+  related: [message-queues, event-bus]
+  sources:
+    - https://docs.aws.amazon.com/sns/latest/dg/welcome.html
+    - https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
+    - https://learn.microsoft.com/en-us/azure/event-grid/overview
+
+- id: managed-message-broker
+  group: messaging
+  capability: Managed open-source message brokers (ActiveMQ, RabbitMQ)
+  what_for: Move apps that speak JMS, AMQP 0-9-1, MQTT, or STOMP to the cloud without rewriting them for a proprietary queue API.
+  match: partial
+  answer: Azure has no managed ActiveMQ or RabbitMQ service like Amazon MQ. The nearest first-party target is Azure Service Bus Premium (AMQP 1.0 and JMS 2.0); otherwise use Marketplace or self-managed brokers.
+  providers:
+    aws: [amazon-mq]
+    azure: [service-bus]
+  differences:
+    - Amazon MQ runs the actual open-source broker engines, so existing clients and protocols work unchanged. Service Bus is a different broker with its own semantics, and RabbitMQ (AMQP 0-9-1) clients need code changes.
+    - JMS. Service Bus Premium supports JMS 2.0 over AMQP 1.0, which covers many ActiveMQ/JMS migrations.
+    - MQTT. Event Grid namespaces include an MQTT broker (v3.1.1 and v5), an option for IoT-style MQTT clients.
+  pricing:
+    aws: Per broker instance-hour (single-instance or active/standby or cluster) plus storage.
+    azure: Service Bus Premium is billed per messaging unit-hour.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [message-queues]
+  sources:
+    - https://docs.aws.amazon.com/amazon-mq/latest/developer-guide/welcome.html
+    - https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/messaging
+
+# ───────────────────────── APIS & WEB FRONT ENDS ─────────────────────────
+- id: api-gateway-managed
+  group: apis-web
+  capability: Managed API gateway
+  what_for: Publish, secure, throttle, and monitor APIs in front of functions, containers, or backends.
+  match: partial
+  answer: Amazon API Gateway maps to Azure API Management. API Management is a fuller API management platform (developer portal, products, policies across many backends). API Gateway is a serverless front door that is especially tight with Lambda.
+  providers:
+    aws: [api-gateway]
+    azure: [api-management]
+  differences:
+    - API types. API Gateway offers REST APIs (usage plans, API keys, caching, request validation, private APIs), HTTP APIs (cheaper, simpler, JWT auth), and WebSocket APIs. API Management handles REST, SOAP, GraphQL, WebSocket, and gRPC, plus AI gateway policies for LLM APIs.
+    - Tiers. API Gateway is pay-per-request with no tiers. API Management has Consumption (serverless), Developer (no SLA), Basic/Standard/Premium (classic), and Basic v2/Standard v2/Premium v2.
+    - Developer portal. Built into API Management. API Gateway has none built in (AWS offers an open-source portal).
+    - Self-hosted gateway. API Management can run gateways on-premises or in Kubernetes (Premium). API Gateway is cloud-only.
+  pricing:
+    aws: Per million API calls (REST priced higher than HTTP), WebSocket messages and connection minutes, optional cache per hour, and data transfer.
+    azure: Consumption is billed per million calls with a free grant. Other tiers are billed per unit-hour, by tier and units.
+  exams:
+    aws: [DVA-C02, SAA-C03]
+    azure: [AZ-204, AZ-305]
+  related: [function-http-endpoint, graphql-realtime]
+  sources:
+    - https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+    - https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts
+    - https://learn.microsoft.com/en-us/azure/api-management/api-management-features
+
+- id: graphql-realtime
+  group: apis-web
+  capability: Managed GraphQL and real-time pub/sub APIs
+  what_for: Expose a GraphQL API over several data sources, or push real-time updates to web and mobile clients over WebSockets.
+  match: partial
+  answer: AWS AppSync maps to two Azure services. API Management covers GraphQL (pass-through or synthetic GraphQL with resolvers), and Azure Web PubSub covers real-time WebSocket pub/sub (like AppSync Events).
+  providers:
+    aws: [appsync]
+    azure: [api-management, web-pubsub]
+  differences:
+    - AppSync is a dedicated GraphQL engine with resolvers (JavaScript or VTL) for DynamoDB, Aurora, OpenSearch, Lambda, and HTTP, plus subscriptions, caching, and merged APIs. API Management's synthetic GraphQL uses resolver policies (for example HTTP data sources), and pass-through GraphQL fronts an existing GraphQL server.
+    - Real-time. AppSync GraphQL subscriptions and AppSync Events (channels over WebSockets). Web PubSub provides WebSocket and Socket.IO pub/sub with groups and serverless event handlers.
+    - Data API Builder (open source) and Microsoft Fabric GraphQL are other Azure options for GraphQL over databases.
+  pricing:
+    aws: Per million query and mutation operations, real-time messages and connection minutes, plus optional caching.
+    azure: API Management tier pricing. Web PubSub is billed per unit per day plus messages beyond the included quota.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [api-gateway-managed]
+  sources:
+    - https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html
+    - https://learn.microsoft.com/en-us/azure/api-management/graphql-apis-overview
+    - https://learn.microsoft.com/en-us/azure/azure-web-pubsub/overview
+
+- id: static-web-hosting
+  group: apis-web
+  capability: Static and SSR web hosting with Git CI/CD
+  what_for: Connect a Git repo and get build, global hosting, preview environments, and custom domains for a front-end or full-stack web app.
+  match: direct
+  answer: AWS Amplify Hosting maps to Azure Static Web Apps. Both build from Git, host on a global edge network, and create preview environments for pull requests.
+  providers:
+    aws: [amplify-hosting]
+    azure: [static-web-apps]
+  differences:
+    - SSR. Amplify Hosting supports SSR frameworks (Next.js and others) on managed compute. Static Web Apps supports hybrid Next.js rendering and Nuxt, plus managed Azure Functions APIs or a linked backend (Functions, Container Apps, App Service, API Management).
+    - Auth. Static Web Apps has built-in authentication (Entra ID, GitHub) and role-based route rules. Amplify relies on Amplify Auth (Cognito) or app-level auth.
+    - CI/CD. Amplify runs its own build service. Static Web Apps uses GitHub Actions or Azure Pipelines.
+  pricing:
+    aws: Build minutes, GB stored, GB served, and SSR request and duration charges. Has a free tier.
+    azure: A Free plan for personal projects, and a Standard plan billed per app per month plus bandwidth overage.
+  exams:
+    aws: [DVA-C02]
+    azure: [AZ-204]
+  related: [app-platform, web-app-functions]
+  sources:
+    - https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html
+    - https://learn.microsoft.com/en-us/azure/static-web-apps/overview

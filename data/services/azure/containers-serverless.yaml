@@ -1,0 +1,141 @@
+# Azure container and serverless services (category: containers-serverless). "aks" and "app-service" are defined in other files.
+- slug: aks-automatic
+  name: AKS Automatic
+  status: ga
+  summary: An AKS SKU where Azure also manages nodes (node autoprovisioning, Karpenter-based), system components, networking, security defaults (deployment safeguards, workload identity), monitoring (Managed Prometheus), and upgrades. Uses the Standard tier.
+  docs: https://learn.microsoft.com/en-us/azure/aks/intro-aks-automatic
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: aks-lts
+  name: AKS Kubernetes version support & Long Term Support (LTS)
+  status: ga
+  summary: About 12 months of community support per minor version. Premium-tier LTS adds a second year (roughly 24 months in total). From June 1, 2027, clusters left on unsupported versions are upgraded by the platform after a 60-day grace period.
+  docs: https://learn.microsoft.com/en-us/azure/aks/long-term-support
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: workload-identity
+  name: Microsoft Entra Workload ID for AKS
+  status: ga
+  summary: Federates Kubernetes service account tokens (OIDC issuer) with Microsoft Entra managed identities or app registrations, so pods get Entra tokens without secrets.
+  docs: https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: aks-hybrid-edge
+  name: AKS Hybrid and Edge (AKS enabled by Azure Arc)
+  status: ga
+  summary: AKS on infrastructure you own (Azure Local, Windows Server, edge sites, other clouds) managed through the Azure control plane with Arc, plus Azure Policy, Defender for Cloud, and Azure Monitor.
+  docs: https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-arc/core-control-plane/
+- slug: aks-gitops
+  name: GitOps for AKS (Flux v2 and Argo CD extensions)
+  status: ga
+  summary: Cluster extensions that install and manage Flux v2 or Argo CD on AKS and Arc-enabled Kubernetes, configured through Azure Resource Manager and Azure Policy.
+  docs: https://learn.microsoft.com/en-us/azure/azure-arc/kubernetes/conceptual-gitops-flux2
+  pricing: https://azure.microsoft.com/en-us/pricing/details/azure-arc/core-control-plane/
+- slug: aro
+  name: Azure Red Hat OpenShift
+  status: ga
+  summary: Fully managed OpenShift jointly engineered, operated, and supported by Red Hat and Microsoft, billed on your Azure bill. Comes in standard and hosted control plane architectures.
+  docs: https://learn.microsoft.com/en-us/azure/openshift/intro-openshift
+  pricing: https://azure.microsoft.com/en-us/pricing/details/openshift/
+- slug: istio-aks
+  name: Istio-based service mesh add-on for AKS
+  status: ga
+  summary: Microsoft-managed Istio control plane (revision-based upgrades) with optional ingress and egress gateways. Supported by Azure.
+  docs: https://learn.microsoft.com/en-us/azure/aks/istio-about
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: open-service-mesh
+  name: Open Service Mesh (OSM) add-on for AKS
+  status: deprecated
+  status_note: AKS ends support for the OSM add-on on Sep 30, 2027. The upstream OSM project is retired. Microsoft says to migrate to the Istio add-on.
+  summary: Envoy-based, SMI-configured service mesh add-on.
+  docs: https://learn.microsoft.com/en-us/azure/aks/open-service-mesh-about
+  pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+- slug: container-apps
+  name: Azure Container Apps
+  status: ga
+  summary: Serverless container platform built on Kubernetes (KEDA, Envoy, Dapr) without exposing the Kubernetes API. Includes apps, jobs, revisions and traffic splitting, scale to zero, Consumption and Dedicated workload profiles, and serverless GPUs.
+  docs: https://learn.microsoft.com/en-us/azure/container-apps/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/container-apps/
+- slug: container-instances
+  name: Azure Container Instances
+  status: ga
+  summary: Run Linux or Windows container groups on demand with per-second billing, no orchestrator, and options for confidential, Spot, NGroups (multi-instance), standby pools, and AKS virtual nodes.
+  docs: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/container-instances/
+- slug: acr
+  name: Azure Container Registry
+  status: ga
+  summary: Private OCI registry in Basic, Standard, or Premium tiers, with geo-replication, private endpoints, ACR Tasks (builds), artifact cache, Entra ID auth, and Defender for Cloud scanning.
+  docs: https://learn.microsoft.com/en-us/azure/container-registry/container-registry-intro
+  pricing: https://azure.microsoft.com/en-us/pricing/details/container-registry/
+- slug: azure-functions
+  name: Azure Functions
+  status: ga
+  status_note: The Linux Consumption plan retires Sep 30, 2028 (no new features). The Flex Consumption plan is recommended for new serverless apps.
+  summary: Event-driven functions with triggers and input/output bindings. Hosting plans are Flex Consumption, Premium, Dedicated (App Service), Container Apps, and legacy Consumption.
+  docs: https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+- slug: functions-flex-consumption
+  name: Azure Functions Flex Consumption plan
+  status: ga
+  summary: Linux serverless plan with per-instance concurrency, selectable instance memory (512 MB and up), VNet integration, scale-out up to 1,000 instances, and optional always-ready instances.
+  docs: https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan
+  pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+- slug: functions-premium
+  name: Azure Functions Premium & Dedicated plans
+  status: ga
+  summary: Premium (Elastic Premium) has always-ready and prewarmed instances, VNet integration, and no cold starts on warm instances. Dedicated runs functions on App Service plans you already pay for.
+  docs: https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
+  pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+- slug: durable-functions
+  name: Durable Functions & Durable Task Scheduler
+  status: ga
+  summary: Code-first stateful orchestrations, entities, and timers for Azure Functions (C#, JavaScript, Python, Java, PowerShell). Durable Task Scheduler is a managed backend with Dedicated and Consumption SKUs.
+  docs: https://learn.microsoft.com/en-us/azure/durable-task/durable-functions/durable-functions-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/functions/
+- slug: aca-dynamic-sessions
+  name: Azure Container Apps dynamic sessions
+  status: ga
+  summary: Pools of Hyper-V-isolated sandboxes, either built-in code-interpreter sessions or your own container image, for running untrusted or AI-generated code with fast allocation.
+  docs: https://learn.microsoft.com/en-us/azure/container-apps/sessions
+  pricing: https://azure.microsoft.com/en-us/pricing/details/container-apps/
+- slug: logic-apps
+  name: Azure Logic Apps
+  status: ga
+  summary: Low-code workflow and integration platform with 1,400+ connectors. Consumption (multitenant, pay per execution) or Standard (single-tenant, hosting plan, stateful and stateless workflows, VNet).
+  docs: https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/logic-apps/
+- slug: event-grid
+  name: Azure Event Grid
+  status: ga
+  summary: Managed pub/sub event routing. System topics for Azure events, custom topics and namespaces, CloudEvents, push and pull delivery, and an MQTT broker (v3.1.1 and v5).
+  docs: https://learn.microsoft.com/en-us/azure/event-grid/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/event-grid/
+- slug: service-bus
+  name: Azure Service Bus
+  status: ga
+  summary: Enterprise message broker with queues and topics/subscriptions. Supports sessions (FIFO), duplicate detection, transactions, dead-lettering, scheduled messages, AMQP 1.0, and JMS 2.0 (Premium).
+  docs: https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/service-bus/
+- slug: queue-storage
+  name: Azure Queue Storage
+  status: ga
+  summary: Simple, low-cost queues in a storage account. Holds millions of messages (up to 64 KB each), accessed over HTTP/HTTPS.
+  docs: https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/queues/
+- slug: api-management
+  name: Azure API Management
+  status: ga
+  summary: API gateway, developer portal, and management plane (policies, products, subscriptions, versioning) for REST, SOAP, GraphQL, WebSocket, and gRPC APIs. Includes AI gateway features. Tiers are Consumption, Developer, Basic, Standard, Premium, and v2 tiers.
+  docs: https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts
+  pricing: https://azure.microsoft.com/en-us/pricing/details/api-management/
+- slug: web-pubsub
+  name: Azure Web PubSub
+  status: ga
+  summary: Managed real-time messaging over WebSockets (and Socket.IO) with publish/subscribe to groups and server event handlers.
+  docs: https://learn.microsoft.com/en-us/azure/azure-web-pubsub/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/web-pubsub/
+- slug: static-web-apps
+  name: Azure Static Web Apps
+  status: ga
+  summary: Static and hybrid web hosting (with Next.js support) on global distribution. Includes GitHub and Azure DevOps CI/CD, preview environments, built-in auth, and managed Functions APIs.
+  docs: https://learn.microsoft.com/en-us/azure/static-web-apps/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/app-service/static/

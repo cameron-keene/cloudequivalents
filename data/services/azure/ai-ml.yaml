@@ -325,7 +325,7 @@
 - slug: aks
   name: Azure Kubernetes Service (AKS)
   status: ga
-  summary: Managed Kubernetes, commonly used with GPU node pools for self-managed large-scale training and inference.
+  summary: Managed Kubernetes. Azure runs the control plane (Free, Standard, or Premium tier), and you run node pools (VM scale sets), including GPU pools for AI training and inference. The Automatic SKU manages nodes too.
   docs: https://learn.microsoft.com/en-us/azure/aks/what-is-aks
   pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
 - slug: azure-ml-kubernetes
