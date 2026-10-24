@@ -1,0 +1,1020 @@
+# Storage: AWS -> Azure mappings. Same schema and match rules as ai-ml.yaml.
+category:
+  id: storage
+  name: Storage
+  short: Storage
+  order: 3
+  description: Object, block, file, hybrid, backup, and data-transfer storage. S3 and its storage classes, EBS, EFS and the FSx family, Storage Gateway, AWS Backup, and the transfer services, mapped to their Azure equivalents and verified against official docs.
+  seo_description: "AWS vs Azure storage, side by side: S3 vs Blob Storage, S3 storage classes vs access tiers, EBS vs managed disks, EFS and FSx vs Azure Files, NetApp Files, and Managed Lustre, AWS Backup vs Azure Backup, DataSync vs Storage Mover, Snowball vs Data Box."
+  last_verified: "2026-10-24"
+  groups:
+    - id: object-storage
+      name: Object storage
+    - id: object-data-management
+      name: Object tiers, lifecycle & protection
+    - id: object-access
+      name: Object access, file access & analytics
+    - id: block-storage
+      name: Block storage
+    - id: file-storage
+      name: Managed file systems
+    - id: hybrid-storage
+      name: Hybrid storage gateways
+    - id: backup-dr
+      name: Backup & disaster recovery
+    - id: data-transfer
+      name: Data transfer & migration
+
+rows:
+# ───────────────────────── OBJECT STORAGE ─────────────────────────
+- id: object-storage
+  group: object-storage
+  capability: Object storage
+  what_for: Store any amount of unstructured data (files, images, backups, logs, data lake files) behind an HTTP API, with high durability and pay-per-use pricing.
+  match: direct
+  answer: The Azure equivalent of Amazon S3 is Azure Blob Storage. Both store objects in flat containers (S3 buckets, Blob containers) with an HTTP API, multiple cost tiers, versioning, replication, and WORM locking.
+  providers:
+    aws: [s3]
+    azure: [blob-storage]
+  differences:
+    - Account model. S3 buckets are top-level resources with globally unique names. Blob containers live inside a storage account, and the account sets the redundancy, default access tier, network rules, and some features (such as the hierarchical namespace) for every container in it.
+    - Redundancy. S3 Standard stores data across at least three AZs by default; One Zone classes and Express One Zone use a single AZ. On Azure you choose per account. LRS is a single datacenter, ZRS spans zones, and GRS/GZRS add an asynchronous copy in the paired region. Pick ZRS explicitly if you want S3-like zone resilience.
+    - Object types. S3 has one object type (with multipart upload). Blob Storage has block blobs (the S3 equivalent), append blobs (for logs), and page blobs (random-access, used by legacy unmanaged disks).
+    - Bucket types. S3 also has directory buckets (Express One Zone), table buckets (S3 Tables), and vector buckets (S3 Vectors). Azure gets the equivalent features from premium block blob accounts, Fabric OneLake, and Azure AI Search.
+    - Consistency. Both offer strong read-after-write consistency for objects in the primary region.
+  pricing:
+    aws: Per GB-month by storage class, plus per-request charges, retrieval fees for IA and Glacier classes, and data transfer out.
+    azure: Per GB-month by access tier and redundancy option, plus per-10,000-operation charges, retrieval fees for cool, cold, and archive, geo-replication data transfer for GRS/GZRS, and data transfer out.
+  exams:
+    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C02]
+    azure: [AZ-900, AZ-104, AZ-305]
+  faq:
+    - q: What is the Azure equivalent of an S3 bucket?
+      a: A Blob Storage container. Bucket-level settings such as redundancy, firewall, and encryption defaults mostly live on the storage account that holds the container, so many AWS teams create one storage account per workload or data classification.
+    - q: Is Azure Blob Storage as durable as S3?
+      a: It depends on the redundancy you choose. Microsoft documents at least 11 nines of annual durability for LRS, 12 nines for ZRS, and 16 nines for GRS and GZRS. S3 Standard is designed for 11 nines across multiple AZs.
+  related: [storage-classes, object-replication, object-access-control, data-lake-storage]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: object-access-control
+  group: object-storage
+  capability: Object storage access control and temporary sharing links
+  what_for: Decide who can read or write objects, from which networks, and hand out short-lived links without sharing credentials.
+  match: direct
+  answer: S3 IAM policies, bucket policies, and presigned URLs map to Microsoft Entra ID with Azure RBAC data roles, the storage account firewall and private endpoints, and shared access signatures (SAS).
+  providers:
+    aws: [s3-access-control]
+    azure: [storage-access-control]
+  differences:
+    - Resource policies. S3 bucket policies are JSON resource policies that can grant cross-account access and restrict by VPC endpoint or source IP. Azure has no bucket policy. Access is RBAC role assignments (optionally with ABAC conditions) plus account-level network rules.
+    - Network control. On AWS, network restriction is usually written into the bucket policy (aws:SourceVpce). On Azure it's the storage firewall, private endpoints, or network security perimeter, configured on the storage account, not per container.
+    - Temporary links. A presigned URL is signed with the creator's credentials and lasts up to 7 days. A user delegation SAS is signed with Entra credentials and is the recommended SAS type. Service and account SAS are signed with the account key, so Microsoft recommends disallowing shared key access where possible.
+    - Public access. S3 Block Public Access is on by default for new buckets. On Azure, anonymous access is controlled by the account's "Allow Blob anonymous access" setting and each container's public access level.
+  pricing:
+    aws: No charge for IAM or bucket policies. Requests are billed normally.
+    azure: No charge for RBAC or SAS. Private endpoints are billed per hour and per GB processed.
+  exams:
+    aws: [SAA-C03, SCS-C03, SOA-C03]
+    azure: [AZ-104, AZ-305, SC-500]
+  related: [object-storage, access-points]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/ShareObjectPreSignedURL.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-active-directory
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: access-points
+  group: object-storage
+  capability: Per-application access endpoints for a shared dataset
+  what_for: Give each team or app its own named endpoint, permissions, and network restriction onto the same shared bucket.
+  match: none
+  answer: Azure has no equivalent of S3 Access Points. On Azure you get a similar result by splitting data into containers or directories with their own RBAC assignments (or ABAC conditions), and using private endpoints for network isolation.
+  providers:
+    aws: [s3-access-points]
+    azure: []
+  differences:
+    - S3 Access Points can also front FSx for NetApp ONTAP and FSx for OpenZFS volumes, so S3-API tools can read file data. On Azure, Azure NetApp Files has its own S3-compatible object REST API on volumes.
+    - Multi-Region Access Points (one global endpoint across buckets in several Regions) also have no direct Azure equivalent. RA-GRS gives a secondary read endpoint, and Front Door can route across accounts.
+  pricing:
+    aws: No extra charge for Access Points. Multi-Region Access Points add a per-GB data routing fee.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [object-access-control, netapp-files]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-points.html
+    - https://learn.microsoft.com/en-us/azure/azure-netapp-files/object-rest-api-introduction
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-active-directory
+
+- id: low-latency-object
+  group: object-storage
+  capability: Low-latency, high-request-rate object storage
+  what_for: Serve objects with consistent single-digit-millisecond latency for request-heavy jobs such as ML training, analytics, and interactive apps.
+  match: partial
+  answer: S3 Express One Zone maps most closely to Azure premium block blob storage accounts. Both use SSDs and trade higher storage prices for lower latency and lower request costs, but they differ in zone placement and API.
+  providers:
+    aws: [s3-express-one-zone]
+    azure: [premium-block-blob]
+  differences:
+    - Placement. Express One Zone lives in one AZ you choose (to sit next to your compute) and isn't replicated across AZs. Premium block blob accounts support LRS or ZRS, and you don't pick the zone.
+    - API. Express One Zone uses directory buckets and session-based authentication (CreateSession), with some API differences. Premium block blob uses the normal Blob API, so tools work unchanged.
+    - Tiering. Neither can use the colder tiers. To move data to cheaper storage you copy it to a standard bucket or GPv2 account.
+  pricing:
+    aws: Per GB-month at a higher rate than S3 Standard, with lower per-request charges.
+    azure: Higher per GB-month than hot, with lower per-operation charges. Microsoft shows it is cheaper overall for transaction-heavy workloads.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [object-storage, storage-classes]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-bucket-high-performance.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-block-blob-premium
+
+# ───────────────────────── OBJECT DATA MANAGEMENT ─────────────────────────
+- id: storage-classes
+  group: object-data-management
+  capability: Object storage cost tiers (infrequent access and archive)
+  what_for: Pay less for data you rarely read, in exchange for retrieval fees, minimum storage durations, or slower access.
+  match: direct
+  answer: S3 storage classes map to Blob access tiers. Standard-IA maps to cool (30-day minimum), Glacier Instant Retrieval maps to cold (90 days), and Glacier Flexible Retrieval and Deep Archive both map to archive (180 days, offline).
+  providers:
+    aws: [s3-storage-classes, amazon-glacier-vaults]
+    azure: [blob-access-tiers]
+  differences:
+    - Granularity. In S3 the storage class is set per object. On Azure the tier is set per block blob, with a default tier (hot, cool, cold, or smart) set on the account.
+    - Archive. Azure has one archive tier. Rehydration takes up to 15 hours and must go to an online tier before you can read. S3 has two archive classes, Glacier Flexible Retrieval (minutes to hours) and Deep Archive (within 12 hours for standard retrieval, lowest cost), and restores create a temporary copy.
+    - Redundancy limits. Blob archive isn't supported in ZRS, GZRS, or RA-GZRS accounts. S3 Glacier classes keep their multi-AZ design.
+    - Single-zone tiers. S3 One Zone-IA has no matching Azure tier. The nearest is the cool tier in an LRS account.
+    - Legacy. The original standalone Amazon Glacier vault service accepts no new customers. Use the S3 Glacier storage classes.
+  pricing:
+    aws: Lower GB-month as you go colder, with per-GB retrieval fees, minimum durations (30, 90, or 180 days), and a 128 KB minimum billable object size on the IA classes and Glacier Instant Retrieval.
+    azure: Lower GB-month as you go colder, with per-GB retrieval fees and prorated early-deletion charges for cool (30 days), cold (90 days), and archive (180 days).
+  exams:
+    aws: [CLF-C02, SAA-C03, SOA-C03]
+    azure: [AZ-900, AZ-104, AZ-305]
+  faq:
+    - q: Is the Azure cold tier the same as S3 Glacier Instant Retrieval?
+      a: Microsoft's AWS comparison maps them. Both are online, millisecond-access tiers for rarely read data, with a 90-day minimum. Azure archive is offline and maps to Glacier Flexible Retrieval and Deep Archive.
+  related: [auto-tiering, object-lifecycle, low-latency-object]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html
+    - https://docs.aws.amazon.com/amazonglacier/latest/dev/introduction.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: auto-tiering
+  group: object-data-management
+  capability: Automatic access-based tiering
+  what_for: Let the service move each object to a cheaper tier when nobody reads it, and back when they do, without writing rules.
+  match: direct
+  answer: S3 Intelligent-Tiering maps to Azure Blob smart tier. Both watch access patterns, move cold objects down automatically, move them back on access, and skip retrieval and early-deletion fees in exchange for a monitoring fee.
+  providers:
+    aws: [s3-intelligent-tiering]
+    azure: [blob-smart-tier]
+  differences:
+    - Timing. Intelligent-Tiering moves objects to Infrequent Access after 30 days and Archive Instant Access after 90. Smart tier moves to cool after 30 days and to cold after 60 more days (90 in total).
+    - Archive. Intelligent-Tiering can optionally add Archive Access and Deep Archive Access tiers. Smart tier stays on online tiers and never archives.
+    - Scope. Intelligent-Tiering is a storage class you set per object or with lifecycle rules. Smart tier is the account's default access tier and applies to blobs without an explicit tier. Once a blob gets an explicit tier, it can't go back to smart tier.
+    - Requirements. Smart tier needs a zone-redundant (ZRS, GZRS, or RA-GZRS) GPv2 account. Intelligent-Tiering works in any general purpose bucket.
+    - Small objects. Both leave objects under 128 KB (KiB on Azure) in the frequent or hot tier and don't charge monitoring for them.
+  pricing:
+    aws: Per GB-month for each access tier plus a monthly monitoring and automation fee per object of 128 KB or larger. No retrieval fees.
+    azure: Capacity billed at the hot, cool, or cold rate for wherever each blob currently sits, plus a monthly monitoring fee per object over 128 KiB. No retrieval, early-deletion, or in-tier transition fees, and operations are billed at hot-tier rates.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  flags:
+    - Smart tier is new, so current AZ-104 and AZ-305 study guides may not cover it yet.
+  related: [storage-classes, object-lifecycle]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering-overview.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-smart
+
+- id: object-lifecycle
+  group: object-data-management
+  capability: Object lifecycle rules
+  what_for: Automatically move objects to cheaper tiers, or delete them, as they age.
+  match: direct
+  answer: S3 Lifecycle configurations map to Azure Blob lifecycle management policies. Both use rules filtered by prefix or tags to transition and expire current and previous versions.
+  providers:
+    aws: [s3-lifecycle]
+    azure: [blob-lifecycle-management]
+  differences:
+    - Conditions. S3 rules use object age (days since creation or since becoming noncurrent) and can filter by object size. Azure rules can use creation time, last-modified time, or last-access time (when access tracking is on), and filter by prefix or blob index tags.
+    - Archive restores. Neither can rehydrate archived objects with lifecycle rules.
+    - Timing. Both apply rules asynchronously. Azure says new or edited policies can take up to 24 hours to start.
+    - At scale. For conditions across many accounts, Azure adds Storage Actions. AWS uses S3 Batch Operations for one-off bulk changes.
+  pricing:
+    aws: No charge for rules. Transition requests are billed per 1,000 objects.
+    azure: No charge for the policy. Tier changes are billed as operations for the destination tier.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104]
+  related: [storage-classes, auto-tiering, batch-object-operations]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview
+
+- id: object-replication
+  group: object-data-management
+  capability: Object replication across regions or accounts
+  what_for: Keep a copy of objects in another region or account for disaster recovery, compliance, or lower-latency reads.
+  match: direct
+  answer: S3 Cross-Region and Same-Region Replication map to Azure Blob object replication. Azure also has a no-configuration option, geo-redundant storage (GRS or GZRS), which copies the whole account to its paired region.
+  providers:
+    aws: [s3-replication]
+    azure: [object-replication, storage-redundancy]
+  differences:
+    - Prerequisites. S3 replication needs versioning on both buckets. Azure object replication needs versioning on both accounts and change feed on the source.
+    - SLA. S3 Replication Time Control offers a 15-minute SLA. Azure has an optional priority replication mode with its own performance target for same-continent pairs.
+    - Existing data. S3 live replication covers new objects, and Batch Replication handles existing ones. Azure object replication can also copy existing blobs when you set the policy's copy scope.
+    - Account-wide geo-redundancy. GRS/GZRS has no S3 equivalent. It replicates every object to the fixed paired region with no rules, and the secondary is readable only with RA-GRS/RA-GZRS or after failover.
+    - Cross-tenant replication is off by default on Azure accounts created since Dec 15, 2023. Cross-account S3 replication needs an IAM role and a destination bucket policy.
+  pricing:
+    aws: Destination storage, replication requests, inter-Region data transfer, and a per-GB RTC fee when enabled.
+    azure: Object replication bills destination storage, write operations, change feed, versions, and cross-region transfer. GRS/GZRS pricing includes the secondary copy plus a geo-replication transfer charge.
+  exams:
+    aws: [SAA-C03, SAP-C02, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [object-storage, object-lock]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: object-lock
+  group: object-data-management
+  capability: WORM / immutable object storage
+  what_for: Make objects impossible to change or delete for a retention period or until a legal hold is lifted, for compliance or ransomware protection.
+  match: direct
+  answer: S3 Object Lock maps to immutable storage for Azure Blob Storage. Both support time-based retention and legal holds, and both are assessed for SEC 17a-4(f), CFTC, and FINRA.
+  providers:
+    aws: [s3-object-lock]
+    azure: [immutable-blob-storage]
+  differences:
+    - Modes. Object Lock has governance mode (users with special permission can bypass it) and compliance mode (nobody can shorten it, not even root). Azure time-based policies are unlocked (editable, for testing) or locked (can only be extended), which is closest to compliance mode.
+    - Scope. Object Lock applies per object version, with bucket defaults. Azure has container-level WORM and version-level WORM (account, container, or blob version).
+    - Versioning. Object Lock requires versioning. Azure version-level WORM requires versioning; container-level WORM doesn't.
+  pricing:
+    aws: No extra charge beyond storage and requests.
+    azure: No extra charge beyond storage and operations.
+  exams:
+    aws: [SAA-C03, SCS-C03]
+    azure: [AZ-104, AZ-305]
+  related: [object-replication, backup-vault-lock]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview
+
+- id: batch-object-operations
+  group: object-data-management
+  capability: Bulk operations on billions of objects
+  what_for: Run one action (copy, tag, change tier, delete, restore) across a huge set of objects without writing your own job runner.
+  match: partial
+  answer: S3 Batch Operations maps most closely to Azure Storage Actions. Both are serverless engines that apply an operation to very large object sets. S3 works from a manifest of objects, while Storage Actions evaluates conditions across one or more accounts.
+  providers:
+    aws: [s3-batch-operations]
+    azure: [storage-actions]
+  differences:
+    - Selection. S3 Batch Operations works from a CSV manifest, an S3 Inventory report, or a generated manifest. Storage Actions defines conditions (such as name, tags, age, or tier) evaluated against every blob in the assigned accounts.
+    - Operations. S3 can invoke a Lambda function per object for custom logic. Storage Actions offers a fixed set of operations (such as set tier, tags, immutability, legal hold, and delete).
+    - Accounts. Storage Actions can target many storage accounts with one task. An S3 Batch Operations job works on one manifest.
+  pricing:
+    aws: Per job plus per million objects processed, plus the underlying request charges.
+    azure: Billed per task execution and per object evaluated and operated on, plus the underlying storage operations.
+  exams:
+    aws: [SOA-C03]
+    azure: [AZ-104]
+  related: [object-lifecycle, object-inventory]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html
+    - https://learn.microsoft.com/en-us/azure/storage-actions/overview
+
+# ───────────────────────── OBJECT ACCESS & ANALYTICS ─────────────────────────
+- id: data-lake-storage
+  group: object-access
+  capability: Data lake storage with real directories
+  what_for: Store analytics data in folders that Spark, Hadoop, and SQL engines can list, rename, and secure efficiently.
+  match: partial
+  answer: On AWS, data lakes are built directly on S3 general purpose buckets. On Azure, you turn on the hierarchical namespace for a storage account to get Azure Data Lake Storage, which adds real directories, atomic renames, and POSIX-style ACLs.
+  providers:
+    aws: [s3]
+    azure: [data-lake-storage]
+  differences:
+    - Namespace. S3 general purpose buckets are flat, and folders are key prefixes, so "renaming" a folder copies every object. ADLS directories are real, with atomic rename and delete. (S3 directory buckets do have a hierarchical namespace, but only for Express One Zone.)
+    - Permissions. ADLS supports POSIX-like ACLs on directories and files as well as RBAC. On AWS, fine-grained data lake permissions usually come from Lake Formation or S3 Access Grants.
+    - Feature trade-offs. The hierarchical namespace is required for SFTP and NFS 3.0 on Blob, but some Blob features have limits on ADLS accounts. Check the feature support matrix before enabling it.
+    - Drivers. Hadoop and Spark use S3A on AWS and ABFS on Azure.
+  pricing:
+    aws: Standard S3 pricing by storage class and requests.
+    azure: Blob pricing by tier, with Data Lake Storage transaction pricing for hierarchical-namespace accounts.
+  exams:
+    aws: [DEA-C01, SAA-C03]
+    azure: [AZ-305]
+  related: [lake-tables, object-storage, object-file-access]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction
+
+- id: lake-tables
+  group: object-access
+  capability: Managed open table storage (Apache Iceberg)
+  what_for: Store analytics tables in an open format that many query engines can read and write, with the storage service handling table maintenance.
+  match: partial
+  answer: Amazon S3 Tables (Iceberg table buckets) maps most closely to Microsoft Fabric OneLake. OneLake stores tables in Delta Lake format and can expose them as Iceberg (and Iceberg as Delta) through metadata virtualization. Azure Blob Storage itself has no table bucket type.
+  providers:
+    aws: [s3-tables]
+    azure: [onelake]
+  differences:
+    - Native format. S3 Tables is Iceberg-native. OneLake is Delta-first, and Iceberg works through virtualized metadata and shortcuts.
+    - Platform. S3 Tables is a storage feature you use from Athena, Redshift, EMR, or any Iceberg engine. OneLake comes with Microsoft Fabric and is used through a Fabric capacity.
+    - Maintenance. S3 Tables automatically compacts files and manages snapshots. In Fabric, table maintenance runs from Fabric workloads.
+  pricing:
+    aws: Per GB-month storage and per-request charges, plus monitoring and compaction charges.
+    azure: OneLake storage is billed per GB-month. Compute comes from the Fabric capacity you buy.
+  exams:
+    aws: [DEA-C01]
+    azure: [AZ-305]
+  flags:
+    - This mapping crosses into analytics. A later Analytics category may refine it.
+  related: [data-lake-storage, object-inventory]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables.html
+    - https://learn.microsoft.com/en-us/fabric/onelake/onelake-iceberg-tables
+    - https://learn.microsoft.com/en-us/fabric/onelake/onelake-overview
+
+- id: object-file-access
+  group: object-access
+  capability: Mount object storage as a file system
+  what_for: Let file-based applications, scripts, and AI agents read and write bucket data through normal file paths.
+  match: partial
+  answer: Amazon S3 Files (a managed shared file system over a bucket) and Mountpoint for Amazon S3 map to NFS 3.0 support for Blob Storage and BlobFuse2. Azure has no managed file-system layer over Blob comparable to S3 Files.
+  providers:
+    aws: [s3-files, mountpoint-s3]
+    azure: [blob-nfs, blobfuse2]
+  differences:
+    - Semantics. S3 Files provides full file-system semantics with a managed high-performance layer and two-way sync to the bucket. Mountpoint, BlobFuse2, and NFS 3.0 on Blob are thinner layers that aren't fully POSIX (for example, renames aren't atomic in BlobFuse2).
+    - Where it mounts. S3 Files mounts on EC2, Lambda, EKS, and ECS. NFS 3.0 on Blob mounts from Linux clients in Azure or on premises over a private network. BlobFuse2 and Mountpoint are client-side FUSE drivers on Linux.
+    - Prerequisites. NFS 3.0 on Blob needs the hierarchical namespace. BlobFuse2 works with flat or hierarchical accounts.
+    - Workload fit. NFS 3.0 on Blob is tuned for large, sequential, read-heavy jobs. For general shared file workloads on Azure, use Azure Files or Azure NetApp Files.
+  pricing:
+    aws: S3 Files charges for data on its high-performance storage, small-file reads and all writes, and S3 requests made during sync. Mountpoint is free; you pay for S3 requests.
+    azure: NFS 3.0 and BlobFuse2 are free. You pay normal Blob storage and transaction charges.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  flags:
+    - S3 Files launched Apr 7, 2026, so current AWS exams may not cover it yet.
+  related: [data-lake-storage, nfs-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/network-file-system-protocol-support
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/blobfuse2-what-is
+
+- id: vector-storage
+  group: object-access
+  capability: Low-cost vector storage and similarity search
+  what_for: Store large numbers of embeddings cheaply and query them for RAG and semantic search, without running a vector database.
+  match: partial
+  answer: Amazon S3 Vectors has no Azure storage-layer equivalent. The closest Azure service is Azure AI Search, a search engine with vector, hybrid, and keyword search. Azure Blob Storage doesn't offer vector indexes.
+  providers:
+    aws: [s3-vectors]
+    azure: [ai-search]
+  differences:
+    - Model. S3 Vectors is storage with built-in similarity queries, billed per use with no cluster. AI Search is a provisioned search service (billed per search unit) with much richer querying, including hybrid search, semantic ranking, filters, and agentic retrieval.
+    - Latency. S3 Vectors favors cost over speed (subsecond for infrequent queries, as low as about 100 ms for frequent ones). AI Search is built for interactive search latency.
+    - Integration. S3 Vectors plugs into Bedrock Knowledge Bases and can serve as a lower-cost tier for OpenSearch. AI Search plugs into Microsoft Foundry.
+  pricing:
+    aws: Per GB-month of vector storage, plus per-request charges for uploads and queries.
+    azure: Billed per search unit-hour by tier, plus semantic ranker and enrichment add-ons.
+  exams:
+    aws: [AIF-C01, SAA-C03]
+    azure: [AI-102, AZ-305]
+  related: [object-storage]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-vectors.html
+    - https://learn.microsoft.com/en-us/azure/search/vector-search-overview
+
+- id: object-inventory
+  group: object-access
+  capability: Object inventory and metadata reporting
+  what_for: Get a listing of every object with its size, tier, encryption, and tags (or a change log) for audits, cost analysis, and batch jobs.
+  match: partial
+  answer: S3 Inventory maps directly to Azure blob inventory. S3 Metadata (queryable Iceberg tables of object metadata) maps only partly to the Blob change feed, which logs changes but isn't a queryable table.
+  providers:
+    aws: [s3-inventory-metadata]
+    azure: [blob-inventory]
+  differences:
+    - Formats. S3 Inventory writes CSV, ORC, or Parquet. Blob inventory writes CSV or Parquet. Both run daily or weekly.
+    - Live metadata. S3 Metadata keeps journal and live inventory tables in S3 Tables that you query with SQL. On Azure, you process change feed logs yourself (for example, with Spark) to get a similar view.
+  pricing:
+    aws: Inventory is billed per million objects listed. Metadata adds per-update charges plus S3 Tables storage.
+    azure: Inventory is billed per million objects scanned. Change feed is billed per change event recorded, plus storage.
+  exams:
+    aws: [SOA-C03]
+    azure: [AZ-104]
+  related: [batch-object-operations, lake-tables]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-inventory.html
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/metadata-tables-overview.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/blob-inventory
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-change-feed
+
+- id: object-transform-on-read
+  group: object-access
+  capability: Transform objects on read
+  what_for: Change data as it's downloaded (redact, resize, convert) without storing a second copy.
+  match: none
+  answer: Azure has no equivalent of S3 Object Lambda, and Object Lambda itself has been closed to new customers since Nov 7, 2025. On both clouds, put a function or CDN logic in front of the storage instead.
+  providers:
+    aws: [s3-object-lambda]
+    azure: []
+  differences:
+    - AWS's suggested alternatives include CloudFront with Lambda (for example, the Dynamic Image Transformation solution) or calling Lambda directly. On Azure, the usual pattern is Azure Functions behind API Management or Front Door, reading from Blob Storage.
+  pricing:
+    aws: Existing customers pay Lambda charges, a per-GB data-returned fee, and S3 requests.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [object-storage]
+  sources:
+    - https://docs.aws.amazon.com/AmazonS3/latest/userguide/transforming-objects.html
+
+# ───────────────────────── BLOCK STORAGE ─────────────────────────
+- id: block-volumes
+  group: block-storage
+  capability: VM block storage volumes
+  what_for: Give virtual machines persistent disks for operating systems, databases, and applications.
+  match: direct
+  answer: The Azure equivalent of Amazon EBS is Azure managed disks. Microsoft maps gp2/gp3 to Standard SSD or Premium SSD, gp3 to Premium SSD v2, and io2 to Ultra Disk, and recommends testing, because performance limits don't line up exactly.
+  providers:
+    aws: [ebs]
+    azure: [managed-disks]
+  differences:
+    - Performance model. gp3 includes 3,000 IOPS and 125 MiB/s and lets you buy more separately, the same idea and baseline as Premium SSD v2. Classic Premium SSD and Standard SSD use fixed size tiers where performance comes with size, plus bursting.
+    - Limits. gp3 goes to 64 TiB, 80,000 IOPS, and 2,000 MiB/s, and io2 Block Express to 64 TiB, 256,000 IOPS, and 4,000 MiB/s. Premium SSD v2 goes to 64 TiB, 80,000 IOPS, and 2,000 MB/s, and Ultra Disk to 64 TiB, 400,000 IOPS, and 10,000 MB/s. VM or instance limits often bind first.
+    - OS disks. Any EBS SSD type can be a boot volume. On Azure, Premium SSD v2 and Ultra Disk can only be data disks, so OS disks use Premium SSD, Standard SSD, or (until Sep 8, 2028) Standard HDD.
+    - Zones. EBS volumes live in one AZ. Azure Premium SSD and Standard SSD also offer ZRS disks that replicate synchronously across three zones.
+    - Durability. io2 Block Express is designed for 99.999% durability and other EBS types for 99.8–99.9%. Azure documents 11 nines for LRS managed disks.
+    - HDD. EBS st1 and sc1 are throughput-oriented HDDs for big sequential workloads. Azure Standard HDD is a general low-cost disk without that throughput focus.
+  pricing:
+    aws: Per GB-month by volume type, plus provisioned IOPS and throughput above the baselines (gp3, io1, io2).
+    azure: Premium SSD, Standard SSD, and Standard HDD are billed per size tier per month (Standard types also per transaction). Premium SSD v2 and Ultra Disk are billed per GiB plus provisioned IOPS and throughput.
+  exams:
+    aws: [CLF-C02, SAA-C03, SOA-C03]
+    azure: [AZ-900, AZ-104, AZ-305]
+  faq:
+    - q: What is the Azure equivalent of EBS gp3?
+      a: Premium SSD v2 is the closest. It also includes 3,000 IOPS and 125 MB/s and lets you set capacity, IOPS, and throughput independently. Unlike gp3, it can't be used as an OS disk.
+  related: [shared-block-volumes, block-snapshots, local-instance-storage, san-storage]
+  sources:
+    - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/managed-disks-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: shared-block-volumes
+  group: block-storage
+  capability: Attach one disk to several VMs (clustering)
+  what_for: Share a single block device between cluster nodes for failover clusters and shared-disk databases.
+  match: direct
+  answer: EBS Multi-Attach maps to Azure shared disks. Both expose one volume to several VMs, and both need a cluster manager or cluster-aware file system to coordinate writes.
+  providers:
+    aws: [ebs-multi-attach]
+    azure: [shared-disks]
+  differences:
+    - Disk types. Multi-Attach supports only io1 and io2 (io2 only on Windows), on up to 16 Nitro instances in one AZ. Azure shared disks work with Ultra Disk, Premium SSD v2, Premium SSD, and Standard SSD, with a per-disk limit on attached VMs (maxShares).
+    - Coordination. Azure documents SCSI persistent reservations and NVMe reservations, used by WSFC and Pacemaker. On AWS, the application or a cluster-aware file system must manage write ordering.
+    - Zones. ZRS shared disks can be attached to VMs in different zones. EBS Multi-Attach is single-AZ.
+  pricing:
+    aws: No extra charge beyond io1 or io2 volume pricing.
+    azure: Normal managed disk pricing. Check the pricing page for shared-disk specifics.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [block-volumes, san-storage]
+  sources:
+    - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes-multi.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared
+
+- id: block-snapshots
+  group: block-storage
+  capability: Block volume snapshots
+  what_for: Take point-in-time copies of disks for backup, cloning, and copying to other regions.
+  match: direct
+  answer: EBS snapshots map to managed disk incremental snapshots. Both store only changed blocks after the first copy, and both can be copied to other regions.
+  providers:
+    aws: [ebs-snapshots]
+    azure: [disk-snapshots]
+  differences:
+    - Storage. EBS snapshots are stored by AWS in S3-backed storage, with an optional lower-cost archive tier. Azure incremental snapshots are stored on Standard HDD storage and billed on used size, with no archive tier.
+    - Restore speed. EBS fast snapshot restore pre-initializes volumes in chosen AZs. Azure has no equivalent per-snapshot feature.
+    - Protection. EBS adds snapshot lock (WORM) and Recycle Bin. On Azure, use Azure Backup (immutable vaults and soft delete) for equivalent protection of disk backups.
+    - Limits. Azure allows up to seven incremental snapshots per disk every five minutes, and incremental snapshots can't move between subscriptions.
+  pricing:
+    aws: Per GB-month of stored blocks (standard or archive tier), plus fast snapshot restore per AZ-hour and archive retrieval per GB.
+    azure: Per GB-month of used snapshot size, plus data transfer for cross-region copies.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104]
+  related: [block-volumes, backup-service]
+  sources:
+    - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots
+
+- id: local-instance-storage
+  group: block-storage
+  capability: Local (ephemeral) VM disks
+  what_for: Use very fast disks physically attached to the host for scratch data, caches, and stateless nodes, accepting that the data can disappear.
+  match: direct
+  answer: EC2 instance store maps to Azure VM temporary disks and local NVMe disks. Azure can also put the OS disk itself on local storage (ephemeral OS disks), which helps stateless scale sets.
+  providers:
+    aws: [ec2-instance-store]
+    azure: [vm-local-storage]
+  differences:
+    - Data loss. Instance store data is lost on stop, hibernate, or terminate (it survives reboots). Azure temp and local NVMe data is lost when the VM is deallocated or moved to another host.
+    - OS disk. Ephemeral OS disks are a current Azure feature, with partial (default) or full caching and fast reimage. On EC2, boot volumes are normally EBS.
+    - Availability. Both depend on the instance or VM size. Many newer Azure sizes come in versions without a temp disk, and some offer local NVMe instead.
+  pricing:
+    aws: Included in the instance price.
+    azure: Included in the VM price. Ephemeral OS disks have no storage charge.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  related: [block-volumes]
+  sources:
+    - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
+    - https://learn.microsoft.com/en-us/azure/virtual-machines/enable-nvme-temp-faqs
+
+- id: san-storage
+  group: block-storage
+  capability: Managed SAN (pooled iSCSI block storage)
+  what_for: Provide shared, pooled block storage over standard SAN protocols to many hosts, as an on-premises SAN array would.
+  match: partial
+  answer: Microsoft maps FSx for NetApp ONTAP iSCSI or NVMe/TCP LUNs to Azure Elastic SAN. Elastic SAN pools capacity and performance across many iSCSI volumes, while ONTAP is a full storage OS that also serves file protocols.
+  providers:
+    aws: [fsx-ontap]
+    azure: [elastic-san]
+  differences:
+    - Scope. Elastic SAN is block-only (iSCSI), with volume groups for policy and network rules. FSx for ONTAP serves iSCSI and NVMe/TCP LUNs alongside NFS and SMB, with ONTAP snapshots, SnapMirror, and FlexCache.
+    - Consumers. Elastic SAN volumes connect to VMs, AKS (through Azure Container Storage), and Azure VMware Solution. FSx for ONTAP LUNs connect to EC2 and EKS, among others.
+    - On Azure, Azure NetApp Files is the ONTAP-based option, but it serves files (NFS and SMB), not LUNs.
+  pricing:
+    aws: SSD storage per GB-month, provisioned throughput, provisioned IOPS above the included amount, and capacity pool storage and requests.
+    azure: Billed per TiB of base capacity (which includes performance) and capacity-only units, priced by LRS or ZRS.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [block-volumes, shared-block-volumes, netapp-files, kubernetes-storage]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html
+    - https://learn.microsoft.com/en-us/azure/storage/elastic-san/elastic-san-introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: kubernetes-storage
+  group: block-storage
+  capability: Kubernetes persistent volumes
+  what_for: Give stateful pods durable disks or shared file systems through Kubernetes storage classes.
+  match: partial
+  answer: The EKS CSI drivers (EBS, EFS, FSx, Mountpoint for S3) map to the AKS built-in CSI drivers (Azure Disks, Azure Files, Blob Storage), plus Azure Container Storage, which adds local NVMe and Elastic SAN volumes.
+  providers:
+    aws: [eks-storage-csi]
+    azure: [azure-container-storage]
+  differences:
+    - Installation. EKS CSI drivers are add-ons you install (EBS block storage is built into EKS Auto Mode). AKS enables the Disk and Files CSI drivers by default and offers the Blob driver.
+    - Local NVMe. Azure Container Storage v2 exposes local NVMe disks as persistent volumes with an open-source driver. EKS has no AWS-managed equivalent for instance store volumes.
+    - Pooled block. Azure Container Storage can carve many volumes out of one Elastic SAN. On EKS, each persistent volume is its own EBS volume.
+  pricing:
+    aws: The drivers are free. You pay for the EBS, EFS, FSx, or S3 resources they use.
+    azure: The CSI drivers are free. You pay for the disks, shares, Elastic SAN, or VMs (local NVMe) underneath. Check the Container Storage pricing page for any orchestration charges.
+  exams:
+    aws: [SAA-C03, DOP-C02]
+    azure: [AZ-104]
+  related: [block-volumes, san-storage, nfs-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/eks/latest/userguide/storage.html
+    - https://learn.microsoft.com/en-us/azure/aks/csi-storage-drivers
+    - https://learn.microsoft.com/en-us/azure/storage/container-storage/container-storage-introduction
+
+# ───────────────────────── FILE STORAGE ─────────────────────────
+- id: nfs-file-storage
+  group: file-storage
+  capability: Serverless NFS file system for Linux
+  what_for: Share one elastic file system across many Linux servers or containers over NFS without managing file servers.
+  match: partial
+  answer: Microsoft maps Amazon EFS to Azure Files with NFS 4.1 shares. Both are managed NFS services, but EFS grows automatically and bills for what you store, while Azure Files NFS shares are SSD-only and provisioned.
+  providers:
+    aws: [efs]
+    azure: [azure-files]
+  differences:
+    - Billing. EFS is elastic and billed on stored data by storage class, plus throughput charges. Azure Files NFS uses SSD shares, and Microsoft recommends the provisioned v2 model (you set storage, IOPS, and throughput) for new shares.
+    - Tiers. EFS has Standard, Infrequent Access, and Archive storage classes with lifecycle policies. Azure Files NFS has no colder tier.
+    - Redundancy. EFS Regional stores data across multiple AZs, and One Zone uses a single AZ. Azure Files NFS supports LRS and ZRS, but not GRS or GZRS.
+    - Protocol. EFS supports NFSv4.0 and 4.1, with IAM authorization and access points. Azure Files NFS supports most of NFSv4.1, but not Kerberos, delegations, or NFS ACLs, and it isn't supported on Windows clients.
+    - Resource model. Microsoft.FileShares (GA June 2026) lets you create NFS shares as top-level resources without a storage account, with per-share networking and billing.
+    - Alternatives. For higher performance or richer NFS features on Azure, look at Azure NetApp Files.
+  pricing:
+    aws: Per GB-month by storage class (Standard, IA, Archive), per-GB access charges for IA and Archive, and throughput charges (Elastic is billed per GB read and written).
+    azure: Provisioned v2 bills the storage, IOPS, and throughput you provision each month, whether you use them or not, plus snapshots.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  flags:
+    - Microsoft.FileShares supports NFS only and isn't in every region yet. Check the regional list.
+  related: [windows-file-storage, netapp-files, object-file-access]
+  sources:
+    - https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html
+    - https://learn.microsoft.com/en-us/azure/storage/files/files-nfs-protocol
+    - https://learn.microsoft.com/en-us/azure/storage/files/understanding-billing
+    - https://learn.microsoft.com/en-us/azure/storage/files/files-management-concepts
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: windows-file-storage
+  group: file-storage
+  capability: Managed SMB / Windows file shares
+  what_for: Replace Windows file servers with a managed SMB service that uses Active Directory permissions.
+  match: partial
+  answer: Microsoft maps Amazon FSx for Windows File Server to Azure Files over SMB. FSx runs real Windows Server file servers for you, while Azure Files is a serverless SMB service that authenticates through AD DS, Microsoft Entra Domain Services, or Microsoft Entra Kerberos.
+  providers:
+    aws: [fsx-windows]
+    azure: [azure-files]
+  differences:
+    - Architecture. FSx provisions Windows file servers (Single-AZ or Multi-AZ) with SSD or HDD storage and a set throughput capacity. Azure Files has no servers to size. Classic shares sit in a storage account and scale with the billing model you pick.
+    - Windows features. FSx supports DFS namespaces, shadow copies, data deduplication, and user storage quotas. Azure Files supports share snapshots, but not every Windows Server file-server feature.
+    - Identity. Both can join on-premises AD or a managed directory. Azure Files can also use Microsoft Entra Kerberos for hybrid identities.
+    - Hybrid caching. For on-premises caching, Azure Files pairs with Azure File Sync. FSx File Gateway is closed to new customers.
+    - Redundancy. Azure Files HDD shares can use GRS or GZRS. SSD shares support LRS and ZRS.
+  pricing:
+    aws: Per GB-month of SSD or HDD storage, plus provisioned throughput capacity, optional extra SSD IOPS, and backups.
+    azure: Provisioned v2 (recommended) bills provisioned storage, IOPS, and throughput. Pay-as-you-go HDD shares bill used storage plus transactions.
+  exams:
+    aws: [SAA-C03, SOA-C03]
+    azure: [AZ-104, AZ-305]
+  related: [nfs-file-storage, file-server-caching, netapp-files]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/WindowsGuide/what-is.html
+    - https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction
+    - https://learn.microsoft.com/en-us/azure/storage/files/storage-files-planning
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: netapp-files
+  group: file-storage
+  capability: Managed NetApp ONTAP file storage
+  what_for: Run enterprise NAS (NFS, SMB, dual-protocol) with NetApp features such as snapshots and replication, without managing filers.
+  match: direct
+  answer: Amazon FSx for NetApp ONTAP maps to Azure NetApp Files. Both offer NetApp technology as a managed service, with NFS, SMB, and dual-protocol volumes and NetApp-style snapshots and replication.
+  providers:
+    aws: [fsx-ontap]
+    azure: [azure-netapp-files]
+  differences:
+    - Operating model. FSx for ONTAP gives you an ONTAP file system and storage VMs that you can manage with ONTAP tools (for example, SnapMirror to on-premises and FlexCache). Azure NetApp Files is a first-party Azure service with Azure-native capacity pools and volumes.
+    - Protocols. FSx for ONTAP also serves iSCSI and NVMe/TCP block LUNs. Azure NetApp Files is file-only, but adds an S3-compatible object REST API on volumes.
+    - Performance tiers. FSx for ONTAP uses SSD plus an elastic capacity pool tier. Azure NetApp Files has five service levels (Flexible, Standard, Premium, Ultra, and Elastic zone-redundant), plus cool access that moves cold data to Azure Storage.
+    - Scale. Azure NetApp Files large volumes reach 1 PiB, or 7.2 PiB with cool access.
+  pricing:
+    aws: SSD storage per GB-month, throughput capacity, provisioned IOPS, capacity pool storage and requests, and backups.
+    azure: Billed on provisioned capacity-pool size by service level, plus cool-access and replication charges.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [san-storage, nfs-file-storage, windows-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html
+    - https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: openzfs-file-storage
+  group: file-storage
+  capability: Managed OpenZFS file system
+  what_for: Move ZFS-based or Linux NFS file servers to a managed service that keeps ZFS features such as snapshots and compression.
+  match: none
+  answer: Azure has no managed OpenZFS service. For NFS workloads moving from FSx for OpenZFS, the usual Azure targets are Azure NetApp Files or Azure Files NFS.
+  providers:
+    aws: [fsx-openzfs]
+    azure: []
+  differences:
+    - FSx for OpenZFS supports NFS v3 through v4.2, ZFS snapshots, compression, and an Intelligent-Tiering storage class. Azure NetApp Files supports NFSv3 and NFSv4.1, and Azure Files supports NFS 4.1 only, so check client and feature compatibility before migrating.
+  pricing:
+    aws: Per GB-month of SSD or Intelligent-Tiering storage, plus throughput capacity and backups.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [netapp-files, nfs-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/what-is-fsx.html
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: lustre-file-storage
+  group: file-storage
+  capability: Managed Lustre parallel file system (HPC and AI)
+  what_for: Feed thousands of compute or GPU nodes with very high aggregate throughput, typically linked to object storage.
+  match: direct
+  answer: Amazon FSx for Lustre maps to Azure Managed Lustre. Both run the open-source Lustre file system as a managed service and link to object storage (S3 or Blob Storage) for importing and exporting data.
+  providers:
+    aws: [fsx-lustre]
+    azure: [managed-lustre]
+  differences:
+    - Object integration. FSx for Lustre links to S3 (or on-premises) data repositories. Azure Managed Lustre uses Lustre HSM with a Blob container for import and export.
+    - Storage classes. FSx for Lustre offers scratch or persistent file systems on SSD, HDD, or the elastic Intelligent-Tiering class. Azure Managed Lustre is sold as throughput tiers of provisioned capacity.
+    - Redundancy. For long-term redundancy, Azure Managed Lustre exports to Blob Storage with its own redundancy setting.
+    - Kubernetes. Both have CSI drivers (EKS and AKS).
+  pricing:
+    aws: Per GB-month by deployment type, storage class, and throughput tier, plus Intelligent-Tiering storage and request charges.
+    azure: Billed per provisioned capacity by throughput tier.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [file-caching, kubernetes-storage]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html
+    - https://learn.microsoft.com/en-us/azure/azure-managed-lustre/amlfs-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: file-caching
+  group: file-storage
+  capability: High-speed file cache in front of NFS or object data
+  what_for: Present remote NFS or object data to cloud compute as a fast file system, loading data on first access.
+  match: none
+  answer: Amazon File Cache no longer has an Azure equivalent. Azure HPC Cache, the closest match, retired on Sep 30, 2025. For Blob-backed data, Azure Managed Lustre with Blob integration covers much of the same need.
+  providers:
+    aws: [file-cache]
+    azure: [hpc-cache]
+  differences:
+    - Amazon File Cache is Lustre-based and can link up to eight S3 or NFSv3 repositories (all of one type). Azure Managed Lustre covers the Blob-backed case, but Azure has no managed cache in front of on-premises NFS exports.
+  pricing:
+    aws: Per GB-month of provisioned cache storage, plus metadata storage.
+    azure: Not applicable (retired).
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [lustre-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/fsx/latest/FileCacheGuide/what-is.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/hpc-cache/hpc-cache-overview
+
+# ───────────────────────── HYBRID ─────────────────────────
+- id: file-gateway
+  group: hybrid-storage
+  capability: On-premises file gateway to cloud object storage
+  what_for: Give on-premises apps NFS or SMB shares whose data lands in cloud object storage, with a local cache for recent files.
+  match: partial
+  answer: Microsoft maps AWS Storage Gateway S3 File Gateway to Azure Data Box Gateway and Azure File Sync. Data Box Gateway is the closer technical match (NFS or SMB in, Azure Storage out). File Sync works only with Windows Server and syncs to Azure Files rather than Blob.
+  providers:
+    aws: [s3-file-gateway]
+    azure: [data-box-gateway, azure-file-sync]
+  differences:
+    - Data Box Gateway is a virtual appliance (Hyper-V or VMware) that caches data locally and uploads it to Blob Storage or Azure Files, similar to S3 File Gateway. Its current release notes date from 2021.
+    - Azure File Sync uses your Windows Servers as the cache, with cloud tiering, and can sync many sites through one Azure file share.
+    - S3 File Gateway stores files as normal S3 objects. Data Box Gateway also writes normal blobs or files. File Sync stores data in Azure Files.
+  pricing:
+    aws: Per GB written to AWS (capped monthly per gateway), plus S3 storage and requests.
+    azure: Data Box Gateway has a monthly device fee plus storage. Azure File Sync is billed per registered server per month, plus Azure Files charges.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  flags:
+    - Data Box Gateway has no announced retirement, but it hasn't had a release since 2021. Check its status before you build on it.
+  related: [file-server-caching, block-gateway, tape-gateway]
+  sources:
+    - https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html
+    - https://learn.microsoft.com/en-us/azure/databox-gateway/data-box-gateway-overview
+    - https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: file-server-caching
+  group: hybrid-storage
+  capability: On-premises cache for cloud Windows file shares
+  what_for: Let branch offices work with fast local copies of cloud file shares over SMB.
+  match: partial
+  answer: Amazon FSx File Gateway, closed to new customers since Oct 28, 2024, maps to Azure File Sync. File Sync caches Azure file shares on your own Windows Servers, with cloud tiering.
+  providers:
+    aws: [fsx-file-gateway]
+    azure: [azure-file-sync]
+  differences:
+    - FSx File Gateway is an appliance in front of FSx for Windows File Server. Azure File Sync is an agent you install on existing Windows Servers, which then act as the cache.
+    - Azure File Sync syncs multiple sites through the cloud and keeps the full namespace visible, recalling tiered files when they're opened.
+  pricing:
+    aws: Existing customers pay gateway charges plus FSx charges.
+    azure: Per registered server per month, plus Azure Files charges.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  related: [file-gateway, windows-file-storage]
+  sources:
+    - https://docs.aws.amazon.com/filegateway/latest/filefsxw/what-is-file-fsxw.html
+    - https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction
+
+- id: block-gateway
+  group: hybrid-storage
+  capability: Cloud-backed iSCSI volumes on premises
+  what_for: Give on-premises servers iSCSI disks whose data is stored or backed up in the cloud.
+  match: none
+  answer: Azure has no current equivalent of AWS Storage Gateway Volume Gateway. Microsoft's comparison lists "None", and StorSimple, Azure's former hybrid storage array, has reached end of support.
+  providers:
+    aws: [volume-gateway]
+    azure: [storsimple]
+  differences:
+    - On Azure, the usual alternatives are Azure Backup for on-premises servers, Azure Site Recovery for replication into Azure, or Azure Local with its own storage.
+  pricing:
+    aws: Per GB written to AWS (capped monthly per gateway), plus volume storage and EBS snapshots.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-305]
+  related: [file-gateway, tape-gateway]
+  sources:
+    - https://docs.aws.amazon.com/storagegateway/latest/vgw/WhatIsStorageGateway.html
+    - https://learn.microsoft.com/en-us/previous-versions/azure/storsimple/storsimple-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: tape-gateway
+  group: hybrid-storage
+  capability: Virtual tape library in the cloud
+  what_for: Replace physical tapes with cloud-stored virtual tapes while keeping your existing backup software.
+  match: none
+  answer: Azure has no equivalent of AWS Storage Gateway Tape Gateway, and Microsoft's comparison lists "None". On Azure, point backup software at Blob Storage directly (cool, cold, or archive tiers), or use Azure Backup.
+  providers:
+    aws: [tape-gateway]
+    azure: []
+  differences:
+    - Many enterprise backup products can write to Azure Blob Storage natively, which removes the need for a virtual tape layer. Add immutable storage for ransomware protection.
+  pricing:
+    aws: Per GB written to AWS (capped monthly per gateway), plus virtual tape storage in S3, Glacier Flexible Retrieval, or Deep Archive, and retrieval fees.
+    azure: Not applicable.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-305]
+  related: [block-gateway, storage-classes]
+  sources:
+    - https://docs.aws.amazon.com/storagegateway/latest/tgw/WhatIsStorageGateway.html
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+# ───────────────────────── BACKUP & DR ─────────────────────────
+- id: backup-service
+  group: backup-dr
+  capability: Centralized backup service
+  what_for: Define backup schedules and retention once, apply them to many resources, and restore from one place.
+  match: direct
+  answer: AWS Backup maps to Azure Backup. Both are policy-based managed backup services that cover VMs, disks, file shares, object storage, databases, and Kubernetes, plus some on-premises workloads.
+  providers:
+    aws: [aws-backup]
+    azure: [azure-backup]
+  differences:
+    - Vaults. AWS Backup uses backup vaults, with cross-Region and cross-account copies. Azure Backup uses two vault types. Recovery Services vaults cover VMs, SQL Server and SAP HANA in VMs, Azure Files, and on-premises machines. Backup vaults cover disks, blobs, AKS, and PostgreSQL.
+    - Databases. AWS Backup covers RDS, Aurora, DynamoDB, and other AWS databases. Azure Backup covers SQL Server, SAP HANA, and SAP ASE in VMs, plus PostgreSQL and MySQL flexible servers. Azure SQL Database and Cosmos DB rely on their own built-in backups.
+    - Object storage. AWS Backup backs up S3 buckets. Azure Backup has operational backup for blobs (local and continuous) and vaulted backup (offsite copies).
+    - On premises. AWS Backup supports VMware VMs through a gateway appliance. Azure Backup uses the MARS agent or Microsoft Azure Backup Server (MABS).
+    - Governance. AWS Backup integrates with AWS Organizations backup policies. Azure Backup uses Azure Policy and at-scale management in the Azure portal.
+  pricing:
+    aws: Per GB-month of backup storage (warm or cold tier) by resource type, plus restores and cross-Region transfer.
+    azure: A monthly protected-instance fee based on size, plus backup storage per GB-month (LRS, ZRS, or GRS) and snapshot storage.
+  exams:
+    aws: [SAA-C03, SOA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [backup-vault-lock, block-snapshots, disaster-recovery]
+  sources:
+    - https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html
+    - https://learn.microsoft.com/en-us/azure/backup/backup-overview
+    - https://learn.microsoft.com/en-us/azure/backup/blob-backup-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: backup-vault-lock
+  group: backup-dr
+  capability: Immutable and isolated backup vaults (ransomware protection)
+  what_for: Make sure backups can't be deleted or shortened, even by an attacker with admin rights, and can still be restored if an account is compromised.
+  match: partial
+  answer: AWS Backup Vault Lock and logically air-gapped vaults map to Azure Backup immutable vaults (which can be locked), combined with soft delete and multi-user authorization through Resource Guard.
+  providers:
+    aws: [backup-air-gapped-vault]
+    azure: [backup-immutable-vault]
+  differences:
+    - Isolation. Logically air-gapped vaults can be shared to a recovery account through AWS RAM and support multi-party approval to recover if the owning account is lost. Azure has no direct equivalent of that recovery path. Its protection comes from locked immutability, soft delete, and a Resource Guard kept in a separate subscription or tenant.
+    - WORM. Azure is moving locked-immutable backups onto WORM storage by region and workload, and the backup service enforces immutability until then. AWS Vault Lock in compliance mode can't be removed after its grace period.
+  pricing:
+    aws: Logically air-gapped vault storage is billed per GB-month by resource type. Vault Lock has no extra charge.
+    azure: No extra charge for immutability or soft delete beyond normal backup pricing.
+  exams:
+    aws: [SAA-C03, SCS-C03]
+    azure: [AZ-104, AZ-305, SC-500]
+  related: [backup-service, object-lock]
+  sources:
+    - https://docs.aws.amazon.com/aws-backup/latest/devguide/logicallyairgappedvault.html
+    - https://learn.microsoft.com/en-us/azure/backup/backup-azure-immutable-vault-concept
+
+- id: disaster-recovery
+  group: backup-dr
+  capability: Server replication and disaster recovery
+  what_for: Continuously replicate servers to another site or region and fail over quickly if the primary site goes down.
+  match: direct
+  answer: AWS Elastic Disaster Recovery (DRS) maps to Azure Site Recovery (ASR). Both replicate servers continuously, run non-disruptive test failovers, and support failback.
+  providers:
+    aws: [elastic-disaster-recovery]
+    azure: [site-recovery]
+  differences:
+    - Sources. DRS replicates on-premises and cloud servers into AWS, and EC2 instances between Regions. ASR replicates Azure VMs between regions, plus on-premises VMware and Hyper-V VMs and physical servers into Azure.
+    - Staging. DRS keeps a low-cost staging area (lightweight replication servers and volumes) and launches full instances only for drills or recovery. ASR replicates to disks in the target region and creates VMs on failover.
+    - Orchestration. ASR has recovery plans with scripts and manual steps. DRS uses launch settings and post-launch actions.
+  pricing:
+    aws: Per replicating source server per hour, plus staging-area EC2, EBS, and snapshots, and recovery instances while running.
+    azure: Per protected instance per month, plus replica disk storage and compute after failover.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [backup-service, block-snapshots]
+  sources:
+    - https://docs.aws.amazon.com/drs/latest/userguide/what-is-drs.html
+    - https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview
+    - https://learn.microsoft.com/en-us/azure/site-recovery/azure-to-azure-architecture
+
+# ───────────────────────── DATA TRANSFER ─────────────────────────
+- id: online-data-migration
+  group: data-transfer
+  capability: Online file and object migration
+  what_for: Copy large file shares or buckets into the cloud, or between clouds, over the network with verification and scheduling.
+  match: partial
+  answer: AWS DataSync maps to Azure Storage Mover (managed migration from NFS, SMB, and S3 sources) and AzCopy (command-line copy, including directly from S3). Microsoft's comparison page pairs DataSync with Azure File Sync, but File Sync is for ongoing sync of Windows servers, not migration.
+  providers:
+    aws: [datasync]
+    azure: [storage-mover, azcopy]
+  differences:
+    - Direction. DataSync moves data into, out of, and between AWS storage services, including from Azure Blob Storage, Azure Files, and Google Cloud Storage. Storage Mover moves data into Azure only.
+    - Sources. Storage Mover supports NFS and SMB shares (through an agent) and AWS S3, with FSx SMB and Google Cloud Storage in preview. Objects in S3 Glacier classes must be restored first.
+    - Cost. DataSync bills per GB transferred. Storage Mover features are currently free, and AzCopy is a free tool, so you pay only for storage, transactions, and network.
+  pricing:
+    aws: Per GB transferred, plus any S3 request and data transfer charges.
+    azure: Storage Mover and AzCopy are free. You pay for target storage and transactions, plus any egress charged by the source.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  flags:
+    - Microsoft's aws-professional storage page maps DataSync to Azure File Sync. This guide maps it to Storage Mover and AzCopy because they match DataSync's migration purpose.
+  related: [offline-data-transfer, managed-file-transfer, file-gateway]
+  sources:
+    - https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html
+    - https://learn.microsoft.com/en-us/azure/storage-mover/service-overview
+    - https://learn.microsoft.com/en-us/azure/storage-mover/billing
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+
+- id: managed-file-transfer
+  group: data-transfer
+  capability: Managed SFTP / FTP endpoints
+  what_for: Let partners and legacy systems drop off and pick up files over SFTP or FTPS straight into cloud storage, without running servers.
+  match: partial
+  answer: AWS Transfer Family maps to SFTP support for Azure Blob Storage. Azure covers SFTP only. For FTPS, FTP, or AS2 you need a partner product or Logic Apps.
+  providers:
+    aws: [transfer-family]
+    azure: [blob-sftp]
+  differences:
+    - Protocols. Transfer Family supports SFTP, FTPS, FTP, and AS2, plus web apps and SFTP connectors to remote servers. Blob SFTP is SFTP only.
+    - Targets. Transfer Family stores to S3 or EFS. Blob SFTP writes to a Blob Storage account with the hierarchical namespace enabled.
+    - Identity. Transfer Family supports service-managed users, AWS Directory Service, or a custom identity provider. Blob SFTP uses local users (password or SSH key, up to 50,000 per account) or Microsoft Entra ID.
+  pricing:
+    aws: Per protocol enabled per endpoint-hour, plus per GB uploaded and downloaded, and connector and web app charges.
+    azure: An hourly charge while SFTP is enabled on the account, plus normal Blob storage, transaction, and egress charges.
+  exams:
+    aws: [SAA-C03]
+    azure: [AZ-104]
+  related: [online-data-migration, data-lake-storage]
+  sources:
+    - https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html
+    - https://learn.microsoft.com/en-us/azure/storage/blobs/secure-file-transfer-protocol-support
+
+- id: offline-data-transfer
+  group: data-transfer
+  capability: Offline bulk data transfer (ship or carry your data)
+  what_for: Move tens or hundreds of terabytes when the network is too slow, by moving physical devices instead.
+  match: partial
+  answer: Microsoft maps AWS Snowball Edge to Azure Data Box, but Snowball Edge is closed to new customers. AWS now points to Data Transfer Terminal (you bring your own devices to an AWS location) or DataSync. Azure Data Box ships Microsoft devices to you, now in 120 TB and 525 TB next-gen models.
+  providers:
+    aws: [snowball-edge, data-transfer-terminal]
+    azure: [data-box]
+  differences:
+    - Model. Data Box is a shipped appliance you fill on site and send back. Data Transfer Terminal is a reservable facility where you bring your own storage devices and upload over high-speed links.
+    - Direction. Data Box supports both import and export.
+    - Edge compute. Snowball Edge could also run compute at the edge. AWS now recommends Outposts or partners for that, and the Azure counterparts are Azure Local and Azure Stack Edge.
+    - Legacy devices. Azure Data Box Heavy is retired, and the 80 TB Data Box is being retired region by region as next-gen devices arrive.
+  pricing:
+    aws: Data Transfer Terminal is billed for the time you reserve. Existing Snowball customers pay a per-job fee, daily usage, and shipping.
+    azure: A per-order service fee that includes a set number of days, plus extra days, shipping, and target storage.
+  exams:
+    aws: [SAA-C03, SAP-C02]
+    azure: [AZ-104, AZ-305]
+  related: [online-data-migration]
+  sources:
+    - https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html
+    - https://docs.aws.amazon.com/datatransferterminal/latest/userguide/what-is-dtt.html
+    - https://learn.microsoft.com/en-us/azure/databox/data-box-overview
+    - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage

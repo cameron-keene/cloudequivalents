@@ -1,0 +1,218 @@
+# Azure storage services (category: storage). "ai-search" and "azure-vmware-solution" are defined in other files.
+- slug: blob-storage
+  name: Azure Blob Storage
+  status: ga
+  summary: Object storage in containers inside a storage account. Block, append, and page blobs, with LRS, ZRS, GRS, GZRS, and read-access geo options, versioning, soft delete, and Entra ID, SAS, or account-key authorization.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blob-access-tiers
+  name: Blob Storage access tiers (hot, cool, cold, archive)
+  status: ga
+  summary: Online hot, cool (30-day minimum), and cold (90-day minimum) tiers, plus the offline archive tier (180-day minimum, rehydration up to 15 hours). Tiers apply to block blobs; archive needs an LRS, GRS, or RA-GRS account.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blob-smart-tier
+  name: Blob Storage smart tier
+  status: ga
+  status_note: GA in public-cloud regions with zone redundancy. Still in preview in Azure Government and Azure operated by 21Vianet.
+  summary: A default account access tier that moves block blobs from hot to cool after 30 days without access, then to cold after 60 more days, and back to hot on access. No early-deletion, retrieval, or in-tier transition fees; a per-object monitoring fee applies above 128 KiB. Requires a ZRS, GZRS, or RA-GZRS GPv2 account.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-smart
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blob-lifecycle-management
+  name: Blob Storage lifecycle management
+  status: ga
+  summary: Account-level JSON rules that tier or delete current versions, previous versions, and snapshots based on creation, modification, or last-access time, filtered by prefix or blob index tags. Changes take up to 24 hours to take effect.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: storage-redundancy
+  name: Azure Storage redundancy (LRS, ZRS, GRS, GZRS)
+  status: ga
+  summary: Per-account replication setting. LRS keeps three copies in one datacenter, ZRS spreads them synchronously across three or more zones, and GRS/GZRS add asynchronous copies in the paired secondary region (readable with RA-GRS/RA-GZRS or after failover).
+  docs: https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: object-replication
+  name: Blob Storage object replication
+  status: ga
+  summary: Asynchronous, rule-based copying of block blobs between containers in two accounts (any regions, optionally across tenants), with optional priority replication. Requires change feed on the source and versioning on both accounts.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: immutable-blob-storage
+  name: Immutable storage for Blob Storage (WORM)
+  status: ga
+  summary: Time-based retention policies (unlocked or locked) and legal holds, set at the container level or, with version-level WORM, on the account, container, or individual blob versions. Helps address SEC 17a-4(f), CFTC 1.31(d), and FINRA.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: storage-access-control
+  name: Azure Storage access control (Entra RBAC, SAS, network rules)
+  status: ga
+  summary: Data access through Microsoft Entra ID with Azure RBAC data roles (and ABAC conditions), shared access signatures for time-limited delegated access, account keys (which can be disallowed), and the storage firewall, private endpoints, and network security perimeter.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-active-directory
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: premium-block-blob
+  name: Premium block blob storage accounts
+  status: ga
+  summary: SSD-backed block blob accounts with low, consistent latency and lower per-transaction prices (higher storage price). LRS or ZRS. They can't use hot, cool, cold, or archive tiering.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-block-blob-premium
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: data-lake-storage
+  name: Azure Data Lake Storage (hierarchical namespace)
+  status: ga
+  summary: Not a separate service. It's Blob Storage with the hierarchical namespace turned on, adding real directories, atomic renames, POSIX-style ACLs, and the Hadoop ABFS driver. It's also required for SFTP and NFS 3.0 on Blob.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/data-lake/
+- slug: onelake
+  name: Microsoft Fabric OneLake
+  status: ga
+  summary: Fabric's tenant-wide data lake (built on ADLS) that stores tables in Delta Lake format and virtualizes metadata so the same tables can be read as Apache Iceberg (and Iceberg tables as Delta).
+  docs: https://learn.microsoft.com/en-us/fabric/onelake/onelake-iceberg-tables
+  pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-fabric/
+- slug: blob-nfs
+  name: NFS 3.0 protocol support for Blob Storage
+  status: ga
+  summary: Mount a Blob container over NFS 3.0 from Linux clients in Azure or on premises (over a private network). Requires the hierarchical namespace and suits large, sequential, read-heavy workloads.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/network-file-system-protocol-support
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blobfuse2
+  name: BlobFuse2
+  status: ga
+  status_note: BlobFuse v1 support ends in September 2026, so migrate to v2.
+  summary: Open-source libfuse3 client that mounts Blob containers as a Linux file system, with file, metadata, and attribute caching and preload. Not fully POSIX (for example, renames aren't atomic).
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/blobfuse2-what-is
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blob-inventory
+  name: Blob inventory and change feed
+  status: ga
+  summary: Blob inventory produces scheduled CSV or Parquet reports of blobs, versions, snapshots, and containers. Change feed is an ordered, durable log of create, update, and delete events kept in the account.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/blob-inventory
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: storage-actions
+  name: Azure Storage Actions
+  status: ga
+  summary: Serverless storage tasks that apply conditions and operations (tier, tag, set immutability, delete, and more) to millions of blobs across multiple storage accounts.
+  docs: https://learn.microsoft.com/en-us/azure/storage-actions/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage-actions/
+- slug: managed-disks
+  name: Azure managed disks
+  status: ga
+  status_note: Using Standard HDD as an OS disk retires on Sep 8, 2028.
+  summary: Block storage for VMs. Ultra Disk (up to 64 TiB, 400,000 IOPS), Premium SSD v2 (up to 64 TiB, 80,000 IOPS, 3,000 IOPS and 125 MB/s included), Premium SSD, Standard SSD, and Standard HDD. LRS by default, with ZRS for Premium SSD and Standard SSD.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-disks/
+- slug: shared-disks
+  name: Azure shared disks
+  status: ga
+  summary: Attach one Ultra Disk, Premium SSD v2, Premium SSD, or Standard SSD to multiple VMs at once, coordinated through SCSI persistent reservations or NVMe reservations by a cluster manager such as WSFC or Pacemaker.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-disks/
+- slug: disk-snapshots
+  name: Managed disk snapshots (incremental)
+  status: ga
+  summary: Incremental snapshots store only changes since the last one, are billed on used size, and are kept on Standard HDD storage regardless of disk type. They can be copied to other regions. Full snapshots are also available.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-disks/
+- slug: vm-local-storage
+  name: VM temporary disks, local NVMe, and ephemeral OS disks
+  status: ga
+  summary: Many VM sizes include a temporary disk or local NVMe drives at no extra charge, whose data isn't preserved across deallocation or host moves. Ephemeral OS disks put the OS disk on that local storage for stateless VMs and scale sets.
+  docs: https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
+  pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+- slug: azure-files
+  name: Azure Files
+  status: ga
+  summary: Fully managed SMB (2.1 to 3.1.1) and NFS 4.1 file shares, either classic shares in a storage account or top-level Microsoft.FileShares shares (NFS on SSD only, GA June 2026). Identity-based SMB access through AD DS, Entra Domain Services, or Entra Kerberos.
+  docs: https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/files/
+- slug: azure-file-sync
+  name: Azure File Sync
+  status: ga
+  summary: Agent on Windows Server that syncs local shares to an Azure file share, with cloud tiering (only hot files cached locally) and multi-site sync through the cloud.
+  docs: https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/files/
+- slug: azure-netapp-files
+  name: Azure NetApp Files
+  status: ga
+  summary: First-party NetApp ONTAP-based file service. NFSv3, NFSv4.1, SMB, and dual-protocol volumes, an S3-compatible object REST API, five service levels (including Flexible and Elastic zone-redundant), cool access, large volumes up to 1 PiB (7.2 PiB with cool access), and cross-region and cross-zone replication.
+  docs: https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/netapp/
+- slug: managed-lustre
+  name: Azure Managed Lustre
+  status: ga
+  summary: Managed Lustre parallel file system for HPC and AI, with Blob Storage integration (Lustre HSM import and export) and an AKS CSI driver.
+  docs: https://learn.microsoft.com/en-us/azure/azure-managed-lustre/amlfs-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/managed-lustre/
+- slug: elastic-san
+  name: Azure Elastic SAN
+  status: ga
+  summary: A managed SAN that pools capacity and performance across volume groups and volumes, served over iSCSI to VMs, AKS (through Azure Container Storage), and Azure VMware Solution. LRS or ZRS.
+  docs: https://learn.microsoft.com/en-us/azure/storage/elastic-san/elastic-san-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/elastic-san/
+- slug: hpc-cache
+  name: Azure HPC Cache
+  status: retired
+  status_note: Retired Sep 30, 2025 and no longer supported. Docs moved to "previous versions".
+  summary: An NFS caching service in front of on-premises NAS or Blob containers for read-heavy HPC jobs.
+  docs: https://learn.microsoft.com/en-us/previous-versions/azure/hpc-cache/hpc-cache-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/hpc-cache/
+- slug: data-box-gateway
+  name: Azure Data Box Gateway
+  status: ga
+  status_note: Still documented and orderable, but its latest release notes (2101) are from 2021.
+  summary: A virtual appliance (Hyper-V or VMware) that exposes NFS and SMB shares on premises, caches recent data locally, and uploads it to Blob Storage or Azure Files.
+  docs: https://learn.microsoft.com/en-us/azure/databox-gateway/data-box-gateway-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/databox/gateway/
+- slug: storsimple
+  name: StorSimple
+  status: retired
+  status_note: StorSimple 8000 and 1200 devices, Device Manager, and Data Manager have all reached end of support.
+  summary: Hybrid storage arrays and virtual arrays that tiered on-premises volumes and shares to Azure Storage.
+  docs: https://learn.microsoft.com/en-us/previous-versions/azure/storsimple/storsimple-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storsimple/
+- slug: azure-backup
+  name: Azure Backup
+  status: ga
+  summary: Policy-based backup for Azure VMs, disks, Blob Storage, Azure Files, AKS, SQL Server and SAP HANA/ASE in VMs, PostgreSQL and MySQL flexible servers, and on-premises machines (MARS agent, MABS), using Recovery Services vaults and Backup vaults.
+  docs: https://learn.microsoft.com/en-us/azure/backup/backup-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/backup/
+- slug: backup-immutable-vault
+  name: Azure Backup immutable vaults
+  status: ga
+  summary: Vault setting that blocks operations that could delete recovery points. It can be locked to make it irreversible, with backups moved onto WORM storage where available, and combined with soft delete, multi-user authorization (Resource Guard), and Microsoft-managed or customer-managed keys.
+  docs: https://learn.microsoft.com/en-us/azure/backup/backup-azure-immutable-vault-concept
+  pricing: https://azure.microsoft.com/en-us/pricing/details/backup/
+- slug: storage-mover
+  name: Azure Storage Mover
+  status: ga
+  summary: Managed migration service for NFS and SMB shares (through a migration agent) and AWS S3 buckets into Blob Storage or Azure Files. FSx SMB and Google Cloud Storage sources are in preview. All current features are free of charge. Objects in S3 Glacier classes must be restored first.
+  docs: https://learn.microsoft.com/en-us/azure/storage-mover/service-overview
+  pricing: https://learn.microsoft.com/en-us/azure/storage-mover/billing
+- slug: azcopy
+  name: AzCopy
+  status: ga
+  summary: Free command-line tool for copying data to, from, and between Blob Storage and Azure Files, including server-side copy directly from Amazon S3 and Google Cloud Storage.
+  docs: https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: blob-sftp
+  name: SFTP support for Blob Storage
+  status: ga
+  summary: A per-account SFTP endpoint on port 22 for accounts with the hierarchical namespace, using local users (password or SSH key, up to 50,000 per account) or Microsoft Entra ID. Billed hourly while enabled.
+  docs: https://learn.microsoft.com/en-us/azure/storage/blobs/secure-file-transfer-protocol-support
+  pricing: https://azure.microsoft.com/en-us/pricing/details/storage/blobs/
+- slug: data-box
+  name: Azure Data Box
+  status: ga
+  status_note: Next-gen 120 TB and 525 TB devices are rolling out by region. Data Box Heavy is retired, and the 80 TB device is retired in regions where next-gen is available.
+  summary: Microsoft-shipped rugged storage devices for offline bulk import and export, with up to 100 Gbps interfaces on next-gen devices.
+  docs: https://learn.microsoft.com/en-us/azure/databox/data-box-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/databox/
+- slug: site-recovery
+  name: Azure Site Recovery
+  status: ga
+  summary: Continuous replication, failover, and failback for Azure VMs between regions (Extended Zones support is in preview), and for on-premises VMware and Hyper-V VMs and physical servers into Azure, with recovery plans and test failovers.
+  docs: https://learn.microsoft.com/en-us/azure/site-recovery/site-recovery-overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/site-recovery/
+- slug: azure-container-storage
+  name: Azure Container Storage and AKS CSI drivers
+  status: ga
+  summary: AKS includes CSI drivers for Azure Disks, Azure Files, and Blob Storage (BlobFuse or NFS). Azure Container Storage v2 is an open-source volume orchestrator for local NVMe and Elastic SAN volumes.
+  docs: https://learn.microsoft.com/en-us/azure/storage/container-storage/container-storage-introduction
+  pricing: https://azure.microsoft.com/en-us/pricing/details/container-storage/

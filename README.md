@@ -12,7 +12,7 @@ An open-source, source-cited study guide that maps cloud services between provid
 - lifecycle status (preview, maintenance, sunset, deprecated, retired)
 - official documentation sources
 
-**Current scope:** Compute (32 mappings), Containers & Serverless (29), and AI & Machine Learning (65): 126 mappings, 126 AWS services, 103 Azure services. Last verified 2026-10-24. Storage, databases, networking, and identity & security are being added one category at a time.
+**Current scope:** Compute (32 mappings), Containers & Serverless (29), Storage (38), and AI & Machine Learning (65): 164 mappings, 165 AWS services, 138 Azure services. Last verified 2026-10-24. Databases, networking, and identity & security are being added one category at a time.
 
 
 ## Screenshots

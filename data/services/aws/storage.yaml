@@ -1,0 +1,240 @@
+# AWS storage services (category: storage). Same status vocabulary as ai-ml.yaml.
+- slug: s3
+  name: Amazon S3
+  status: ga
+  summary: Object storage in buckets, with 11 nines of durability, a choice of storage classes, versioning, replication, Object Lock, and fine-grained IAM and bucket policies. General purpose buckets hold any object type; directory, table, and vector buckets are specialized bucket types.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-storage-classes
+  name: Amazon S3 storage classes
+  status: ga
+  summary: Standard, Intelligent-Tiering, Express One Zone, Standard-IA, One Zone-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, and Glacier Deep Archive. Minimum storage durations are 30 days (the IA classes), 90 days (Glacier Instant and Flexible), and 180 days (Deep Archive).
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-intelligent-tiering
+  name: Amazon S3 Intelligent-Tiering
+  status: ga
+  summary: A storage class that moves objects between Frequent, Infrequent (after 30 days without access), and Archive Instant (after 90 days) tiers automatically, with optional Archive and Deep Archive tiers. Objects under 128 KB aren't monitored and stay in Frequent Access.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering-overview.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: amazon-glacier-vaults
+  name: Amazon Glacier (original vault service)
+  status: maintenance
+  status_note: The standalone vault-based Glacier service (2012 REST API) no longer accepts new customers. Existing data stays accessible. AWS recommends the S3 Glacier storage classes instead.
+  summary: Archive storage in vaults with its own API, separate from S3 and the S3 Glacier storage classes.
+  docs: https://docs.aws.amazon.com/amazonglacier/latest/dev/introduction.html
+  pricing: https://aws.amazon.com/glacier/pricing/
+- slug: s3-lifecycle
+  name: Amazon S3 Lifecycle
+  status: ga
+  summary: Bucket rules that transition objects to cheaper storage classes or expire them (current and noncurrent versions, incomplete multipart uploads), filtered by prefix, tags, or object size.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-replication
+  name: Amazon S3 Replication (CRR, SRR, Batch Replication)
+  status: ga
+  summary: Asynchronous replication of new objects to buckets in other Regions (CRR) or the same Region (SRR), Batch Replication for existing objects, and Replication Time Control (RTC) with a 15-minute SLA. Requires versioning on both buckets.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/replication.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-object-lock
+  name: Amazon S3 Object Lock
+  status: ga
+  summary: WORM protection for object versions, using retention periods (governance or compliance mode) and legal holds. Requires versioning. Assessed for SEC 17a-4, CFTC, and FINRA.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-access-control
+  name: Amazon S3 access control (IAM, bucket policies, presigned URLs)
+  status: ga
+  summary: Access is granted by IAM identity policies and bucket policies (ACLs are disabled by default), with Block Public Access, VPC endpoints for network control, and presigned URLs for time-limited sharing.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-access-control.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-access-points
+  name: Amazon S3 Access Points
+  status: ga
+  summary: Named network endpoints attached to a bucket (or an FSx volume), each with its own access policy and optional VPC-only restriction, to simplify access to shared datasets. Multi-Region Access Points route across buckets in several Regions.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-points.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-express-one-zone
+  name: Amazon S3 Express One Zone
+  status: ga
+  summary: A single-AZ, high-performance storage class in directory buckets, designed for consistent single-digit-millisecond access and very high request rates. 99.95% availability design; data isn't replicated across AZs.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-bucket-high-performance.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-tables
+  name: Amazon S3 Tables
+  status: ga
+  summary: Table buckets that store Apache Iceberg tables as first-class resources, with automatic maintenance (compaction, snapshot management) and access from Iceberg-compatible engines such as Athena, Redshift, EMR, and Spark.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-files
+  name: Amazon S3 Files
+  status: ga
+  status_note: Launched Apr 7, 2026. Built on Amazon EFS technology.
+  summary: A shared file system linked to an S3 bucket or prefix. It mounts on EC2, Lambda, EKS, and ECS, caches actively used data on high-performance storage, and keeps the file system and bucket in sync in both directions.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-files.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: mountpoint-s3
+  name: Mountpoint for Amazon S3
+  status: ga
+  summary: An open-source FUSE client that mounts a bucket as a local file system on Linux, optimized for high-throughput reads and sequential writes. Not fully POSIX. It's designed for reading large files and writing new ones, not for in-place edits.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-vectors
+  name: Amazon S3 Vectors
+  status: ga
+  summary: Vector buckets and vector indexes for storing embeddings and running similarity queries, with subsecond latency for infrequent queries (as low as about 100 ms for frequent ones). Integrates with Bedrock Knowledge Bases and OpenSearch.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-vectors.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-inventory-metadata
+  name: Amazon S3 Inventory and S3 Metadata
+  status: ga
+  summary: S3 Inventory delivers scheduled CSV, ORC, or Parquet object listings. S3 Metadata keeps queryable Iceberg journal and live-inventory tables of object metadata in S3 Tables.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/metadata-tables-overview.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-batch-operations
+  name: Amazon S3 Batch Operations
+  status: ga
+  summary: Run one operation (copy, tag, restore, invoke Lambda, replicate, and more) across billions of objects from a manifest or inventory report, with tracking and completion reports.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: s3-object-lambda
+  name: Amazon S3 Object Lambda
+  status: maintenance
+  status_note: Since Nov 7, 2025, available only to existing customers and select APN partners.
+  summary: Lambda functions that transform objects as they're returned from GET, HEAD, and LIST requests.
+  docs: https://docs.aws.amazon.com/AmazonS3/latest/userguide/transforming-objects.html
+  pricing: https://aws.amazon.com/s3/pricing/
+- slug: ebs
+  name: Amazon EBS
+  status: ga
+  summary: Network block volumes for EC2 in a single AZ. SSD types gp3, gp2, io2 Block Express, and io1, and HDD types st1 and sc1. gp3 goes up to 64 TiB, 80,000 IOPS, and 2,000 MiB/s; io2 Block Express goes up to 64 TiB, 256,000 IOPS, and 4,000 MiB/s.
+  docs: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html
+  pricing: https://aws.amazon.com/ebs/pricing/
+- slug: ebs-multi-attach
+  name: Amazon EBS Multi-Attach
+  status: ga
+  summary: Attach one io1 or io2 volume to up to 16 Nitro instances in the same AZ. Applications must coordinate writes (a cluster-aware file system or application). Windows supports io2 only.
+  docs: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes-multi.html
+  pricing: https://aws.amazon.com/ebs/pricing/
+- slug: ebs-snapshots
+  name: Amazon EBS snapshots
+  status: ga
+  summary: Incremental point-in-time backups stored in S3-backed storage, with copy across Regions and accounts, an archive tier, fast snapshot restore, snapshot lock, and Recycle Bin.
+  docs: https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html
+  pricing: https://aws.amazon.com/ebs/pricing/
+- slug: ec2-instance-store
+  name: Amazon EC2 instance store
+  status: ga
+  summary: Physically attached local disks (often NVMe SSD) on some instance types. Included in the instance price, and the data is lost when the instance stops, hibernates, or terminates.
+  docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html
+  pricing: https://aws.amazon.com/ec2/pricing/on-demand/
+- slug: efs
+  name: Amazon EFS
+  status: ga
+  summary: Serverless, elastic NFS (v4.0 and v4.1) file system for Linux, Regional (multi-AZ) or One Zone, with Standard, Infrequent Access, and Archive storage classes and Elastic, Provisioned, or Bursting throughput.
+  docs: https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html
+  pricing: https://aws.amazon.com/efs/pricing/
+- slug: fsx-windows
+  name: Amazon FSx for Windows File Server
+  status: ga
+  summary: Fully managed Windows Server file systems over SMB with Active Directory integration, Single-AZ or Multi-AZ, SSD or HDD storage, DFS namespaces, shadow copies, and data deduplication.
+  docs: https://docs.aws.amazon.com/fsx/latest/WindowsGuide/what-is.html
+  pricing: https://aws.amazon.com/fsx/windows/pricing/
+- slug: fsx-ontap
+  name: Amazon FSx for NetApp ONTAP
+  status: ga
+  summary: Managed NetApp ONTAP file systems with NFS, SMB, iSCSI, and NVMe/TCP access, SSD plus an elastic capacity pool tier, SnapMirror, FlexCache, and S3 access points.
+  docs: https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html
+  pricing: https://aws.amazon.com/fsx/netapp-ontap/pricing/
+- slug: fsx-openzfs
+  name: Amazon FSx for OpenZFS
+  status: ga
+  summary: Managed OpenZFS file systems over NFS (v3 to v4.2), with point-in-time snapshots, data compression, and an Intelligent-Tiering storage class.
+  docs: https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/what-is-fsx.html
+  pricing: https://aws.amazon.com/fsx/openzfs/pricing/
+- slug: fsx-lustre
+  name: Amazon FSx for Lustre
+  status: ga
+  summary: Managed Lustre parallel file system (scratch or persistent) with SSD, HDD, or Intelligent-Tiering storage classes, and links to S3 or on-premises data repositories.
+  docs: https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html
+  pricing: https://aws.amazon.com/fsx/lustre/pricing/
+- slug: file-cache
+  name: Amazon File Cache
+  status: ga
+  summary: A temporary, Lustre-based high-speed cache in front of S3 buckets or NFSv3 file systems (on premises or in AWS), loading data on first access.
+  docs: https://docs.aws.amazon.com/fsx/latest/FileCacheGuide/what-is.html
+  pricing: https://aws.amazon.com/filecache/pricing/
+- slug: s3-file-gateway
+  name: AWS Storage Gateway – Amazon S3 File Gateway
+  status: ga
+  summary: An on-premises VM or hardware appliance that exposes NFS and SMB shares backed by S3 objects, with a local cache for recent data.
+  docs: https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html
+  pricing: https://aws.amazon.com/storagegateway/pricing/
+- slug: fsx-file-gateway
+  name: AWS Storage Gateway – Amazon FSx File Gateway
+  status: maintenance
+  status_note: No longer available to new customers since Oct 28, 2024. Existing customers can keep using it.
+  summary: An on-premises cache for FSx for Windows File Server shares over SMB.
+  docs: https://docs.aws.amazon.com/filegateway/latest/filefsxw/what-is-file-fsxw.html
+  pricing: https://aws.amazon.com/storagegateway/pricing/
+- slug: volume-gateway
+  name: AWS Storage Gateway – Volume Gateway
+  status: ga
+  summary: Cloud-backed iSCSI volumes for on-premises servers, either cached (primary data in S3, hot data local) or stored (all data local, with snapshots to AWS as EBS snapshots).
+  docs: https://docs.aws.amazon.com/storagegateway/latest/vgw/WhatIsStorageGateway.html
+  pricing: https://aws.amazon.com/storagegateway/pricing/
+- slug: tape-gateway
+  name: AWS Storage Gateway – Tape Gateway
+  status: ga
+  summary: A virtual tape library (iSCSI VTL) for existing backup software, archiving virtual tapes to S3 Glacier Flexible Retrieval or Glacier Deep Archive.
+  docs: https://docs.aws.amazon.com/storagegateway/latest/tgw/WhatIsStorageGateway.html
+  pricing: https://aws.amazon.com/storagegateway/pricing/
+- slug: aws-backup
+  name: AWS Backup
+  status: ga
+  summary: Policy-based, centralized backup across EC2, EBS, S3, EFS, FSx, RDS, Aurora, DynamoDB, EKS, and more, plus VMware on premises, with cross-Region and cross-account copies, Vault Lock, and AWS Organizations backup policies.
+  docs: https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html
+  pricing: https://aws.amazon.com/backup/pricing/
+- slug: backup-air-gapped-vault
+  name: AWS Backup logically air-gapped vault
+  status: ga
+  summary: A vault type with compliance-mode locking, AWS-owned or customer-managed key encryption, sharing to recovery accounts through AWS RAM, and optional multi-party approval for recovery when the owning account is lost.
+  docs: https://docs.aws.amazon.com/aws-backup/latest/devguide/logicallyairgappedvault.html
+  pricing: https://aws.amazon.com/backup/pricing/
+- slug: datasync
+  name: AWS DataSync
+  status: ga
+  summary: Managed online transfers between NFS, SMB, HDFS, object storage, other clouds (including Azure Blob Storage, Azure Files, and Google Cloud Storage), and AWS storage services, with or without an agent depending on the location.
+  docs: https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html
+  pricing: https://aws.amazon.com/datasync/pricing/
+- slug: transfer-family
+  name: AWS Transfer Family
+  status: ga
+  summary: Managed SFTP, FTPS, FTP, and AS2 endpoints, plus web apps and SFTP connectors, storing files in S3 or EFS with service-managed, Directory Service, or custom identity providers.
+  docs: https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html
+  pricing: https://aws.amazon.com/aws-transfer-family/pricing/
+- slug: snowball-edge
+  name: AWS Snowball Edge (Snow Family)
+  status: maintenance
+  status_note: No longer available to new customers. AWS points new customers to DataSync (online), Data Transfer Terminal (physical), or Outposts and partners for edge compute.
+  summary: Rugged shippable storage and compute devices for offline data migration and edge computing.
+  docs: https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html
+  pricing: https://aws.amazon.com/snowball/pricing/
+- slug: data-transfer-terminal
+  name: AWS Data Transfer Terminal
+  status: ga
+  summary: Reservable physical locations where you bring your own storage devices and upload data to AWS over high-speed connections.
+  docs: https://docs.aws.amazon.com/datatransferterminal/latest/userguide/what-is-dtt.html
+  pricing: https://aws.amazon.com/data-transfer-terminal/pricing/
+- slug: elastic-disaster-recovery
+  name: AWS Elastic Disaster Recovery (DRS)
+  status: ga
+  summary: Continuous block-level replication of physical, virtual, and cloud servers into a low-cost staging area in an AWS Region, with point-in-time recovery, non-disruptive drills, and failback.
+  docs: https://docs.aws.amazon.com/drs/latest/userguide/what-is-drs.html
+  pricing: https://aws.amazon.com/disaster-recovery/pricing/
+- slug: eks-storage-csi
+  name: Amazon EKS storage CSI drivers (EBS, EFS, FSx, Mountpoint for S3)
+  status: ga
+  summary: Kubernetes CSI drivers, installable as EKS add-ons, that provision EBS volumes and mount EFS, FSx, and S3 (Mountpoint) storage as persistent volumes. EKS Auto Mode includes EBS block storage.
+  docs: https://docs.aws.amazon.com/eks/latest/userguide/storage.html
+  pricing: https://aws.amazon.com/ebs/pricing/
