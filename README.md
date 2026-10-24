@@ -1,6 +1,6 @@
 # Cloud Equivalents: AWS ↔ Azure service equivalents
 
-**Live site:** [cameron-keene.github.io/cloudequivalents](https://cameron-keene.github.io/cloudequivalents) · **Repo:** [github.com/cameron-keene/cloudequivalents](https://github.com/cameron-keene/cloudequivalents)
+**Live site:** [cloudequivalents.com](https://cloudequivalents.com) · **Repo:** [github.com/cameron-keene/cloudequivalents](https://github.com/cameron-keene/cloudequivalents)
 
 An open-source, source-cited study guide that maps cloud services between providers. It goes deeper than a name-to-name table. Every mapping includes:
 
@@ -50,7 +50,7 @@ Requires Node 20 or later. The build needs no network access and no paid service
 
 | key | purpose |
 |---|---|
-| `baseUrl` | Canonical origin, used for canonical URLs, sitemap, OG URLs, and JSON-LD. `https://cameron-keene.github.io/cloudequivalents` (custom domain `https://cloudequivalents.com` planned) |
+| `baseUrl` | Canonical origin, used for canonical URLs, sitemap, OG URLs, and JSON-LD. `https://cloudequivalents.com` (custom domain set in GitHub Pages settings; no CNAME file is needed because the site deploys via Actions). For a GitHub Pages project-site URL such as `https://<user>.github.io/<repo>`, the path prefix is applied automatically. |
 | `repoUrl` / `repoBranch` | Target of the "Edit on GitHub" and "Report an error" links. `https://github.com/cameron-keene/cloudequivalents` |
 | `activeProviders` | Provider columns to render. Each must also be `enabled` in `data/providers.yaml`. |
 
