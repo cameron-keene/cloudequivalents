@@ -48,3 +48,25 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  indexnow:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit sitemap URLs to IndexNow (Bing and partners)
+        continue-on-error: true
+        run: |
+          sleep 30
+          KEY=02525af08bc0d637b5aec3789c6b55a9
+          curl -s https://cloudequivalents.com/sitemap.xml | grep -o '<loc>[^<]*' | sed 's/<loc>//' > urls.txt
+          python3 - <<'PY'
+          import json, urllib.request
+          urls = [u.strip() for u in open('urls.txt') if u.strip()]
+          key = "02525af08bc0d637b5aec3789c6b55a9"
+          body = json.dumps({"host": "cloudequivalents.com", "key": key,
+                             "keyLocation": f"https://cloudequivalents.com/{key}.txt",
+                             "urlList": urls[:10000]}).encode()
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body,
+                                       headers={"Content-Type": "application/json; charset=utf-8"})
+          print(len(urls), "urls; status", urllib.request.urlopen(req, timeout=30).status)
+          PY
