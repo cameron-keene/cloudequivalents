@@ -1,0 +1,159 @@
+- slug: cloud-storage
+  name: Cloud Storage
+  status: ga
+  summary: Object storage in buckets with regional, dual-region, and multi-region locations, storage classes, and strong global consistency.
+  docs: https://docs.cloud.google.com/storage/docs/introduction
+  pricing: https://cloud.google.com/storage/pricing
+- slug: storage-access-control
+  name: Cloud Storage access control (IAM, signed URLs)
+  status: ga
+  summary: IAM with uniform bucket-level access (or legacy ACLs), managed folders, and time-limited signed URLs.
+  docs: https://docs.cloud.google.com/storage/docs/access-control
+- slug: managed-folders
+  name: Cloud Storage managed folders
+  status: ga
+  summary: Folders inside a bucket that you can grant IAM roles on, for finer-grained access to groups of objects.
+  docs: https://docs.cloud.google.com/storage/docs/managed-folders
+- slug: rapid-storage
+  name: Cloud Storage Rapid Bucket (Rapid storage class)
+  status: ga
+  summary: Zonal buckets that store objects in the Rapid storage class, colocated with compute for lower latency and higher throughput, with appendable objects.
+  docs: https://docs.cloud.google.com/storage/docs/rapid/rapid-bucket
+  pricing: https://cloud.google.com/storage/pricing
+- slug: storage-classes
+  name: Cloud Storage classes (Standard, Nearline, Coldline, Archive)
+  status: ga
+  summary: Storage classes with lower storage prices for colder data, offset by minimum storage durations and retrieval fees. All classes return data in milliseconds.
+  docs: https://docs.cloud.google.com/storage/docs/storage-classes
+  pricing: https://cloud.google.com/storage/pricing
+- slug: autoclass
+  name: Cloud Storage Autoclass
+  status: ga
+  summary: Moves each object between storage classes automatically based on access, with Nearline or Archive as the configurable coldest class.
+  docs: https://docs.cloud.google.com/storage/docs/autoclass
+  pricing: https://cloud.google.com/storage/pricing
+- slug: object-lifecycle
+  name: Object Lifecycle Management
+  status: ga
+  summary: Bucket rules that delete objects or change their storage class based on age, versions, and other conditions.
+  docs: https://docs.cloud.google.com/storage/docs/lifecycle
+- slug: dual-region-replication
+  name: Dual-region and multi-region buckets (incl. turbo replication)
+  status: ga
+  summary: Bucket locations that store data redundantly across regions, with optional turbo replication for dual-region buckets.
+  docs: https://docs.cloud.google.com/storage/docs/availability-durability
+  pricing: https://cloud.google.com/storage/pricing
+- slug: bucket-lock
+  name: Bucket Lock and Object Retention Lock
+  status: ga
+  summary: Bucket retention policies that can be locked permanently, and per-object retention configurations, for WORM compliance.
+  docs: https://docs.cloud.google.com/storage/docs/bucket-lock
+- slug: storage-batch-operations
+  name: Storage batch operations
+  status: ga
+  summary: Serverless bulk jobs (such as deleting objects or updating metadata) across billions of objects. Requires a Storage Intelligence configuration.
+  docs: https://docs.cloud.google.com/storage/docs/batch-operations/overview
+- slug: hierarchical-namespace
+  name: Cloud Storage hierarchical namespace
+  status: ga
+  summary: Bucket option with real folders and atomic folder operations such as rename, for analytics and AI/ML workloads.
+  docs: https://docs.cloud.google.com/storage/docs/hns-overview
+  pricing: https://cloud.google.com/storage/pricing
+- slug: biglake-iceberg
+  name: Apache Iceberg managed tables in BigQuery (BigLake)
+  status: ga
+  summary: Fully managed Apache Iceberg tables whose data lives in your Cloud Storage buckets, managed and queried through BigQuery.
+  docs: https://docs.cloud.google.com/bigquery/docs/biglake-iceberg-tables-in-bigquery
+  pricing: https://cloud.google.com/bigquery/pricing
+- slug: cloud-storage-fuse
+  name: Cloud Storage FUSE
+  status: ga
+  summary: Mounts Cloud Storage buckets as a local file system on VMs and GKE, with caching options. Not a POSIX file system.
+  docs: https://docs.cloud.google.com/storage/docs/cloud-storage-fuse/overview
+- slug: bigquery-vector-search
+  name: BigQuery vector search
+  status: ga
+  summary: Store embeddings in BigQuery tables and run similarity search with the VECTOR_SEARCH function and vector indexes.
+  docs: https://docs.cloud.google.com/bigquery/docs/vector-search-intro
+  pricing: https://cloud.google.com/bigquery/pricing
+- slug: storage-inventory
+  name: Cloud Storage inventory reports (Storage Intelligence)
+  status: ga
+  summary: Scheduled CSV or Parquet reports of object metadata, an alternative to listing objects. Part of Storage Intelligence.
+  docs: https://docs.cloud.google.com/storage/docs/insights/inventory-reports
+- slug: hyperdisk-pd
+  name: Hyperdisk and Persistent Disk
+  status: ga
+  summary: Network block storage for Compute Engine. Hyperdisk lets you provision capacity, IOPS, and throughput separately; Persistent Disk is the older family.
+  docs: https://docs.cloud.google.com/compute/docs/disks
+  pricing: https://cloud.google.com/compute/disks-image-pricing
+- slug: disk-sharing
+  name: Disk sharing (multi-writer and read-only)
+  status: ga
+  summary: Attach one disk to several instances in read-only mode or multi-writer mode.
+  docs: https://docs.cloud.google.com/compute/docs/disks/sharing-disks-between-vms
+- slug: disk-snapshots
+  name: Compute Engine disk snapshots
+  status: ga
+  summary: Incremental, compressed, encrypted backups of disks (standard and archive snapshots), stored regionally or multi-regionally.
+  docs: https://docs.cloud.google.com/compute/docs/disks/snapshots
+  pricing: https://cloud.google.com/compute/disks-image-pricing
+- slug: local-ssd
+  name: Local SSD
+  status: ga
+  summary: Physically attached SSDs for instances. Data can be lost if the instance stops or is terminated.
+  docs: https://docs.cloud.google.com/compute/docs/disks/local-ssd
+  pricing: https://cloud.google.com/compute/disks-image-pricing
+- slug: hyperdisk-storage-pools
+  name: Hyperdisk Storage Pools
+  status: ga
+  summary: Buy Hyperdisk capacity and performance in bulk and share it across many disks in a zone.
+  docs: https://docs.cloud.google.com/compute/docs/disks/storage-pools
+  pricing: https://cloud.google.com/compute/disks-image-pricing
+- slug: gke-storage
+  name: GKE storage (CSI drivers)
+  status: ga
+  summary: Managed CSI drivers for Hyperdisk and Persistent Disk, Filestore, Cloud Storage FUSE, Managed Lustre, and more.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/storage-overview
+- slug: filestore
+  name: Filestore
+  status: ga
+  summary: Managed NFS file servers in zonal, regional, and other service tiers for VMs and GKE.
+  docs: https://docs.cloud.google.com/filestore/docs/overview
+  pricing: https://cloud.google.com/filestore/pricing
+- slug: netapp-volumes
+  name: Google Cloud NetApp Volumes
+  status: ga
+  summary: Fully managed NetApp ONTAP-based storage with NFS (v3, v4.1, v4.2), SMB, iSCSI, and NVMe/TCP, plus snapshots and replication.
+  docs: https://docs.cloud.google.com/netapp/volumes/docs/discover/overview
+  pricing: https://cloud.google.com/netapp/volumes/pricing
+- slug: managed-lustre
+  name: Google Cloud Managed Lustre
+  status: ga
+  summary: Fully managed Lustre parallel file system for AI and HPC, at multi-petabyte scale. Old Parallelstore documentation links redirect here.
+  docs: https://docs.cloud.google.com/managed-lustre/docs/overview
+  pricing: https://cloud.google.com/managed-lustre/pricing
+- slug: backup-dr
+  name: Backup and DR Service
+  status: ga
+  summary: Centralized, policy-based backup for Compute Engine, disks, Filestore, VMware Engine VMs, Cloud SQL, AlloyDB, and databases on VMs.
+  docs: https://docs.cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr
+  pricing: https://cloud.google.com/backup-disaster-recovery/pricing
+- slug: backup-vaults
+  name: Backup vaults
+  status: ga
+  summary: Google-managed regional storage that keeps backups isolated, immutable, and indelible for a set retention period.
+  docs: https://docs.cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault
+  pricing: https://cloud.google.com/backup-disaster-recovery/pricing
+- slug: storage-transfer-service
+  name: Storage Transfer Service
+  status: ga
+  summary: Managed transfers from Amazon S3, Azure Blob Storage, HDFS, on-premises file systems (through agents), and between Cloud Storage buckets, including event-driven transfers.
+  docs: https://docs.cloud.google.com/storage-transfer/docs/overview
+  pricing: https://cloud.google.com/storage-transfer/pricing
+- slug: transfer-appliance
+  name: Transfer Appliance
+  status: ga
+  summary: High-capacity storage device you load and ship to Google, which uploads the data to Cloud Storage.
+  docs: https://docs.cloud.google.com/transfer-appliance/docs/4.0/overview
+  pricing: https://cloud.google.com/transfer-appliance/pricing

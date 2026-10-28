@@ -7,6 +7,7 @@ category:
   description: Object, block, file, hybrid, backup, and data-transfer storage. S3 and its storage classes, EBS, EFS and the FSx family, Storage Gateway, AWS Backup, and the transfer services, mapped to their Azure equivalents and verified against official docs.
   seo_description: "AWS vs Azure storage, side by side: S3 vs Blob Storage, S3 storage classes vs access tiers, EBS vs managed disks, EFS and FSx vs Azure Files, NetApp Files, and Managed Lustre, AWS Backup vs Azure Backup, DataSync vs Storage Mover, Snowball vs Data Box."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: object-storage
       name: Object storage
@@ -59,6 +60,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - cloud-storage
+    match: direct
+    answer: The Google Cloud equivalent of Amazon S3 is Cloud Storage, which stores objects in buckets in regional, dual-region, or multi-region locations.
+    differences:
+    - Bucket location is chosen at creation; dual-region and multi-region buckets replicate across regions without a separate replication setup.
+    - All storage classes, including Archive, return data in milliseconds; there is no restore step like S3 Glacier Flexible Retrieval.
+    - Bucket names are globally unique, as in S3.
+    pricing: Billed per GB-month by storage class and location, plus operations (per 10,000), retrieval fees for colder classes, and network egress.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/introduction
+    - https://docs.cloud.google.com/storage/docs/locations
+    - https://cloud.google.com/storage/pricing
 
 - id: object-access-control
   group: object-storage
@@ -88,6 +103,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - storage-access-control
+    match: direct
+    answer: S3 IAM, bucket policies, and presigned URLs map to Cloud Storage IAM (with uniform bucket-level access), managed folders, and signed URLs.
+    differences:
+    - Google recommends uniform bucket-level access, which disables object ACLs, much like S3 Object Ownership's bucket-owner-enforced setting.
+    - Permissions are granted with IAM policies on the bucket, project, or folder; there are no resource-based JSON bucket policies with conditions like S3's.
+    pricing: No charge for access control features; you pay for storage and operations.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/access-control
+    - https://docs.cloud.google.com/storage/docs/access-control/signed-urls
 
 - id: access-points
   group: object-storage
@@ -112,6 +139,17 @@ rows:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-points.html
     - https://learn.microsoft.com/en-us/azure/azure-netapp-files/object-rest-api-introduction
     - https://learn.microsoft.com/en-us/azure/storage/blobs/authorize-access-azure-active-directory
+  gcp:
+    services:
+    - managed-folders
+    match: partial
+    answer: S3 Access Points have no direct Google Cloud equivalent. Managed folders let you grant IAM roles on a folder inside a bucket, which covers part of the same need.
+    differences:
+    - Managed folders don't give each application its own endpoint or network origin controls.
+    - VPC Service Controls perimeters handle network-level restrictions.
+    pricing: No separate charge listed for managed folders.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/managed-folders
 
 - id: low-latency-object
   group: object-storage
@@ -138,6 +176,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-block-blob-premium
 
 # ───────────────────────── OBJECT DATA MANAGEMENT ─────────────────────────
+  gcp:
+    services:
+    - rapid-storage
+    match: direct
+    answer: S3 Express One Zone maps to Cloud Storage Rapid Bucket, which stores objects in the zonal Rapid storage class next to your compute for lower latency and higher throughput.
+    differences:
+    - Rapid buckets are zonal, like S3 directory buckets in one Availability Zone.
+    - Objects in Rapid storage are appendable, with one writer at a time.
+    pricing: Billed per GB-month at Rapid storage class rates, plus operations. See Cloud Storage pricing.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/rapid/rapid-bucket
+    - https://cloud.google.com/storage/pricing
 - id: storage-classes
   group: object-data-management
   capability: Object storage cost tiers (infrequent access and archive)
@@ -168,6 +218,19 @@ rows:
     - https://docs.aws.amazon.com/amazonglacier/latest/dev/introduction.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - storage-classes
+    match: direct
+    answer: S3 storage classes map to Cloud Storage's Standard, Nearline, Coldline, and Archive classes.
+    differences:
+    - Nearline, Coldline, and Archive have 30-, 90-, and 365-day minimum storage durations, plus retrieval fees.
+    - Even Archive returns data in milliseconds; there is no restore job or expedited/bulk retrieval tier.
+    - Storage class is set per object, with a bucket default.
+    pricing: Billed per GB-month by storage class and location, plus operations (per 10,000), retrieval fees for colder classes, and network egress.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/storage-classes
+    - https://cloud.google.com/storage/pricing
 
 - id: auto-tiering
   group: object-data-management
@@ -196,6 +259,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/intelligent-tiering-overview.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-smart
+  gcp:
+    services:
+    - autoclass
+    match: direct
+    answer: S3 Intelligent-Tiering maps to Autoclass, which moves each object between storage classes based on access.
+    differences:
+    - Autoclass is enabled per bucket; the coldest class it uses is Nearline by default and can be set to Archive.
+    - Objects move back to Standard when accessed.
+    pricing: Standard storage-class rates for the class an object is in, plus an Autoclass management fee. See Cloud Storage pricing.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/autoclass
+    - https://cloud.google.com/storage/pricing
 
 - id: object-lifecycle
   group: object-data-management
@@ -221,6 +296,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview
+  gcp:
+    services:
+    - object-lifecycle
+    match: direct
+    answer: 'S3 Lifecycle maps to Object Lifecycle Management: bucket rules that delete objects or change their storage class.'
+    differences:
+    - Conditions include age, creation date, number of newer versions, and storage class.
+    - Class changes by lifecycle rules are billed as operations; check early-deletion charges for colder classes.
+    pricing: No charge for the rules; lifecycle actions are billed as operations.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/lifecycle
 
 - id: object-replication
   group: object-data-management
@@ -249,6 +335,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/blobs/object-replication-overview
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - dual-region-replication
+    - storage-transfer-service
+    match: partial
+    answer: S3 Replication maps partly to dual-region and multi-region buckets, which replicate automatically (turbo replication targets a 15-minute RPO for dual-regions), and to cross-bucket replication for independent buckets.
+    differences:
+    - Cross-region redundancy is a property of the bucket's location, not a rule you add to an existing regional bucket.
+    - Cross-bucket replication (built on Storage Transfer Service) covers cases dual-regions don't, such as separate projects.
+    pricing: Dual-region and multi-region storage has its own per-GB rates, plus inter-region replication charges for data written. See Cloud Storage pricing.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/availability-durability
+    - https://docs.cloud.google.com/storage-transfer/docs/event-driven-transfers
+    - https://cloud.google.com/storage/pricing
 
 - id: object-lock
   group: object-data-management
@@ -273,6 +373,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lock.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview
+  gcp:
+    services:
+    - bucket-lock
+    match: direct
+    answer: S3 Object Lock maps to Bucket Lock (a lockable bucket retention policy) and Object Retention Lock (per-object retention).
+    differences:
+    - A locked retention policy can't be removed or shortened, similar to S3 Object Lock compliance mode.
+    - Object holds (event-based and temporary) work like S3 legal holds.
+    pricing: No charge for retention features; you pay for the stored data.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/bucket-lock
+    - https://docs.cloud.google.com/storage/docs/object-lock
 
 - id: batch-object-operations
   group: object-data-management
@@ -299,6 +411,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage-actions/overview
 
 # ───────────────────────── OBJECT ACCESS & ANALYTICS ─────────────────────────
+  gcp:
+    services:
+    - storage-batch-operations
+    match: direct
+    answer: S3 Batch Operations maps to Storage batch operations, which run serverless bulk jobs such as deleting objects or updating metadata across billions of objects.
+    differences:
+    - Batch operations require Storage Intelligence to be configured, which has its own charges.
+    pricing: Billed through Storage Intelligence and per object processed. See Cloud Storage pricing.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/batch-operations/overview
+    - https://docs.cloud.google.com/storage/docs/storage-intelligence/overview
 - id: data-lake-storage
   group: object-access
   capability: Data lake storage with real directories
@@ -323,6 +446,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-introduction
+  gcp:
+    services:
+    - hierarchical-namespace
+    match: direct
+    answer: A data lake with real directories maps to Cloud Storage buckets with hierarchical namespace, which add folders and atomic folder rename.
+    differences:
+    - Hierarchical namespace is chosen when the bucket is created.
+    - Plain S3 has only a flat namespace with prefixes, so this is closer to Azure Data Lake Storage than to S3.
+    pricing: Billed per GB-month by storage class and location, plus operations (per 10,000), retrieval fees for colder classes, and network egress.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/hns-overview
+    - https://cloud.google.com/storage/pricing
 
 - id: lake-tables
   group: object-access
@@ -350,6 +485,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables.html
     - https://learn.microsoft.com/en-us/fabric/onelake/onelake-iceberg-tables
     - https://learn.microsoft.com/en-us/fabric/onelake/onelake-overview
+  gcp:
+    services:
+    - biglake-iceberg
+    match: direct
+    answer: Amazon S3 Tables maps to Apache Iceberg managed tables in BigQuery (BigLake), which store Iceberg data in your Cloud Storage buckets with BigQuery-managed maintenance.
+    differences:
+    - Tables are created and managed through BigQuery; S3 Tables is a storage-level table bucket that many engines use.
+    - Open engines such as Spark can read the tables through the BigLake metastore.
+    pricing: Cloud Storage charges for data, plus BigQuery compute for queries and table maintenance.
+    sources:
+    - https://docs.cloud.google.com/bigquery/docs/biglake-iceberg-tables-in-bigquery
+    - https://cloud.google.com/bigquery/pricing
 
 - id: object-file-access
   group: object-access
@@ -379,6 +526,17 @@ rows:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/mountpoint.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/network-file-system-protocol-support
     - https://learn.microsoft.com/en-us/azure/storage/blobs/blobfuse2-what-is
+  gcp:
+    services:
+    - cloud-storage-fuse
+    match: partial
+    answer: Mountpoint for Amazon S3 maps to Cloud Storage FUSE, which mounts buckets as a local file system on VMs and GKE. There is no managed NFS front end like S3 Files.
+    differences:
+    - Google states Cloud Storage FUSE is not a POSIX file system and behaves differently from NFS or SMB.
+    - For a real shared file system over the same data, use Filestore or Managed Lustre with import and export.
+    pricing: Cloud Storage FUSE is free; you pay Cloud Storage operations and storage.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/cloud-storage-fuse/overview
 
 - id: vector-storage
   group: object-access
@@ -403,6 +561,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-vectors.html
     - https://learn.microsoft.com/en-us/azure/search/vector-search-overview
+  gcp:
+    services:
+    - bigquery-vector-search
+    match: partial
+    answer: Amazon S3 Vectors has no storage-native equivalent. Low-cost vector storage on Google Cloud is usually BigQuery vector search; Vector Search on Agent Platform serves low-latency queries.
+    differences:
+    - S3 Vectors stores vectors in a bucket type; BigQuery stores embeddings in tables and queries them with VECTOR_SEARCH.
+    pricing: BigQuery storage plus query compute (on-demand bytes processed or slots).
+    sources:
+    - https://docs.cloud.google.com/bigquery/docs/vector-search-intro
+    - https://cloud.google.com/bigquery/pricing
 
 - id: object-inventory
   group: object-access
@@ -428,6 +597,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/metadata-tables-overview.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/blob-inventory
     - https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-change-feed
+  gcp:
+    services:
+    - storage-inventory
+    match: direct
+    answer: S3 Inventory maps to Cloud Storage inventory reports, scheduled CSV or Parquet listings of object metadata, part of Storage Intelligence.
+    differences:
+    - Inventory reports need a Storage Intelligence configuration.
+    - There is no live metadata table service like S3 Metadata; query the reports in BigQuery instead.
+    pricing: Billed through Storage Intelligence. See Cloud Storage pricing.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/insights/inventory-reports
+    - https://docs.cloud.google.com/storage/docs/storage-intelligence/overview
 
 - id: object-transform-on-read
   group: object-access
@@ -451,6 +632,15 @@ rows:
     - https://docs.aws.amazon.com/AmazonS3/latest/userguide/transforming-objects.html
 
 # ───────────────────────── BLOCK STORAGE ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no equivalent of S3 Object Lambda. Put a Cloud Run service in front of the bucket to transform objects on read.
+    differences:
+    - S3 Object Lambda is also in maintenance on AWS.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/introduction
 - id: block-volumes
   group: block-storage
   capability: VM block storage volumes
@@ -482,6 +672,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types
     - https://learn.microsoft.com/en-us/azure/virtual-machines/managed-disks-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - hyperdisk-pd
+    match: direct
+    answer: Amazon EBS maps to Hyperdisk and Persistent Disk, network block storage for Compute Engine.
+    differences:
+    - Hyperdisk provisions capacity, IOPS, and throughput separately, like EBS gp3/io2; newer machine series support only Hyperdisk.
+    - Regional (synchronously replicated across two zones) disk options exist, which EBS doesn't offer.
+    pricing: Billed per GB-month of provisioned capacity; Hyperdisk also bills provisioned IOPS and throughput. Rates vary by disk type and region.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/disks
+    - https://docs.cloud.google.com/compute/docs/disks/hyperdisks
+    - https://cloud.google.com/compute/disks-image-pricing
 
 - id: shared-block-volumes
   group: block-storage
@@ -506,6 +709,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volumes-multi.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-shared
+  gcp:
+    services:
+    - disk-sharing
+    match: direct
+    answer: EBS Multi-Attach maps to disk sharing in multi-writer mode (or read-only mode) across several instances.
+    differences:
+    - Multi-writer support depends on the disk type and needs a cluster-aware file system or application, as with Multi-Attach.
+    pricing: Billed per GB-month of provisioned capacity; Hyperdisk also bills provisioned IOPS and throughput. Rates vary by disk type and region.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/disks/sharing-disks-between-vms
 
 - id: block-snapshots
   group: block-storage
@@ -531,6 +744,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/ebs/latest/userguide/ebs-snapshots.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/disks-incremental-snapshots
+  gcp:
+    services:
+    - disk-snapshots
+    match: direct
+    answer: 'EBS snapshots map to Compute Engine disk snapshots: incremental, compressed, and encrypted, stored regionally or multi-regionally.'
+    differences:
+    - Snapshots are global resources usable in any region of the project, without a copy step.
+    - Archive snapshots are the counterpart of EBS Snapshots Archive.
+    pricing: Billed per GB-month of snapshot storage by type (standard or archive) and location.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/disks/snapshots
+    - https://cloud.google.com/compute/disks-image-pricing
 
 - id: local-instance-storage
   group: block-storage
@@ -556,6 +781,17 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/InstanceStorage.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/ephemeral-os-disks
     - https://learn.microsoft.com/en-us/azure/virtual-machines/enable-nvme-temp-faqs
+  gcp:
+    services:
+    - local-ssd
+    match: direct
+    answer: EC2 instance store maps to Local SSD, physically attached SSDs whose data can be lost when the instance stops or is terminated.
+    differences:
+    - Some machine series include Local SSD in -lssd machine types; others attach it separately.
+    pricing: Billed per GB-month while attached (or included in -lssd machine types).
+    sources:
+    - https://docs.cloud.google.com/compute/docs/disks/local-ssd
+    - https://cloud.google.com/compute/disks-image-pricing
 
 - id: san-storage
   group: block-storage
@@ -581,6 +817,19 @@ rows:
     - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html
     - https://learn.microsoft.com/en-us/azure/storage/elastic-san/elastic-san-introduction
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - netapp-volumes
+    - hyperdisk-storage-pools
+    match: direct
+    answer: A managed SAN like FSx for NetApp ONTAP block volumes maps to Google Cloud NetApp Volumes, which serves iSCSI and NVMe/TCP as well as file protocols. Hyperdisk Storage Pools pool disk capacity and performance for Compute Engine.
+    differences:
+    - Storage Pools share purchased capacity and performance across Hyperdisks but aren't an iSCSI target.
+    pricing: NetApp Volumes is billed per provisioned GiB by service level. Storage Pools bill pooled capacity and performance.
+    sources:
+    - https://docs.cloud.google.com/netapp/volumes/docs/discover/overview
+    - https://docs.cloud.google.com/compute/docs/disks/storage-pools
+    - https://cloud.google.com/netapp/volumes/pricing
 
 - id: kubernetes-storage
   group: block-storage
@@ -608,6 +857,16 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/container-storage/container-storage-introduction
 
 # ───────────────────────── FILE STORAGE ─────────────────────────
+  gcp:
+    services:
+    - gke-storage
+    match: direct
+    answer: EKS storage CSI drivers map to GKE's managed CSI drivers for Hyperdisk and Persistent Disk, Filestore, Cloud Storage FUSE, and Managed Lustre.
+    differences:
+    - The drivers are managed by GKE and supported on Autopilot and Standard clusters (check each driver).
+    pricing: No charge for the drivers; you pay for the storage provisioned.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/storage-overview
 - id: nfs-file-storage
   group: file-storage
   capability: Serverless NFS file system for Linux
@@ -639,6 +898,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/files/understanding-billing
     - https://learn.microsoft.com/en-us/azure/storage/files/files-management-concepts
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - filestore
+    match: partial
+    answer: Amazon EFS maps partly to Filestore, managed NFS file servers in zonal, regional, and other tiers.
+    differences:
+    - Filestore instances have provisioned capacity per tier; EFS grows and shrinks automatically and bills per GB used.
+    - NetApp Volumes is the other NFS option, with ONTAP data features.
+    pricing: Billed per provisioned GiB-month by tier and region.
+    sources:
+    - https://docs.cloud.google.com/filestore/docs/overview
+    - https://cloud.google.com/filestore/pricing
 
 - id: windows-file-storage
   group: file-storage
@@ -667,6 +938,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction
     - https://learn.microsoft.com/en-us/azure/storage/files/storage-files-planning
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - netapp-volumes
+    match: partial
+    answer: FSx for Windows File Server maps partly to Google Cloud NetApp Volumes SMB volumes, which join Active Directory.
+    differences:
+    - NetApp Volumes runs ONTAP, not Windows Server, so Windows-only features such as DFS namespaces on the file server differ.
+    - Filestore is NFS-only.
+    pricing: Billed per provisioned GiB by service level.
+    sources:
+    - https://docs.cloud.google.com/netapp/volumes/docs/discover/overview
+    - https://cloud.google.com/netapp/volumes/pricing
 
 - id: netapp-files
   group: file-storage
@@ -693,6 +976,17 @@ rows:
     - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/what-is-fsx-ontap.html
     - https://learn.microsoft.com/en-us/azure/azure-netapp-files/azure-netapp-files-introduction
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - netapp-volumes
+    match: direct
+    answer: FSx for NetApp ONTAP maps to Google Cloud NetApp Volumes, a fully managed ONTAP-based service with NFS, SMB, iSCSI, and NVMe/TCP.
+    differences:
+    - NetApp Volumes is a Google-managed service; FSx for ONTAP exposes more of the ONTAP management interface.
+    pricing: Billed per provisioned GiB by service level, plus optional features.
+    sources:
+    - https://docs.cloud.google.com/netapp/volumes/docs/discover/overview
+    - https://cloud.google.com/netapp/volumes/pricing
 
 - id: openzfs-file-storage
   group: file-storage
@@ -715,6 +1009,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/fsx/latest/OpenZFSGuide/what-is-fsx.html
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed OpenZFS file system. Filestore or NetApp Volumes are the managed NFS alternatives.
+    differences:
+    - ZFS-specific features (such as zfs send/receive) aren't available in either.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/filestore/docs/overview
 
 - id: lustre-file-storage
   group: file-storage
@@ -741,6 +1044,17 @@ rows:
     - https://docs.aws.amazon.com/fsx/latest/LustreGuide/what-is.html
     - https://learn.microsoft.com/en-us/azure/azure-managed-lustre/amlfs-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - managed-lustre
+    match: direct
+    answer: FSx for Lustre maps to Google Cloud Managed Lustre, a fully managed parallel file system for AI and HPC.
+    differences:
+    - Parallelstore documentation now redirects to Managed Lustre, which is Google's parallel file system offering.
+    pricing: See the Managed Lustre pricing page.
+    sources:
+    - https://docs.cloud.google.com/managed-lustre/docs/overview
+    - https://cloud.google.com/managed-lustre/pricing
 
 - id: file-caching
   group: file-storage
@@ -765,6 +1079,16 @@ rows:
     - https://learn.microsoft.com/en-us/previous-versions/azure/hpc-cache/hpc-cache-overview
 
 # ───────────────────────── HYBRID ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed file cache like Amazon File Cache. Use Managed Lustre with import from Cloud Storage, or Cloud Storage FUSE caching.
+    differences:
+    - Amazon File Cache links to NFS and S3; Google's options load data rather than cache on demand.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/managed-lustre/docs/overview
+    - https://docs.cloud.google.com/storage/docs/cloud-storage-fuse/overview
 - id: file-gateway
   group: hybrid-storage
   capability: On-premises file gateway to cloud object storage
@@ -792,6 +1116,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/databox-gateway/data-box-gateway-overview
     - https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no hybrid storage gateway like AWS Storage Gateway (S3 File Gateway). Use Storage Transfer Service agents to move data, or partner gateways.
+    differences:
+    - Storage Transfer Service moves data on a schedule or by events; it doesn't present a local cached share or volume.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
 
 - id: file-server-caching
   group: hybrid-storage
@@ -815,6 +1148,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/filegateway/latest/filefsxw/what-is-file-fsxw.html
     - https://learn.microsoft.com/en-us/azure/storage/file-sync/file-sync-introduction
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no hybrid storage gateway like AWS Storage Gateway (FSx File Gateway). Use Storage Transfer Service agents to move data, or partner gateways.
+    differences:
+    - Storage Transfer Service moves data on a schedule or by events; it doesn't present a local cached share or volume.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
 
 - id: block-gateway
   group: hybrid-storage
@@ -838,6 +1180,15 @@ rows:
     - https://docs.aws.amazon.com/storagegateway/latest/vgw/WhatIsStorageGateway.html
     - https://learn.microsoft.com/en-us/previous-versions/azure/storsimple/storsimple-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no hybrid storage gateway like AWS Storage Gateway (Volume Gateway). Use Storage Transfer Service agents to move data, or partner gateways.
+    differences:
+    - Storage Transfer Service moves data on a schedule or by events; it doesn't present a local cached share or volume.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
 
 - id: tape-gateway
   group: hybrid-storage
@@ -862,6 +1213,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
 
 # ───────────────────────── BACKUP & DR ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no hybrid storage gateway like AWS Storage Gateway (Tape Gateway). Use Storage Transfer Service agents to move data, or partner gateways.
+    differences:
+    - Storage Transfer Service moves data on a schedule or by events; it doesn't present a local cached share or volume.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
 - id: backup-service
   group: backup-dr
   capability: Centralized backup service
@@ -889,6 +1249,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/backup/backup-overview
     - https://learn.microsoft.com/en-us/azure/backup/blob-backup-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - backup-dr
+    match: direct
+    answer: AWS Backup maps to Backup and DR Service, centralized policy-based backup for Compute Engine, disks, Filestore, VMware Engine VMs, Cloud SQL, AlloyDB, and databases on VMs.
+    differences:
+    - Backup and DR covers fewer storage and database services than AWS Backup (for example Cloud Storage objects aren't protected the same way).
+    pricing: Billed for backup storage, a backup management charge that depends on the resource type, and inter-region transfer.
+    sources:
+    - https://docs.cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr
+    - https://cloud.google.com/backup-disaster-recovery/pricing
 
 - id: backup-vault-lock
   group: backup-dr
@@ -912,6 +1283,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/aws-backup/latest/devguide/logicallyairgappedvault.html
     - https://learn.microsoft.com/en-us/azure/backup/backup-azure-immutable-vault-concept
+  gcp:
+    services:
+    - backup-vaults
+    match: direct
+    answer: AWS Backup logically air-gapped vaults map to Backup and DR backup vaults, which keep backups isolated, immutable, and indelible.
+    differences:
+    - Backup vaults are Google-managed regional resources, separate from your project's own storage.
+    pricing: Billed for backup vault storage. See Backup and DR pricing.
+    sources:
+    - https://docs.cloud.google.com/backup-disaster-recovery/docs/concepts/backup-vault
+    - https://cloud.google.com/backup-disaster-recovery/pricing
 
 - id: disaster-recovery
   group: backup-dr
@@ -939,6 +1321,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/site-recovery/azure-to-azure-architecture
 
 # ───────────────────────── DATA TRANSFER ─────────────────────────
+  gcp:
+    services:
+    - backup-dr
+    match: partial
+    answer: AWS Elastic Disaster Recovery has no direct Google Cloud equivalent for continuous server replication. Backup and DR restores from backups, and regional disks and managed instance groups cover in-cloud resilience.
+    differences:
+    - Recovery point objectives are bounded by backup frequency rather than continuous block replication.
+    pricing: Billed for backup storage, backup management, and inter-region transfer.
+    sources:
+    - https://docs.cloud.google.com/backup-disaster-recovery/docs/concepts/backup-dr
+    flags:
+    - We found no Google-managed continuous block-replication DR service on 2026-10-27.
 - id: online-data-migration
   group: data-transfer
   capability: Online file and object migration
@@ -967,6 +1361,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage-mover/billing
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - storage-transfer-service
+    match: direct
+    answer: AWS DataSync maps to Storage Transfer Service, which moves data from Amazon S3, Azure Blob Storage, HDFS, and on-premises file systems (through agents) to Cloud Storage, and back.
+    differences:
+    - Transfers can be Google-managed or use self-hosted agents for on-premises sources.
+    pricing: Agentless and agent-based transfers are priced differently; agent-based transfers to or from file systems are billed per GiB. Network egress from the source applies.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
+    - https://cloud.google.com/storage-transfer/pricing
 
 - id: managed-file-transfer
   group: data-transfer
@@ -991,6 +1396,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/transfer/latest/userguide/what-is-aws-transfer-family.html
     - https://learn.microsoft.com/en-us/azure/storage/blobs/secure-file-transfer-protocol-support
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed SFTP/FTP service like AWS Transfer Family. Run an SFTP server on Compute Engine or GKE backed by Cloud Storage, or use a partner service.
+    differences:
+    - Storage Transfer Service doesn't expose SFTP endpoints.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage-transfer/docs/overview
 
 - id: offline-data-transfer
   group: data-transfer
@@ -1021,3 +1435,14 @@ rows:
     - https://docs.aws.amazon.com/datatransferterminal/latest/userguide/what-is-dtt.html
     - https://learn.microsoft.com/en-us/azure/databox/data-box-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
+  gcp:
+    services:
+    - transfer-appliance
+    match: direct
+    answer: AWS Snowball (retired) and Data Transfer Terminal map to Transfer Appliance, a high-capacity device you load and ship to Google for upload to Cloud Storage.
+    differences:
+    - Transfer Appliance is for data transfer only; it doesn't run edge compute like Snowball Edge did.
+    pricing: See the Transfer Appliance pricing page.
+    sources:
+    - https://docs.cloud.google.com/transfer-appliance/docs/4.0/overview
+    - https://cloud.google.com/transfer-appliance/pricing
