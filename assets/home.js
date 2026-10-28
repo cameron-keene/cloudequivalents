@@ -209,6 +209,7 @@
           (p.services.length ? p.services.map(function (s) {
             return '<a class="chip" href="' + s.url + '">' + esc(s.name) + (s.status ? ' <span class="badge b-warn">' + esc(s.status) + '</span>' : '') + '</a>';
           }).join('') : '<span class="nochip">No equivalent</span>') +
+          (p.match ? '<p class="small"><span class="match m-' + p.match + '">' + esc(p.matchLabel) + '</span> vs AWS · <a href="' + p.compare + '">AWS vs GCP →</a></p>' : '') +
           '<p class="small">' + esc(p.pricing) + '</p></div>';
       }).join('') +
       '</div><h3>Key differences</h3><ul class="diffs">' + r.differences.map(function (d) { return '<li>' + esc(d) + '</li>'; }).join('') + '</ul>' +

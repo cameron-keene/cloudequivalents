@@ -14,6 +14,8 @@ An open-source, source-cited study guide that maps cloud services between provid
 
 **Current scope:** Compute (32 mappings), Containers & Serverless (29), Storage (38), Databases (34), Networking & Content Delivery (40), Identity & Security (29), and AI & Machine Learning (65): 267 mappings, 268 AWS services, 232 Azure services. Last verified 2026-10-24.
 
+**Google Cloud column (in progress):** AI & Machine Learning (65 of 65 mappings, 56 GCP services, verified 2026-10-27). Compute, Containers & Serverless, Storage, Databases, Networking, and Identity & Security are not yet mapped to GCP; their matrices show two columns until they are.
+
 
 ## Screenshots
 
@@ -81,7 +83,7 @@ SEO and performance features:
 
 ```
 data/
-  providers.yaml          # provider registry (aws, azure, gcp*, oci*); *disabled
+  providers.yaml          # provider registry (aws, azure, gcp, oci*); *disabled
   exams.yaml              # certification exams, status (current/beta/retiring/retired), notes
   services/<provider>/<category>.yaml   # one entry per service: slug, name, status, status_note, summary, docs, pricing
                                         # (slugs are unique per provider across all files)
@@ -119,11 +121,28 @@ Service URL segments drop a redundant provider prefix (`azure-language` becomes 
 
 ## Adding a provider (GCP, OCI, …)
 
-1. Create `data/services/gcp/<category>.yaml` files using the same fields.
-2. Add `gcp: [...]` to `providers` (and optionally `pricing`/`exams`) on the rows.
-3. Set `enabled: true` in `data/providers.yaml` and add `"gcp"` to `activeProviders`.
+Google Cloud is added per category, through a `gcp:` block on each row, so AWS↔Azure data and URLs never change:
 
-The matrix columns, comparison tables, pricing blocks, drawer, and hub pages are all generated from the provider list. No template changes are needed. Compare-page slugs remain based on the first two providers (AWS and Azure).
+```yaml
+category:
+  gcp_last_verified: "2026-10-27"   # turns on the GCP column for this category; every row then needs a gcp block
+rows:
+  - id: ml-platform
+    # ...existing AWS/Azure fields...
+    gcp:
+      services: [agent-platform]     # slugs from data/services/gcp/<category>.yaml ([] when match is none)
+      match: direct                  # direct | partial | none, rated against the AWS service
+      answer: One or two sentences.
+      differences: [ ... ]
+      pricing: Pricing model only, no prices.
+      sources: [ https://docs.cloud.google.com/... ]   # official Google (or AWS) URLs only
+      flags: [ ... ]                 # optional verification notes
+      slug: aws-x-vs-gcp-y           # optional; defaults to aws-<aws service>-vs-gcp-<gcp service>
+```
+
+Each GCP-mapped row gets an extra page at `/compare/aws-<service>-vs-gcp-<service>/`, a third column on its AWS↔Azure compare page, and a GCP cell (with its own match badge) in the matrix. GCP service hubs live under `/gcp/<service>/`. Categories without `gcp_last_verified` keep the two-column layout.
+
+A future provider follows the same steps: services in `data/services/<id>/`, `enabled: true` in `data/providers.yaml`, and the id in `activeProviders`.
 
 ## Adding a category
 

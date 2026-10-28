@@ -50,6 +50,18 @@ export function loadData() {
       if (!groupIds.has(r.group)) errors.push(`${r.id}: unknown group ${r.group}`);
       if (!['direct', 'partial', 'none'].includes(r.match)) errors.push(`${r.id}: bad match ${r.match}`);
       for (const f of ['capability', 'what_for', 'answer', 'differences', 'pricing', 'sources']) if (!r[f] || (Array.isArray(r[f]) && !r[f].length)) errors.push(`${r.id}: missing ${f}`);
+      // Google Cloud column: a per-row "gcp:" block, required in categories that set gcp_last_verified.
+      const gcpOn = providers.some((p) => p.id === 'gcp');
+      if (r.gcp && !cat.gcp_last_verified) errors.push(`${r.id}: has a gcp block but category ${cat.id} has no gcp_last_verified`);
+      if (gcpOn && cat.gcp_last_verified && !r.gcp) errors.push(`${r.id}: missing gcp block (category ${cat.id} is GCP-verified)`);
+      if (r.gcp) {
+        if (!['direct', 'partial', 'none'].includes(r.gcp.match)) errors.push(`${r.id}: bad gcp.match ${r.gcp.match}`);
+        for (const f of ['answer', 'differences', 'pricing', 'sources']) if (!r.gcp[f] || (Array.isArray(r.gcp[f]) && !r.gcp[f].length)) errors.push(`${r.id}: missing gcp.${f}`);
+        if (r.gcp.match !== 'none' && !(r.gcp.services || []).length) errors.push(`${r.id}: gcp.match ${r.gcp.match} needs gcp.services`);
+        for (const u of r.gcp.sources || []) if (!/^https:\/\/([a-z0-9-]+\.)*(cloud\.google\.com|google\.com|antigravity\.google|aws\.amazon\.com)\//.test(u)) errors.push(`${r.id}: gcp source not an official Google/AWS URL: ${u}`);
+        r.providers = { ...r.providers, gcp: r.gcp.services || [] };
+        r.pricing = { ...r.pricing, gcp: r.gcp.pricing };
+      }
       r.svc = {};
       for (const p of providers) {
         r.svc[p.id] = (r.providers?.[p.id] || []).map((s) => {
@@ -66,6 +78,14 @@ export function loadData() {
       if (slugs.has(r.slug)) errors.push(`compare slug collision ${r.slug}: ${slugs.get(r.slug)} and ${r.id}. Add "slug:" to one row.`);
       slugs.set(r.slug, r.id);
       r.url = `/compare/${r.slug}/`;
+      if (r.gcp && gcpOn) {
+        const a = r.svc[pa.id][0], g = r.svc.gcp[0];
+        let gs = r.gcp.slug || `${pa.id}-${a ? a.seg : 'none'}-vs-gcp${g ? '-' + g.seg : ''}`;
+        if (!r.gcp.slug && slugs.has(gs)) gs = `${r.id}-${pa.id}-vs-gcp`;
+        if (slugs.has(gs)) errors.push(`gcp compare slug collision ${gs}: ${slugs.get(gs)} and ${r.id}. Add "gcp.slug:".`);
+        slugs.set(gs, r.id);
+        r.gcpSlug = gs; r.gcpUrl = `/compare/${gs}/`;
+      }
     }
   }
   const rowsById = new Map(categories.flatMap((c) => c.rows).map((r) => [r.id, r]));

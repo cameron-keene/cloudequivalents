@@ -14,7 +14,7 @@
   name: GCP
   long_name: Google Cloud
   color: "#34a853"
-  enabled: false
+  enabled: true
 - id: oci
   name: OCI
   long_name: Oracle Cloud Infrastructure

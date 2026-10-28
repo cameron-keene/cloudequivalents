@@ -1,0 +1,345 @@
+# Google Cloud service registry. status: ga | preview | deprecated (shutdown announced) | retired
+# Naming as of Oct 2026: Vertex AI is now "Gemini Enterprise Agent Platform" (renamed Apr 22, 2026).
+# Docs moved to docs.cloud.google.com; old cloud.google.com/vertex-ai URLs redirect.
+- slug: agent-platform
+  name: Gemini Enterprise Agent Platform (formerly Vertex AI)
+  status: ga
+  status_note: Vertex AI was renamed Gemini Enterprise Agent Platform on Apr 22, 2026. The Python SDK and many API names still say "Vertex AI".
+  summary: Google Cloud's unified platform for generative AI models, agents, and classic ML (training, inference, pipelines, feature store, model registry).
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: gemini-models
+  name: Gemini models on Agent Platform
+  status: ga
+  summary: Google's first-party models (Gemini, Gemma, Veo, Lyria, embeddings) served per token or per output unit through the Agent Platform API.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: model-garden
+  name: Model Garden
+  status: ga
+  summary: Catalog of Google, partner, and open models. Partner models (for example Anthropic Claude, xAI Grok, Mistral) are offered as managed APIs. Open models (for example Llama, DeepSeek, Qwen, Gemma) deploy to your own endpoints.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-garden/explore-models
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: gemini-tuning
+  name: Gemini model tuning
+  status: ga
+  summary: Supervised fine-tuning and preference tuning for Gemini models, embedding tuning, and tuning of open models from Model Garden.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/tuning
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: provisioned-throughput
+  name: Provisioned Throughput
+  status: ga
+  summary: Fixed-term subscription that reserves throughput for Google models, as an alternative to pay-as-you-go (Standard, Priority, and Flex PayGo).
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/provisioned-throughput
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: agent-studio
+  name: Agent Studio (formerly Vertex AI Studio)
+  status: ga
+  summary: Console workspace for trying models, refining system instructions and prompts, and prototyping agents.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/agent-studio
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: genai-evaluation
+  name: Gen AI evaluation service
+  status: ga
+  summary: Evaluates generative models with adaptive rubrics, static rubrics, computation-based metrics (such as ROUGE and BLEU), and custom Python functions. Agent evaluation is a separate feature.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/evaluation-overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: document-ai
+  name: Document AI
+  status: ga
+  summary: OCR, form and layout parsing, pretrained specialized processors, and custom extractors for documents.
+  docs: https://docs.cloud.google.com/document-ai/docs/overview
+  pricing: https://cloud.google.com/products/document-ai/pricing
+- slug: agent-runtime
+  name: Agent Runtime (formerly Agent Engine)
+  status: ga
+  status_note: Renamed from Vertex AI Agent Engine on Apr 22, 2026.
+  summary: Managed runtime to deploy and scale agents built with ADK or other frameworks, with Sessions, Memory Bank, code execution, and observability.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: memory-bank
+  name: Agent Platform Sessions and Memory Bank
+  status: ga
+  status_note: Memory Bank billing started Sep 1, 2026.
+  summary: Managed short-term session state and long-term memory that agents read and write across conversations.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: agent-identity
+  name: Agent Identity
+  status: ga
+  summary: Gives each deployed agent its own IAM identity so access can be granted, audited, and revoked per agent.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: agent-gateway
+  name: Agent Gateway
+  status: preview
+  status_note: Private Preview as of the Apr 22, 2026 release notes.
+  summary: Central gateway that governs how agents reach tools, models, and other agents.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: agent-registry
+  name: Agent Registry
+  status: preview
+  status_note: Public Preview as of the Apr 22, 2026 release notes.
+  summary: Catalog of agents, tools, and MCP servers for discovery and governance.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: adk
+  name: Agent Development Kit (ADK)
+  status: ga
+  summary: Open-source framework (Python, TypeScript, Go, Java) for building single and multi-agent systems with workflow agents, tools, and evaluation. Runs anywhere; deploys to Agent Runtime, Cloud Run, or GKE.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk
+- slug: model-armor
+  name: Model Armor
+  status: ga
+  summary: Screens prompts and responses for prompt injection, jailbreaks, harmful content, sensitive data, and malicious URLs, for any model.
+  docs: https://docs.cloud.google.com/model-armor/overview
+  pricing: https://cloud.google.com/model-armor/pricing
+- slug: rag-engine
+  name: RAG Engine
+  status: ga
+  summary: Managed retrieval-augmented generation that ingests, chunks, embeds, and retrieves your data, with a managed or bring-your-own vector database.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/rag-engine/rag-overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: vector-search
+  name: Vector Search
+  status: ga
+  summary: Managed approximate-nearest-neighbor vector search built on Google's ScaNN algorithm.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/vector-search/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: agent-search
+  name: Agent Search (formerly Vertex AI Search)
+  status: ga
+  summary: Managed Google-quality search and grounding over websites, structured, and unstructured data, with connectors and generative answers.
+  docs: https://docs.cloud.google.com/generative-ai-app-builder/docs
+  pricing: https://cloud.google.com/products/agent-search/pricing
+- slug: workbench
+  name: Agent Platform Workbench
+  status: ga
+  summary: Managed JupyterLab instances on Compute Engine with Agent Platform and BigQuery integration.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/notebooks/workbench/introduction
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: colab-enterprise
+  name: Colab Enterprise
+  status: ga
+  summary: Managed, collaborative Colab notebooks with IAM, runtimes you control, and integration with BigQuery and Agent Platform.
+  docs: https://docs.cloud.google.com/colab/docs/introduction
+  pricing: https://cloud.google.com/colab/pricing
+- slug: bigquery-ml
+  name: BigQuery ML
+  status: ga
+  summary: Create and run ML models with SQL inside BigQuery, including forecasting (ARIMA_PLUS, TimesFM), anomaly detection, and calls to remote Gemini models.
+  docs: https://docs.cloud.google.com/bigquery/docs/bqml-introduction
+  pricing: https://cloud.google.com/bigquery/pricing
+- slug: serverless-training
+  name: Agent Platform serverless training (custom training)
+  status: ga
+  summary: Run your own training code in containers on managed CPU, GPU, or TPU workers, billed for the job's duration.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: training-clusters
+  name: Agent Platform training clusters
+  status: ga
+  status_note: Docs direct you to your Google Cloud sales contact to get access.
+  summary: Persistent, reserved accelerator clusters with Slurm orchestration and resiliency features for large-scale training.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/training-clusters/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: inference
+  name: Agent Platform inference (endpoints)
+  status: ga
+  summary: Online endpoints and batch inference for your own or Model Garden models, on CPU, GPU, or TPU nodes.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: pipelines
+  name: Agent Platform Pipelines
+  status: ga
+  summary: Serverless runner for ML workflows written with the Kubeflow Pipelines SDK or TensorFlow Extended (TFX).
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/pipelines/introduction
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: feature-store
+  name: Agent Platform Feature Store
+  status: ga
+  status_note: The current Feature Store uses BigQuery as its offline store. Legacy Feature Store and Optimized online serving are deprecated (sunset Feb 17, 2027).
+  summary: Feature registry over BigQuery tables and views, with online stores for low-latency serving.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/featurestore/latest/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: model-registry
+  name: Agent Platform Model Registry
+  status: ga
+  summary: Central registry of model versions, aliases, and evaluations, with deployment to endpoints.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/model-registry/introduction
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: experiments
+  name: Agent Platform Experiments
+  status: ga
+  summary: Tracks runs, parameters, and metrics, with TensorBoard integration, for comparing training experiments.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/experiments/intro-vertex-ai-experiments
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: automl
+  name: Agent Platform AutoML
+  status: ga
+  status_note: AutoML Text shut down Jun 15, 2025 and AutoML Video shut down Jul 31, 2025. Tabular and image AutoML remain.
+  summary: Trains tabular (classification, regression, forecasting) and image models from your data with little or no code.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/automl-training-overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: deep-learning-vm
+  name: Deep Learning VM Images
+  status: ga
+  summary: Compute Engine images preinstalled with ML frameworks, CUDA drivers, and JupyterLab.
+  docs: https://docs.cloud.google.com/deep-learning-vm/docs
+  pricing: https://cloud.google.com/deep-learning-vm/pricing
+- slug: model-evaluation
+  name: Agent Platform model evaluation (incl. fairness metrics)
+  status: ga
+  summary: Evaluation metrics for trained models, including data and model bias (fairness) metrics.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/evaluation/intro-evaluation-fairness
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: explainable-ai
+  name: Vertex Explainable AI
+  status: deprecated
+  status_note: Deprecated Mar 16, 2026; shuts down Mar 16, 2027.
+  summary: Feature attributions and example-based explanations for model predictions.
+  docs: https://docs.cloud.google.com/vertex-ai/docs/explainable-ai/overview
+- slug: model-monitoring
+  name: Agent Platform Model Monitoring
+  status: ga
+  status_note: Model Monitoring v2 is in Preview; v1 is GA.
+  summary: Detects training-serving skew and prediction drift for deployed models.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/model-monitoring/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: data-labeling
+  name: Agent Platform dataset labeling
+  status: ga
+  summary: Label images, video, text, and tabular data yourself in the console inside a managed dataset.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/datasets/label-using-console
+- slug: tensorboard-profiler
+  name: Agent Platform TensorBoard Profiler
+  status: ga
+  summary: Profiles custom training jobs (step time, input pipeline, accelerator use) in managed TensorBoard.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/tensorboard-profiler
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: compute-gpus
+  name: Compute Engine GPU machines
+  status: ga
+  summary: Accelerator-optimized and N1 VMs with NVIDIA GPUs, also used by GKE and Agent Platform.
+  docs: https://docs.cloud.google.com/compute/docs/gpus
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: cloud-tpu
+  name: Cloud TPU
+  status: ga
+  summary: Google's custom AI accelerators (for example v6e Trillium and TPU7x Ironwood) for both training and inference, on Compute Engine, GKE, or Agent Platform.
+  docs: https://docs.cloud.google.com/tpu/docs/intro-to-tpu
+  pricing: https://cloud.google.com/tpu/pricing
+- slug: gemini-enterprise
+  name: Gemini Enterprise
+  status: ga
+  status_note: Old Google Agentspace documentation URLs redirect to Gemini Enterprise.
+  summary: Per-user AI assistant and agent workspace that searches and acts across company apps through connectors.
+  docs: https://docs.cloud.google.com/gemini/enterprise/docs
+  pricing: https://cloud.google.com/gemini-enterprise/pricing
+- slug: antigravity
+  name: Google Antigravity
+  status: ga
+  summary: Google's agentic development platform (IDE and agents). Enterprise use is through Gemini Enterprise.
+  docs: https://antigravity.google/docs/enterprise/
+  pricing: https://cloud.google.com/gemini-enterprise/pricing
+- slug: gemini-code-assist
+  name: Gemini Code Assist Standard/Enterprise
+  status: deprecated
+  status_note: No new Standard or Enterprise subscriptions since Oct 9, 2026. Google points customers to Google Antigravity.
+  summary: AI coding assistant for IDEs and the console.
+  docs: https://docs.cloud.google.com/gemini/docs/codeassist/sunset
+- slug: gemini-cloud-assist
+  name: Gemini Cloud Assist
+  status: preview
+  summary: AI assistant in the Google Cloud console for designing, operating, troubleshooting, and optimizing workloads.
+  docs: https://docs.cloud.google.com/cloud-assist/overview
+- slug: cloud-vision
+  name: Cloud Vision API
+  status: ga
+  summary: Pretrained image analysis (labels, objects, OCR, faces without identity, landmarks, logos, SafeSearch).
+  docs: https://docs.cloud.google.com/vision/docs/features-list
+  pricing: https://cloud.google.com/vision/pricing
+- slug: video-intelligence
+  name: Video Intelligence API
+  status: deprecated
+  status_note: Deprecated Sep 14, 2026; shuts down Sep 14, 2027.
+  summary: Pretrained video analysis (labels, shots, objects, text, explicit content).
+  docs: https://docs.cloud.google.com/video-intelligence/docs
+- slug: natural-language
+  name: Cloud Natural Language API
+  status: ga
+  summary: Pretrained entity, sentiment, syntax, classification, and text moderation analysis.
+  docs: https://docs.cloud.google.com/natural-language/docs
+  pricing: https://cloud.google.com/products/natural-language/pricing
+- slug: sensitive-data-protection
+  name: Sensitive Data Protection (formerly Cloud DLP)
+  status: ga
+  summary: Discovers, classifies, and de-identifies sensitive data (PII and more) in text, images, and Google Cloud storage.
+  docs: https://docs.cloud.google.com/sensitive-data-protection/docs
+  pricing: https://cloud.google.com/sensitive-data-protection/pricing
+- slug: cloud-translation
+  name: Cloud Translation
+  status: ga
+  summary: Neural machine translation (Basic and Advanced), document translation, glossaries, custom models, and LLM-based (adaptive) translation.
+  docs: https://docs.cloud.google.com/translate/docs/overview
+  pricing: https://cloud.google.com/products/translate/pricing
+- slug: speech-to-text
+  name: Cloud Speech-to-Text
+  status: ga
+  summary: Batch and streaming transcription, including Chirp 3 and medical conversation and dictation models.
+  docs: https://docs.cloud.google.com/speech-to-text/docs
+  pricing: https://cloud.google.com/speech-to-text/pricing
+- slug: text-to-speech
+  name: Cloud Text-to-Speech
+  status: ga
+  summary: Speech synthesis in many voices and languages, with SSML support.
+  docs: https://docs.cloud.google.com/text-to-speech/docs
+  pricing: https://cloud.google.com/text-to-speech/pricing
+- slug: cx-insights
+  name: Customer Experience Insights (formerly Contact Center AI Insights)
+  status: ga
+  summary: Imports contact-center calls and chats, transcribes them, and finds topics, sentiment, and quality patterns.
+  docs: https://docs.cloud.google.com/gemini-enterprise-cx/insights
+  pricing: https://cloud.google.com/contact-center/insights/pricing
+- slug: live-api
+  name: Gemini Live API
+  status: ga
+  summary: Low-latency, bidirectional streaming voice and video conversations with Gemini.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: dialogflow-cx
+  name: Dialogflow CX (Conversational Agents)
+  status: ga
+  summary: Builder for chat and voice virtual agents with flows, playbooks (LLM-driven), and telephony integration.
+  docs: https://docs.cloud.google.com/dialogflow/cx/docs
+  pricing: https://cloud.google.com/products/conversational-agents/pricing
+- slug: ai-commerce-search
+  name: AI Commerce Search (formerly Vertex AI Search for commerce)
+  status: ga
+  summary: Product search, browse, and recommendations for retail catalogs, part of Gemini Enterprise for Customer Experience.
+  docs: https://docs.cloud.google.com/gemini-enterprise-cx/ai-commerce-search
+  pricing: https://cloud.google.com/products/retail/pricing
+- slug: forecasting
+  name: Agent Platform tabular forecasting
+  status: ga
+  summary: AutoML and other tabular workflows for time-series forecasting.
+  docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/tabular-data/forecasting/overview
+  pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+- slug: fraud-defense
+  name: Google Cloud Fraud Defense (reCAPTCHA)
+  status: ga
+  summary: Bot, account-takeover, and payment-fraud risk scoring for web and mobile interactions.
+  docs: https://docs.cloud.google.com/recaptcha/docs/overview
+  pricing: https://cloud.google.com/security/products/recaptcha
+- slug: aml-ai
+  name: Anti Money Laundering AI
+  status: ga
+  summary: Banking-specific ML that scores customers for money-laundering risk from transaction and party data.
+  docs: https://docs.cloud.google.com/financial-services/anti-money-laundering/docs/concepts/overview
+- slug: healthcare-api
+  name: Cloud Healthcare API (FHIR stores)
+  status: ga
+  summary: Managed FHIR stores with a REST API and Pub/Sub notifications. The same API also offers HL7v2 stores.
+  docs: https://docs.cloud.google.com/healthcare-api/docs/concepts/fhir
+  pricing: https://cloud.google.com/healthcare-api/pricing

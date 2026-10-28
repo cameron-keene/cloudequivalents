@@ -54,6 +54,12 @@ const examLabel = (code) => { const e = exams.get(code); return e.unverified_cod
 const examChip = (code) => { const e = exams.get(code); return `<a class="chip exam" href="/exams/#${esc(code)}" title="${esc(e.name)}">${esc(examLabel(code))}${statusBadge(e.status)}</a>`; };
 const groupName = (cat, gid) => cat.groups.find((g) => g.id === gid).name;
 const catOf = (r) => categories.find((c) => c.id === r.category);
+const GCP = providers.find((p) => p.id === 'gcp');
+// Provider columns for a category/row: GCP only where that category has been GCP-verified.
+const provsForCat = (cat) => providers.filter((p) => p.id !== 'gcp' || cat.gcp_last_verified);
+const provsFor = (r) => provsForCat(catOf(r));
+const gcpOn = (r) => GCP && r.gcp && catOf(r).gcp_last_verified;
+const gcpCats = categories.filter((c) => GCP && c.gcp_last_verified);
 
 function breadcrumbs(items) {
   const html = `<nav class="crumbs" aria-label="Breadcrumb"><ol>${items.map((it, i) => i === items.length - 1
@@ -64,7 +70,7 @@ function breadcrumbs(items) {
 
 const HEADER = (active) => `<header class="top"><div class="wrap top-in">
   <a class="brand" href="${rel('/')}"><span class="logo" aria-hidden="true"><i></i><i></i></span>${esc(config.siteName)}</a>
-  <nav class="nav" aria-label="Main"><a href="${rel('/')}"${active === 'home' ? ' aria-current="page"' : ''}>Matrix</a><a href="${rel('/category/')}"${active === 'cat' ? ' aria-current="page"' : ''}>Categories</a><a href="${rel('/aws/')}"${active === 'aws' ? ' aria-current="page"' : ''}>AWS</a><a href="${rel('/azure/')}"${active === 'azure' ? ' aria-current="page"' : ''}>Azure</a><a href="${rel('/exams/')}"${active === 'exams' ? ' aria-current="page"' : ''}>Exams</a><a href="${rel('/about/')}"${active === 'about' ? ' aria-current="page"' : ''}>About</a></nav>
+  <nav class="nav" aria-label="Main"><a href="${rel('/')}"${active === 'home' ? ' aria-current="page"' : ''}>Matrix</a><a href="${rel('/category/')}"${active === 'cat' ? ' aria-current="page"' : ''}>Categories</a><a href="${rel('/aws/')}"${active === 'aws' ? ' aria-current="page"' : ''}>AWS</a><a href="${rel('/azure/')}"${active === 'azure' ? ' aria-current="page"' : ''}>Azure</a>${GCP ? `<a href="${rel('/gcp/')}"${active === 'gcp' ? ' aria-current="page"' : ''}>GCP</a>` : ''}<a href="${rel('/exams/')}"${active === 'exams' ? ' aria-current="page"' : ''}>Exams</a><a href="${rel('/about/')}"${active === 'about' ? ' aria-current="page"' : ''}>About</a></nav>
   <form class="search" action="${rel('/')}" method="get" role="search"><label class="sr" for="q">Search services</label><input id="q" name="q" type="search" placeholder="Search services…" autocomplete="off"><kbd aria-hidden="true">⌘K</kbd></form>
 </div></header>`;
 
@@ -181,12 +187,14 @@ function comparePage(r) {
   const faq = [...derivedFaq(r), ...(r.faq || [])];
   const ex = examsFor(r);
   const related = (r.related || []).map((id) => rowsById.get(id));
-  const svcRows = (label, fn) => `<tr><th scope="row">${label}</th>${providers.map((p) => fn(r.svc[p.id], p)).join('')}</tr>`;
-  const table = `<div class="tscroll"><table class="cmp">
-<caption>${esc(r.capability)}: ${providers.map((p) => p.name).join(' vs ')} side by side</caption>
-<thead><tr><th scope="col">Aspect</th>${providers.map((p) => `<th scope="col" class="p-${p.id}">${esc(p.long_name)}</th>`).join('')}</tr></thead>
+  const RP = provsFor(r);
+  const svcRows = (label, fn) => `<tr><th scope="row">${label}</th>${RP.map((p) => fn(r.svc[p.id], p).replace(/^<td/, `<td data-label="${esc(p.name)}"`)).join('')}</tr>`;
+  const table = `<div class="tscroll"><table class="cmp${RP.length > 2 ? ' cmp3' : ''}">
+<caption>${esc(r.capability)}: ${RP.map((p) => p.name).join(' vs ')} side by side</caption>
+<thead><tr><th scope="col">Aspect</th>${RP.map((p) => `<th scope="col" class="p-${p.id}">${esc(p.long_name)}</th>`).join('')}</tr></thead>
 <tbody>
 ${svcRows('Service', (l, p) => svcCell(l, p.id))}
+${gcpOn(r) ? `<tr><th scope="row">Match vs AWS</th><td data-label="AWS">—</td><td data-label="Azure">${matchBadge(r.match)}</td><td data-label="GCP">${matchBadge(r.gcp.match)}</td></tr>` : ''}
 ${svcRows('Lifecycle', (l) => `<td>${l.length ? l.map((s) => esc(s.status_note || (s.status === 'ga' ? 'Generally available' : s.status))).join('<br>') : '—'}</td>`)}
 ${svcRows('What it is', (l) => `<td>${l.length ? l.map((s) => esc(s.summary)).join('<hr>') : '—'}</td>`)}
 ${svcRows('Pricing model', (l, p) => `<td>${esc(r.pricing?.[p.id] || '—')}</td>`)}
@@ -207,18 +215,22 @@ ${rest(r.answer) ? `<p class="lede">${esc(rest(r.answer))}</p>` : ''}
 </header>
 <section aria-labelledby="t-table"><h2 id="t-table">Side-by-side comparison</h2>${table}</section>
 <section aria-labelledby="t-diff"><h2 id="t-diff">Key differences</h2><ul class="diffs">${r.differences.map((d) => `<li>${esc(d)}</li>`).join('')}</ul></section>
+${gcpOn(r) ? `<section aria-labelledby="t-gcp"><h2 id="t-gcp">Google Cloud equivalent</h2>
+<p>${matchBadge(r.gcp.match)} <strong>${esc(firstSentence(r.gcp.answer))}</strong> ${esc(rest(r.gcp.answer))}</p>
+<ul class="diffs">${r.gcp.differences.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
+<p><a href="${r.gcpUrl}">${esc(PA.name)} vs Google Cloud: full comparison →</a> <span class="small muted">GCP mapping last verified <time datetime="${catOf(r).gcp_last_verified}">${fmtDate(catOf(r).gcp_last_verified)}</time></span></p></section>` : ''}
 <section aria-labelledby="t-price"><h2 id="t-price">Pricing summary</h2>
 <p class="small muted">Pricing models only. No prices are quoted because they change by region and over time.</p>
-<dl class="pricing">${providers.map((p) => `<div><dt class="p-${p.id}">${esc(p.name)}</dt><dd>${esc(r.pricing?.[p.id] || 'No direct equivalent.')}${r.svc[p.id].filter((s) => s.pricing).map((s) => ` <a href="${esc(s.pricing)}" rel="noopener">${esc(s.name)} pricing →</a>`).join('')}</dd></div>`).join('')}</dl></section>
+<dl class="pricing">${RP.map((p) => `<div><dt class="p-${p.id}">${esc(p.name)}</dt><dd>${esc(r.pricing?.[p.id] || 'No direct equivalent.')}${r.svc[p.id].filter((s) => s.pricing).map((s) => ` <a href="${esc(s.pricing)}" rel="noopener">${esc(s.name)} pricing →</a>`).join('')}</dd></div>`).join('')}</dl></section>
 ${ex.length ? `<section aria-labelledby="t-exam"><h2 id="t-exam">Certification exam mapping</h2>
-<table class="exams"><thead><tr><th scope="col">Exam</th><th scope="col">Provider</th><th scope="col">Level</th><th scope="col">Status</th></tr></thead><tbody>
+<div class="tscroll"><table class="exams"><thead><tr><th scope="col">Exam</th><th scope="col">Provider</th><th scope="col">Level</th><th scope="col">Status</th></tr></thead><tbody>
 ${ex.map((c) => { const e = exams.get(c); return `<tr><td><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a>${e.unverified_code ? '' : ` <span class="code">${esc(e.code)}</span>`}${guideLink(c) ? `<div class="small"><a href="${guideLink(c).url}">${esc(c)} guide for AWS engineers →</a></div>` : ''}</td><td>${esc(providers.find((p) => p.id === e.provider)?.name || e.provider)}</td><td>${esc(e.level)}</td><td>${esc(e.status)}${e.note ? `<div class="small muted">${esc(e.note)}</div>` : ''}</td></tr>`; }).join('')}
-</tbody></table><p class="small muted">Relevance is based on each exam's published scope, not a line-by-line objective match. Check the official study guide.</p></section>` : ''}
+</tbody></table></div><p class="small muted">Relevance is based on each exam's published scope, not a line-by-line objective match. Check the official study guide.</p></section>` : ''}
 ${guidesByRow.get(r.id) ? `<section aria-labelledby="t-guides"><h2 id="t-guides">Azure exam guides for AWS engineers</h2><p>This comparison is on the study list for: ${guidesByRow.get(r.id).map((g) => `<a href="${g.url}">${esc(g.code)} for AWS engineers</a>`).join(', ')}.</p></section>` : ''}
 ${r.flags?.length ? `<section aria-labelledby="t-flag" class="flags"><h2 id="t-flag">Verification notes</h2><ul>${r.flags.map((f) => `<li>${esc(f)}</li>`).join('')}</ul></section>` : ''}
 <section aria-labelledby="t-faq"><h2 id="t-faq">FAQ</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>
 ${related.length ? `<section aria-labelledby="t-rel"><h2 id="t-rel">Related comparisons</h2><ul class="related">${related.map((x) => `<li><a href="${x.url}">${esc(x.capability)}</a> <span class="muted small">${esc(joinNames(names(x.svc[PA.id])))} → ${esc(joinNames(names(x.svc[PB.id])) || 'none')}</span></li>`).join('')}</ul></section>` : ''}
-<section aria-labelledby="t-src"><h2 id="t-src">Official sources</h2>${sourcesList(r.sources)}</section>
+<section aria-labelledby="t-src"><h2 id="t-src">Official sources</h2>${sourcesList(gcpOn(r) ? [...r.sources, ...r.gcp.sources.filter((u) => !r.sources.includes(u))] : r.sources)}</section>
 </article>`;
   const og = `/og/compare/${r.slug}.png`;
   renderOg({ kicker: `${PA.name} vs ${PB.name} · ${r.capability}`, title: B.length ? `${A[0].name} vs ${B[0].name}` : `${A[0].name} → ${PB.name}?`, subtitle: lead, badge: MATCH[r.match][0], siteName: config.siteName }, path.join(OUT, og));
@@ -229,8 +241,112 @@ ${related.length ? `<section aria-labelledby="t-rel"><h2 id="t-rel">Related comp
   write(r.url, page({ url: r.url, title, description, h1, body, ld, ogImage: og, active: 'cat' }));
 }
 
+// ---------- AWS vs Google Cloud compare pages (rows in GCP-verified categories) ----------
+function gcpComparePage(r) {
+  const cat = catOf(r);
+  const g = r.gcp, A = r.svc[PA.id], G = r.svc.gcp, Z = r.svc[PB.id];
+  const short = (x) => x.name.replace(/\s*\(.*?\)/g, '').replace(/\s*&.*$/, '').trim();
+  const h1 = G.length ? `${names(A).join(' / ')} vs ${names(G).join(' / ')}` : `${names(A).join(' / ')}: Google Cloud equivalent`;
+  const core = G.length ? `${short(A[0])} vs ${short(G[0])}` : `${short(A[0])}: Google Cloud equivalent`;
+  const cands = [`${core}: ${r.capability}`, `${core} (AWS vs GCP)`, `${r.capability}: AWS vs Google Cloud`, `${core} · ${r.capability} on GCP`].filter((c) => !usedTitles.has(c));
+  const title = cands.find((c) => c.length <= 65) || cands.sort((x, y) => x.length - y.length)[0];
+  usedTitles.add(title);
+  const lead = firstSentence(g.answer);
+  const description = clip(`${lead} ${r.what_for}`.replace(/\s+/g, ' '), 158);
+  const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: cat.name, url: `/category/${cat.id}/` }, { name: `${r.capability} (AWS vs GCP)`, url: r.gcpUrl }]);
+  const PP = [PA, GCP];
+  const svcRows = (label, fn) => `<tr><th scope="row">${label}</th>${PP.map((p) => fn(r.svc[p.id], p)).join('')}</tr>`;
+  const table = `<div class="tscroll"><table class="cmp">
+<caption>${esc(r.capability)}: AWS vs Google Cloud side by side</caption>
+<thead><tr><th scope="col">Aspect</th>${PP.map((p) => `<th scope="col" class="p-${p.id}">${esc(p.long_name)}</th>`).join('')}</tr></thead>
+<tbody>
+${svcRows('Service', (l, p) => svcCell(l, p.id))}
+${svcRows('Lifecycle', (l) => `<td>${l.length ? l.map((x) => esc(x.status_note || (x.status === 'ga' ? 'Generally available' : x.status))).join('<br>') : '—'}</td>`)}
+${svcRows('What it is', (l) => `<td>${l.length ? l.map((x) => esc(x.summary)).join('<hr>') : '—'}</td>`)}
+${svcRows('Pricing model', (l, p) => `<td>${esc(r.pricing?.[p.id] || '—')}</td>`)}
+${svcRows('Docs', (l) => `<td>${l.map((x) => x.docs ? `<a href="${esc(x.docs)}" rel="noopener">${esc(x.name)} docs</a>` : '').filter(Boolean).join('<br>') || '—'}</td>`)}
+${svcRows('Pricing page', (l) => `<td>${l.map((x) => x.pricing ? `<a href="${esc(x.pricing)}" rel="noopener">${esc(x.name)} pricing</a>` : '').filter(Boolean).join('<br>') || '—'}</td>`)}
+</tbody></table></div>`;
+  const faq = [
+    { q: g.match === 'none' ? `Does Google Cloud have an equivalent to ${joinNames(names(A))}?` : `What is the Google Cloud equivalent of ${joinNames(names(A))}?`, a: g.answer },
+    { q: `How does pricing compare between ${joinNames(names(A))} and ${joinNames(names(G)) || 'Google Cloud'}?`, a: `AWS: ${r.pricing?.[PA.id] || '—'} Google Cloud: ${g.pricing} Check the official pricing pages for current rates.` },
+    { q: `What is the Azure equivalent?`, a: Z.length ? `${joinNames(names(Z))} (${MATCH[r.match][0].toLowerCase()}). ${firstSentence(r.answer)}` : `Azure has no first-party equivalent. ${firstSentence(r.answer)}` },
+  ];
+  const related = (r.related || []).map((id) => rowsById.get(id)).filter((x) => x.gcpUrl);
+  const body = `${bc.html}
+<article class="doc">
+<header class="doc-head">
+<p class="kicker">${esc(groupName(cat, r.group))} · AWS vs Google Cloud</p>
+<h1>${esc(h1)}</h1>
+<p class="answer"><strong>${esc(lead)}</strong></p>
+${rest(g.answer) ? `<p class="lede">${esc(rest(g.answer))}</p>` : ''}
+<p class="meta">${matchBadge(g.match)} <span>Use it to: ${esc(r.what_for)}</span></p>
+<p class="meta small">Last verified: <time datetime="${cat.gcp_last_verified}">${fmtDate(cat.gcp_last_verified)}</time> · <a href="${editUrl(cat.file)}" rel="noopener">Edit on GitHub</a> · <a href="${issueUrl('Correction (GCP): ' + r.id)}" rel="noopener">Report an error</a></p>
+</header>
+<section aria-labelledby="t-table"><h2 id="t-table">Side-by-side comparison</h2>${table}</section>
+<section aria-labelledby="t-diff"><h2 id="t-diff">Key differences</h2><ul class="diffs">${g.differences.map((d) => `<li>${esc(d)}</li>`).join('')}</ul></section>
+<section aria-labelledby="t-price"><h2 id="t-price">Pricing summary</h2>
+<p class="small muted">Pricing models only. No prices are quoted because they change by region and over time.</p>
+<dl class="pricing">${PP.map((p) => `<div><dt class="p-${p.id}">${esc(p.name)}</dt><dd>${esc(r.pricing?.[p.id] || 'No direct equivalent.')}${r.svc[p.id].filter((x) => x.pricing).map((x) => ` <a href="${esc(x.pricing)}" rel="noopener">${esc(x.name)} pricing →</a>`).join('')}</dd></div>`).join('')}</dl></section>
+<section aria-labelledby="t-az"><h2 id="t-az">And on Azure?</h2><p>${matchBadge(r.match)} ${Z.length ? `Azure's equivalent is ${Z.map((x) => `<a href="${x.url}">${esc(x.name)}</a>`).join(', ')}.` : 'Azure has no first-party equivalent.'} <a href="${r.url}">AWS vs Azure comparison →</a></p></section>
+${g.flags?.length ? `<section aria-labelledby="t-flag" class="flags"><h2 id="t-flag">Verification notes</h2><ul>${g.flags.map((f) => `<li>${esc(f)}</li>`).join('')}</ul></section>` : ''}
+<section aria-labelledby="t-faq"><h2 id="t-faq">FAQ</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>
+${related.length ? `<section aria-labelledby="t-rel"><h2 id="t-rel">Related AWS vs GCP comparisons</h2><ul class="related">${related.map((x) => `<li><a href="${x.gcpUrl}">${esc(x.capability)}</a> <span class="muted small">${esc(joinNames(names(x.svc[PA.id])))} → ${esc(joinNames(names(x.svc.gcp)) || 'none')}</span></li>`).join('')}</ul></section>` : ''}
+<section aria-labelledby="t-src"><h2 id="t-src">Official sources</h2>${sourcesList(g.sources)}</section>
+</article>`;
+  const og = `/og/compare/${r.gcpSlug}.png`;
+  renderOg({ kicker: `AWS vs Google Cloud · ${r.capability}`, title: G.length ? `${A[0].name} vs ${G[0].name}` : `${A[0].name} → Google Cloud?`, subtitle: lead, badge: MATCH[g.match][0], siteName: config.siteName }, path.join(OUT, og));
+  const ld = [bc.ld,
+    { '@type': 'TechArticle', headline: h1, description, url: abs(r.gcpUrl), dateModified: cat.gcp_last_verified, inLanguage: 'en', image: abs(og),
+      about: [...A, ...G].map((x) => ({ '@type': 'Thing', name: x.name, sameAs: x.docs })), isPartOf: { '@type': 'WebSite', name: config.siteName, url: BASE + '/' }, citation: g.sources },
+    { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }];
+  write(r.gcpUrl, page({ url: r.gcpUrl, title, description, h1, body, ld, ogImage: og, active: 'cat' }));
+}
+
 // ---------- service hub pages ----------
+function gcpHubPage(s) {
+  const p = GCP;
+  const rows = s.rows.filter(gcpOn);
+  const cat = catOf(rows[0]);
+  const aws = [...new Map(rows.flatMap((r) => r.svc[PA.id]).map((x) => [x.slug, x])).values()];
+  const az = [...new Map(rows.flatMap((r) => r.svc[PB.id]).map((x) => [x.slug, x])).values()];
+  const h1 = `AWS and Azure equivalents of ${s.name}`;
+  const directLead = `The closest AWS equivalent${aws.length > 1 ? 's' : ''} of Google Cloud ${s.name} ${aws.length > 1 ? 'are' : 'is'} ${joinNames(names(aws))}; on Azure, ${az.length ? joinNames(names(az)) : 'there is no first-party equivalent'}.`;
+  const title = clip(`AWS & Azure equivalent of ${s.name} (GCP) | ${config.siteName}`, 70);
+  const description = clip(`AWS equivalent of Google Cloud ${s.name}: ${joinNames(names(aws))}. Azure: ${az.length ? joinNames(names(az)) : 'none'}. ${s.summary}`, 158);
+  const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: p.name, url: `/${p.id}/` }, { name: s.name, url: s.url }]);
+  const svcs = (l) => l.length ? l.map((x) => `<a href="${x.url}">${esc(x.name)}</a>${statusBadge(x.status, x.status_note)}`).join(', ') : '<span class="muted">None</span>';
+  const body = `${bc.html}
+<article class="doc">
+<header class="doc-head">
+<p class="kicker">${esc(p.long_name)} → AWS and Azure</p>
+<h1>${esc(h1)}</h1>
+<p class="answer"><strong>${esc(directLead)}</strong></p>
+<p class="meta small">Last verified: <time datetime="${cat.gcp_last_verified}">${fmtDate(cat.gcp_last_verified)}</time> · <a href="${editUrl(s.file)}" rel="noopener">Edit on GitHub</a></p>
+</header>
+<section aria-labelledby="t-about"><h2 id="t-about">About ${esc(s.name)}</h2>
+<table class="facts"><tbody>
+<tr><th scope="row">Provider</th><td>${esc(p.long_name)}</td></tr>
+<tr><th scope="row">Status</th><td>${s.status === 'ga' ? 'Generally available' : esc(s.status)}${statusBadge(s.status)}${s.status_note ? `<div class="small">${esc(s.status_note)}</div>` : ''}</td></tr>
+<tr><th scope="row">What it is</th><td>${esc(s.summary)}</td></tr>
+<tr><th scope="row">Documentation</th><td>${s.docs ? `<a href="${esc(s.docs)}" rel="noopener">${esc(host(s.docs))}</a>` : '—'}</td></tr>
+<tr><th scope="row">Pricing</th><td>${s.pricing ? `<a href="${esc(s.pricing)}" rel="noopener">Official pricing page</a>` : 'No separate pricing page'}</td></tr>
+</tbody></table></section>
+<section aria-labelledby="t-map"><h2 id="t-map">Mappings (${rows.length})</h2>
+<div class="tscroll"><table class="cmp"><thead><tr><th scope="col">Capability</th><th scope="col">AWS</th><th scope="col">Match (GCP vs AWS)</th><th scope="col">Azure</th></tr></thead><tbody>
+${rows.map((r) => `<tr><td><a href="${r.gcpUrl}">${esc(r.capability)}</a></td><td>${svcs(r.svc[PA.id])}</td><td>${matchBadge(r.gcp.match)}</td><td>${svcs(r.svc[PB.id])}</td></tr>`).join('')}
+</tbody></table></div>
+${rows.map((r) => `<div class="cat-row"><h3><a href="${r.gcpUrl}">${esc(r.capability)}</a> ${matchBadge(r.gcp.match)}</h3><p>${esc(r.gcp.answer)}</p><ul class="diffs">${r.gcp.differences.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul><p><a href="${r.gcpUrl}">AWS vs GCP comparison →</a> · <a href="${r.url}">AWS vs Azure →</a></p></div>`).join('')}
+</section>
+</article>`;
+  const og = `/og/${p.id}/${s.seg}.png`;
+  renderOg({ kicker: 'Google Cloud → AWS & Azure', title: `AWS equivalent of ${s.name}`, subtitle: directLead, badge: `${rows.length} mapping${rows.length > 1 ? 's' : ''}`, siteName: config.siteName }, path.join(OUT, og));
+  const ld = [bc.ld, { '@type': 'TechArticle', headline: h1, description, url: abs(s.url), dateModified: cat.gcp_last_verified, image: abs(og), about: { '@type': 'Thing', name: s.name, sameAs: s.docs } }];
+  write(s.url, page({ url: s.url, title, description, h1, body, ld, ogImage: og, active: p.id }));
+}
+
 function hubPage(p, s) {
+  if (p.id === 'gcp') return gcpHubPage(s);
   const other = providers.filter((x) => x.id !== p.id);
   const o = other[0];
   const cat = catOf(s.rows[0]);
@@ -262,9 +378,10 @@ function hubPage(p, s) {
 <tr><th scope="row">Pricing</th><td>${s.pricing ? `<a href="${esc(s.pricing)}" rel="noopener">Official pricing page</a>` : 'No separate pricing page'}</td></tr>
 </tbody></table></section>
 <section aria-labelledby="t-map"><h2 id="t-map">${esc(o.name)} mappings (${s.rows.length})</h2>
-<div class="tscroll"><table class="cmp"><thead><tr><th scope="col">Capability</th><th scope="col">${esc(o.name)} equivalent</th><th scope="col">Match</th></tr></thead><tbody>
-${s.rows.map((r) => `<tr><td><a href="${r.url}">${esc(r.capability)}</a></td><td>${r.svc[o.id].length ? r.svc[o.id].map((x) => `<a href="${x.url}">${esc(x.name)}</a>${statusBadge(x.status, x.status_note)}`).join(', ') : '<span class="muted">None</span>'}</td><td>${matchBadge(r.match)}</td></tr>`).join('')}
-</tbody></table></div>
+${(() => { const withG = GCP && s.rows.some(gcpOn); const svcs = (l) => l.length ? l.map((x) => `<a href="${x.url}">${esc(x.name)}</a>${statusBadge(x.status, x.status_note)}`).join(', ') : '<span class="muted">None</span>';
+  return `<div class="tscroll"><table class="cmp"><thead><tr><th scope="col">Capability</th><th scope="col">${esc(o.name)} equivalent</th><th scope="col">Match</th>${withG ? '<th scope="col">Google Cloud</th>' : ''}</tr></thead><tbody>
+${s.rows.map((r) => `<tr><td><a href="${r.url}">${esc(r.capability)}</a></td><td>${svcs(r.svc[o.id])}</td><td>${matchBadge(r.match)}</td>${withG ? `<td>${gcpOn(r) ? `${svcs(r.svc.gcp)} ${matchBadge(r.gcp.match)}${p.id === PA.id ? ` <a class="small" href="${r.gcpUrl}">AWS vs GCP →</a>` : ''}` : '<span class="muted small">Not mapped yet</span>'}</td>` : ''}</tr>`).join('')}
+</tbody></table></div>`; })()}
 ${(() => {
   const byG = new Map();
   for (const r of s.rows) { if (!byG.has(r.group)) byG.set(r.group, []); byG.get(r.group).push(r); }
@@ -287,13 +404,14 @@ ${(() => {
 function providerIndex(p) {
   const list = [...services[p.id].values()].sort((a, b) => a.name.localeCompare(b.name));
   const o = providers.find((x) => x.id !== p.id);
+  const cats = p.id === 'gcp' ? gcpCats : categories;
   const url = `/${p.id}/`;
   const h1 = `${p.long_name} services and their ${o.name} equivalents`;
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: p.name, url }]);
   const homeCat = (s) => catOf(s.rows[0]).id;
-  const body = `${bc.html}<article class="doc wide"><header class="doc-head"><h1>${esc(h1)}</h1><p class="answer"><strong>${list.length} ${esc(p.name)} services mapped to ${esc(o.name)} across ${categories.length} categories, including retired and maintenance-mode services.</strong></p></header>
+  const body = `${bc.html}<article class="doc wide"><header class="doc-head"><h1>${esc(h1)}</h1><p class="answer"><strong>${list.length} ${esc(p.name)} services mapped to ${esc(o.name)} across ${cats.length} ${cats.length === 1 ? 'category' : 'categories'}, including retired and maintenance-mode services.</strong></p>${p.id === 'gcp' ? `<p class="small muted">Google Cloud mappings are being added category by category. Verified so far: ${gcpCats.map((c) => esc(c.name)).join(', ')}.</p>` : ''}</header>
 <div class="group-controls js-only" role="group" aria-label="Section controls"><button type="button" class="btn-text" data-expand-all>Expand all</button><button type="button" class="btn-text" data-collapse-all>Collapse all</button></div>
-${categories.map((cat) => { const items = list.filter((s) => homeCat(s) === cat.id); if (!items.length) return ''; return `<details class="cat-group" id="svc-${cat.id}" data-group="pidx-${cat.id}" open>
+${cats.map((cat) => { const items = list.filter((s) => homeCat(s) === cat.id); if (!items.length) return ''; return `<details class="cat-group" id="svc-${cat.id}" data-group="pidx-${cat.id}" open>
 <summary class="cat-sum"><span class="chev" aria-hidden="true"></span><span class="cat-sum-label">${esc(cat.name)}</span><span class="count">(${items.length})</span></summary>
 <div class="cat-body"><div class="tscroll"><table class="cmp"><thead><tr><th scope="col">${esc(p.name)} service</th><th scope="col">What it is</th><th scope="col">${esc(o.name)} equivalent(s)</th></tr></thead><tbody>
 ${items.map((s) => { const eq = [...new Map(s.rows.flatMap((r) => r.svc[o.id]).map((x) => [x.slug, x])).values()]; return `<tr><td><a href="${s.url}">${esc(s.name)}</a>${statusBadge(s.status, s.status_note)}</td><td class="small">${esc(clip(s.summary, 160))}</td><td>${eq.length ? eq.map((x) => esc(x.name)).join(', ') : '<span class="muted">None</span>'}</td></tr>`; }).join('')}
@@ -301,7 +419,7 @@ ${items.map((s) => { const eq = [...new Map(s.rows.flatMap((r) => r.svc[o.id]).m
 </article>`;
   const og = `/og/${p.id}/index.png`;
   renderOg({ kicker: `${p.name} → ${o.name}`, title: `${p.name} services, mapped to ${o.name}`, subtitle: `${list.length} services with status, docs and equivalents.`, siteName: config.siteName }, path.join(OUT, og));
-  write(url, page({ url, title: `${p.name} services → ${o.name} equivalents | ${config.siteName}`, description: clip(`All ${list.length} ${p.long_name} services we map, grouped by category (${categories.map((c) => c.short || c.name).join(', ')}), with lifecycle status and ${o.long_name} equivalents.`, 158), h1, body, ld: [bc.ld], ogImage: og, ogType: 'website', active: p.id }));
+  write(url, page({ url, title: `${p.name} services → ${o.name} equivalents | ${config.siteName}`, description: clip(`All ${list.length} ${p.long_name} services we map, grouped by category (${cats.map((c) => c.short || c.name).join(', ')}), with lifecycle status and ${o.long_name} equivalents.`, 158), h1, body, ld: [bc.ld], ogImage: og, ogType: 'website', active: p.id }));
 }
 
 // ---------- category page ----------
@@ -320,7 +438,7 @@ function categoryPage(cat) {
 <nav aria-label="Groups" class="toc jump-chips"><ul>${cat.groups.map((g) => `<li><a href="#${g.id}">${esc(g.name)} <span class="muted">(${cat.rows.filter((r) => r.group === g.id).length})</span></a></li>`).join('')}</ul></nav>
 ${cat.groups.map((g) => { const rows = cat.rows.filter((r) => r.group === g.id); return `<details class="cat-group" id="${g.id}" data-group="${g.id}" open>
 <summary class="cat-sum"><span class="chev" aria-hidden="true"></span><span class="cat-sum-label">${esc(g.name)}</span><span class="count">(${rows.length})</span></summary>
-<div class="cat-body">${rows.map((r) => `<div class="cat-row"><h3><a href="${r.url}">${esc(r.capability)}</a> ${matchBadge(r.match)}</h3><p>${esc(r.answer)}</p></div>`).join('')}</div>
+<div class="cat-body">${rows.map((r) => `<div class="cat-row"><h3><a href="${r.url}">${esc(r.capability)}</a> ${matchBadge(r.match)}</h3><p>${esc(r.answer)}</p>${gcpOn(r) ? `<p class="small"><span class="muted">Google Cloud:</span> ${r.svc.gcp.length ? esc(joinNames(names(r.svc.gcp))) : 'no first-party equivalent'} ${matchBadge(r.gcp.match)} <a href="${r.gcpUrl}">AWS vs GCP →</a></p>` : ''}</div>`).join('')}</div>
 </details>`; }).join('')}
 </article>`;
   const og = `/og/category/${cat.id}.png`;
@@ -422,7 +540,7 @@ function examsPage() {
 ${examGuides.size ? `<section aria-labelledby="ex-guides"><h2 id="ex-guides">Azure exam guides for AWS engineers</h2>
 <p>For each exam: who it's for, the official domains and weights, how each domain maps to the AWS services you already know, and the Azure concepts that trip AWS people up.</p>
 <div class="cat-cards">${[...examGuides.values()].map((g) => `<div class="cat-card"><h3><a href="${g.url}">${esc(g.code)} for AWS engineers</a></h3><p class="small">${esc(g.title)} · ${esc(exams.get(g.code).level)}</p><p class="small muted">${g.domains.length} domains · closest AWS: ${esc((g.closest_aws || []).map((c) => examLabel(c.code)).join(', ') || 'none')}</p></div>`).join('')}</div></section>` : ''}
-${providers.map((p) => `<section aria-labelledby="ex-${p.id}"><h2 id="ex-${p.id}">${esc(p.long_name)}</h2>
+${providers.filter((p) => [...exams.values()].some((e) => e.provider === p.id)).map((p) => `<section aria-labelledby="ex-${p.id}"><h2 id="ex-${p.id}">${esc(p.long_name)}</h2>
 ${[...exams.values()].filter((e) => e.provider === p.id).map((e) => { const rows = all.filter((r) => (r.exams?.[p.id] || []).includes(e.code)); return `<div class="exam-block" id="${esc(e.code)}"><h3><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a>${e.unverified_code ? '' : ` <span class="code">${esc(e.code)}</span>`}${statusBadge(e.status)}</h3>
 <p class="small">${esc(e.level)}${e.note ? ` · ${esc(e.note)}` : ''}</p>${guideLink(e.code) ? `<p class="small"><a href="${guideLink(e.code).url}">${esc(e.code)} guide for AWS engineers →</a></p>` : ''}
 ${rows.length ? categories.map((c) => { const cr = rows.filter((r) => r.category === c.id); return cr.length ? `<p class="small muted ex-cat">${esc(c.name)} (${cr.length})</p><ul class="cols">${cr.map((r) => `<li><a href="${r.url}">${esc(r.capability)}</a></li>`).join('')}</ul>` : ''; }).join('') : '<p class="muted small">No comparisons mapped to this exam.</p>'}</div>`; }).join('')}</section>`).join('')}
@@ -458,27 +576,29 @@ function homePage() {
   const usedExams = [...exams.values()].filter((e) => all.some((r) => examsFor(r).includes(e.code)));
   const chips = (list) => list.length ? list.map((s) => `<a class="chip svc" href="${s.url}">${esc(s.name)}${statusBadge(s.status, s.status_note)}</a>`).join('') : '<span class="nochip">No equivalent</span>';
   const groupOpts = categories.map((c) => `<optgroup label="${esc(c.name)}">${c.groups.map((g) => `<option value="${g.id}">${esc(g.name)}</option>`).join('')}</optgroup>`).join('');
-  const thead = `<thead><tr><th scope="col">Capability</th>${providers.map((p) => `<th scope="col" class="p-${p.id}"><span class="dot" aria-hidden="true"></span>${esc(p.name)}</th>`).join('')}<th scope="col">Match</th><th scope="col"><span class="sr">Details</span></th></tr></thead>`;
+  const theadFor = (cat) => `<thead><tr><th scope="col">Capability</th>${provsForCat(cat).map((p) => `<th scope="col" class="p-${p.id}"><span class="dot" aria-hidden="true"></span>${esc(p.name)}</th>`).join('')}<th scope="col">${provsForCat(cat).length > 2 ? 'Match <span class="mh">AWS ↔ Azure</span>' : 'Match<span class="sr"> (AWS to Azure)</span>'}</th><th scope="col"><span class="sr">Details</span></th></tr></thead>`;
   const sections = categories.map((cat) => {
+    const CP = provsForCat(cat); const thead = theadFor(cat);
     const tbodies = cat.groups.map((g) => {
       const rows = cat.rows.filter((r) => r.group === g.id);
       return `<tbody id="rows-${g.id}" data-group="${g.id}" data-cat="${cat.id}" data-count="${rows.length}">
-<tr class="grp"><th colspan="${providers.length + 3}" scope="colgroup"><button type="button" class="grp-toggle" id="g-${g.id}" aria-expanded="true" aria-controls="rows-${g.id}" data-group="${g.id}"><span class="chev" aria-hidden="true"></span><span class="grp-label">${esc(g.name)}</span><span class="count" data-count-label>(${rows.length})</span></button></th></tr>
-${rows.map((r) => `<tr class="row" id="${r.id}" data-cat="${cat.id}" data-group="${g.id}" data-match="${r.match}" data-exams="${examsFor(r).join(' ')}" data-s="${esc([r.capability, r.what_for, ...providers.flatMap((p) => names(r.svc[p.id]))].join(' ').toLowerCase())}">
+<tr class="grp"><th colspan="${CP.length + 3}" scope="colgroup"><button type="button" class="grp-toggle" id="g-${g.id}" aria-expanded="true" aria-controls="rows-${g.id}" data-group="${g.id}"><span class="chev" aria-hidden="true"></span><span class="grp-label">${esc(g.name)}</span><span class="count" data-count-label>(${rows.length})</span></button></th></tr>
+${rows.map((r) => `<tr class="row" id="${r.id}" data-cat="${cat.id}" data-group="${g.id}" data-match="${r.match}" data-exams="${examsFor(r).join(' ')}" data-s="${esc([r.capability, r.what_for, ...CP.flatMap((p) => names(r.svc[p.id]))].join(' ').toLowerCase())}">
 <th scope="row" class="cap"><a href="${r.url}">${esc(r.capability)}</a><span class="what">${esc(r.what_for)}</span></th>
-${providers.map((p) => `<td class="pcol p-${p.id}" data-label="${esc(p.name)}">${chips(r.svc[p.id])}</td>`).join('')}
-<td class="mcol" data-label="Match">${matchBadge(r.match)}</td>
+${CP.map((p) => `<td class="pcol p-${p.id}" data-label="${esc(p.name)}">${chips(r.svc[p.id])}${p.id === 'gcp' && r.gcp ? `<span class="gmatch"><span class="sr">Google Cloud vs AWS: </span>${matchBadge(r.gcp.match)}</span>` : ''}</td>`).join('')}
+<td class="mcol" data-label="${CP.length > 2 ? 'Match (AWS ↔ Azure)' : 'Match'}">${matchBadge(r.match)}</td>
 <td class="act"><a class="open" href="${r.url}" data-open="${r.id}" data-cat="${cat.id}" aria-label="Details: ${esc(r.capability)}">Details</a></td></tr>`).join('')}
 </tbody>`;
     }).join('');
     return `<section class="mcat" id="cat-${cat.id}" data-cat="${cat.id}" aria-labelledby="h-${cat.id}">
 <h2 class="mcat-h" id="h-${cat.id}"><span>${esc(cat.name)}</span> <span class="count" data-cat-count>(${cat.rows.length})</span> <a class="mcat-link small" href="/category/${cat.id}/">Category page<span class="sr">: ${esc(cat.name)}</span> →</a></h2>
-<div class="tscroll"><table class="matrix" id="matrix-${cat.id}"><caption class="sr">${esc(cat.name)}: ${esc(PA.name)} to ${esc(PB.name)} service matrix</caption>${thead}
+<div class="tscroll mx"><table class="matrix${CP.length > 2 ? ' m3' : ''}" id="matrix-${cat.id}"><caption class="sr">${esc(cat.name)}: ${esc(PA.name)} to ${esc(PB.name)} service matrix</caption>${thead}
 ${tbodies}
 </table></div></section>`;
   }).join('\n');
   const body = `<section class="hero"><h1>${esc(PA.name)} ↔ ${esc(PB.name)} service equivalents</h1>
 <p class="lede">${all.length} verified capability mappings across ${categories.length} categories, ${services[PA.id].size} ${esc(PA.name)} and ${services[PB.id].size} ${esc(PB.name)} services. Each has a plain-language purpose, match quality, key differences, pricing model, exam mapping and official sources. Retired and maintenance-mode services are flagged.</p>
+${gcpCats.length ? `<p class="small">New: a <strong>Google Cloud</strong> column, verified category by category. Done so far: ${gcpCats.map((c) => `<a href="#cat-${c.id}">${esc(c.name)}</a> (${c.rows.length})`).join(', ')}. <a href="/gcp/">Browse GCP services →</a></p>` : ''}
 <ul class="cat-pills" aria-label="Categories">${categories.map((c) => `<li><a href="#cat-${c.id}" data-jump-cat="${c.id}">${esc(c.short || c.name)} <span class="muted">${c.rows.length}</span></a></li>`).join('')}</ul>
 <p class="stats"><span>${matchBadge('direct')} ${counts.direct}</span><span>${matchBadge('partial')} ${counts.partial}</span><span>${matchBadge('none')} ${counts.none}</span><span class="small muted">Last verified ${fmtDate(categories.map((c) => c.last_verified).sort().pop())}</span></p></section>
 <div class="home-layout">
@@ -490,7 +610,7 @@ ${tbodies}
 <label class="jump-mobile">Jump <select id="f-jump" aria-label="Jump to group"><option value="">Jump to group…</option>${groupOpts}</select></label>
 <label>Category <select id="f-cat"><option value="">All categories</option>${categories.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></label>
 <label>Group <select id="f-group"><option value="">All groups</option>${groupOpts}</select></label>
-<label>Exam <select id="f-exam"><option value="">Any exam</option>${providers.map((p) => `<optgroup label="${esc(p.name)}">${usedExams.filter((e) => e.provider === p.id).map((e) => `<option value="${esc(e.code)}">${esc(e.unverified_code ? e.name : e.code + ' · ' + e.name.replace(/^(AWS Certified|Microsoft Certified:)\s*/, ''))}${e.status !== 'current' ? ` (${e.status})` : ''}</option>`).join('')}</optgroup>`).join('')}</select></label>
+<label>Exam <select id="f-exam"><option value="">Any exam</option>${providers.filter((p) => usedExams.some((e) => e.provider === p.id)).map((p) => `<optgroup label="${esc(p.name)}">${usedExams.filter((e) => e.provider === p.id).map((e) => `<option value="${esc(e.code)}">${esc(e.unverified_code ? e.name : e.code + ' · ' + e.name.replace(/^(AWS Certified|Microsoft Certified:)\s*/, ''))}${e.status !== 'current' ? ` (${e.status})` : ''}</option>`).join('')}</optgroup>`).join('')}</select></label>
 <label>Match <select id="f-match"><option value="">Any match</option><option value="direct">Direct</option><option value="partial">Partial</option><option value="none">No equivalent</option></select></label>
 <div class="view" role="radiogroup" aria-label="View"><button type="button" id="v-matrix" role="radio" aria-checked="true">Matrix</button><button type="button" id="v-cards" role="radio" aria-checked="false">Cards</button></div>
 <div class="toolbar-actions">
@@ -513,7 +633,8 @@ ${sections}
   // Lazy-loaded drawer data, one file per category.
   for (const cat of categories) {
     const idx = cat.rows.map((r) => ({ id: r.id, url: rel(r.url), capability: r.capability, what_for: r.what_for, match: r.match, matchLabel: MATCH[r.match][0], answer: r.answer,
-      providers: providers.map((p) => ({ id: p.id, name: p.name, services: r.svc[p.id].map((s) => ({ name: s.name, url: rel(s.url), status: STATUS[s.status]?.[0] || '', docs: s.docs })), pricing: r.pricing?.[p.id] || '' })),
+      providers: provsForCat(cat).map((p) => ({ id: p.id, name: p.name, services: r.svc[p.id].map((s) => ({ name: s.name, url: rel(s.url), status: STATUS[s.status]?.[0] || '', docs: s.docs })), pricing: r.pricing?.[p.id] || '',
+        ...(p.id === 'gcp' && r.gcp ? { match: r.gcp.match, matchLabel: MATCH[r.gcp.match][0], compare: rel(r.gcpUrl) } : {}) })),
       differences: r.differences, exams: examsFor(r).map((c) => ({ code: c, label: examLabel(c), name: exams.get(c).name, status: exams.get(c).status })), flags: r.flags || [] }));
     write(`/data/rows-${cat.id}.json`, JSON.stringify(idx));
   }
@@ -538,6 +659,7 @@ homePage();
 categories.forEach(categoryPage);
 categoryIndex();
 for (const r of rowsById.values()) comparePage(r);
+for (const r of rowsById.values()) if (gcpOn(r)) gcpComparePage(r);
 for (const p of providers) { providerIndex(p); for (const s of services[p.id].values()) hubPage(p, s); }
 for (const g of examGuides.values()) examGuidePage(g);
 examsPage();

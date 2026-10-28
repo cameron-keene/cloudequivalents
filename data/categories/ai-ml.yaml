@@ -12,6 +12,7 @@ category:
   description: Foundation models, agents, RAG, ML platforms, MLOps, AI chips, assistants, and prebuilt AI services. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure AI & ML, side by side: Bedrock vs Microsoft Foundry, SageMaker AI vs Azure Machine Learning, agents, RAG, AI chips, and prebuilt AI services."
   last_verified: "2026-10-19"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: genai
       name: Generative AI platforms & models
@@ -79,6 +80,23 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
   flags:
     - Model lineups change monthly. The overlap list reflects the vendor model pages on 2026-10-19.
+  gcp:
+    services:
+    - gemini-models
+    - model-garden
+    match: direct
+    answer: 'The Google Cloud equivalent of Amazon Bedrock is Gemini Enterprise Agent Platform (formerly Vertex AI): Gemini models plus partner models such as Claude and Grok offered as managed APIs through Model Garden.'
+    differences:
+    - Vertex AI was renamed Gemini Enterprise Agent Platform on Apr 22, 2026. SDKs, IAM roles, and API hostnames still use the aiplatform / Vertex AI names.
+    - First-party models are Google's Gemini, Gemma, Veo, and Lyria. Bedrock's first-party family is Amazon Nova.
+    - Partner models (for example Anthropic Claude, xAI Grok, Mistral) are managed APIs in Model Garden. Open models (for example Llama, DeepSeek, Qwen) can be deployed to your own endpoints.
+    - Auth uses Google Cloud IAM (service accounts, Application Default Credentials) or API keys, instead of AWS IAM SigV4 or Bedrock API keys.
+    pricing: Gemini and partner models are billed per input/output token (media models per image, second, or character), with Standard, Priority, and Flex pay-as-you-go tiers and batch discounts. Prices vary by model and region.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-garden/explore-models
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
 
 - id: first-party-models
   group: genai
@@ -106,6 +124,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html
     - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure
+  gcp:
+    services:
+    - gemini-models
+    match: direct
+    answer: 'Amazon Nova''s Google Cloud counterpart is Google''s own model family on Agent Platform: Gemini for text, multimodal, and reasoning, plus Veo for video, Lyria for music, and Gemma open models.'
+    differences:
+    - Gemini models are multimodal by default (text, image, audio, video, and documents in one request).
+    - Gemma is an open-weights family you can also self-host, which Nova has no direct counterpart for.
+    - Both vendors retire model versions on published schedules. Check the model lifecycle page before pinning a version.
+    pricing: Gemini and partner models are billed per input/output token (media models per image, second, or character), with Standard, Priority, and Flex pay-as-you-go tiers and batch discounts. Prices vary by model and region.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models
 
 - id: model-catalog-open-weights
   group: genai
@@ -134,6 +164,18 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/studio-jumpstart.html
     - https://docs.aws.amazon.com/bedrock/latest/userguide/amazon-bedrock-marketplace.html
     - https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+  gcp:
+    services:
+    - model-garden
+    match: direct
+    answer: SageMaker JumpStart and Bedrock Marketplace map to Model Garden, which lists Google, partner, and open models and deploys open models to managed endpoints.
+    differences:
+    - Model Garden mixes managed partner APIs (pay per token) and self-deployed open models (pay for endpoint nodes) in one catalog. AWS splits these between Bedrock Marketplace and JumpStart.
+    - Deployed open models run on Agent Platform inference endpoints with GPUs or TPUs; JumpStart deploys to SageMaker endpoints.
+    pricing: Managed partner models are billed per token. Self-deployed open models are billed per node-hour for the endpoint's machine and accelerators. Some partner models carry their own license terms.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-garden/explore-models
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: model-customization
   group: genai
@@ -161,6 +203,19 @@ rows:
   sources:
     - https://docs.aws.amazon.com/bedrock/latest/userguide/custom-models.html
     - https://learn.microsoft.com/en-us/azure/foundry/fine-tuning/overview
+  gcp:
+    services:
+    - gemini-tuning
+    match: direct
+    answer: 'Bedrock model customization maps to Gemini tuning on Agent Platform: supervised fine-tuning and preference tuning for Gemini, plus tuning of open models from Model Garden.'
+    differences:
+    - Tuning targets Gemini and selected open models; which methods a model supports varies by model.
+    - Google recommends trying prompt design and grounding first and documents when each tuning method fits.
+    - Tuned Gemini models are served by the platform without you provisioning endpoints for them.
+    pricing: Tuning jobs are billed for the training work (see the tuning section of the pricing page). Calls to a tuned model are billed per token.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/tuning
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: provisioned-throughput
   group: genai
@@ -185,6 +240,19 @@ rows:
     - https://docs.aws.amazon.com/bedrock/latest/userguide/prov-throughput.html
     - https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/deployment-types
     - https://learn.microsoft.com/en-us/azure/foundry/concepts/foundry-models-overview
+  gcp:
+    services:
+    - provisioned-throughput
+    match: direct
+    answer: Bedrock Provisioned Throughput maps to Agent Platform Provisioned Throughput, a fixed-term subscription that reserves capacity for Google models.
+    differences:
+    - Provisioned Throughput is bought as a fixed-term subscription; Bedrock sells model units per hour with optional commitment terms.
+    - The docs describe controls for overage traffic beyond what you reserved.
+    - Pay-as-you-go also offers Priority and Flex tiers, so not every latency need requires a reservation.
+    pricing: Billed as a fixed-term subscription for the reserved throughput, whether or not you use it. Overage beyond the reservation is billed at pay-as-you-go rates.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/provisioned-throughput
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: genai-workflows
   group: genai
@@ -212,6 +280,20 @@ rows:
     - https://learn.microsoft.com/en-us/agent-framework/overview/
   flags:
     - "Bedrock Flows pricing unit (per node transition) is from the Bedrock pricing page structure. Confirm current terms on the pricing page."
+  gcp:
+    services:
+    - agent-studio
+    - adk
+    match: partial
+    answer: There is no visual flow builder exactly like Bedrock Flows. The closest options are Agent Studio for prompt and agent prototyping, and ADK workflow agents (sequential, parallel, loop) in code.
+    differences:
+    - ADK workflow agents define deterministic pipelines in code rather than a drag-and-drop canvas.
+    - Agent Studio is a console workspace for prompts and agents, not a node graph like Bedrock Flows.
+    - For general orchestration around model calls, Google Cloud Workflows is another option.
+    pricing: Agent Studio and ADK carry no separate charge; you pay for the model calls and for whatever runtime hosts the workflow (Agent Runtime, Cloud Run, or GKE).
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/agent-studio
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk
 
 - id: genai-evaluation
   group: genai
@@ -237,6 +319,19 @@ rows:
     - https://docs.aws.amazon.com/bedrock/latest/userguide/evaluation.html
     - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
     - https://learn.microsoft.com/en-us/azure/foundry/concepts/observability
+  gcp:
+    services:
+    - genai-evaluation
+    match: direct
+    answer: Bedrock Evaluations maps to the Gen AI evaluation service on Agent Platform, which scores models with adaptive or static rubrics, computation metrics, and custom functions. Agent evaluation is a separate feature.
+    differences:
+    - Adaptive rubrics generate pass/fail tests per prompt using an autorater model.
+    - Computation-based metrics such as ROUGE and BLEU need ground-truth references.
+    - Bedrock also offers human-based evaluation jobs with a managed workforce; Google's service is automated.
+    pricing: Billed for the model calls the evaluation makes (for example the autorater model's tokens). See the Agent Platform pricing page.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/evaluation-overview
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: multimodal-extraction
   group: genai
@@ -265,6 +360,19 @@ rows:
     - Pricing units are described at a high level. Confirm exact meters on the pricing pages.
 
 # ───────────────────────── AGENTS ─────────────────────────
+  gcp:
+    services:
+    - document-ai
+    - gemini-models
+    match: partial
+    answer: Bedrock Data Automation has no single counterpart. Document AI covers document extraction, and Gemini's multimodal input handles images, audio, and video with prompts you write.
+    differences:
+    - Document AI is document-focused (OCR, layout, forms, custom extractors). Audio and video extraction are done by prompting Gemini.
+    - Bedrock Data Automation gives one blueprint-driven API across documents, images, audio, and video.
+    pricing: Document AI is billed per page processed (rates vary by processor). Gemini calls are billed per token.
+    sources:
+    - https://docs.cloud.google.com/document-ai/docs/overview
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models
 - id: managed-agents
   group: agents
   capability: Managed AI agent platform
@@ -297,6 +405,20 @@ rows:
     - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
     - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
     - https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
+  gcp:
+    services:
+    - agent-runtime
+    match: direct
+    answer: Amazon Bedrock AgentCore maps to Agent Runtime (formerly Agent Engine) on Agent Platform, which hosts and scales agents with sessions, Memory Bank, code execution, and observability.
+    differences:
+    - Agent Runtime was renamed from Vertex AI Agent Engine on Apr 22, 2026.
+    - Both are framework-agnostic. Google's first-party framework is ADK; AWS's is Strands Agents.
+    - Code Execution and Computer Use run in sandboxes inside Agent Runtime, comparable to AgentCore Code Interpreter and Browser.
+    pricing: Runtime is billed for vCPU-hours and GiB-hours of memory used. Sessions, Memory Bank, and code execution are billed separately, plus model tokens.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: bedrock-agents-classic
   group: agents
@@ -323,6 +445,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
   flags:
     - "\"No separate agent fee\" for Agents Classic reflects historical Bedrock pricing. Confirm on the pricing page."
+  gcp:
+    services:
+    - agent-studio
+    - agent-runtime
+    match: partial
+    answer: For console-configured agents like classic Bedrock Agents, Google Cloud's path is to prototype in Agent Studio and deploy to Agent Runtime.
+    differences:
+    - Bedrock Agents (classic) is in maintenance in favor of AgentCore; Google's equivalent path is also code-first (ADK on Agent Runtime).
+    - Action groups map to ADK tools or MCP servers; knowledge bases map to RAG Engine or Agent Search.
+    pricing: Agent Runtime compute (vCPU-hours and GiB-hours) plus model tokens.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/agent-studio
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
 
 - id: agent-tools
   slug: aws-agentcore-gateway-vs-azure-foundry-agent-tools
@@ -350,6 +485,22 @@ rows:
     - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
   flags:
     - A Foundry built-in tool equivalent to AgentCore Browser (managed headless browser) wasn't confirmed in the docs reviewed. Treat it as a gap until verified.
+  gcp:
+    services:
+    - agent-runtime
+    - agent-gateway
+    - agent-registry
+    match: partial
+    answer: AgentCore Gateway, Code Interpreter, and Browser split across Agent Runtime (code execution and computer use sandboxes), Agent Gateway (preview), and Agent Registry (preview).
+    differences:
+    - Agent Gateway was in Private Preview and Agent Registry in Public Preview as of Apr 2026, so tool governance is less mature than AgentCore Gateway.
+    - ADK has built-in tools (such as Google Search grounding and code execution) and MCP support.
+    pricing: Sandbox use is billed as part of Agent Runtime. Preview features may have no published price yet.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+    flags:
+    - Agent Gateway and Agent Registry launch stages are from the Apr 22, 2026 release notes; re-check before relying on them.
 
 - id: agent-memory
   slug: aws-agentcore-memory-vs-azure-foundry-agent-memory
@@ -375,6 +526,18 @@ rows:
     - https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/what-is-bedrock-agentcore.html
     - https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry
     - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+  gcp:
+    services:
+    - memory-bank
+    match: direct
+    answer: AgentCore Memory maps to Agent Platform Sessions (short-term) and Memory Bank (long-term memories extracted from conversations).
+    differences:
+    - Memory Bank extracts and consolidates memories with a model, similar to AgentCore long-term memory strategies.
+    - Memory Bank started billing on Sep 1, 2026.
+    pricing: 'Billed by usage: storage plus API requests that read or write sessions and memories. See the Agent Platform pricing page.'
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: agent-identity-governance
   slug: aws-agentcore-identity-vs-azure-entra-agent-id
@@ -404,6 +567,21 @@ rows:
     - https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
   flags:
     - Entra licensing requirements for agent identities weren't verified for this release.
+  gcp:
+    services:
+    - agent-identity
+    - agent-gateway
+    match: partial
+    answer: AgentCore Identity and Policy map to Agent Identity (GA), which gives each agent an IAM principal, and Agent Gateway (preview) for central tool and model access control.
+    differences:
+    - Agent Identity uses standard Google Cloud IAM, so permissions are granted with IAM roles per agent.
+    - Central policy enforcement through Agent Gateway was still in Private Preview as of Apr 2026.
+    pricing: Agent Identity carries no separate charge listed; Agent Gateway pricing was not published during preview.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/scale
+    flags:
+    - No separate price for Agent Identity or Agent Gateway was found on the pricing page on 2026-10-27.
 
 - id: agent-frameworks
   group: agents
@@ -429,6 +607,17 @@ rows:
     - https://learn.microsoft.com/en-us/agent-framework/overview/
 
 # ───────────────────────── SAFETY, RAG & SEARCH ─────────────────────────
+  gcp:
+    services:
+    - adk
+    match: direct
+    answer: Strands Agents maps to Google's open-source Agent Development Kit (ADK), available for Python, TypeScript, Go, and Java.
+    differences:
+    - ADK supports workflow agents (sequential, parallel, loop) as well as LLM-driven routing between agents.
+    - ADK agents deploy to Agent Runtime, Cloud Run, or GKE, and can use non-Google models.
+    pricing: ADK is open source and free; you pay for models and hosting.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/adk
 - id: guardrails
   group: safety-rag
   capability: GenAI guardrails & content safety
@@ -461,6 +650,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview
   flags:
     - "\"Word filters free\" reflects Bedrock pricing-page structure. Confirm current pricing."
+  gcp:
+    services:
+    - model-armor
+    match: direct
+    answer: Bedrock Guardrails maps to Model Armor, which screens prompts and responses for prompt injection, jailbreaks, harmful content, sensitive data, and malicious URLs. Gemini also has built-in, configurable safety filters.
+    differences:
+    - Model Armor works with any model and is configured through reusable templates.
+    - Gemini safety filters are configured per request and are separate from Model Armor.
+    - Sensitive-data screening uses Sensitive Data Protection.
+    pricing: Model Armor is billed by the volume of tokens screened. See the Model Armor pricing page.
+    sources:
+    - https://docs.cloud.google.com/model-armor/overview
+    - https://cloud.google.com/model-armor/pricing
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/capabilities/configure-safety-filters
 
 - id: rag-knowledge-bases
   group: safety-rag
@@ -490,6 +693,20 @@ rows:
     - https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html
     - https://learn.microsoft.com/en-us/azure/foundry/agents/concepts/what-is-foundry-iq
     - https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search
+  gcp:
+    services:
+    - rag-engine
+    - vector-search
+    match: direct
+    answer: Bedrock Knowledge Bases maps to RAG Engine on Agent Platform, which ingests, chunks, embeds, and retrieves your data, using a managed Spanner-backed database or Vector Search and other vector stores.
+    differences:
+    - RAG Engine needs allowlisting in some regions for new projects (us-central1, us-east1, us-east4, europe-west1 per the docs).
+    - If you use the RAG Engine-managed Spanner instance, that Spanner instance is billed to you.
+    - For managed search with connectors and ranking out of the box, Agent Search is the alternative.
+    pricing: Billed for embedding and generation model calls and for the vector store you use (managed Spanner or Vector Search node-hours).
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/rag-engine/rag-overview
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/vector-search/overview
 
 - id: enterprise-search
   group: safety-rag
@@ -518,6 +735,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
 
 # ───────────────────────── ML PLATFORM ─────────────────────────
+  gcp:
+    services:
+    - agent-search
+    match: direct
+    answer: Amazon Kendra maps to Agent Search (formerly Vertex AI Search), a managed search engine over websites, structured, and unstructured data with generative answers.
+    differences:
+    - Kendra is in maintenance mode on AWS; Agent Search is Google's actively developed product.
+    - For employees searching across Workspace, Microsoft 365, and SaaS apps, Gemini Enterprise is the end-user product built on this search stack.
+    pricing: Usage-based, by edition and query volume. See the Agent Search pricing page.
+    sources:
+    - https://docs.cloud.google.com/generative-ai-app-builder/docs
+    - https://cloud.google.com/products/agent-search/pricing
 - id: ml-platform
   group: ml-platform
   capability: End-to-end ML platform
@@ -546,6 +775,19 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/overview-what-is-azure-machine-learning
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  gcp:
+    services:
+    - agent-platform
+    match: direct
+    answer: SageMaker AI maps to Gemini Enterprise Agent Platform (formerly Vertex AI), which covers training, inference, pipelines, feature store, registry, and notebooks.
+    differences:
+    - Generative AI and classic ML live on one platform on Google Cloud; AWS splits them between Bedrock and SageMaker AI.
+    - Docs and the console use the new name, while the SDK is still google-cloud-aiplatform (vertexai module).
+    pricing: 'Pay-as-you-go per component: node-hours for training and inference, plus storage and per-call charges for managed features.'
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/release-notes
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: unified-data-ai-studio
   group: ml-platform
@@ -573,6 +815,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
   flags:
     - "\"No separate charge for Unified Studio\" should be confirmed on the SageMaker pricing page."
+  gcp:
+    services:
+    - bigquery-ml
+    - colab-enterprise
+    match: partial
+    answer: SageMaker Unified Studio has no single Google Cloud counterpart. The closest experience is BigQuery (SQL, BigQuery ML, data governance) with Colab Enterprise notebooks opened from BigQuery, connected to Agent Platform.
+    differences:
+    - Colab Enterprise notebooks can be created directly from the BigQuery editor.
+    - Data, analytics, and ML stay separate products in one console rather than one project-based studio.
+    pricing: BigQuery bills for compute (on-demand per TiB scanned or capacity slots) and storage. Colab Enterprise bills for runtime compute.
+    sources:
+    - https://docs.cloud.google.com/colab/docs/introduction
+    - https://docs.cloud.google.com/bigquery/docs/bqml-introduction
 
 - id: ml-studio-ide
   group: ml-platform
@@ -598,6 +853,20 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/studio-updated.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-instance
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  gcp:
+    services:
+    - workbench
+    - colab-enterprise
+    match: direct
+    answer: SageMaker Studio maps to Agent Platform Workbench (managed JupyterLab) and Colab Enterprise (managed Colab notebooks).
+    differences:
+    - Workbench instances are Compute Engine VMs you start and stop; Colab Enterprise uses runtimes created from templates.
+    - Neither offers SageMaker Studio's built-in Code Editor (VS Code) space; Workbench is JupyterLab.
+    pricing: Workbench bills for the underlying VM, accelerators, and disks while running. Colab Enterprise bills for runtime compute.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/notebooks/workbench/introduction
+    - https://docs.cloud.google.com/colab/docs/introduction
+    - https://cloud.google.com/colab/pricing
 
 - id: ml-training-jobs
   group: ml-platform
@@ -623,6 +892,18 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/how-it-works-training.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-compute-target
     - https://learn.microsoft.com/en-us/azure/machine-learning/overview-what-is-azure-machine-learning
+  gcp:
+    services:
+    - serverless-training
+    match: direct
+    answer: SageMaker training jobs map to Agent Platform serverless (custom) training, which runs your container or prebuilt framework container on managed CPU, GPU, or TPU workers.
+    differences:
+    - TPUs are an option for training jobs in addition to NVIDIA GPUs.
+    - Distributed training uses worker pools you define (chief, workers, parameter servers, reduction servers).
+    pricing: Billed per node-hour for the machine type and accelerators you choose, plus storage. Prices vary by region.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/overview
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: large-scale-training-clusters
   group: ml-platform
@@ -651,6 +932,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
   flags:
     - This mapping is our assessment, not a Microsoft-published equivalence. Azure CycleCloud (Slurm) is another option we haven't verified for this release.
+  gcp:
+    services:
+    - training-clusters
+    match: partial
+    answer: 'SageMaker HyperPod maps to Agent Platform training clusters: persistent, reserved accelerator clusters orchestrated with Slurm.'
+    differences:
+    - Training clusters are obtained through your Google Cloud sales contact rather than self-service.
+    - HyperPod supports both Slurm and EKS orchestration. On Google Cloud, the Kubernetes path is GKE with accelerators, and Ray on Agent Platform is another option.
+    pricing: Reserved accelerator capacity billed for the reservation term. Contact sales for terms.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/training-clusters/overview
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/open-source/ray
 
 - id: ml-inference-endpoints
   group: ml-platform
@@ -679,6 +972,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints
   flags:
     - The claim about missing async inference and multi-model equivalents is based on the Azure endpoint types documented (online, Kubernetes online, batch, serverless) on 2026-10-19.
+  gcp:
+    services:
+    - inference
+    match: direct
+    answer: 'SageMaker inference maps to Agent Platform inference: online endpoints and batch inference for your own or Model Garden models.'
+    differences:
+    - Endpoints autoscale between the minimum and maximum node counts you set.
+    - Batch inference is a separate job type, like SageMaker Batch Transform.
+    pricing: Billed per node-hour for the machine type and accelerators you choose, plus storage. Prices vary by region.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/predictions
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: ml-pipelines
   group: mlops
@@ -703,6 +1008,18 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/pipelines.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-ml-pipelines
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-designer
+  gcp:
+    services:
+    - pipelines
+    match: direct
+    answer: SageMaker Pipelines maps to Agent Platform Pipelines, a serverless runner for pipelines written with the Kubeflow Pipelines SDK or TensorFlow Extended (TFX).
+    differences:
+    - Pipelines are portable Kubeflow Pipelines definitions; SageMaker Pipelines uses its own SDK.
+    - Google publishes prebuilt pipeline components for Agent Platform services.
+    pricing: A small execution fee per pipeline run, plus the compute and services each step uses.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/pipelines/introduction
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: feature-store
   group: mlops
@@ -728,6 +1045,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-what-is-managed-feature-store
   flags:
     - Azure online store backing service (Redis) should be confirmed in the managed feature store docs for your region and version.
+  gcp:
+    services:
+    - feature-store
+    match: direct
+    answer: SageMaker Feature Store maps to Agent Platform Feature Store, which uses BigQuery tables and views as the offline store and syncs features to online stores.
+    differences:
+    - Your BigQuery data is the source of truth; you register feature groups over BigQuery tables instead of ingesting into a separate offline store.
+    - Legacy Feature Store and Optimized online serving are deprecated, with sunset on Feb 17, 2027. Use Bigtable online serving for new work.
+    pricing: Billed for online serving and data sync, plus BigQuery storage and queries. See the Feature Store section of the pricing page.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/featurestore/latest/overview
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: model-registry
   group: mlops
@@ -751,6 +1080,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/model-registry.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/how-to-share-models-pipelines-across-workspaces-with-registries
+  gcp:
+    services:
+    - model-registry
+    match: direct
+    answer: SageMaker Model Registry maps to Agent Platform Model Registry, which versions models, assigns aliases, and deploys to endpoints.
+    differences:
+    - BigQuery ML models can be registered in the same registry.
+    pricing: No separate charge for the registry; you pay for model storage and deployment.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/model-registry/introduction
 
 - id: mlflow-tracking
   group: mlops
@@ -776,6 +1115,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-mlflow
   flags:
     - SageMaker managed MLflow pricing granularity (server-size hours) should be confirmed on the pricing page, since newer "MLflow Apps" may bill differently.
+  gcp:
+    services:
+    - experiments
+    match: partial
+    answer: There is no managed MLflow on Agent Platform. The closest feature is Experiments, which tracks runs, parameters, and metrics with TensorBoard.
+    differences:
+    - You can self-host MLflow on Cloud Run or GKE if you need MLflow APIs.
+    - SageMaker offers managed MLflow tracking servers; Experiments uses the Vertex AI SDK instead.
+    pricing: Experiments metadata is stored in Agent Platform; TensorBoard has its own pricing section on the Agent Platform pricing page.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/experiments/intro-vertex-ai-experiments
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: automl
   group: ml-platform
@@ -801,6 +1152,18 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/autopilot-automate-model-development.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  gcp:
+    services:
+    - automl
+    match: direct
+    answer: SageMaker Autopilot maps to Agent Platform AutoML for tabular (classification, regression, forecasting) and image models.
+    differences:
+    - AutoML Text and AutoML Video were shut down in 2025. For text tasks, tune Gemini instead.
+    - BigQuery ML offers AutoML-style training from SQL as another route.
+    pricing: Billed per node-hour of training and per node-hour for deployed models.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/automl-training-overview
+    - https://docs.cloud.google.com/vertex-ai/docs/deprecations
 
 - id: no-code-ml
   group: ml-platform
@@ -825,6 +1188,19 @@ rows:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/canvas.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-designer
+  gcp:
+    services:
+    - automl
+    - bigquery-ml
+    match: partial
+    answer: SageMaker Canvas has no direct counterpart. Agent Platform AutoML has a console workflow, and BigQuery ML lets analysts train models with SQL.
+    differences:
+    - Neither is a spreadsheet-style, business-analyst app like Canvas.
+    - Gemini in BigQuery can help write SQL and BigQuery ML statements.
+    pricing: AutoML is billed per node-hour. BigQuery ML is billed through BigQuery compute (on-demand bytes processed or slots).
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/automl-training-overview
+    - https://docs.cloud.google.com/bigquery/docs/bqml-introduction
 
 - id: dl-vm-images
   group: ml-platform
@@ -851,6 +1227,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
 
 # ───────────────────────── MLOPS & RESPONSIBLE AI ─────────────────────────
+  gcp:
+    services:
+    - deep-learning-vm
+    match: direct
+    answer: AWS Deep Learning AMIs map to Deep Learning VM Images for Compute Engine, preinstalled with frameworks, CUDA drivers, and JupyterLab.
+    differences:
+    - Google also publishes Deep Learning Containers for GKE and custom training.
+    pricing: No charge for the images; you pay for the VM, GPUs or TPUs, and disks.
+    sources:
+    - https://docs.cloud.google.com/deep-learning-vm/docs
+    - https://cloud.google.com/deep-learning-vm/pricing
 - id: bias-explainability
   group: mlops
   capability: Bias detection & explainability
@@ -873,6 +1260,19 @@ rows:
   sources:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/clarify-availability-change.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-responsible-ai-dashboard
+  gcp:
+    services:
+    - model-evaluation
+    - explainable-ai
+    match: partial
+    answer: SageMaker Clarify maps to Agent Platform model evaluation fairness metrics, and to Vertex Explainable AI for attributions, though Explainable AI is deprecated (shutdown Mar 16, 2027).
+    differences:
+    - Vertex Explainable AI was deprecated on Mar 16, 2026 and shuts down Mar 16, 2027. Plan on open-source explainers (such as SHAP) instead.
+    - Clarify itself is in maintenance on AWS, so neither side is a growth area.
+    pricing: You pay for the compute the evaluation jobs use. See the Agent Platform pricing page.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/evaluation/intro-evaluation-fairness
+    - https://docs.cloud.google.com/vertex-ai/docs/deprecations
 
 - id: model-monitoring
   group: mlops
@@ -896,6 +1296,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor-availability-change.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-model-monitoring
+  gcp:
+    services:
+    - model-monitoring
+    match: direct
+    answer: SageMaker Model Monitor maps to Agent Platform Model Monitoring, which detects training-serving skew and prediction drift.
+    differences:
+    - Model Monitoring v2 is in Preview and is the newer offering; v1 is the endpoint-based version.
+    pricing: Billed by the volume of data analyzed, plus the BigQuery and compute it uses.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/model-monitoring/overview
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: data-labeling
   group: mlops
@@ -921,6 +1332,19 @@ rows:
     - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
     - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/how-to-create-image-labeling-projects
+  gcp:
+    services:
+    - data-labeling
+    match: partial
+    answer: SageMaker Ground Truth's self-labeling features map to labeling in Agent Platform managed datasets, where your own team labels data in the console.
+    differences:
+    - We found no managed human labeling workforce in the current Agent Platform docs; Ground Truth Plus offers one on AWS.
+    - Ground Truth is in maintenance on AWS.
+    pricing: See the Agent Platform pricing page; you pay for dataset storage.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/datasets/label-using-console
+    flags:
+    - Absence of a managed labeling workforce is based on the current docs on 2026-10-27.
 
 - id: human-review
   group: mlops
@@ -945,6 +1369,16 @@ rows:
     - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
   flags:
     - The Azure pattern described is a common practice, not a Microsoft-documented A2I replacement.
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no current equivalent of Amazon A2I. Document AI's Human-in-the-Loop feature was deprecated, so human review must be built yourself (for example with a review app on Cloud Run).
+    differences:
+    - Document AI Human-in-the-Loop was deprecated on Jan 16, 2024.
+    - A2I is also in maintenance on AWS.
+    pricing: Not applicable; you pay for the services you build the review flow on.
+    sources:
+    - https://docs.cloud.google.com/document-ai/docs/deprecation
 
 - id: training-debugging
   group: mlops
@@ -971,6 +1405,17 @@ rows:
     - '"No Azure equivalent" means we found no Azure ML feature with this scope in the docs reviewed.'
 
 # ───────────────────────── INFRASTRUCTURE ─────────────────────────
+  gcp:
+    services:
+    - tensorboard-profiler
+    match: partial
+    answer: SageMaker Debugger maps partly to the TensorBoard Profiler for Agent Platform custom training, which shows step time, input pipeline, and accelerator use.
+    differences:
+    - The profiler finds performance bottlenecks; it does not implement Debugger's built-in rules for problems like vanishing gradients.
+    - Debugger is in maintenance on AWS.
+    pricing: TensorBoard has its own pricing section on the Agent Platform pricing page; you also pay for the training job.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/tensorboard-profiler
 - id: gpu-instances
   group: infra
   capability: NVIDIA GPU instances for AI training
@@ -1000,6 +1445,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/gpu-accelerated/nd-h200-v5-series
   flags:
     - The generation mapping is approximate (GPU model, not identical node specs). Compare GPU count, memory, and interconnect per SKU.
+  gcp:
+    services:
+    - compute-gpus
+    match: direct
+    answer: EC2 GPU instances map to Compute Engine accelerator-optimized and N1 machines with NVIDIA GPUs.
+    differences:
+    - GPU machine types and regions differ; check zone availability before you plan capacity.
+    - Capacity can be reserved, bought as committed use, or run as Spot VMs, similar to EC2 options.
+    pricing: Billed per second for the VM and attached GPUs, with Spot, committed-use, and reservation options. Prices vary by region.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/gpus
+    - https://cloud.google.com/products/compute/pricing
 
 - id: custom-training-chips
   group: infra
@@ -1025,6 +1482,19 @@ rows:
     - https://aws.amazon.com/about-aws/whats-new/2025/12/amazon-ec2-trn3-ultraservers/
     - https://docs.aws.amazon.com/ec2/latest/instancetypes/ac.html
     - https://blogs.microsoft.com/blog/2026/01/26/maia-200-the-ai-accelerator-built-for-inference/
+  gcp:
+    services:
+    - cloud-tpu
+    match: direct
+    answer: AWS Trainium maps to Cloud TPU, Google's custom accelerator, with generations such as v6e (Trillium) and TPU7x (Ironwood).
+    differences:
+    - TPUs are used for both training and inference; AWS splits these between Trainium and Inferentia.
+    - TPUs work best with JAX, PyTorch/XLA, or TensorFlow; Trainium uses the AWS Neuron SDK.
+    pricing: Billed per chip-hour, with on-demand, Spot, and committed-use options. Prices vary by generation and region.
+    sources:
+    - https://docs.cloud.google.com/tpu/docs/intro-to-tpu
+    - https://docs.cloud.google.com/tpu/docs/tpu7x
+    - https://cloud.google.com/tpu/pricing
 
 - id: inference-chips
   group: infra
@@ -1050,6 +1520,18 @@ rows:
     - https://blogs.microsoft.com/blog/2026/01/26/maia-200-the-ai-accelerator-built-for-inference/
 
 # ───────────────────────── ASSISTANTS ─────────────────────────
+  gcp:
+    services:
+    - cloud-tpu
+    match: partial
+    answer: AWS Inferentia has no inference-only Google chip. Cloud TPUs serve both training and inference.
+    differences:
+    - Pick a TPU generation and slice size for serving cost and latency instead of an inference-specific chip.
+    - Serving on TPUs uses frameworks such as JAX or vLLM TPU support, not the Neuron SDK.
+    pricing: Billed per chip-hour, with on-demand, Spot, and committed-use options.
+    sources:
+    - https://docs.cloud.google.com/tpu/docs/intro-to-tpu
+    - https://cloud.google.com/tpu/pricing
 - id: work-assistant
   group: assistants
   capability: Enterprise AI work assistant
@@ -1080,6 +1562,19 @@ rows:
     - https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio
   flags:
     - Licensing details for Quick and Copilot change often. We describe the model only.
+  gcp:
+    services:
+    - gemini-enterprise
+    match: direct
+    answer: Amazon Quick (and Q Business) maps to Gemini Enterprise, a per-user assistant that searches and acts across company apps through connectors and agents.
+    differences:
+    - Gemini Enterprise is licensed in editions per user; Quick has its own per-user plans.
+    - Old Google Agentspace documentation links now redirect to Gemini Enterprise.
+    pricing: Per-user monthly subscription by edition. See the Gemini Enterprise pricing and editions pages.
+    sources:
+    - https://docs.cloud.google.com/gemini/enterprise/docs
+    - https://docs.cloud.google.com/gemini/enterprise/docs/editions
+    - https://cloud.google.com/gemini-enterprise/pricing
 
 - id: coding-assistant
   group: assistants
@@ -1107,6 +1602,19 @@ rows:
     - https://docs.github.com/en/copilot/get-started/about-github-copilot
   flags:
     - GitHub Copilot plan names are from general GitHub documentation. Confirm on the plans page.
+  gcp:
+    services:
+    - antigravity
+    - gemini-code-assist
+    match: direct
+    answer: Kiro maps to Google Antigravity, Google's agentic development platform. Gemini Code Assist Standard/Enterprise stopped taking new subscriptions on Oct 9, 2026.
+    differences:
+    - Both vendors are moving customers from a plug-in assistant (Amazon Q Developer, Gemini Code Assist) to an agentic IDE (Kiro, Antigravity).
+    - Enterprise Antigravity access comes through Gemini Enterprise.
+    pricing: Antigravity for organizations is licensed through Gemini Enterprise. Existing Code Assist subscriptions continue until their end dates.
+    sources:
+    - https://docs.cloud.google.com/gemini/docs/codeassist/sunset
+    - https://antigravity.google/docs/enterprise/
 
 - id: cloud-console-assistant
   group: assistants
@@ -1134,6 +1642,18 @@ rows:
     - Pricing for both console assistants was not fully verified. Treat it as indicative.
 
 # ───────────────────────── VISION & DOCUMENTS ─────────────────────────
+  gcp:
+    services:
+    - gemini-cloud-assist
+    match: direct
+    answer: Amazon Q Developer in the AWS console maps to Gemini Cloud Assist, which helps design, operate, and troubleshoot Google Cloud workloads.
+    differences:
+    - Gemini Cloud Assist was labeled a Preview offering on its overview page on 2026-10-27.
+    pricing: Check the Cloud Assist docs for current pricing; it was offered in Preview at the time of verification.
+    sources:
+    - https://docs.cloud.google.com/cloud-assist/overview
+    flags:
+    - No price was confirmed for Gemini Cloud Assist on 2026-10-27.
 - id: image-analysis
   group: vision-docs
   capability: Prebuilt image analysis
@@ -1159,6 +1679,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/overview
     - https://learn.microsoft.com/en-us/azure/ai-services/computer-vision/migration-options
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  gcp:
+    services:
+    - cloud-vision
+    - gemini-models
+    match: direct
+    answer: Amazon Rekognition Image maps to the Cloud Vision API (labels, objects, text, faces, landmarks, logos, SafeSearch), with Gemini for open-ended image understanding.
+    differences:
+    - Cloud Vision detects faces and facial attributes but does not identify individuals.
+    - Gemini can answer free-form questions about images, which neither pretrained API does.
+    pricing: Cloud Vision is billed per 1,000 units (one feature on one image), with a monthly free tier. Gemini is billed per token.
+    sources:
+    - https://docs.cloud.google.com/vision/docs/features-list
+    - https://cloud.google.com/vision/pricing
 
 - id: face-recognition
   group: vision-docs
@@ -1184,6 +1717,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/face/overview-identity
   flags:
     - "\"Without an approval process\" for Rekognition reflects the docs reviewed. Some AWS Regions or use cases may carry additional terms."
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no face recognition (identity matching) service. Cloud Vision detects faces, but its docs state that recognizing specific individuals is not supported.
+    differences:
+    - Use a third-party or self-hosted model if you need face search or verification, and review legal requirements first.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/vision/docs/detecting-faces
 
 - id: video-analysis
   group: vision-docs
@@ -1209,6 +1751,19 @@ rows:
     - https://docs.aws.amazon.com/rekognition/latest/dg/what-is.html
     - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
     - https://learn.microsoft.com/en-us/azure/azure-video-indexer/video-indexer-overview
+  gcp:
+    services:
+    - video-intelligence
+    - gemini-models
+    match: partial
+    answer: Rekognition Video maps to the Video Intelligence API, but that API is deprecated (shutdown Sep 14, 2027). Google's forward path is Gemini, which accepts video input.
+    differences:
+    - Video Intelligence API was deprecated on Sep 14, 2026 and shuts down Sep 14, 2027.
+    - Gemini returns prompted descriptions and timestamps rather than fixed label/shot/object schemas.
+    pricing: Video Intelligence is billed per minute of video per feature. Gemini is billed per token.
+    sources:
+    - https://docs.cloud.google.com/video-intelligence/docs
+    - https://docs.cloud.google.com/vertex-ai/docs/deprecations
 
 - id: content-moderation
   group: vision-docs
@@ -1234,6 +1789,21 @@ rows:
     - https://docs.aws.amazon.com/comprehend/latest/dg/trust-safety.html
     - https://learn.microsoft.com/en-us/azure/ai-services/content-safety/overview
     - https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services
+  gcp:
+    services:
+    - cloud-vision
+    - natural-language
+    - model-armor
+    match: partial
+    answer: Rekognition and Comprehend moderation map to Cloud Vision SafeSearch for images, Natural Language moderateText for text, and Model Armor for AI prompts and responses.
+    differences:
+    - Moderation is spread across three products instead of two.
+    - SafeSearch returns likelihoods per category (adult, violence, racy, and more) rather than a moderation label taxonomy.
+    pricing: Cloud Vision is billed per 1,000 units. Natural Language is billed per 1,000-character unit. Model Armor is billed by tokens screened.
+    sources:
+    - https://docs.cloud.google.com/vision/docs/detecting-safe-search
+    - https://docs.cloud.google.com/natural-language/docs/moderating-text
+    - https://docs.cloud.google.com/model-armor/overview
 
 - id: custom-image-models
   group: vision-docs
@@ -1257,6 +1827,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/what-is.html
     - https://learn.microsoft.com/en-us/azure/ai-services/custom-vision-service/overview
+  gcp:
+    services:
+    - automl
+    match: direct
+    answer: Rekognition Custom Labels maps to AutoML image classification and object detection on Agent Platform.
+    differences:
+    - Trained models are deployed to endpoints (node-hours) or exported, instead of being started and stopped like Custom Labels models.
+    pricing: Training and serving are billed per node-hour.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/automl-training-overview
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: visual-anomaly-detection
   group: vision-docs
@@ -1279,6 +1860,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
     - https://learn.microsoft.com/en-us/azure/ai-services/custom-vision-service/overview
+  gcp:
+    services: []
+    match: none
+    answer: Lookout for Vision is discontinued on AWS, and Google Cloud has no current managed visual inspection service. Build anomaly detection with AutoML image models or custom training.
+    differences:
+    - Visual Inspection AI documentation was not found on 2026-10-27.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/training/automl-training-overview
+    flags:
+    - Visual Inspection AI docs returned 404 on 2026-10-27; treated as unavailable.
 
 - id: document-ocr
   group: vision-docs
@@ -1309,6 +1901,18 @@ rows:
     - Textract container/on-prem availability was only checked against the Textract overview page.
 
 # ───────────────────────── LANGUAGE ─────────────────────────
+  gcp:
+    services:
+    - document-ai
+    match: direct
+    answer: 'Amazon Textract maps to Document AI: OCR, form and layout parsing, specialized processors (invoices, IDs, and more), and custom extractors.'
+    differences:
+    - Processors are created per type and region; you call a processor rather than one API with feature flags.
+    - Gemini can also extract fields with prompts, and Document AI's custom extractor is built on generative models.
+    pricing: Billed per page in tiers (for example per 1,000 pages), with rates by processor type.
+    sources:
+    - https://docs.cloud.google.com/document-ai/docs/overview
+    - https://cloud.google.com/products/document-ai/pricing
 - id: text-analytics
   group: language
   capability: Text analytics (entities, sentiment, key phrases)
@@ -1337,6 +1941,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
   flags:
     - Unit sizes (100 vs 1,000 characters) come from each vendor's pricing structure. Confirm on the pricing pages.
+  gcp:
+    services:
+    - natural-language
+    match: direct
+    answer: 'Amazon Comprehend maps to the Cloud Natural Language API: entities, sentiment, syntax, content classification, and moderation.'
+    differences:
+    - Key-phrase extraction and language detection have no separate method; use entities or Cloud Translation's language detection.
+    pricing: Billed per 1,000-character unit per feature, with a monthly free tier.
+    sources:
+    - https://docs.cloud.google.com/natural-language/docs
+    - https://cloud.google.com/products/natural-language/pricing
 
 - id: custom-nlp
   slug: aws-comprehend-custom-vs-azure-language-custom
@@ -1361,6 +1976,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/comprehend/latest/dg/what-is.html
     - https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
+  gcp:
+    services:
+    - gemini-tuning
+    match: partial
+    answer: Comprehend custom classification and entity recognition have no direct counterpart since AutoML Text shut down on Jun 15, 2025. Google recommends prompting or tuning Gemini instead.
+    differences:
+    - Gemini tuning replaces AutoML Text; you get a tuned generative model, not a dedicated classifier endpoint.
+    pricing: Tuning is billed by training tokens; inference by token.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/tuning
+    - https://docs.cloud.google.com/vertex-ai/docs/deprecations
 
 - id: pii-detection
   slug: aws-comprehend-pii-vs-azure-language-pii
@@ -1387,6 +2013,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview
     - https://docs.aws.amazon.com/bedrock/latest/userguide/guardrails.html
     - https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview
+  gcp:
+    services:
+    - sensitive-data-protection
+    match: direct
+    answer: Comprehend PII detection maps to Sensitive Data Protection (formerly Cloud DLP), which finds, classifies, and de-identifies sensitive data.
+    differences:
+    - Sensitive Data Protection also scans BigQuery, Cloud Storage, and Cloud SQL, which Comprehend does not (Amazon Macie covers S3).
+    pricing: Inspection and transformation are billed per GB processed. Discovery (data profiling) is priced separately.
+    sources:
+    - https://docs.cloud.google.com/sensitive-data-protection/docs
+    - https://cloud.google.com/sensitive-data-protection/pricing
 
 - id: translation
   group: language
@@ -1413,6 +2050,17 @@ rows:
     - https://docs.aws.amazon.com/translate/latest/dg/what-is.html
     - https://docs.aws.amazon.com/translate/latest/dg/customizing-translations-parallel-data.html
     - https://learn.microsoft.com/en-us/azure/ai-services/translator/overview
+  gcp:
+    services:
+    - cloud-translation
+    match: direct
+    answer: 'Amazon Translate maps to Cloud Translation: neural translation (Basic and Advanced), document translation, glossaries, custom models, and LLM-based adaptive translation.'
+    differences:
+    - Advanced edition adds glossaries, batch and document translation, and custom models.
+    pricing: Billed per input character per target language, with different rates for NMT, custom models, and the translation LLM.
+    sources:
+    - https://docs.cloud.google.com/translate/docs/overview
+    - https://cloud.google.com/products/translate/pricing
 
 - id: medical-nlp
   group: language
@@ -1439,6 +2087,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/language-service/text-analytics-for-health/overview
 
 # ───────────────────────── SPEECH & CONVERSATIONAL ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud no longer has a Comprehend Medical equivalent. The Healthcare Natural Language API was deprecated on May 27, 2025 and shut down on May 27, 2026. Use Gemini models with your own prompts and validation.
+    differences:
+    - Gemini has no built-in medical ontology linking (ICD-10-CM, RxNorm, SNOMED CT) like Comprehend Medical.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/healthcare-api/docs/deprecations
 - id: speech-to-text
   group: speech
   capability: Speech to text
@@ -1464,6 +2121,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
   flags:
     - The OpenAI transcription model family name on Foundry is indicative. Check the Foundry audio models section.
+  gcp:
+    services:
+    - speech-to-text
+    match: direct
+    answer: Amazon Transcribe maps to Cloud Speech-to-Text, with batch and streaming recognition and models such as Chirp 3.
+    differences:
+    - Medical transcription uses Speech-to-Text's medical_conversation and medical_dictation models rather than a separate service.
+    - Model choice (Chirp 3 and others) affects languages and features.
+    pricing: Billed per minute of audio, with rates by model and API version, plus volume tiers.
+    sources:
+    - https://docs.cloud.google.com/speech-to-text/docs
+    - https://docs.cloud.google.com/speech-to-text/docs/models/chirp-3
+    - https://cloud.google.com/speech-to-text/pricing
 
 - id: text-to-speech
   group: speech
@@ -1488,6 +2158,17 @@ rows:
     - https://docs.aws.amazon.com/polly/latest/dg/what-is.html
     - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
+  gcp:
+    services:
+    - text-to-speech
+    match: direct
+    answer: Amazon Polly maps to Cloud Text-to-Speech, which synthesizes speech in many voices and languages with SSML.
+    differences:
+    - Voice types (Standard, WaveNet, Neural2, Chirp, and others) have different prices.
+    pricing: Billed per character, with rates by voice type. Gemini-based voices are billed per token.
+    sources:
+    - https://docs.cloud.google.com/text-to-speech/docs
+    - https://cloud.google.com/text-to-speech/pricing
 
 - id: call-analytics
   group: speech
@@ -1514,6 +2195,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
     - https://learn.microsoft.com/en-us/azure/ai-services/content-understanding/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/
+  gcp:
+    services:
+    - cx-insights
+    match: direct
+    answer: Transcribe Call Analytics maps to Customer Experience Insights (formerly Contact Center AI Insights), which transcribes and analyzes contact-center conversations.
+    differences:
+    - It is part of Gemini Enterprise for Customer Experience and works with any contact center platform through imports.
+    pricing: Voice is billed per minute and chat per message.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-cx/insights
+    - https://cloud.google.com/contact-center/insights/pricing
 
 - id: realtime-voice
   group: speech
@@ -1538,6 +2230,17 @@ rows:
     - https://docs.aws.amazon.com/nova/latest/userguide/what-is-nova.html
     - https://learn.microsoft.com/en-us/azure/ai-services/speech-service/overview
     - https://learn.microsoft.com/en-us/azure/foundry/agents/overview
+  gcp:
+    services:
+    - live-api
+    match: direct
+    answer: Amazon Nova Sonic maps to the Gemini Live API, which streams audio and video in and spoken responses out with low latency.
+    differences:
+    - Live API also accepts video input and offers live avatars.
+    pricing: Billed per token, with audio and video input and audio output metered as tokens.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/live-api
+    - https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 
 - id: chatbot-builder
   group: speech
@@ -1571,6 +2274,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/data-ai
 
 # ───────────────────────── INDUSTRY & SPECIALIZED ─────────────────────────
+  gcp:
+    services:
+    - dialogflow-cx
+    match: direct
+    answer: Amazon Lex maps to Dialogflow CX (Conversational Agents), with deterministic flows, LLM-driven playbooks, and telephony integration.
+    differences:
+    - Dialogflow CX models conversations as flows and pages, plus generative playbooks; Lex uses intents and slots.
+    pricing: Billed per request for chat agents and per second of audio for voice agents.
+    sources:
+    - https://docs.cloud.google.com/dialogflow/cx/docs
+    - https://cloud.google.com/products/conversational-agents/pricing
 - id: recommendations
   group: industry
   capability: Managed recommendation engine
@@ -1594,6 +2308,18 @@ rows:
     - https://docs.aws.amazon.com/personalize/latest/dg/what-is-personalize.html
     - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/personalizer/what-is-personalizer
     - https://learn.microsoft.com/en-us/azure/ai-services/what-are-ai-services
+  gcp:
+    services:
+    - ai-commerce-search
+    match: partial
+    answer: Amazon Personalize maps partly to AI Commerce Search (formerly Vertex AI Search for commerce and Recommendations AI), which is built for retail catalogs.
+    differences:
+    - AI Commerce Search is retail-specific. For media content, Agent Search has recommendation features; for other domains, build models yourself.
+    - AI Commerce Search is part of Gemini Enterprise for Customer Experience.
+    pricing: Search and browse are billed per 1,000 requests. Recommendations are billed for training, tuning, and prediction requests.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-cx/ai-commerce-search
+    - https://cloud.google.com/products/retail/pricing
 
 - id: time-series-forecasting
   group: industry
@@ -1617,6 +2343,19 @@ rows:
     - https://docs.aws.amazon.com/forecast/latest/dg/what-is-forecast.html
     - https://docs.aws.amazon.com/general/latest/gr/maintenance_services.html
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
+  gcp:
+    services:
+    - forecasting
+    - bigquery-ml
+    match: direct
+    answer: Amazon Forecast (in maintenance) maps to Agent Platform tabular forecasting and to BigQuery ML forecasting (ARIMA_PLUS and the TimesFM foundation model).
+    differences:
+    - TimesFM is pretrained, so AI.FORECAST forecasts from SQL without training your own model.
+    - Forecast is closed to new customers on AWS; SageMaker Canvas is the AWS path.
+    pricing: Agent Platform forecasting is billed per node-hour. BigQuery ML is billed through BigQuery compute.
+    sources:
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/machine-learning/tabular-data/forecasting/overview
+    - https://docs.cloud.google.com/bigquery/docs/timesfm-model
 
 - id: fraud-detection
   group: industry
@@ -1642,6 +2381,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/machine-learning/concept-automated-ml
   flags:
     - Microsoft Dynamics 365 Fraud Protection (a SaaS product, not Azure) wasn't evaluated in this release.
+  gcp:
+    services:
+    - fraud-defense
+    - aml-ai
+    match: partial
+    answer: Amazon Fraud Detector (in maintenance) maps partly to Google Cloud Fraud Defense (reCAPTCHA) for bot and account fraud, and to Anti Money Laundering AI for banks.
+    differences:
+    - Fraud Defense scores user interactions on web and mobile; it is not a general model builder for your own event types.
+    - AML AI is a regulated-industry product for banks.
+    pricing: Fraud Defense uses usage-based tiers that start with free assessments. We found no public AML AI price page.
+    sources:
+    - https://docs.cloud.google.com/recaptcha/docs/overview
+    - https://docs.cloud.google.com/financial-services/anti-money-laundering/docs/concepts/overview
 
 - id: equipment-anomaly
   group: industry
@@ -1666,6 +2418,15 @@ rows:
     - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
     - https://docs.aws.amazon.com/Monitron/latest/user-guide/what-is-monitron.html
     - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/anomaly-detector/overview
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed equipment-sensor anomaly service like Lookout for Equipment or Monitron. Build it with BigQuery ML anomaly detection or custom models.
+    differences:
+    - Lookout for Equipment is discontinued and Monitron is in maintenance on AWS too.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/bigquery/docs/anomaly-detection-overview
 
 - id: metric-anomaly
   group: industry
@@ -1690,6 +2451,16 @@ rows:
     - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/metrics-advisor/overview
   flags:
     - The alternatives listed are pointers, not verified equivalents.
+  gcp:
+    services:
+    - bigquery-ml
+    match: partial
+    answer: Lookout for Metrics (discontinued) maps partly to BigQuery ML anomaly detection on time-series data in BigQuery.
+    differences:
+    - You write SQL (for example AI.DETECT_ANOMALIES) instead of configuring a managed detector with alerts.
+    pricing: Billed through BigQuery compute.
+    sources:
+    - https://docs.cloud.google.com/bigquery/docs/anomaly-detection-overview
 
 - id: fhir-data
   group: industry
@@ -1713,6 +2484,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/healthlake/latest/devguide/what-is.html
     - https://learn.microsoft.com/en-us/azure/healthcare-apis/healthcare-apis-overview
+  gcp:
+    services:
+    - healthcare-api
+    match: direct
+    answer: AWS HealthLake maps to FHIR stores in the Cloud Healthcare API.
+    differences:
+    - HealthLake includes integrated medical NLP; Google's Healthcare NL API has shut down.
+    pricing: Billed for data storage and request volume.
+    sources:
+    - https://docs.cloud.google.com/healthcare-api/docs/concepts/fhir
+    - https://cloud.google.com/healthcare-api/pricing
 
 - id: clinical-documentation
   group: industry
@@ -1739,3 +2521,16 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ai-services/language-service/text-analytics-for-health/overview
   flags:
     - Dragon Copilot isn't mapped. Its status and API availability weren't verified.
+  gcp:
+    services:
+    - speech-to-text
+    - gemini-models
+    match: partial
+    answer: AWS HealthScribe has no direct counterpart. Combine Speech-to-Text medical models (medical_conversation) with Gemini to draft clinical notes.
+    differences:
+    - You build the summarization prompts, evidence links, and safety checks yourself.
+    - Speech-to-Text medical models are in the v1 API.
+    pricing: Speech-to-Text is billed per minute; Gemini per token.
+    sources:
+    - https://docs.cloud.google.com/speech-to-text/docs/v1/medical-models
+    - https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/google-models
