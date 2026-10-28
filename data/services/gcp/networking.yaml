@@ -1,0 +1,185 @@
+- slug: vpc
+  name: Virtual Private Cloud (VPC) network
+  status: ga
+  summary: A global virtual network with regional subnets, firewall rules, and routes, shared across projects with Shared VPC.
+  docs: https://docs.cloud.google.com/vpc/docs/vpc
+  pricing: https://cloud.google.com/vpc/network-pricing
+- slug: static-external-ips
+  name: Static external IP addresses and BYOIP
+  status: ga
+  summary: Reserved regional or global external IP addresses, including bring-your-own IP ranges.
+  docs: https://docs.cloud.google.com/vpc/docs/ip-addresses
+  pricing: https://cloud.google.com/vpc/network-pricing
+- slug: internal-ranges
+  name: Internal ranges
+  status: ga
+  summary: Reserve and manage blocks of internal IP addresses for VPC networks.
+  docs: https://docs.cloud.google.com/vpc/docs/internal-ranges
+- slug: vpc-routes
+  name: VPC routes
+  status: ga
+  summary: System, custom static, dynamic, and policy-based routes for a VPC network.
+  docs: https://docs.cloud.google.com/vpc/docs/routes
+- slug: cloud-router
+  name: Cloud Router
+  status: ga
+  summary: Managed BGP speaker that exchanges dynamic routes for Cloud VPN, Cloud Interconnect, and router appliances.
+  docs: https://docs.cloud.google.com/network-connectivity/docs/router/concepts/overview
+- slug: ncc-router-appliance
+  name: Network Connectivity Center router appliance
+  status: ga
+  summary: Peer Cloud Router with a third-party network virtual appliance over BGP.
+  docs: https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/ra-overview
+- slug: cloud-nat
+  name: Cloud NAT
+  status: ga
+  summary: Software-defined managed NAT for outbound traffic from resources without external IP addresses; no proxy VMs.
+  docs: https://docs.cloud.google.com/nat/docs/overview
+  pricing: https://cloud.google.com/nat/pricing
+- slug: cloud-ngfw
+  name: Cloud Next Generation Firewall
+  status: ga
+  summary: Stateful distributed firewall with Essentials, Standard, and Enterprise tiers, VPC firewall rules, and network firewall policies.
+  docs: https://docs.cloud.google.com/firewall/docs/about-firewalls
+  pricing: https://cloud.google.com/firewall/pricing
+- slug: hierarchical-firewall-policies
+  name: Hierarchical firewall policies
+  status: ga
+  summary: Firewall policies attached to the organization or folders that apply to every VPC network below them.
+  docs: https://docs.cloud.google.com/firewall/docs/firewall-policies-overview
+  pricing: https://cloud.google.com/firewall/pricing
+- slug: cloud-ngfw-enterprise
+  name: Cloud NGFW Enterprise (intrusion prevention)
+  status: ga
+  summary: Layer 7 threat inspection through zonal firewall endpoints that intercept traffic transparently.
+  docs: https://docs.cloud.google.com/firewall/docs/about-intrusion-prevention
+  pricing: https://cloud.google.com/firewall/pricing
+- slug: org-policy-constraints
+  name: Organization Policy network constraints
+  status: ga
+  summary: Organization-wide guardrails such as restricting external IP addresses on VMs or VPC peering.
+  docs: https://docs.cloud.google.com/organization-policy/reference/org-policy-constraints
+- slug: cloud-armor
+  name: Google Cloud Armor
+  status: ga
+  summary: WAF and DDoS protection for load balancers, in Standard and Cloud Armor Enterprise pricing models.
+  docs: https://docs.cloud.google.com/armor/docs/cloud-armor-overview
+  pricing: https://cloud.google.com/armor/pricing
+- slug: vpc-peering
+  name: VPC Network Peering
+  status: ga
+  summary: Private connectivity between two VPC networks; not transitive.
+  docs: https://docs.cloud.google.com/vpc/docs/vpc-peering
+  pricing: https://cloud.google.com/vpc/network-pricing
+- slug: network-connectivity-center
+  name: Network Connectivity Center
+  status: ga
+  summary: Hub-and-spoke connectivity among VPC spokes and hybrid spokes (VPN, Interconnect, router appliances).
+  docs: https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview
+- slug: cloud-wan
+  name: Cloud WAN
+  status: ga
+  summary: Managed global WAN built on Google's network and partners, part of the Cross-Cloud Network solution.
+  docs: https://cloud.google.com/solutions/cross-cloud-network
+- slug: cloud-vpn
+  name: Cloud VPN (HA VPN)
+  status: ga
+  summary: IPsec VPN with HA VPN gateways that provide a 99.99% SLA for most topologies.
+  docs: https://docs.cloud.google.com/network-connectivity/docs/vpn/concepts/overview
+  pricing: https://cloud.google.com/vpn/pricing
+- slug: cloud-interconnect
+  name: Cloud Interconnect
+  status: ga
+  summary: Dedicated Interconnect and Partner Interconnect private connections, with VLAN attachments.
+  docs: https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/overview
+  pricing: https://cloud.google.com/network-connectivity/interconnect/pricing
+- slug: cross-cloud-interconnect
+  name: Cross-Cloud Interconnect
+  status: ga
+  summary: Dedicated physical connections between Google Cloud and other clouds, plus partner options for AWS and OCI.
+  docs: https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview
+  pricing: https://cloud.google.com/network-connectivity/interconnect/pricing
+- slug: private-service-connect
+  name: Private Service Connect
+  status: ga
+  summary: Private endpoints and backends for Google APIs, Google-managed services, and published third-party services.
+  docs: https://docs.cloud.google.com/vpc/docs/private-service-connect
+  pricing: https://cloud.google.com/vpc/network-pricing
+- slug: private-google-access
+  name: Private Google Access
+  status: ga
+  summary: Lets VMs with only internal IP addresses reach Google APIs and services.
+  docs: https://docs.cloud.google.com/vpc/docs/private-google-access
+- slug: cloud-dns
+  name: Cloud DNS
+  status: ga
+  summary: Managed authoritative DNS with public and private zones, DNSSEC, forwarding, and server policies.
+  docs: https://docs.cloud.google.com/dns/docs/overview
+  pricing: https://cloud.google.com/dns/pricing
+- slug: cloud-dns-routing
+  name: Cloud DNS routing policies
+  status: ga
+  summary: Weighted round robin, geolocation, and failover routing policies with health checks.
+  docs: https://docs.cloud.google.com/dns/docs/routing-policies-overview
+  pricing: https://cloud.google.com/dns/pricing
+- slug: dns-armor
+  name: DNS Armor
+  status: ga
+  summary: Advanced DNS threat detection, powered by Infoblox, for queries from VPC networks.
+  docs: https://docs.cloud.google.com/dns/docs/threat-detection
+- slug: cloud-dns-response-policies
+  name: Cloud DNS response policies
+  status: ga
+  summary: Override or block DNS answers for private resolution inside VPC networks.
+  docs: https://docs.cloud.google.com/dns/docs/zones/manage-response-policies
+  pricing: https://cloud.google.com/dns/pricing
+- slug: application-load-balancer
+  name: Application Load Balancer
+  status: ga
+  summary: Layer 7 proxy load balancer, global (single anycast IP) or regional, external or internal.
+  docs: https://docs.cloud.google.com/load-balancing/docs/application-load-balancer
+  pricing: https://cloud.google.com/load-balancing/pricing
+- slug: network-load-balancer
+  name: Network Load Balancer
+  status: ga
+  summary: Layer 4 load balancers in proxy and passthrough modes.
+  docs: https://docs.cloud.google.com/load-balancing/docs/network/networklb-backend-service
+  pricing: https://cloud.google.com/load-balancing/pricing
+- slug: network-security-integration
+  name: Network Security Integration
+  status: ga
+  summary: Inserts third-party security appliance VMs in-band or out-of-band using packet intercept.
+  docs: https://docs.cloud.google.com/network-security-integration/docs/nsi-overview
+- slug: cloud-cdn
+  name: Cloud CDN
+  status: ga
+  summary: Caching at Google's edge for content served through the external Application Load Balancer.
+  docs: https://docs.cloud.google.com/cdn/docs/overview
+  pricing: https://cloud.google.com/cdn/pricing
+- slug: media-cdn
+  name: Media CDN
+  status: ga
+  summary: Edge delivery for high-throughput workloads such as video streaming and large downloads.
+  docs: https://docs.cloud.google.com/media-cdn/docs/overview
+- slug: service-extensions
+  name: Service Extensions
+  status: ga
+  summary: Plugins (custom code inline in the data path) and callouts for Cloud Load Balancing, Media CDN, and Secure Web Proxy.
+  docs: https://docs.cloud.google.com/service-extensions/docs/overview
+- slug: vpc-flow-logs
+  name: VPC Flow Logs
+  status: ga
+  summary: Sampled flow records aggregated by 5-tuple connection, sent to Cloud Logging.
+  docs: https://docs.cloud.google.com/vpc/docs/flow-logs
+  pricing: https://cloud.google.com/vpc/network-pricing
+- slug: connectivity-tests
+  name: Connectivity Tests (Network Intelligence Center)
+  status: ga
+  summary: Analyzes network configuration, and sometimes live data plane, between endpoints.
+  docs: https://docs.cloud.google.com/network-intelligence-center/docs/connectivity-tests/concepts/overview
+- slug: packet-mirroring
+  name: Packet Mirroring
+  status: ga
+  summary: Clones instance traffic to collector instances behind an internal load balancer.
+  docs: https://docs.cloud.google.com/vpc/docs/packet-mirroring
+  pricing: https://cloud.google.com/vpc/network-pricing

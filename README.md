@@ -14,7 +14,7 @@ An open-source, source-cited study guide that maps cloud services between provid
 
 **Current scope:** Compute (32 mappings), Containers & Serverless (29), Storage (38), Databases (34), Networking & Content Delivery (40), Identity & Security (29), and AI & Machine Learning (65): 267 mappings, 268 AWS services, 232 Azure services. Last verified 2026-10-24.
 
-**Google Cloud column (in progress):** Compute (32), Containers & Serverless (29), Storage (38), Databases (34), AI & Machine Learning (65) (150 GCP services, verified 2026-10-27). Not yet mapped to GCP: Identity & Security, Networking & Content Delivery; their matrices show two columns until they are.
+**Google Cloud column (in progress):** Compute (32), Containers & Serverless (29), Storage (38), Databases (34), Networking & Content Delivery (40), AI & Machine Learning (65) (183 GCP services, verified 2026-10-27). Not yet mapped to GCP: Identity & Security; their matrices show two columns until they are.
 
 
 ## Screenshots

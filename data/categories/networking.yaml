@@ -7,6 +7,7 @@ category:
   description: Virtual networks, subnets, routing, internet egress, network security and firewalls, hybrid connectivity, private service access, DNS, load balancing, CDN and edge compute, and network monitoring. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure networking, side by side: VPC vs Virtual Network, security groups vs NSGs, Transit Gateway vs Virtual WAN, Direct Connect vs ExpressRoute, Route 53 vs Azure DNS and Traffic Manager, ALB vs Application Gateway, CloudFront vs Front Door, and Lambda@Edge vs Front Door edge actions."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: virtual-networks
       name: Virtual networks, subnets & IP addressing
@@ -56,6 +57,18 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - vpc
+    match: direct
+    answer: Amazon VPC maps to a Google Cloud VPC network. A VPC network is global, and its subnets are regional.
+    differences:
+    - One VPC network spans all regions; an AWS VPC is regional.
+    - Shared VPC lets a host project share its network with service projects, similar to AWS VPC sharing.
+    pricing: No charge for the VPC network itself; you pay for data transfer, IP addresses, and network services.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/vpc
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: subnets-zones
   group: virtual-networks
@@ -82,6 +95,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-overview
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - vpc
+    match: partial
+    answer: VPC subnets map to Google Cloud subnets, but Google Cloud subnets are regional and span every zone in the region; you choose the zone per VM, not per subnet.
+    differences:
+    - A single subnet serves all zones in its region, unlike AWS subnets, which live in one Availability Zone.
+    - Subnets can have secondary ranges (used by GKE for Pods and Services).
+    pricing: No charge for subnets.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/subnets
 
 - id: public-ip-addresses
   group: virtual-networks
@@ -107,6 +131,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-basic-upgrade-guidance
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/custom-ip-address-prefix
+  gcp:
+    services:
+    - static-external-ips
+    match: direct
+    answer: Elastic IP addresses map to static external IP addresses, regional or global, and BYOIP lets you bring your own public ranges.
+    differences:
+    - Global static IPs are anycast addresses for global load balancers.
+    - A static IP is charged when reserved but unused, and also while attached to a VM (running or stopped); IPs on forwarding rules are not charged.
+    pricing: Hourly charge per static or ephemeral external IP in use by a VM and per reserved-but-unused static IP.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/ip-addresses
+    - https://docs.cloud.google.com/vpc/docs/bring-your-own-ip
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: ip-address-management
   group: virtual-networks
@@ -133,6 +170,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-network-manager/concept-ip-address-management
 
 # ───────────────────────── ROUTING & EGRESS ─────────────────────────
+  gcp:
+    services:
+    - internal-ranges
+    match: partial
+    answer: VPC IPAM has no full Google Cloud counterpart. Internal ranges let you reserve and allocate blocks of internal IP addresses in a VPC network.
+    differences:
+    - There are no IPAM pools, compliance monitoring, or cross-account IP planning like VPC IPAM.
+    - Network Analyzer reports IP address utilization insights.
+    pricing: Check the VPC pricing page; internal ranges have no separate price listed.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/internal-ranges
 - id: route-tables
   group: routing-egress
   capability: Custom route tables
@@ -157,6 +205,17 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-networks-udr-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - vpc-routes
+    match: direct
+    answer: 'VPC route tables map to VPC routes: system, custom static, dynamic, and policy-based routes defined at the network level.'
+    differences:
+    - Routes belong to the VPC network and can target VMs by network tags; there are no per-subnet route tables.
+    - Policy-based routes can match on source address and protocol.
+    pricing: No charge for routes.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/routes
 
 - id: dynamic-routing
   group: routing-egress
@@ -180,6 +239,21 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpc/latest/userguide/dynamic-routing-route-server.html
     - https://learn.microsoft.com/en-us/azure/route-server/overview
+  gcp:
+    services:
+    - ncc-router-appliance
+    - cloud-router
+    match: direct
+    answer: VPC Route Server maps to Network Connectivity Center router appliance, which peers Cloud Router with third-party network virtual appliances over BGP.
+    differences:
+    - Cloud Router is the managed BGP speaker; the appliance is a VM you run.
+    - Router appliance spokes can also provide site-to-site connectivity through Network Connectivity Center.
+    pricing: Network Connectivity Center and data transfer charges apply; Cloud Router itself has no separate charge listed on the VPC page.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/ra-overview
+    - https://docs.cloud.google.com/network-connectivity/docs/router/concepts/overview
+    flags:
+    - Cloud Router and router appliance pricing were not confirmed from a price page on 2026-10-27.
 
 - id: internet-egress
   group: routing-egress
@@ -205,6 +279,19 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+  gcp:
+    services:
+    - vpc
+    - static-external-ips
+    match: partial
+    answer: There is no internet gateway resource. Every VPC network has a default route to the default internet gateway; VMs with external IP addresses use it directly, and private VMs use Cloud NAT.
+    differences:
+    - Internet access is controlled by routes, firewall rules, and whether a VM has an external IP.
+    - IPv6 egress uses the same default route; there is no egress-only gateway resource.
+    pricing: Internet egress is billed per GiB by network tier and destination.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/routes
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: nat-gateway
   group: routing-egress
@@ -233,6 +320,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
 
 # ───────────────────────── NETWORK SECURITY ─────────────────────────
+  gcp:
+    services:
+    - cloud-nat
+    match: direct
+    answer: NAT gateway maps to Cloud NAT, a software-defined managed NAT that doesn't use proxy VMs.
+    differences:
+    - Cloud Router provides the control plane for Cloud NAT; each gateway is regional.
+    - Private NAT also translates between VPC networks or with on-premises networks.
+    pricing: Hourly charge per NAT gateway, plus per-GiB data processed and the external IP addresses it uses.
+    sources:
+    - https://docs.cloud.google.com/nat/docs/overview
+    - https://cloud.google.com/nat/pricing
 - id: instance-firewall
   group: network-security
   capability: Stateful instance-level firewall rules
@@ -258,6 +357,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
     - https://learn.microsoft.com/en-us/azure/virtual-network/application-security-groups
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-ngfw
+    match: direct
+    answer: Security groups map to Cloud NGFW VPC firewall rules and network firewall policies, which are stateful and target VMs by network tags, secure tags, or service accounts.
+    differences:
+    - Rules are defined on the VPC network or in firewall policies, not attached to network interfaces.
+    - Rules support both allow and deny with priorities, unlike security groups.
+    pricing: Cloud NGFW Essentials has no additional charge; Standard and Enterprise features are billed by usage.
+    sources:
+    - https://docs.cloud.google.com/firewall/docs/about-firewalls
+    - https://cloud.google.com/firewall/pricing
 
 - id: subnet-acl
   group: network-security
@@ -282,6 +393,15 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
     - https://learn.microsoft.com/en-us/azure/virtual-network-manager/overview
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no stateless subnet ACLs. All Cloud NGFW rules are stateful; use firewall rules with deny rules and priorities instead.
+    differences:
+    - Firewall policies can be applied hierarchically at organization and folder level.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/firewall/docs/about-firewalls
 
 - id: block-public-access
   group: network-security
@@ -304,6 +424,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpc/latest/userguide/security-vpc-bpa.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/default-outbound-access
+  gcp:
+    services:
+    - org-policy-constraints
+    match: partial
+    answer: VPC Block Public Access maps partly to Organization Policy constraints, such as restricting which VMs can have external IP addresses.
+    differences:
+    - Constraints are preventive guardrails at organization, folder, or project level, not a single network-level switch.
+    - Combine them with hierarchical firewall policies to block inbound internet traffic.
+    pricing: No charge for organization policies.
+    sources:
+    - https://docs.cloud.google.com/organization-policy/reference/org-policy-constraints
 
 - id: managed-firewall
   group: network-security
@@ -330,6 +461,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/firewall/overview
     - https://learn.microsoft.com/en-us/azure/firewall/choose-firewall-sku
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-ngfw-enterprise
+    match: direct
+    answer: AWS Network Firewall maps to Cloud NGFW Enterprise, which adds intrusion prevention through zonal firewall endpoints that inspect traffic transparently.
+    differences:
+    - Firewall endpoints are zonal and associated with VPC networks; no route changes are needed.
+    - Cloud NGFW Standard adds FQDN objects and threat intelligence without endpoints.
+    pricing: Cloud NGFW Enterprise bills firewall endpoint hours plus data processed.
+    sources:
+    - https://docs.cloud.google.com/firewall/docs/about-intrusion-prevention
+    - https://cloud.google.com/firewall/pricing
 
 - id: web-application-firewall
   group: network-security
@@ -356,6 +499,18 @@ rows:
     - https://docs.aws.amazon.com/waf/latest/developerguide/classic-waf-chapter.html
     - https://learn.microsoft.com/en-us/azure/web-application-firewall/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-armor
+    match: direct
+    answer: AWS WAF maps to Google Cloud Armor security policies with preconfigured WAF rules, custom rules, and rate limiting on load balancers.
+    differences:
+    - Cloud Armor attaches to Application Load Balancers and other supported load balancers, not directly to APIs or functions.
+    - Cloud Armor Enterprise adds managed protection features on top of Standard.
+    pricing: Standard pricing is usage-based, including a charge per million requests; Cloud Armor Enterprise is a subscription or pay-as-you-go enrollment.
+    sources:
+    - https://docs.cloud.google.com/armor/docs/cloud-armor-overview
+    - https://cloud.google.com/armor/pricing
 
 - id: ddos-protection
   group: network-security
@@ -381,6 +536,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-overview
     - https://learn.microsoft.com/en-us/azure/ddos-protection/ddos-protection-sku-comparison
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-armor
+    match: direct
+    answer: AWS Shield maps to Google Cloud Armor. Cloud Armor provides always-on protection from Layer 3 and Layer 4 volumetric attacks for supported load balancers, and Cloud Armor Enterprise adds advanced network DDoS protection with attack monitoring and alerting, like Shield Advanced.
+    differences:
+    - Shield Standard is automatic for all AWS customers; Cloud Armor protection applies to traffic through Google Cloud load balancers and protected IP addresses.
+    pricing: Standard usage pricing, or a Cloud Armor Enterprise subscription.
+    sources:
+    - https://docs.cloud.google.com/armor/docs/cloud-armor-overview
+    - https://cloud.google.com/armor/pricing
 
 - id: firewall-policy-management
   group: network-security
@@ -405,6 +571,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/firewall-manager/overview
 
 # ───────────────────────── HYBRID & NETWORK-TO-NETWORK ─────────────────────────
+  gcp:
+    services:
+    - hierarchical-firewall-policies
+    match: partial
+    answer: AWS Firewall Manager maps partly to hierarchical firewall policies, which apply firewall rules from the organization or folder level to every VPC network below.
+    differences:
+    - Hierarchy-based inheritance replaces Firewall Manager's account-based policies.
+    - Cloud Armor policies are managed separately from firewall policies.
+    pricing: Rules using only Cloud NGFW Essentials features have no charge; Standard and Enterprise features add charges.
+    sources:
+    - https://docs.cloud.google.com/firewall/docs/firewall-policies-overview
+    - https://cloud.google.com/firewall/pricing
 - id: vnet-peering
   group: hybrid-connectivity
   capability: Network peering
@@ -428,6 +606,17 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - vpc-peering
+    match: direct
+    answer: VPC peering maps to VPC Network Peering, which connects two VPC networks privately. Like AWS, it isn't transitive.
+    differences:
+    - Peered networks exchange subnet routes automatically; custom routes can be imported and exported.
+    pricing: No charge for the peering itself; data transfer between peered networks is billed under VPC network pricing.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/vpc-peering
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: transit-hub
   group: hybrid-connectivity
@@ -453,6 +642,19 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html
     - https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - network-connectivity-center
+    match: partial
+    answer: AWS Transit Gateway maps partly to Network Connectivity Center, a hub that connects VPC spokes and hybrid spokes (VPN, Interconnect, router appliances).
+    differences:
+    - Because a VPC network is global, many designs need no transit hub; Shared VPC also reduces the number of networks.
+    - NCC is a global hub rather than a regional attachment point.
+    pricing: Billed for spoke hours and data processed.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview
+    flags:
+    - Network Connectivity Center prices were not confirmed from a price page on 2026-10-27.
 
 - id: global-network
   group: hybrid-connectivity
@@ -477,6 +679,19 @@ rows:
     - https://docs.aws.amazon.com/network-manager/latest/cloudwan/what-is-cloudwan.html
     - https://learn.microsoft.com/en-us/azure/virtual-wan/virtual-wan-about
     - https://learn.microsoft.com/en-us/azure/virtual-network-manager/overview
+  gcp:
+    services:
+    - cloud-wan
+    - network-connectivity-center
+    match: partial
+    answer: AWS Cloud WAN maps partly to Google Cloud WAN, a managed enterprise backbone on Google's network built from Cloud Interconnect, Cross-Site Interconnect, and Network Connectivity Center.
+    differences:
+    - Cloud WAN is a solution assembled from several products rather than one policy-driven service.
+    - Cross-Site Interconnect provides Layer 2 connectivity between your sites over Google's network.
+    pricing: Billed through the component products (Interconnect, NCC, data transfer).
+    sources:
+    - https://cloud.google.com/solutions/cross-cloud-network
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cross-site-overview
 
 - id: site-to-site-vpn
   group: hybrid-connectivity
@@ -505,6 +720,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-about-vpngateways
     - https://learn.microsoft.com/en-us/azure/vpn-gateway/about-gateway-skus
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-vpn
+    match: direct
+    answer: AWS Site-to-Site VPN maps to Cloud VPN. HA VPN gateways use two interfaces and BGP through Cloud Router, with a 99.99% SLA for most topologies.
+    differences:
+    - HA VPN can also run encrypted tunnels over Cloud Interconnect.
+    pricing: Hourly charge per VPN gateway tunnel, plus data transfer and any unused external IP.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/vpn/concepts/overview
+    - https://cloud.google.com/vpn/pricing
 
 - id: remote-access-vpn
   group: hybrid-connectivity
@@ -529,6 +755,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/what-is.html
     - https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed client (point-to-site) VPN. For user access to resources, use Identity-Aware Proxy (including TCP forwarding) or run a VPN appliance on Compute Engine.
+    differences:
+    - Identity-Aware Proxy grants per-application access based on identity rather than network access.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/iap/docs/concepts-overview
 
 - id: dedicated-connection
   group: hybrid-connectivity
@@ -557,6 +792,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction
     - https://learn.microsoft.com/en-us/azure/expressroute/expressroute-howto-macsec
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-interconnect
+    - cross-cloud-interconnect
+    match: direct
+    answer: 'AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a service provider).'
+    differences:
+    - Cross-Cloud Interconnect provides dedicated physical connections from Google Cloud to other cloud providers.
+    - VLAN attachments connect a circuit to Cloud Router in a region, similar to virtual interfaces.
+    pricing: Hourly charges for Interconnect connections and VLAN attachments, plus discounted egress per GiB.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/overview
+    - https://cloud.google.com/network-connectivity/interconnect/pricing
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview
 
 - id: multi-region-private-connectivity
   group: hybrid-connectivity
@@ -584,6 +833,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
 
 # ───────────────────────── PRIVATE ACCESS ─────────────────────────
+  gcp:
+    services:
+    - cloud-interconnect
+    - network-connectivity-center
+    match: partial
+    answer: Direct Connect gateway maps partly to Cloud Interconnect with global dynamic routing on the VPC network, which reaches all regions from one attachment. Network Connectivity Center adds site-to-site data transfer between on-premises sites.
+    differences:
+    - Traffic to other regions through a VLAN attachment pays cross-region rates.
+    pricing: Interconnect hourly charges plus cross-region data transfer.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/overview
+    - https://cloud.google.com/network-connectivity/interconnect/pricing
+    - https://docs.cloud.google.com/network-connectivity/docs/network-connectivity-center/concepts/overview
 - id: private-endpoints
   group: private-access
   capability: Private endpoints for cloud and partner services
@@ -608,6 +870,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/private-link/private-link-overview
     - https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - private-service-connect
+    match: direct
+    answer: AWS PrivateLink maps to Private Service Connect, which gives private endpoints for Google APIs, Google-managed services, and published third-party services.
+    differences:
+    - Producers publish services with service attachments; consumers create endpoints or backends.
+    pricing: Endpoints are billed per hour, plus per GiB of data processed, depending on the configuration.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/private-service-connect
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: service-endpoints
   group: private-access
@@ -632,6 +905,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpc/latest/privatelink/gateway-endpoints.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview
+  gcp:
+    services:
+    - private-google-access
+    match: partial
+    answer: Gateway VPC endpoints map partly to Private Google Access, which lets VMs with only internal IP addresses reach Google APIs such as Cloud Storage.
+    differences:
+    - It's a subnet setting, not an endpoint resource with policies.
+    - For private IP endpoints to Google APIs, use Private Service Connect.
+    pricing: No separate charge listed for Private Google Access.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/private-google-access
 
 - id: service-networking
   group: private-access
@@ -657,6 +941,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
 
 # ───────────────────────── DNS ─────────────────────────
+  gcp:
+    services:
+    - cloud-service-mesh
+    - private-service-connect
+    match: partial
+    answer: VPC Lattice maps partly to Cloud Service Mesh for service-to-service traffic management and security, combined with Private Service Connect for cross-network access.
+    differences:
+    - There is no single managed application-networking service spanning VMs, containers, and functions like Lattice.
+    pricing: Billed through Cloud Service Mesh and Private Service Connect.
+    sources:
+    - https://docs.cloud.google.com/service-mesh/docs/overview
+    - https://docs.cloud.google.com/vpc/docs/private-service-connect
 - id: public-dns
   group: dns
   capability: Public authoritative DNS hosting
@@ -680,6 +976,19 @@ rows:
     - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html
     - https://learn.microsoft.com/en-us/azure/dns/dns-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-dns
+    match: direct
+    answer: Route 53 public hosted zones map to Cloud DNS public zones. Google Cloud no longer sells domains; Cloud Domains registrations moved to Squarespace in 2023.
+    differences:
+    - Register domains with a third-party registrar and delegate to Cloud DNS.
+    - Cloud DNS supports DNSSEC.
+    pricing: Charged per managed zone per month plus per query.
+    sources:
+    - https://docs.cloud.google.com/dns/docs/overview
+    - https://cloud.google.com/dns/pricing
+    - https://docs.cloud.google.com/domains/docs/overview
 
 - id: private-dns
   group: dns
@@ -703,6 +1012,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html
     - https://learn.microsoft.com/en-us/azure/dns/private-dns-overview
+  gcp:
+    services:
+    - cloud-dns
+    match: direct
+    answer: Route 53 private hosted zones map to Cloud DNS private zones, visible to the VPC networks you authorize.
+    differences:
+    - Private zones can be shared across networks with DNS peering.
+    pricing: Charged per managed zone per month plus per query.
+    sources:
+    - https://docs.cloud.google.com/dns/docs/overview
+    - https://cloud.google.com/dns/pricing
 
 - id: hybrid-dns
   group: dns
@@ -725,6 +1045,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver.html
     - https://learn.microsoft.com/en-us/azure/dns/dns-private-resolver-overview
+  gcp:
+    services:
+    - cloud-dns
+    match: direct
+    answer: Route 53 Resolver endpoints and rules map to Cloud DNS forwarding zones and server policies (inbound and outbound DNS forwarding).
+    differences:
+    - Inbound server policies give on-premises resolvers an entry point into Cloud DNS.
+    pricing: Cloud DNS query pricing applies to forwarded queries.
+    sources:
+    - https://docs.cloud.google.com/dns/docs/zones/forwarding-zones
+    - https://docs.cloud.google.com/dns/docs/server-policies-overview
+    - https://cloud.google.com/dns/pricing
 
 - id: dns-firewall
   group: dns
@@ -750,6 +1082,21 @@ rows:
   sources:
     - https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resolver-dns-firewall.html
     - https://learn.microsoft.com/en-us/azure/dns/dns-security-policy
+  gcp:
+    services:
+    - dns-armor
+    - cloud-dns-response-policies
+    match: direct
+    answer: Route 53 Resolver DNS Firewall maps to DNS Armor (threat detection powered by Infoblox) together with Cloud DNS response policies for custom block lists.
+    differences:
+    - DNS Armor detects and logs threats to Cloud Logging; blocking specific domains uses response policies.
+    - DNS Armor is enabled per project for all VPC networks, with optional exclusions.
+    pricing: Cloud DNS response policy queries are billed per query; check DNS Armor pricing in the console.
+    sources:
+    - https://docs.cloud.google.com/dns/docs/threat-detection
+    - https://docs.cloud.google.com/dns/docs/zones/manage-response-policies
+    flags:
+    - DNS Armor pricing was not found on a Google pricing page on 2026-10-27.
 
 - id: dns-traffic-routing
   group: dns
@@ -777,6 +1124,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
 
 # ───────────────────────── LOAD BALANCING ─────────────────────────
+  gcp:
+    services:
+    - cloud-dns-routing
+    match: direct
+    answer: 'Route 53 routing policies and health checks map to Cloud DNS routing policies: weighted round robin, geolocation, and failover, with health checks.'
+    differences:
+    - Health-checked policies work with internal load balancers and, for public zones, external endpoints; check the current support list.
+    pricing: Charged per zone and per query; health checks may add cost.
+    sources:
+    - https://docs.cloud.google.com/dns/docs/routing-policies-overview
+    - https://cloud.google.com/dns/pricing
 - id: application-load-balancing
   group: load-balancing
   capability: Layer 7 (HTTP/HTTPS) load balancing
@@ -804,6 +1162,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/application-gateway/overview
     - https://learn.microsoft.com/en-us/azure/application-gateway/v1-retirement
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - application-load-balancer
+    match: direct
+    answer: Application Load Balancer maps to the Google Cloud Application Load Balancer, global (single anycast IP) or regional, external or internal.
+    differences:
+    - The global external Application Load Balancer runs at Google's edge, combining ALB and some Global Accelerator and CloudFront behavior.
+    - Cloud Armor and Cloud CDN attach to its backend services.
+    pricing: Hourly charge per forwarding rule plus per-GiB data processed by region.
+    sources:
+    - https://docs.cloud.google.com/load-balancing/docs/application-load-balancer
+    - https://cloud.google.com/load-balancing/pricing
 
 - id: network-load-balancing
   group: load-balancing
@@ -831,6 +1201,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
     - https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-basic-upgrade-guidance
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - network-load-balancer
+    match: direct
+    answer: Network Load Balancer maps to Google Cloud Network Load Balancers, either proxy (TCP/SSL) or passthrough (TCP/UDP preserving client IP).
+    differences:
+    - Passthrough load balancers are regional and don't terminate connections.
+    pricing: Hourly charge per forwarding rule plus data processed.
+    sources:
+    - https://docs.cloud.google.com/load-balancing/docs/network/networklb-backend-service
+    - https://cloud.google.com/load-balancing/pricing
 
 - id: appliance-load-balancing
   group: load-balancing
@@ -856,6 +1237,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/load-balancer/gateway-overview
 
 # ───────────────────────── EDGE ─────────────────────────
+  gcp:
+    services:
+    - network-security-integration
+    match: direct
+    answer: Gateway Load Balancer maps to Network Security Integration, which inserts third-party security appliances in-band or out-of-band using packet intercept.
+    differences:
+    - A simpler pattern uses an internal passthrough Network Load Balancer as a route next hop to appliance VMs.
+    pricing: Check the Network Security Integration pricing documentation.
+    sources:
+    - https://docs.cloud.google.com/network-security-integration/docs/nsi-overview
+    flags:
+    - Network Security Integration pricing was not confirmed on 2026-10-27.
 - id: cdn
   group: edge-delivery
   capability: Content delivery network (CDN)
@@ -887,6 +1280,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/cdn/classic-cdn-retirement-faq
     - https://learn.microsoft.com/en-us/previous-versions/azure/cdn/edgio-retirement-faq
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - cloud-cdn
+    - media-cdn
+    match: direct
+    answer: Amazon CloudFront maps to Cloud CDN, which caches content served through the external Application Load Balancer, and Media CDN for video streaming and large downloads.
+    differences:
+    - Cloud CDN is enabled on load balancer backends rather than created as a distribution.
+    pricing: Billed for cache lookups, cache data transfer out, and cache fill.
+    sources:
+    - https://docs.cloud.google.com/cdn/docs/overview
+    - https://docs.cloud.google.com/media-cdn/docs/overview
+    - https://cloud.google.com/cdn/pricing
 
 - id: edge-functions-lightweight
   group: edge-delivery
@@ -915,6 +1321,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html
     - https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine
     - https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions
+  gcp:
+    services:
+    - service-extensions
+    match: partial
+    answer: CloudFront Functions maps partly to Service Extensions plugins, which run custom code inline in the load balancer and Media CDN data path.
+    differences:
+    - Plugins run on the load balancer and Media CDN data path; check which products support plugins versus callouts.
+    pricing: Pricing is consolidated with related edge products under a billing tier (such as Global Front End Enterprise); see the Service Extensions documentation.
+    sources:
+    - https://docs.cloud.google.com/service-extensions/docs/overview
+    flags:
+    - Service Extensions plugin pricing was not confirmed on 2026-10-27.
 
 - id: edge-functions-full
   group: edge-delivery
@@ -937,6 +1355,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/lambda-at-the-edge.html
     - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no full serverless function runtime at the CDN edge like Lambda@Edge. Use Service Extensions callouts to Cloud Run, or run logic in Cloud Run behind the load balancer.
+    differences:
+    - Callouts send requests to a backend service you run, not to edge locations.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/service-extensions/docs/overview
 
 - id: global-anycast
   group: edge-delivery
@@ -963,6 +1390,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
 
 # ───────────────────────── MONITORING ─────────────────────────
+  gcp:
+    services:
+    - application-load-balancer
+    - network-load-balancer
+    match: direct
+    answer: AWS Global Accelerator maps to global external load balancers, which use a single anycast IP address and enter Google's network at the edge on Premium Tier.
+    differences:
+    - No separate accelerator resource; anycast comes with the global proxy load balancers.
+    - Global proxy Network Load Balancers handle TCP; UDP needs regional passthrough load balancers.
+    pricing: Load balancer forwarding rule and data processing charges, plus Premium Tier egress.
+    sources:
+    - https://docs.cloud.google.com/load-balancing/docs/load-balancing-overview
+    - https://docs.cloud.google.com/network-tiers/docs/overview
 - id: flow-logs
   group: network-monitoring
   capability: Network flow logs
@@ -989,6 +1429,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/network-watcher/vnet-flow-logs-overview
     - https://learn.microsoft.com/en-us/azure/network-watcher/nsg-flow-logs-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/networking
+  gcp:
+    services:
+    - vpc-flow-logs
+    match: direct
+    answer: VPC Flow Logs maps to Google Cloud VPC Flow Logs, which samples packets and aggregates them by 5-tuple connection.
+    differences:
+    - Sampling rate and aggregation interval are configurable; logs go to Cloud Logging.
+    pricing: Billed for log generation plus Cloud Logging, BigQuery, or other destination costs.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/flow-logs
+    - https://cloud.google.com/vpc/network-pricing
 
 - id: network-diagnostics
   group: network-monitoring
@@ -1013,6 +1464,18 @@ rows:
     - https://docs.aws.amazon.com/vpc/latest/reachability/what-is-reachability-analyzer.html
     - https://docs.aws.amazon.com/vpc/latest/network-access-analyzer/what-is-network-access-analyzer.html
     - https://learn.microsoft.com/en-us/azure/network-watcher/network-watcher-overview
+  gcp:
+    services:
+    - connectivity-tests
+    match: direct
+    answer: Reachability Analyzer maps to Connectivity Tests in Network Intelligence Center, which analyzes configuration and, in some cases, the live data plane between endpoints.
+    differences:
+    - Firewall Insights and Network Analyzer cover misconfigurations and unused rules, similar to Network Access Analyzer.
+    pricing: See Network Intelligence Center pricing.
+    sources:
+    - https://docs.cloud.google.com/network-intelligence-center/docs/connectivity-tests/concepts/overview
+    flags:
+    - Network Intelligence Center pricing was not confirmed on 2026-10-27.
 
 - id: traffic-mirroring
   group: network-monitoring
@@ -1038,3 +1501,14 @@ rows:
   sources:
     - https://docs.aws.amazon.com/vpc/latest/mirroring/what-is-traffic-mirroring.html
     - https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-tap-overview
+  gcp:
+    services:
+    - packet-mirroring
+    match: direct
+    answer: VPC Traffic Mirroring maps to Packet Mirroring, which clones traffic from selected instances to collector instances behind an internal load balancer.
+    differences:
+    - Network Security Integration out-of-band mode is another way to mirror traffic to appliances.
+    pricing: Billed per GiB of data processed; no per-VM charge.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/packet-mirroring
+    - https://cloud.google.com/vpc/network-pricing
