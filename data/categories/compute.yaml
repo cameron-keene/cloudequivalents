@@ -7,6 +7,7 @@ category:
   description: Virtual machines, instance families, images, Spot and commitment discounts, dedicated hardware, scaling, HPC, simple hosting, virtual desktops, hybrid and edge, VMware, and VM security. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure compute, side by side: EC2 vs Azure Virtual Machines, Spot, Savings Plans vs Azure savings plan, Auto Scaling vs VMSS, Batch, HPC, Outposts vs Azure Local, and more."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: vm-core
       name: Virtual machines & images
@@ -55,6 +56,20 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+  gcp:
+    services:
+    - compute-engine
+    match: direct
+    answer: The Google Cloud equivalent of Amazon EC2 is Compute Engine, which runs VM and bare metal instances in zones within regions.
+    differences:
+    - Compute Engine live-migrates most VMs during host maintenance instead of scheduling reboot events.
+    - Instances and disks are zonal resources inside a project; VPC networks are global, with regional subnets.
+    - Some machine series get sustained use discounts automatically, with no commitment.
+    pricing: Billed per second (1-minute minimum) for vCPUs, memory, and attached resources, by machine type and region. Sustained use discounts apply automatically to some series; committed use discounts and Spot pricing are also available.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances
+    - https://docs.cloud.google.com/compute/docs/sustained-use-discounts
+    - https://cloud.google.com/products/compute/pricing
 
 - id: instance-families
   group: vm-core
@@ -84,6 +99,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
   flags:
     - Family letters change as new generations ship. Check the size lists on both sides at decision time.
+  gcp:
+    services:
+    - machine-families
+    match: direct
+    answer: EC2 instance types map to Compute Engine machine families, series, and machine types (for example general-purpose N4 and C4, compute-optimized H4D, memory-optimized X4, and accelerator-optimized A-series).
+    differences:
+    - Compute Engine also supports custom machine types, where you pick the vCPU and memory amounts yourself.
+    - Machine type names follow series-shape-vCPUs (for example c4-standard-8) instead of family.size names.
+    pricing: Billed per second (1-minute minimum) for vCPUs, memory, and attached resources, by machine type and region. Sustained use discounts apply automatically to some series; committed use discounts and Spot pricing are also available.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/machine-resource
+    - https://cloud.google.com/products/compute/pricing
 
 - id: arm-cpus
   group: vm-core
@@ -114,6 +141,18 @@ rows:
   flags:
     - Cobalt 200 was in early-access preview (8 regions) when verified. Microsoft said broader availability would come later in 2026, so check for GA.
     - Graviton5 (M9g/C9g/R9g) is listed as current generation, but regional availability may still be limited.
+  gcp:
+    services:
+    - axion
+    match: direct
+    answer: AWS Graviton maps to Google Axion, Google's own Arm processor, offered in the N4A (Neoverse N3) and C4A (Neoverse V2) machine series.
+    differences:
+    - The A4X GPU series also uses Arm CPUs (NVIDIA Grace), but N4A and C4A are the general-purpose Axion options.
+    - Check that your images and container builds include arm64 variants, as with Graviton.
+    pricing: Billed per second (1-minute minimum) for vCPUs, memory, and attached resources, by machine type and region. Sustained use discounts apply automatically to some series; committed use discounts and Spot pricing are also available.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/arm-on-compute
+    - https://cloud.google.com/products/compute/pricing
 
 - id: machine-images
   group: vm-core
@@ -142,6 +181,19 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/azure-compute-gallery
     - https://learn.microsoft.com/en-us/azure/virtual-machines/capture-image-resource
+  gcp:
+    services:
+    - os-images
+    match: direct
+    answer: AMIs map to Compute Engine custom images (boot disk images, grouped into image families) and machine images (all disks plus the instance's configuration).
+    differences:
+    - A custom image covers one boot disk; a machine image is closer to a full AMI with all attached disks and instance properties.
+    - Images are global resources shared across projects with IAM, rather than per-region copies shared by account ID.
+    pricing: Billed per GB-month of image storage, with rates by storage location.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/images
+    - https://docs.cloud.google.com/compute/docs/machine-images
+    - https://cloud.google.com/compute/disks-image-pricing
 
 - id: image-pipelines
   group: vm-core
@@ -166,6 +218,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/imagebuilder/latest/userguide/what-is-image-builder.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/image-builder-overview
+  gcp:
+    services:
+    - packer-cloud-build
+    match: partial
+    answer: Google Cloud has no managed image pipeline like EC2 Image Builder. Google documents building images with HashiCorp Packer running in Cloud Build.
+    differences:
+    - You own the Packer template, scheduling, testing, and distribution steps that Image Builder manages for you.
+    - Image families let consumers always pick up the latest image you publish.
+    pricing: Cloud Build is billed per build-minute (with a monthly free allowance), plus the temporary VM and image storage.
+    sources:
+    - https://docs.cloud.google.com/build/docs/building/build-vm-images-with-packer
+    - https://cloud.google.com/build/pricing
 
 - id: vm-hibernate
   group: vm-core
@@ -190,6 +254,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Hibernate.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/hibernate-resume
+  gcp:
+    services:
+    - suspend-resume
+    match: direct
+    answer: EC2 hibernation maps to suspending a Compute Engine instance, which saves memory to storage and restores it on resume.
+    differences:
+    - An instance can stay suspended for up to 60 days; instances with more than 208 GB of memory can't be suspended.
+    - Hibernation must be enabled at EC2 launch; Compute Engine suspend has its own list of unsupported configurations to check.
+    pricing: Google positions suspend as a way to avoid instance charges while not in use; storage for disks and the saved memory state still applies. See Compute Engine pricing.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/suspend-resume-instance
 
 - id: mac-instances
   group: vm-core
@@ -215,6 +290,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview
   flags:
     - '"No Azure equivalent" is based on the absence of macOS in the Azure VM size and image catalog. Third-party Mac clouds exist but aren''t covered here.'
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no macOS instances like EC2 Mac. Use a third-party Mac cloud provider for macOS and iOS builds.
+    differences:
+    - Apple's licensing requires Apple hardware for macOS VMs, and Compute Engine offers none.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/machine-resource
 
 - id: bare-metal
   group: vm-core
@@ -243,6 +327,18 @@ rows:
     - Azure also had BareMetal Infrastructure and Large Instances for SAP HANA and similar specialist workloads. Its overview page now redirects, so it's not mapped here.
 
 # ───────────────────────── PURCHASE OPTIONS & LICENSING ─────────────────────────
+  gcp:
+    services:
+    - bare-metal-instances
+    match: direct
+    answer: EC2 bare metal instances map to Compute Engine bare metal instances, offered as -metal machine types in series such as C3, C4, C4A, C4D, X4, and Z3.
+    differences:
+    - Bare metal instances are created and managed with the same Compute Engine APIs as VMs.
+    - Bare Metal Solution is a separate, older offering for specialized workloads such as Oracle databases.
+    pricing: Billed per second (1-minute minimum) for vCPUs, memory, and attached resources, by machine type and region. Sustained use discounts apply automatically to some series; committed use discounts and Spot pricing are also available.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/bare-metal-instances
+    - https://cloud.google.com/products/compute/pricing
 - id: purchase-spot
   group: vm-pricing
   capability: Spot (interruptible) VMs
@@ -269,6 +365,18 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
+  gcp:
+    services:
+    - spot-vms
+    match: direct
+    answer: EC2 Spot Instances map to Spot VMs, which use excess Compute Engine capacity at a deep discount and can be preempted at any time.
+    differences:
+    - Google's preemption notice is best effort and up to 30 seconds, much shorter than EC2's two-minute interruption notice.
+    - Spot VMs are the successor to preemptible VMs and have no minimum or maximum runtime.
+    pricing: Discounted per-second pricing set by Google per machine type and region.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/spot
+    - https://cloud.google.com/products/compute/pricing
 
 - id: commitment-savings-plan
   group: vm-pricing
@@ -295,6 +403,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/savingsplans/latest/userguide/what-is-savings-plans.html
     - https://learn.microsoft.com/en-us/azure/cost-management-billing/savings-plan/savings-plan-compute-overview
+  gcp:
+    services:
+    - flexible-cuds
+    match: direct
+    answer: 'Compute Savings Plans map to Compute flexible committed use discounts: a 1- or 3-year commitment to a minimum hourly spend that applies across machine series, regions, and projects.'
+    differences:
+    - Google is migrating spend-based CUDs to a discount-based consumption model; check the Billing console notice for your account's migration date.
+    - Flexible CUDs cover Compute Engine and some other services; check the eligible-SKU list before assuming Lambda/Fargate-style coverage.
+    pricing: Discount in exchange for an hourly spend commitment for 1 or 3 years, billed whether or not you use it.
+    sources:
+    - https://docs.cloud.google.com/docs/cuds-spend-based
+    - https://docs.cloud.google.com/compute/docs/instances/committed-use-discounts-overview
 
 - id: commitment-reserved
   group: vm-pricing
@@ -321,6 +441,19 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-reserved-instances.html
     - https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/save-compute-costs-reservations
     - https://learn.microsoft.com/en-us/azure/cost-management-billing/reservations/exchange-and-refund-azure-reservations
+  gcp:
+    services:
+    - resource-cuds
+    match: direct
+    answer: 'EC2 Reserved Instances map to resource-based committed use discounts: commit to vCPUs, memory, GPUs, or local SSD in a region for 1 or 3 years.'
+    differences:
+    - Commitments are to resource quantities in a region, not to an instance type, so they apply across VM sizes within the machine series.
+    - There is no marketplace to resell commitments.
+    - Sustained use discounts give automatic savings on some series even without a commitment.
+    pricing: Discounted rate for committed resources over 1 or 3 years, billed monthly whether or not you use them.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/committed-use-discounts-overview
+    - https://docs.cloud.google.com/compute/docs/sustained-use-discounts
 
 - id: capacity-reserve
   group: vm-pricing
@@ -345,6 +478,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-capacity-reservations.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/capacity-reservation-overview
+  gcp:
+    services:
+    - reservations
+    match: direct
+    answer: EC2 On-Demand Capacity Reservations map to Compute Engine reservations, which hold zonal capacity for a machine type.
+    differences:
+    - Reservations are consumed automatically by matching VMs by default, or only by VMs that target them.
+    - Future reservations let you request capacity for a later start date.
+    pricing: Reserved resources are billed at on-demand rates (committed use discounts can apply) whether or not VMs use them.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/reservations-overview
 
 - id: dedicated-hardware
   group: vm-pricing
@@ -371,6 +515,18 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-hosts-overview.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/dedicated-hosts
     - https://learn.microsoft.com/en-us/azure/virtual-machines/isolation
+  gcp:
+    services:
+    - sole-tenant-nodes
+    match: direct
+    answer: EC2 Dedicated Hosts map to sole-tenant nodes, physical Compute Engine servers that host only your project's VMs.
+    differences:
+    - Sole-tenant nodes are billed per node plus a sole-tenancy premium; only flexible CUDs apply to the premium.
+    - There is no direct counterpart to EC2 Dedicated Instances (single-tenant hardware without host-level control).
+    pricing: Billed for the node's vCPUs and memory, plus a sole-tenancy premium.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/nodes/sole-tenant-nodes
+    - https://cloud.google.com/products/compute/pricing
 
 - id: license-byol
   group: vm-pricing
@@ -400,6 +556,18 @@ rows:
     - Microsoft licensing terms for other clouds ("Listed Providers") change over time. Confirm with the current Microsoft Product Terms before relying on BYOL to AWS.
 
 # ───────────────────────── SCALING & PLACEMENT ─────────────────────────
+  gcp:
+    services:
+    - sole-tenant-nodes
+    match: partial
+    answer: Google Cloud has no license-tracking service like AWS License Manager. Bring-your-own-license with dedicated-hardware terms is done on sole-tenant nodes, and premium OS images include licenses in the price.
+    differences:
+    - Licenses that need dedicated hardware (such as some Windows Server licenses) are imported as BYOL images and run on sole-tenant nodes.
+    - Track license counts with your own tooling or a third-party asset manager.
+    pricing: No extra charge for BYOL images; sole-tenant nodes are billed per node plus premium.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/windows/bring-your-own-license
+    - https://docs.cloud.google.com/compute/docs/nodes/sole-tenant-nodes
 - id: auto-scaling
   group: vm-scaling
   capability: VM auto scaling groups
@@ -429,6 +597,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
     - https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-orchestration-modes
     - https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-predictive
+  gcp:
+    services:
+    - managed-instance-groups
+    match: direct
+    answer: EC2 Auto Scaling groups map to managed instance groups (MIGs) with the autoscaler.
+    differences:
+    - Regional MIGs spread instances across zones; zonal MIGs stay in one zone.
+    - MIGs also do autohealing (health-check based recreation) and rolling updates from instance templates, like launch templates.
+    pricing: No charge for MIGs or the autoscaler; you pay for the VMs.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/autoscaler
+    - https://docs.cloud.google.com/compute/docs/instance-groups
 
 - id: placement-control
   group: vm-scaling
@@ -453,6 +633,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/co-location
+  gcp:
+    services:
+    - placement-policies
+    match: partial
+    answer: 'EC2 placement groups map to Compute Engine placement policies: compact (close together for low latency) and spread (apart for resilience).'
+    differences:
+    - There is no equivalent of EC2 partition placement groups.
+    - Compact placement is supported on specific machine series and has instance-count limits.
+    pricing: No additional cost for placement policies; you pay for the instances.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/placement-policies-overview
 
 - id: rightsizing
   group: vm-scaling
@@ -479,6 +670,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/advisor/advisor-overview
 
 # ───────────────────────── BATCH & HPC ─────────────────────────
+  gcp:
+    services:
+    - machine-type-recommendations
+    match: direct
+    answer: AWS Compute Optimizer maps to Compute Engine machine type recommendations, part of Google's Recommender / Active Assist portfolio, which also covers idle VMs and other resources.
+    differences:
+    - Recommendations use the previous 8 days of Cloud Monitoring metrics by default.
+    - Recommendations appear in the console and the Recommender API rather than a separate service console.
+    pricing: No charge for machine type recommendations.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances
+    - https://docs.cloud.google.com/recommender/docs/whatis-activeassist
 - id: batch-jobs
   group: hpc
   capability: Managed batch computing
@@ -504,6 +707,18 @@ rows:
     - https://docs.aws.amazon.com/batch/latest/userguide/what-is-batch.html
     - https://learn.microsoft.com/en-us/azure/batch/batch-technical-overview
     - https://learn.microsoft.com/en-us/azure/batch/plan-to-manage-costs
+  gcp:
+    services:
+    - batch
+    match: direct
+    answer: AWS Batch maps to Google Cloud Batch, a fully managed service that schedules, queues, and runs batch jobs on Compute Engine VMs.
+    differences:
+    - Batch can run scripts or containers and can use Spot VMs and GPUs.
+    - For containerized batch on Kubernetes, GKE with Kueue is the other common option.
+    pricing: No additional charge for Batch; you pay for the VMs and other resources the jobs use.
+    sources:
+    - https://docs.cloud.google.com/batch/docs/get-started
+    - https://cloud.google.com/batch/pricing
 
 - id: hpc-clusters
   group: hpc
@@ -530,6 +745,19 @@ rows:
     - https://docs.aws.amazon.com/pcs/latest/userguide/what-is-service.html
     - https://learn.microsoft.com/en-us/azure/cyclecloud/overview
     - https://learn.microsoft.com/en-us/azure/cyclecloud/overview-ccws
+  gcp:
+    services:
+    - cluster-toolkit
+    match: direct
+    answer: AWS ParallelCluster maps to Cluster Toolkit, Google's open-source tool that deploys HPC and AI clusters (including Slurm) from blueprints.
+    differences:
+    - Like ParallelCluster, Cluster Toolkit deploys infrastructure you operate. Google has no fully managed Slurm service like AWS PCS.
+    - Blueprints can also deploy GKE-based AI clusters and parallel file systems.
+    pricing: Cluster Toolkit is free and open source; you pay for the resources it deploys.
+    sources:
+    - https://docs.cloud.google.com/cluster-toolkit/docs/overview
+    flags:
+    - We found no Google-managed Slurm service equivalent to AWS Parallel Computing Service on 2026-10-27.
 
 - id: hpc-networking
   group: hpc
@@ -555,6 +783,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/high-performance-compute/setup-infiniband
 
 # ───────────────────────── SIMPLE HOSTING & VIRTUAL DESKTOPS ─────────────────────────
+  gcp:
+    services:
+    - cloud-rdma
+    match: partial
+    answer: Elastic Fabric Adapter maps partly to Cloud RDMA, which uses RDMA over Converged Ethernet v2 (RoCE) VPC networks on HPC series such as H4D and on GPU machines.
+    differences:
+    - Cloud RDMA uses RoCE v2 network profiles; EFA uses AWS's SRD protocol with libfabric.
+    - RDMA must be configured when you create the instance; it can't be added to an existing HPC VM.
+    pricing: Billed through the machine types that support RDMA; see Compute Engine pricing.
+    sources:
+    - https://docs.cloud.google.com/vpc/docs/rdma-network-profiles
+    - https://docs.cloud.google.com/compute/docs/instances/create-hpc-vm
 - id: app-platform
   group: app-hosting
   capability: Managed web app platform
@@ -579,6 +819,20 @@ rows:
   sources:
     - https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/Welcome.html
     - https://learn.microsoft.com/en-us/azure/app-service/overview
+  gcp:
+    services:
+    - app-engine
+    - cloud-run
+    match: partial
+    answer: Elastic Beanstalk maps partly to App Engine, a fully managed platform for web apps. For new apps, Cloud Run is Google's general-purpose managed app platform.
+    differences:
+    - Beanstalk provisions EC2 instances you can see and access; App Engine standard and Cloud Run hide the servers entirely.
+    - App Engine flexible runs containers on Compute Engine VMs, closest to Beanstalk's model.
+    pricing: App Engine standard is billed per instance-hour by instance class, with a free tier. Cloud Run is billed for vCPU-seconds, GiB-seconds, and requests.
+    sources:
+    - https://docs.cloud.google.com/appengine/docs
+    - https://cloud.google.com/appengine/pricing
+    - https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
 
 - id: simple-vps
   group: app-hosting
@@ -602,6 +856,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/lightsail/latest/userguide/what-is-amazon-lightsail.html
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no fixed-price VPS bundles like Amazon Lightsail. The closest option is a small Compute Engine VM (E2 series) priced per second.
+    differences:
+    - You configure networking, disks, and backups separately instead of buying a bundle.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/machine-resource
 
 - id: virtual-desktops
   group: app-hosting
@@ -631,6 +894,17 @@ rows:
     - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
   flags:
     - Azure Virtual Desktop has its own specialty exam (AZ-140), which isn't tracked on this site.
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no first-party virtual desktop service like Amazon WorkSpaces. Desktops on Google Cloud are delivered through partner VDI products running on Compute Engine.
+    differences:
+    - Partner products are licensed separately from the VMs they run on.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances
+    flags:
+    - Absence of a first-party DaaS is based on Google Cloud documentation reviewed on 2026-10-27.
 
 - id: app-streaming
   group: app-hosting
@@ -656,6 +930,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/virtual-desktop/overview
 
 # ───────────────────────── HYBRID, EDGE & VMWARE ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no first-party application streaming service like Amazon WorkSpaces Applications (AppStream 2.0).
+    differences:
+    - Use partner application-delivery products on Compute Engine.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances
 - id: on-prem-cloud
   group: hybrid-edge
   capability: Provider infrastructure in your data center
@@ -681,6 +964,19 @@ rows:
     - https://docs.aws.amazon.com/outposts/latest/userguide/what-is-outposts.html
     - https://learn.microsoft.com/en-us/azure/azure-local/overview
     - https://azure.microsoft.com/en-us/pricing/details/azure-local/
+  gcp:
+    services:
+    - distributed-cloud-connected
+    match: partial
+    answer: 'AWS Outposts maps partly to Google Distributed Cloud connected: Google-certified hardware installed on your premises that runs GKE clusters for containers and VMs.'
+    differences:
+    - Distributed Cloud connected runs GKE (containers and VMs), not a local copy of Compute Engine and other regional services like Outposts.
+    - Google also offers air-gapped Distributed Cloud deployments for disconnected sites.
+    pricing: Contract pricing for hardware and service; see the Distributed Cloud connected pricing page or contact sales.
+    sources:
+    - https://docs.cloud.google.com/distributed-cloud/connected/latest/docs/overview
+    flags:
+    - Distributed Cloud connected pricing page did not render readable content on 2026-10-27.
 
 - id: metro-edge-zones
   group: hybrid-edge
@@ -706,6 +1002,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/extended-zones/overview
   flags:
     - Microsoft doesn't publish a public list of Extended Zone locations on the overview page. Availability is disclosed during the access request.
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no metro edge zones like AWS Local Zones. Workloads run in Google Cloud regions, with Cloud CDN and Media CDN at the edge.
+    differences:
+    - For on-premises or edge sites, Google Distributed Cloud is the alternative.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/distributed-cloud/connected/latest/docs/overview
 
 - id: carrier-5g-edge
   group: hybrid-edge
@@ -731,6 +1036,15 @@ rows:
     - https://learn.microsoft.com/en-us/previous-versions/azure/public-multi-access-edge-compute-mec/overview
   flags:
     - Microsoft hasn't published a retirement notice for Azure public MEC that we could find. The status "archived" is inferred from the move of its docs to previous-versions.
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no compute inside carrier 5G networks like AWS Wavelength. Google Distributed Cloud is sold for telecom and edge deployments instead.
+    differences:
+    - Telecom edge deployments with Google run on Distributed Cloud hardware, not a public Google Cloud zone.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/distributed-cloud/connected/latest/docs/overview
 
 - id: vmware-cloud
   group: hybrid-edge
@@ -762,6 +1076,18 @@ rows:
     - VMware licensing changed after Broadcom's acquisition, and the BYOL-only model on both sides is recent. Confirm Broadcom subscription terms before costing.
 
 # ───────────────────────── VM SECURITY & OPERATIONS ─────────────────────────
+  gcp:
+    services:
+    - vmware-engine
+    match: direct
+    answer: Amazon Elastic VMware Service maps to Google Cloud VMware Engine, which runs fully managed VMware private clouds on dedicated Google Cloud nodes.
+    differences:
+    - Amazon EVS deploys VMware Cloud Foundation into your own VPC on EC2 bare metal; VMware Engine is a Google-managed service you connect to your VPC.
+    - VMware licensing (VCF) terms come from Broadcom and differ by offering; check current portability rules.
+    pricing: Billed per node-hour by node type, on demand or with 1- or 3-year commitments; a three-node minimum applies to production private clouds.
+    sources:
+    - https://docs.cloud.google.com/vmware-engine/docs/overview
+    - https://cloud.google.com/vmware-engine/pricing
 - id: confidential-compute
   group: vm-security
   capability: Confidential computing
@@ -787,6 +1113,20 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/sev-snp.html
     - https://learn.microsoft.com/en-us/azure/confidential-computing/confidential-vm-overview
     - https://learn.microsoft.com/en-us/azure/confidential-computing/application-development
+  gcp:
+    services:
+    - confidential-vm
+    - confidential-space
+    match: direct
+    answer: AMD SEV-SNP on EC2 maps to Confidential VM (AMD SEV, AMD SEV-SNP, or Intel TDX), and Nitro Enclaves map to Confidential Space for attested processing of sensitive data.
+    differences:
+    - Confidential Space runs a workload container on a hardened Confidential VM image with remote attestation; Nitro Enclaves carve an isolated enclave from a parent EC2 instance.
+    - Confidential VM is supported on specific machine series per technology.
+    pricing: Confidential VM adds a flat per-vCPU and per-GB surcharge on top of the VM price.
+    sources:
+    - https://docs.cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview
+    - https://docs.cloud.google.com/confidential-computing/confidential-space/docs/confidential-space-overview
+    - https://cloud.google.com/confidential-computing/confidential-vm/pricing
 
 - id: secure-boot-vtpm
   group: vm-security
@@ -811,6 +1151,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/nitrotpm.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/trusted-launch
+  gcp:
+    services:
+    - shielded-vm
+    match: direct
+    answer: NitroTPM and UEFI Secure Boot map to Shielded VM, which provides Secure Boot, a virtual TPM, and integrity monitoring.
+    differences:
+    - vTPM and integrity monitoring are enabled by default; Secure Boot is an option you turn on.
+    pricing: No additional charge for Shielded VM.
+    sources:
+    - https://docs.cloud.google.com/compute/shielded-vm/docs/shielded-vm
 
 - id: vm-remote-access
   group: vm-security
@@ -837,6 +1187,20 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-with-ec2-instance-connect-endpoint.html
     - https://learn.microsoft.com/en-us/azure/bastion/bastion-overview
     - https://learn.microsoft.com/en-us/azure/virtual-machines/run-command-overview
+  gcp:
+    services:
+    - iap-tcp-forwarding
+    - os-login
+    match: direct
+    answer: Session Manager and EC2 Instance Connect Endpoint map to Identity-Aware Proxy TCP forwarding (SSH and RDP without external IPs) combined with OS Login (IAM-managed SSH access).
+    differences:
+    - IAP tunnels raw TCP after an IAM check; there is no agent-based shell like Session Manager.
+    - OS Login ties Linux accounts to Google identities and IAM roles instead of per-instance keys.
+    pricing: IAP is offered at no charge (networking charges can apply). OS Login has no separate charge.
+    sources:
+    - https://docs.cloud.google.com/iap/docs/tcp-forwarding-overview
+    - https://docs.cloud.google.com/compute/docs/oslogin
+    - https://cloud.google.com/iap/pricing
 
 - id: patching
   group: vm-security
@@ -862,3 +1226,14 @@ rows:
     - https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager.html
     - https://learn.microsoft.com/en-us/azure/update-manager/overview
     - https://azure.microsoft.com/en-us/pricing/details/azure-update-management-center/
+  gcp:
+    services:
+    - vm-manager-patch
+    match: direct
+    answer: Systems Manager Patch Manager maps to the Patch feature of VM Manager, which runs patch jobs and reports compliance across Compute Engine VMs.
+    differences:
+    - VM Manager relies on the OS Config agent on each VM, similar to the SSM Agent.
+    pricing: VM Manager is charged per VM with an active OS Config agent, with a monthly free tier of 100 VMs per billing account.
+    sources:
+    - https://docs.cloud.google.com/compute/vm-manager/docs/patch
+    - https://cloud.google.com/compute/vm-manager/pricing

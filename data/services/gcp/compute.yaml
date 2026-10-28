@@ -1,0 +1,161 @@
+- slug: compute-engine
+  name: Compute Engine
+  status: ga
+  summary: Google Cloud's IaaS for virtual machine and bare metal instances, with per-second billing and live migration during host maintenance.
+  docs: https://docs.cloud.google.com/compute/docs/instances
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: machine-families
+  name: Compute Engine machine families and machine types
+  status: ga
+  summary: General-purpose, compute-optimized, memory-optimized, storage-optimized, and accelerator-optimized machine series, plus custom machine types.
+  docs: https://docs.cloud.google.com/compute/docs/machine-resource
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: axion
+  name: Google Axion Arm VMs (N4A, C4A)
+  status: ga
+  summary: Compute Engine machine series on Google's Axion Arm processor. N4A uses Arm Neoverse N3 cores and C4A uses Neoverse V2 cores.
+  docs: https://docs.cloud.google.com/compute/docs/instances/arm-on-compute
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: os-images
+  name: Compute Engine custom images and machine images
+  status: ga
+  summary: Custom OS images (boot disk images, grouped into image families) and machine images (all disks plus instance configuration), shareable across projects with IAM.
+  docs: https://docs.cloud.google.com/compute/docs/images
+  pricing: https://cloud.google.com/compute/disks-image-pricing
+- slug: packer-cloud-build
+  name: Packer with Cloud Build
+  status: ga
+  summary: Google-documented pattern for building Compute Engine images with HashiCorp Packer running in Cloud Build. Not a dedicated managed image service.
+  docs: https://docs.cloud.google.com/build/docs/building/build-vm-images-with-packer
+  pricing: https://cloud.google.com/build/pricing
+- slug: suspend-resume
+  name: Compute Engine suspend and resume
+  status: ga
+  summary: Saves an instance's memory to storage and stops it, then restores it on resume. An instance can stay suspended for up to 60 days.
+  docs: https://docs.cloud.google.com/compute/docs/instances/suspend-resume-instance
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: bare-metal-instances
+  name: Compute Engine bare metal instances
+  status: ga
+  summary: Bare metal machine types (for example C3, C4, C4A, C4D, X4, and Z3 metal) with direct access to the host CPU and memory, managed like other Compute Engine instances.
+  docs: https://docs.cloud.google.com/compute/docs/instances/bare-metal-instances
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: spot-vms
+  name: Spot VMs
+  status: ga
+  summary: Deeply discounted excess capacity that Compute Engine can preempt at any time, with no maximum runtime. The successor to preemptible VMs.
+  docs: https://docs.cloud.google.com/compute/docs/instances/spot
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: flexible-cuds
+  name: Compute flexible committed use discounts (spend-based)
+  status: ga
+  summary: Commit to a minimum hourly spend on eligible compute for 1 or 3 years, applied across machine series, regions, and projects in the billing account.
+  docs: https://docs.cloud.google.com/docs/cuds-spend-based
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: resource-cuds
+  name: Resource-based committed use discounts
+  status: ga
+  summary: Commit to a quantity of vCPUs, memory, GPUs, or local SSD in a region for 1 or 3 years. Sustained use discounts also apply automatically to some series.
+  docs: https://docs.cloud.google.com/compute/docs/instances/committed-use-discounts-overview
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: reservations
+  name: Compute Engine reservations
+  status: ga
+  summary: Reserve zonal capacity for specific machine types, consumed automatically by matching VMs or only by VMs that target the reservation. Future reservations can request capacity ahead of time.
+  docs: https://docs.cloud.google.com/compute/docs/instances/reservations-overview
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: sole-tenant-nodes
+  name: Sole-tenant nodes
+  status: ga
+  summary: Physical Compute Engine servers dedicated to your project's VMs, used for isolation and bring-your-own-license needs.
+  docs: https://docs.cloud.google.com/compute/docs/nodes/sole-tenant-nodes
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: managed-instance-groups
+  name: Managed instance groups (MIGs) and autoscaler
+  status: ga
+  summary: Groups of identical VMs built from an instance template, with autoscaling, autohealing, rolling updates, and zonal or regional distribution.
+  docs: https://docs.cloud.google.com/compute/docs/autoscaler
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: placement-policies
+  name: Compute Engine placement policies
+  status: ga
+  summary: Compact policies place instances close together for low latency; spread policies place them apart for resilience.
+  docs: https://docs.cloud.google.com/compute/docs/instances/placement-policies-overview
+- slug: machine-type-recommendations
+  name: Machine type recommendations (Active Assist)
+  status: ga
+  summary: Rightsizing recommendations for VMs and managed instance groups, generated from the last 8 days of Cloud Monitoring metrics. Part of the Recommender / Active Assist portfolio.
+  docs: https://docs.cloud.google.com/compute/docs/instances/apply-machine-type-recommendations-for-instances
+- slug: batch
+  name: Batch
+  status: ga
+  summary: Fully managed service to schedule, queue, and run batch jobs on Compute Engine VMs, with no separate charge beyond the resources used.
+  docs: https://docs.cloud.google.com/batch/docs/get-started
+  pricing: https://cloud.google.com/batch/pricing
+- slug: cluster-toolkit
+  name: Cluster Toolkit
+  status: ga
+  summary: Open-source tool with blueprints to deploy HPC, AI, and ML clusters (including Slurm and GKE) on Google Cloud.
+  docs: https://docs.cloud.google.com/cluster-toolkit/docs/overview
+- slug: cloud-rdma
+  name: Cloud RDMA (RoCE VPC networks)
+  status: ga
+  summary: RDMA over Converged Ethernet v2 network profiles for HPC (for example H4D) and GPU machine series.
+  docs: https://docs.cloud.google.com/vpc/docs/rdma-network-profiles
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: app-engine
+  name: App Engine
+  status: ga
+  summary: Fully managed serverless platform for web apps, in standard (sandboxed runtimes, scale to zero) and flexible (containers on VMs) environments.
+  docs: https://docs.cloud.google.com/appengine/docs
+  pricing: https://cloud.google.com/appengine/pricing
+- slug: cloud-run
+  name: Cloud Run
+  status: ga
+  summary: Fully managed platform for running containers, functions, and source code as services, jobs, or worker pools, with request-based autoscaling and scale to zero.
+  docs: https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
+  pricing: https://cloud.google.com/run/pricing
+- slug: distributed-cloud-connected
+  name: Google Distributed Cloud connected
+  status: ga
+  summary: Google-certified hardware installed on your premises that runs GKE clusters (containers and VMs), managed from Google Cloud.
+  docs: https://docs.cloud.google.com/distributed-cloud/connected/latest/docs/overview
+- slug: vmware-engine
+  name: Google Cloud VMware Engine
+  status: ga
+  summary: Fully managed VMware private clouds (vSphere, vSAN, NSX) running on dedicated Google Cloud bare metal nodes.
+  docs: https://docs.cloud.google.com/vmware-engine/docs/overview
+  pricing: https://cloud.google.com/vmware-engine/pricing
+- slug: confidential-vm
+  name: Confidential VM
+  status: ga
+  summary: Compute Engine VMs with hardware memory encryption using AMD SEV, AMD SEV-SNP, or Intel TDX.
+  docs: https://docs.cloud.google.com/confidential-computing/confidential-vm/docs/confidential-vm-overview
+  pricing: https://cloud.google.com/confidential-computing/confidential-vm/pricing
+- slug: confidential-space
+  name: Confidential Space
+  status: ga
+  summary: Attested, isolated environment built on Confidential VM for processing sensitive data from multiple parties.
+  docs: https://docs.cloud.google.com/confidential-computing/confidential-space/docs/confidential-space-overview
+- slug: shielded-vm
+  name: Shielded VM
+  status: ga
+  summary: Secure Boot, virtual Trusted Platform Module (vTPM), and integrity monitoring for Compute Engine VMs.
+  docs: https://docs.cloud.google.com/compute/shielded-vm/docs/shielded-vm
+- slug: iap-tcp-forwarding
+  name: Identity-Aware Proxy TCP forwarding
+  status: ga
+  summary: Tunnels SSH, RDP, and other TCP traffic to VMs through IAP after an IAM check, so VMs don't need external IP addresses.
+  docs: https://docs.cloud.google.com/iap/docs/tcp-forwarding-overview
+  pricing: https://cloud.google.com/iap/pricing
+- slug: os-login
+  name: OS Login
+  status: ga
+  summary: Manages Linux SSH access to VMs with IAM roles instead of per-instance SSH keys.
+  docs: https://docs.cloud.google.com/compute/docs/oslogin
+- slug: vm-manager-patch
+  name: VM Manager Patch
+  status: ga
+  summary: Schedules and runs OS patch jobs across Compute Engine VMs and reports patch compliance, through the OS Config agent.
+  docs: https://docs.cloud.google.com/compute/vm-manager/docs/patch
+  pricing: https://cloud.google.com/compute/vm-manager/pricing
