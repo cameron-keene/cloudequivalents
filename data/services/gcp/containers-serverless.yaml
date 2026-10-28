@@ -1,0 +1,128 @@
+- slug: gke
+  name: Google Kubernetes Engine (GKE)
+  status: ga
+  summary: Managed Kubernetes with Standard mode (you manage node pools) and Autopilot mode (Google manages nodes), plus release channels and fleet features.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview
+  pricing: https://cloud.google.com/kubernetes-engine/pricing
+- slug: gke-autopilot
+  name: GKE Autopilot
+  status: ga
+  summary: GKE mode where Google provisions and manages nodes, applies security defaults, and bills per Pod resource requests.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview
+  pricing: https://cloud.google.com/kubernetes-engine/pricing
+- slug: gke-release-channels
+  name: GKE release channels (incl. Extended channel)
+  status: ga
+  summary: Rapid, Regular, Stable, and Extended channels control upgrade cadence. Extended keeps a minor version for up to 24 months for an extra per-cluster fee.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+  pricing: https://cloud.google.com/kubernetes-engine/pricing
+- slug: gke-workload-identity
+  name: Workload Identity Federation for GKE
+  status: ga
+  summary: Lets Kubernetes service accounts act as IAM principals, so Pods call Google Cloud APIs without service account keys.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
+- slug: distributed-cloud-software
+  name: Google Distributed Cloud (software only) for bare metal
+  status: ga
+  status_note: Formerly Anthos clusters on bare metal / Google Distributed Cloud Virtual.
+  summary: Google-managed Kubernetes software you install on your own bare metal servers (a VMware variant also exists), managed from Google Cloud.
+  docs: https://docs.cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/concepts/about-bare-metal
+- slug: gke-attached-clusters
+  name: GKE attached clusters
+  status: ga
+  summary: Registers conformant Kubernetes clusters running elsewhere (for example EKS and AKS) to a Google Cloud fleet for central management.
+  docs: https://docs.cloud.google.com/kubernetes-engine/multi-cloud/docs/attached
+- slug: config-sync
+  name: Config Sync
+  status: ga
+  summary: GitOps service that syncs Kubernetes configuration and policies to clusters from a central source of truth such as a Git repository.
+  docs: https://docs.cloud.google.com/kubernetes-engine/config-sync/docs/overview
+- slug: config-controller
+  name: Config Controller (Config Connector)
+  status: ga
+  summary: Hosted Config Connector, Config Sync, and Policy Controller for managing Google Cloud resources as Kubernetes objects.
+  docs: https://docs.cloud.google.com/kubernetes-engine/config-controller/docs/overview
+- slug: cloud-service-mesh
+  name: Cloud Service Mesh
+  status: ga
+  summary: Managed service mesh built on the open-source Istio APIs for GKE and other supported platforms, with mTLS, traffic management, and telemetry.
+  docs: https://docs.cloud.google.com/service-mesh/docs/overview
+  pricing: https://cloud.google.com/service-mesh/pricing
+- slug: artifact-registry
+  name: Artifact Registry
+  status: ga
+  status_note: Successor to Container Registry, which shut down for writes on Mar 18, 2025.
+  summary: Regional and multi-regional repositories for container images and other build artifacts and dependencies, with container vulnerability scanning.
+  docs: https://docs.cloud.google.com/artifact-registry/docs/overview
+  pricing: https://cloud.google.com/artifact-registry/pricing
+- slug: cloud-run-functions
+  name: Cloud Run functions (formerly Cloud Functions)
+  status: ga
+  summary: Event-driven and HTTP functions deployed from source on Cloud Run, using the Functions Framework and Eventarc triggers.
+  docs: https://docs.cloud.google.com/run/docs/functions/comparison
+  pricing: https://cloud.google.com/run/pricing
+- slug: gke-agent-sandbox
+  name: Agent Sandbox on GKE
+  status: ga
+  summary: Isolated environments (gVisor-based GKE Sandbox) for executing untrusted or AI-generated code on GKE, at no extra charge beyond GKE resources.
+  docs: https://docs.cloud.google.com/kubernetes-engine/docs/how-to/agent-sandbox
+- slug: workflows
+  name: Workflows
+  status: ga
+  summary: Fully managed orchestration that runs steps written in YAML or JSON, calling Google Cloud services and HTTP APIs, billed per step executed.
+  docs: https://docs.cloud.google.com/workflows/docs/overview
+  pricing: https://cloud.google.com/workflows/pricing
+- slug: cloud-scheduler
+  name: Cloud Scheduler
+  status: ga
+  summary: Managed cron service that triggers HTTP targets, Pub/Sub topics, and other targets on a schedule.
+  docs: https://docs.cloud.google.com/scheduler/docs/overview
+  pricing: https://cloud.google.com/scheduler/pricing
+- slug: eventarc
+  name: Eventarc (Standard and Advanced)
+  status: ga
+  summary: Event routing from Google Cloud services, SaaS, and custom sources. Eventarc Advanced adds a central bus, enrollments, and pipelines.
+  docs: https://docs.cloud.google.com/eventarc/docs/overview
+  pricing: https://cloud.google.com/eventarc/pricing
+- slug: pubsub
+  name: Pub/Sub
+  status: ga
+  summary: Global asynchronous messaging service with topics and push or pull subscriptions, used for fan-out, queues, and streaming pipelines.
+  docs: https://docs.cloud.google.com/pubsub/docs/overview
+  pricing: https://cloud.google.com/pubsub/pricing
+- slug: cloud-tasks
+  name: Cloud Tasks
+  status: ga
+  summary: Managed task queues that dispatch work to HTTP or App Engine targets with rate limits, retries, and scheduled delivery.
+  docs: https://docs.cloud.google.com/tasks/docs/dual-overview
+  pricing: https://cloud.google.com/tasks/pricing
+- slug: api-gateway
+  name: API Gateway
+  status: ga
+  summary: Managed gateway for serverless backends (Cloud Run, Cloud Run functions, App Engine) defined with OpenAPI specs.
+  docs: https://docs.cloud.google.com/api-gateway/docs/about-api-gateway
+  pricing: https://cloud.google.com/api-gateway/pricing
+- slug: apigee
+  name: Apigee
+  status: ga
+  summary: Full API management platform with policies, developer portal, analytics, and monetization.
+  docs: https://docs.cloud.google.com/apigee/docs/api-platform/get-started/what-apigee
+  pricing: https://cloud.google.com/apigee/pricing
+- slug: firebase-sql-connect
+  name: Firebase SQL Connect (formerly Data Connect)
+  status: ga
+  summary: GraphQL-based backend over a managed Cloud SQL for PostgreSQL database, with generated type-safe web and mobile SDKs.
+  docs: https://firebase.google.com/docs/sql-connect
+  pricing: https://firebase.google.com/pricing
+- slug: firebase-app-hosting
+  name: Firebase App Hosting
+  status: ga
+  summary: Git-connected hosting for server-rendered web apps (built-in Next.js and Angular support), served on Cloud Run and cached in Cloud CDN.
+  docs: https://firebase.google.com/docs/app-hosting
+  pricing: https://firebase.google.com/pricing
+- slug: firebase-hosting
+  name: Firebase Hosting
+  status: ga
+  summary: Static and single-page web hosting on a global CDN, deployed with one command.
+  docs: https://firebase.google.com/docs/hosting
+  pricing: https://firebase.google.com/pricing

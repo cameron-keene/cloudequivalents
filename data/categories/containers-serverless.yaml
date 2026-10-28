@@ -7,6 +7,7 @@ category:
   description: Kubernetes, container platforms and registries, serverless functions (including Lambda's newest features), workflows, and the event, queue, and API services that connect them. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure containers and serverless, side by side: EKS vs AKS, ECS and Fargate vs Container Apps, ECR vs ACR, Lambda vs Azure Functions, Step Functions vs Logic Apps, SQS/SNS/EventBridge vs Service Bus and Event Grid."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: kubernetes
       name: Kubernetes
@@ -50,6 +51,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/aks/what-is-aks
     - https://learn.microsoft.com/en-us/azure/aks/free-standard-pricing-tiers
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/compute
+  gcp:
+    services:
+    - gke
+    match: direct
+    answer: The Google Cloud equivalent of Amazon EKS is Google Kubernetes Engine (GKE), in Standard mode (you manage node pools) or Autopilot mode (Google manages nodes).
+    differences:
+    - GKE clusters are zonal or regional; regional clusters replicate the control plane across zones.
+    - Upgrades follow release channels with automatic upgrades by default, rather than EKS's opt-in version upgrades.
+    - Pods get identity through Workload Identity Federation for GKE instead of EKS Pod Identity or IRSA.
+    pricing: A per-cluster management fee (with a free-tier credit), plus nodes billed as Compute Engine VMs in Standard mode or Pod resource requests in Autopilot.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview
+    - https://cloud.google.com/kubernetes-engine/pricing
 
 - id: kubernetes-automatic
   group: kubernetes
@@ -75,6 +89,18 @@ rows:
     - https://docs.aws.amazon.com/eks/latest/userguide/automode.html
     - https://learn.microsoft.com/en-us/azure/aks/intro-aks-automatic
     - https://learn.microsoft.com/en-us/azure/aks/node-autoprovision
+  gcp:
+    services:
+    - gke-autopilot
+    match: direct
+    answer: EKS Auto Mode maps to GKE Autopilot, where Google provisions, scales, and secures the nodes.
+    differences:
+    - Autopilot bills general-purpose workloads per Pod resource request, not per node; EKS Auto Mode adds a management fee on top of EC2 instance prices.
+    - Autopilot enforces security defaults that block some privileged workloads.
+    pricing: Billed per vCPU, memory, and ephemeral storage requested by Pods (some compute classes bill per node), plus the cluster management fee.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview
+    - https://cloud.google.com/kubernetes-engine/pricing
 
 - id: kubernetes-versions
   group: kubernetes
@@ -101,6 +127,18 @@ rows:
     - https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html
     - https://learn.microsoft.com/en-us/azure/aks/supported-kubernetes-versions
     - https://learn.microsoft.com/en-us/azure/aks/long-term-support
+  gcp:
+    services:
+    - gke-release-channels
+    match: direct
+    answer: 'EKS standard and extended version support maps to GKE release channels. The Extended channel keeps a minor version for up to 24 months: 14 months of standard support plus about 10 months of extended support.'
+    differences:
+    - GKE upgrades clusters automatically within a channel; EKS waits for you to upgrade until end of support.
+    - Like EKS extended support, the Extended channel costs an additional per-cluster fee during the extended period.
+    pricing: No extra fee for standard support. Extended support adds a per-cluster fee.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/release-channels
+    - https://docs.cloud.google.com/kubernetes-engine/versioning
 
 - id: pod-identity
   group: kubernetes
@@ -125,6 +163,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html
     - https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview
+  gcp:
+    services:
+    - gke-workload-identity
+    match: direct
+    answer: EKS Pod Identity and IRSA map to Workload Identity Federation for GKE, which lets Kubernetes service accounts act as IAM principals.
+    differences:
+    - You grant IAM roles directly to the Kubernetes service account principal, or let it impersonate a Google service account.
+    pricing: No additional charge.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/workload-identity
 
 - id: kubernetes-hybrid
   group: kubernetes
@@ -152,6 +200,22 @@ rows:
     - https://learn.microsoft.com/en-us/azure/aks/aksarc/aks-overview
   flags:
     - AKS pricing on Azure Local and other hybrid substrates differs by deployment option and has changed several times. Confirm on the Azure Local and Arc pricing pages.
+  gcp:
+    services:
+    - distributed-cloud-software
+    - gke-attached-clusters
+    match: partial
+    answer: EKS Anywhere and Hybrid Nodes map partly to Google Distributed Cloud (software only) for bare metal or VMware, which runs Google-managed Kubernetes on your servers, and GKE attached clusters, which manage existing clusters from a Google Cloud fleet.
+    differences:
+    - There is no equivalent of EKS Hybrid Nodes (on-premises nodes joining a cloud-hosted control plane).
+    - Attached clusters can register EKS and AKS clusters, so one fleet can span clouds.
+    pricing: See the GKE pricing page for Distributed Cloud software and attached clusters; some options are contract-priced.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/distributed-cloud/bare-metal/docs/concepts/about-bare-metal
+    - https://docs.cloud.google.com/kubernetes-engine/multi-cloud/docs/attached
+    - https://cloud.google.com/kubernetes-engine/pricing
+    flags:
+    - Current rates for Distributed Cloud software and GKE attached clusters were not confirmed on 2026-10-27.
 
 - id: kubernetes-platform-addons
   group: kubernetes
@@ -180,6 +244,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/kubernetes-fleet/overview
   flags:
     - The billing models for EKS Capabilities and for Arc GitOps were summarized from the pricing pages' structure. Check current rates.
+  gcp:
+    services:
+    - config-sync
+    - config-controller
+    match: partial
+    answer: EKS Capabilities (Argo CD, ACK, kro) map partly to Config Sync for GitOps and Config Controller (hosted Config Connector) for managing Google Cloud resources as Kubernetes objects.
+    differences:
+    - Config Sync is Google's own GitOps engine, not managed Argo CD.
+    - Config Connector plays the role of AWS Controllers for Kubernetes (ACK).
+    pricing: Config Sync is included with GKE; Config Controller is billed for the hosted cluster it runs on. See GKE pricing.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/config-sync/docs/overview
+    - https://docs.cloud.google.com/kubernetes-engine/config-controller/docs/overview
 
 - id: managed-openshift
   group: kubernetes
@@ -203,6 +280,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/rosa/latest/userguide/what-is-rosa.html
     - https://learn.microsoft.com/en-us/azure/openshift/intro-openshift
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no first-party managed OpenShift service like ROSA. OpenShift on Google Cloud is sold and run by Red Hat (OpenShift Dedicated) or self-managed on Compute Engine.
+    differences:
+    - ROSA is jointly operated and billed through AWS; on Google Cloud, Red Hat is the provider.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/kubernetes-engine-overview
+    flags:
+    - Red Hat's OpenShift Dedicated on Google Cloud is described from Red Hat's offering, not a Google page.
 
 - id: service-mesh
   group: kubernetes
@@ -231,6 +319,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/aks/open-service-mesh-about
 
 # ───────────────────────── CONTAINER PLATFORMS ─────────────────────────
+  gcp:
+    services:
+    - cloud-service-mesh
+    match: partial
+    answer: ECS Service Connect (and the retired App Mesh) map partly to Cloud Service Mesh, Google's managed service mesh based on the Istio APIs.
+    differences:
+    - Cloud Service Mesh is a full Istio-compatible mesh with mTLS and traffic policies; Service Connect is a simpler ECS-only service discovery and proxy feature.
+    - Cloud Service Mesh supports GKE and other supported platforms.
+    pricing: Standalone use is billed per mesh client (for example per mesh-enabled Pod) per hour.
+    sources:
+    - https://docs.cloud.google.com/service-mesh/docs/overview
+    - https://cloud.google.com/service-mesh/pricing
 - id: container-orchestrator
   group: container-platforms
   capability: Provider-native container orchestrator
@@ -257,6 +357,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ManagedInstances.html
     - https://learn.microsoft.com/en-us/azure/container-apps/overview
     - https://learn.microsoft.com/en-us/azure/container-apps/plans
+  gcp:
+    services:
+    - cloud-run
+    match: partial
+    answer: Amazon ECS, a provider-native orchestrator, maps partly to Cloud Run, which runs containers as services, jobs, and worker pools without a cluster.
+    differences:
+    - Cloud Run has no clusters, task definitions, or capacity providers; you deploy a container and set scaling limits.
+    - For full orchestration control, GKE (Kubernetes) is the Google Cloud choice.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
+    - https://cloud.google.com/run/pricing
 
 - id: serverless-containers
   group: container-platforms
@@ -283,6 +395,20 @@ rows:
     - https://docs.aws.amazon.com/eks/latest/userguide/fargate.html
     - https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview
     - https://learn.microsoft.com/en-us/azure/aks/virtual-nodes
+  gcp:
+    services:
+    - cloud-run
+    - gke-autopilot
+    match: partial
+    answer: AWS Fargate maps to Cloud Run for serverless containers, and to GKE Autopilot for serverless Kubernetes Pods.
+    differences:
+    - Fargate is a compute engine for ECS and EKS; Cloud Run is a complete platform with its own HTTPS endpoints and scale to zero.
+    - Autopilot is the closest match to EKS on Fargate.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/autopilot-overview
+    - https://cloud.google.com/run/pricing
 
 - id: simple-container-web
   group: container-platforms
@@ -308,6 +434,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/express-service-overview.html
     - https://docs.aws.amazon.com/apprunner/latest/dg/apprunner-availability-change.html
     - https://learn.microsoft.com/en-us/azure/container-apps/overview
+  gcp:
+    services:
+    - cloud-run
+    match: direct
+    answer: App Runner and ECS Express Mode map to Cloud Run, which deploys a container or source code to an HTTPS URL with autoscaling.
+    differences:
+    - Cloud Run scales to zero by default; App Runner keeps provisioned instances warm.
+    - App Runner is in maintenance on AWS; Cloud Run is Google's primary app platform.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
+    - https://cloud.google.com/run/pricing
 
 - id: container-registry
   group: container-platforms
@@ -337,6 +475,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus
 
 # ───────────────────────── SERVERLESS FUNCTIONS ─────────────────────────
+  gcp:
+    services:
+    - artifact-registry
+    match: direct
+    answer: Amazon ECR maps to Artifact Registry, which stores container images and other artifacts in regional or multi-regional repositories.
+    differences:
+    - Container Registry (gcr.io) is shut down for writes since Mar 18, 2025; use Artifact Registry.
+    - One Artifact Registry repository format holds one artifact type (Docker, Maven, npm, and others).
+    pricing: Billed per GB-month of storage (with a free tier) plus network egress.
+    sources:
+    - https://docs.cloud.google.com/artifact-registry/docs/overview
+    - https://docs.cloud.google.com/container-registry/docs/deprecations/container-registry-deprecation
+    - https://cloud.google.com/artifact-registry/pricing
 - id: serverless-functions
   group: functions
   capability: Serverless functions (FaaS)
@@ -364,6 +515,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
     - https://learn.microsoft.com/en-us/azure/azure-functions/consumption-plan
+  gcp:
+    services:
+    - cloud-run-functions
+    match: direct
+    answer: AWS Lambda maps to Cloud Run functions (formerly Cloud Functions), which deploy functions from source onto Cloud Run.
+    differences:
+    - Functions run as Cloud Run services, so one instance can handle multiple concurrent requests, unlike Lambda's one request per environment.
+    - Event triggers come through Eventarc and Pub/Sub instead of Lambda event source mappings.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/functions/comparison
+    - https://cloud.google.com/run/pricing
 
 - id: function-cold-start
   group: functions
@@ -392,6 +555,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
   flags:
     - SnapStart pricing for Python and .NET (caching plus restore charges) is summarized from the Lambda pricing page's structure.
+  gcp:
+    services:
+    - cloud-run
+    match: partial
+    answer: Lambda provisioned concurrency and SnapStart map partly to Cloud Run minimum instances (keep instances warm) and startup CPU boost (extra CPU during startup).
+    differences:
+    - There is no snapshot-restore feature like SnapStart.
+    - Minimum instances are billed while idle, similar to provisioned concurrency.
+    pricing: Minimum instances are billed while idle; see Cloud Run pricing for idle rates.
+    sources:
+    - https://docs.cloud.google.com/run/docs/configuring/min-instances
+    - https://docs.cloud.google.com/run/docs/configuring/services/cpu
+    - https://cloud.google.com/run/pricing
 
 - id: function-layers
   group: functions
@@ -415,6 +591,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/lambda/latest/dg/chapter-layers.html
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no equivalent of Lambda layers. Package shared dependencies in the function's source or a container base image.
+    differences:
+    - Cloud Run functions build from source with your dependency manifest (for example package.json or requirements.txt).
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/run/docs/functions/comparison
 
 - id: function-http-endpoint
   group: functions
@@ -439,6 +624,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/lambda/latest/dg/urls-configuration.html
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview
+  gcp:
+    services:
+    - cloud-run-functions
+    match: direct
+    answer: Lambda function URLs map to the built-in HTTPS URL of a Cloud Run function.
+    differences:
+    - Every Cloud Run service and function gets an HTTPS endpoint by default; access is controlled with IAM (Cloud Run Invoker) or public access.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/functions/comparison
+    - https://cloud.google.com/run/pricing
 
 - id: web-app-functions
   group: functions
@@ -466,6 +662,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/container-apps/overview
   flags:
     - Lambda Web Functions launched Oct 12, 2026 in five Regions. Runtime and Region coverage is expected to expand.
+  gcp:
+    services:
+    - cloud-run
+    match: direct
+    answer: Lambda Web Functions map to Cloud Run services, which run any container that listens on a port.
+    differences:
+    - Cloud Run was built for port-listening web apps from the start, with concurrency per instance.
+    pricing: Request-based billing (default) charges vCPU-seconds and GiB-seconds while instances handle requests, plus a per-request fee; instance-based billing charges for the whole instance lifetime. A monthly free tier applies.
+    sources:
+    - https://docs.cloud.google.com/run/docs/overview/what-is-cloud-run
+    - https://cloud.google.com/run/pricing
 
 - id: function-dedicated-compute
   group: functions
@@ -490,6 +697,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/lambda/latest/dg/lambda-managed-instances.html
     - https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale
+  gcp:
+    services:
+    - cloud-run
+    match: partial
+    answer: Lambda Managed Instances map partly to Cloud Run instance-based billing and minimum instances, which keep dedicated instances running and bill for their full lifetime.
+    differences:
+    - Cloud Run doesn't let you pick EC2-style instance families; you set CPU, memory, and GPU per instance.
+    - For reserved hardware, GKE node pools with reservations are the alternative.
+    pricing: Instance-based billing charges vCPU and memory for the entire instance lifetime. Compute flexible committed use discounts apply across Cloud Run, GKE, and Compute Engine.
+    sources:
+    - https://docs.cloud.google.com/run/docs/configuring/billing-settings
+    - https://docs.cloud.google.com/run/docs/configuring/min-instances
 
 - id: code-sandboxes
   group: functions
@@ -520,6 +739,18 @@ rows:
     - The MicroVM suspended-state billing and the Azure per-session-hour model are summarized from the pricing pages. Rates aren't quoted.
 
 # ───────────────────────── WORKFLOWS ─────────────────────────
+  gcp:
+    services:
+    - gke-agent-sandbox
+    match: partial
+    answer: AWS Lambda MicroVMs map partly to Agent Sandbox on GKE, which isolates untrusted or AI-generated code using GKE Sandbox (gVisor) on your cluster.
+    differences:
+    - You run Agent Sandbox on your own GKE cluster; Lambda MicroVMs are fully serverless.
+    - Agent Runtime's code execution on Gemini Enterprise Agent Platform is a managed alternative for agent use cases.
+    pricing: No extra charge for Agent Sandbox; GKE pricing applies to the cluster resources.
+    sources:
+    - https://docs.cloud.google.com/kubernetes-engine/docs/how-to/agent-sandbox
+    - https://docs.cloud.google.com/kubernetes-engine/docs/concepts/sandbox-pods
 - id: workflow-orchestration
   group: workflows
   capability: Visual workflow orchestration
@@ -545,6 +776,18 @@ rows:
     - https://docs.aws.amazon.com/step-functions/latest/dg/choosing-workflow-type.html
     - https://learn.microsoft.com/en-us/azure/logic-apps/logic-apps-overview
     - https://learn.microsoft.com/en-us/azure/logic-apps/single-tenant-overview-compare
+  gcp:
+    services:
+    - workflows
+    match: partial
+    answer: AWS Step Functions maps partly to Workflows, a managed orchestrator whose steps are written in YAML or JSON.
+    differences:
+    - Workflows has no visual designer like Step Functions Workflow Studio; definitions are code.
+    - Workflows calls Google Cloud APIs through connectors and any HTTP endpoint.
+    pricing: Billed per workflow step executed, with internal and external steps priced differently.
+    sources:
+    - https://docs.cloud.google.com/workflows/docs/overview
+    - https://cloud.google.com/workflows/pricing
 
 - id: durable-workflows-code
   group: workflows
@@ -573,6 +816,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/durable-task/scheduler/durable-task-scheduler
   flags:
     - The pricing dimensions for Lambda durable executions were checked against the pricing page's structure only. Confirm current rates there.
+  gcp:
+    services:
+    - workflows
+    match: partial
+    answer: Lambda durable functions have no direct counterpart. Workflows provides durable, managed execution, but the steps are written in its YAML/JSON syntax rather than in a general-purpose language.
+    differences:
+    - For code-first durable execution, teams run open-source engines such as Temporal on GKE.
+    pricing: Billed per workflow step executed.
+    sources:
+    - https://docs.cloud.google.com/workflows/docs/overview
+    - https://cloud.google.com/workflows/pricing
 
 - id: scheduled-jobs
   group: workflows
@@ -599,6 +853,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/container-apps/jobs
 
 # ───────────────────────── MESSAGING ─────────────────────────
+  gcp:
+    services:
+    - cloud-scheduler
+    match: direct
+    answer: EventBridge Scheduler maps to Cloud Scheduler, a managed cron service that triggers HTTP endpoints, Pub/Sub topics, and other targets.
+    differences:
+    - Cloud Scheduler uses unix-cron syntax with time zones; one-time schedules are not its focus (Cloud Tasks handles delayed one-off tasks).
+    pricing: Billed per job per month (paused jobs count), with a free allowance per billing account.
+    sources:
+    - https://docs.cloud.google.com/scheduler/docs/overview
+    - https://cloud.google.com/scheduler/pricing
 - id: event-bus
   group: messaging
   capability: Event bus and event routing
@@ -625,6 +890,19 @@ rows:
     - https://docs.aws.amazon.com/eventbridge/latest/userguide/eb-pipes.html
     - https://learn.microsoft.com/en-us/azure/event-grid/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/messaging
+  gcp:
+    services:
+    - eventarc
+    match: direct
+    answer: Amazon EventBridge maps to Eventarc. Eventarc Advanced adds a central bus with enrollments and pipelines, similar to EventBridge buses, rules, and Pipes.
+    differences:
+    - Eventarc Standard routes events from Google Cloud sources to targets such as Cloud Run and Workflows.
+    - Events use the CloudEvents format.
+    pricing: Billed per event processed; see the Eventarc pricing page for Standard and Advanced rates.
+    sources:
+    - https://docs.cloud.google.com/eventarc/docs/overview
+    - https://docs.cloud.google.com/eventarc/advanced/docs/overview
+    - https://cloud.google.com/eventarc/pricing
 
 - id: message-queues
   group: messaging
@@ -653,6 +931,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction
   flags:
     - The SQS 1 MiB message size comes from the current SQS developer guide. The Service Bus per-tier message size limits come from Service Bus quota documentation, not the overview page.
+  gcp:
+    services:
+    - pubsub
+    - cloud-tasks
+    match: partial
+    answer: Amazon SQS maps partly to Pub/Sub pull subscriptions for queue-style consumption, and to Cloud Tasks for dispatching individual tasks with rate limits and scheduled delivery.
+    differences:
+    - Pub/Sub is a topic/subscription model; each subscription acts like its own queue.
+    - Cloud Tasks pushes tasks to HTTP targets rather than letting consumers poll.
+    pricing: Pub/Sub bills for message throughput (publish and delivery), storage, and cross-zone or cross-region transfer. Cloud Tasks bills per billable operation (API call or push delivery attempt).
+    sources:
+    - https://docs.cloud.google.com/pubsub/docs/overview
+    - https://docs.cloud.google.com/tasks/docs/dual-overview
+    - https://cloud.google.com/pubsub/pricing
 
 - id: pubsub-fanout
   group: messaging
@@ -678,6 +970,18 @@ rows:
     - https://docs.aws.amazon.com/sns/latest/dg/welcome.html
     - https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview
     - https://learn.microsoft.com/en-us/azure/event-grid/overview
+  gcp:
+    services:
+    - pubsub
+    match: direct
+    answer: Amazon SNS maps to Pub/Sub topics with multiple subscriptions for fan-out.
+    differences:
+    - Pub/Sub doesn't send SMS, email, or mobile push like SNS; use Firebase Cloud Messaging or a partner for that.
+    - Push subscriptions deliver to HTTPS endpoints; pull subscriptions let consumers poll.
+    pricing: Billed for throughput (publish and delivery), retained message storage, and data transfer.
+    sources:
+    - https://docs.cloud.google.com/pubsub/docs/overview
+    - https://cloud.google.com/pubsub/pricing
 
 - id: managed-message-broker
   group: messaging
@@ -705,6 +1009,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/messaging
 
 # ───────────────────────── APIS & WEB FRONT ENDS ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed ActiveMQ or RabbitMQ service like Amazon MQ. Use Pub/Sub for new designs, or run brokers yourself on GKE or Compute Engine.
+    differences:
+    - Migrating from JMS or AMQP clients to Pub/Sub requires code changes.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/pubsub/docs/overview
 - id: api-gateway-managed
   group: apis-web
   capability: Managed API gateway
@@ -730,6 +1043,22 @@ rows:
     - https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
     - https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts
     - https://learn.microsoft.com/en-us/azure/api-management/api-management-features
+  gcp:
+    services:
+    - api-gateway
+    - apigee
+    match: partial
+    answer: Amazon API Gateway maps to API Gateway for serverless backends (defined with OpenAPI), and to Apigee for full API management.
+    differences:
+    - API Gateway fronts Cloud Run, Cloud Run functions, and App Engine; it has no WebSocket APIs.
+    - Apigee covers usage plans, developer portals, and monetization that AWS spreads across API Gateway features.
+    pricing: API Gateway is billed by the number of API calls. Apigee has pay-as-you-go and subscription plans.
+    sources:
+    - https://docs.cloud.google.com/api-gateway/docs/about-api-gateway
+    - https://cloud.google.com/api-gateway/pricing
+    - https://docs.cloud.google.com/apigee/docs/api-platform/get-started/what-apigee
+    flags:
+    - API Gateway's lack of WebSocket support is based on its documented backends and protocols, not an explicit statement.
 
 - id: graphql-realtime
   group: apis-web
@@ -755,6 +1084,18 @@ rows:
     - https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html
     - https://learn.microsoft.com/en-us/azure/api-management/graphql-apis-overview
     - https://learn.microsoft.com/en-us/azure/azure-web-pubsub/overview
+  gcp:
+    services:
+    - firebase-sql-connect
+    match: partial
+    answer: AWS AppSync maps partly to Firebase SQL Connect (formerly Data Connect), a GraphQL backend over managed Cloud SQL for PostgreSQL with generated SDKs.
+    differences:
+    - SQL Connect is tied to PostgreSQL; AppSync resolves to many data sources.
+    - For real-time sync, Firebase's Firestore and Realtime Database are the usual choices.
+    pricing: Billed through Firebase plans for operations, plus the Cloud SQL instance.
+    sources:
+    - https://firebase.google.com/docs/sql-connect
+    - https://firebase.google.com/pricing
 
 - id: static-web-hosting
   group: apis-web
@@ -779,3 +1120,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html
     - https://learn.microsoft.com/en-us/azure/static-web-apps/overview
+  gcp:
+    services:
+    - firebase-app-hosting
+    - firebase-hosting
+    match: direct
+    answer: AWS Amplify Hosting maps to Firebase App Hosting (Git-connected SSR apps such as Next.js and Angular, served on Cloud Run) and Firebase Hosting (static sites on a global CDN).
+    differences:
+    - App Hosting builds on Cloud Run and Cloud CDN in your project; Firebase Hosting serves static content.
+    pricing: 'Firebase pricing plans: no-cost Spark tier and pay-as-you-go Blaze, plus the underlying Cloud Run and CDN usage for App Hosting.'
+    sources:
+    - https://firebase.google.com/docs/app-hosting
+    - https://firebase.google.com/docs/hosting
+    - https://firebase.google.com/pricing
