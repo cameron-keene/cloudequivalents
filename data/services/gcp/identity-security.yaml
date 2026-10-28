@@ -1,0 +1,180 @@
+- slug: cloud-iam
+  name: Identity and Access Management (IAM)
+  status: ga
+  summary: Allow policies that grant roles to principals on resources in the organization, folder, and project hierarchy.
+  docs: https://docs.cloud.google.com/iam/docs/overview
+- slug: iam-deny-policies
+  name: IAM deny policies
+  status: ga
+  summary: Guardrails that deny specific permissions to principals regardless of what allow policies grant.
+  docs: https://docs.cloud.google.com/iam/docs/deny-overview
+- slug: cloud-identity
+  name: Cloud Identity
+  status: ga
+  summary: Google identity service for users and groups, with free and premium editions, 2-Step Verification, and SSO.
+  docs: https://docs.cloud.google.com/identity/docs/editions
+- slug: workforce-identity-federation
+  name: Workforce Identity Federation
+  status: ga
+  summary: Lets users from an external IdP access Google Cloud with SSO, without syncing accounts.
+  docs: https://docs.cloud.google.com/iam/docs/workforce-identity-federation
+- slug: service-accounts
+  name: Service accounts
+  status: ga
+  summary: Identities for workloads; attach a service account to a resource to get short-lived credentials without keys.
+  docs: https://docs.cloud.google.com/iam/docs/service-account-overview
+- slug: workload-identity-federation
+  name: Workload Identity Federation
+  status: ga
+  summary: Lets workloads on AWS, Azure, or OIDC/SAML identity providers access Google Cloud without service account keys.
+  docs: https://docs.cloud.google.com/iam/docs/workload-identity-federation
+- slug: privileged-access-manager
+  name: Privileged Access Manager
+  status: ga
+  summary: Just-in-time, temporary privilege elevation through entitlements with optional approvals.
+  docs: https://docs.cloud.google.com/iam/docs/pam-overview
+- slug: policy-intelligence
+  name: Policy Intelligence (role recommendations, Policy Analyzer)
+  status: ga
+  summary: Role recommendations to remove excess permissions and Policy Analyzer to find who has access to what.
+  docs: https://docs.cloud.google.com/policy-intelligence/docs/role-recommendations-overview
+- slug: identity-platform
+  name: Identity Platform
+  status: ga
+  summary: Customer identity and access management that backs Firebase Authentication, billed per monthly active user.
+  docs: https://docs.cloud.google.com/identity-platform/docs/product-comparison
+  pricing: https://cloud.google.com/identity-platform/pricing
+- slug: managed-microsoft-ad
+  name: Managed Service for Microsoft Active Directory
+  status: ga
+  summary: Highly available, hardened Microsoft Active Directory domains hosted by Google Cloud.
+  docs: https://docs.cloud.google.com/managed-microsoft-ad/docs/overview
+  pricing: https://cloud.google.com/managed-microsoft-ad/pricing
+- slug: identity-aware-proxy
+  name: Identity-Aware Proxy (IAP)
+  status: ga
+  summary: Identity- and context-based access to applications and VMs (including TCP forwarding) without a VPN.
+  docs: https://docs.cloud.google.com/iap/docs/concepts-overview
+  pricing: https://cloud.google.com/iap/pricing
+- slug: chrome-enterprise-premium
+  name: Chrome Enterprise Premium
+  status: ga
+  summary: Zero trust access and data protection that extends IAP with paid capabilities.
+  docs: https://docs.cloud.google.com/chrome-enterprise-premium/docs/overview
+- slug: resource-manager
+  name: Resource Manager (organization, folders, projects)
+  status: ga
+  summary: The resource hierarchy of organization, folders, and projects used for policy and billing.
+  docs: https://docs.cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy
+- slug: organization-policy
+  name: Organization Policy Service
+  status: ga
+  summary: Managed and custom constraints that restrict resource configurations across the hierarchy.
+  docs: https://docs.cloud.google.com/organization-policy/overview
+- slug: cloud-setup
+  name: Google Cloud Setup
+  status: ga
+  summary: Guided flow for administrators to configure an organization foundation.
+  docs: https://docs.cloud.google.com/docs/enterprise/cloud-setup
+- slug: enterprise-foundations-blueprint
+  name: Enterprise foundations blueprint
+  status: ga
+  summary: Google-recommended reference architecture and deployable code for a secure foundation.
+  docs: https://docs.cloud.google.com/architecture/blueprints/security-foundations
+- slug: cloud-audit-logs
+  name: Cloud Audit Logs
+  status: ga
+  summary: Admin Activity, Data Access, System Event, and Policy Denied audit logs in Cloud Logging.
+  docs: https://docs.cloud.google.com/logging/docs/audit
+  pricing: https://cloud.google.com/products/observability/pricing
+- slug: cloud-asset-inventory
+  name: Cloud Asset Inventory
+  status: ga
+  summary: Inventory of resources and policies with up to 35 days of change history.
+  docs: https://docs.cloud.google.com/asset-inventory/docs/asset-inventory-overview
+- slug: security-posture
+  name: Security Command Center security posture
+  status: ga
+  summary: Define and deploy security postures and detect drift from them.
+  docs: https://docs.cloud.google.com/security-command-center/docs/security-posture-overview
+  pricing: https://cloud.google.com/security-command-center/pricing
+- slug: compliance-manager
+  name: Compliance Manager (Security Command Center)
+  status: ga
+  summary: Cloud controls and frameworks with auditing and evidence collection in Premium and Enterprise tiers.
+  docs: https://docs.cloud.google.com/security-command-center/docs/compliance-manager-overview
+  pricing: https://cloud.google.com/security-command-center/pricing
+- slug: assured-workloads
+  name: Assured Workloads
+  status: ga
+  summary: Control packages for data residency, access, and personnel controls for regulated workloads.
+  docs: https://docs.cloud.google.com/assured-workloads/docs/overview
+- slug: compliance-reports-manager
+  name: Compliance Reports Manager
+  status: ga
+  summary: Download Google Cloud compliance reports and certifications.
+  docs: https://cloud.google.com/security/compliance/compliance-reports-manager
+- slug: cloud-kms
+  name: Cloud Key Management Service
+  status: ga
+  summary: Software, hardware (Cloud HSM), and external keys with key-version and operation pricing.
+  docs: https://docs.cloud.google.com/kms/docs/key-management-service
+  pricing: https://cloud.google.com/kms/pricing
+- slug: cloud-hsm
+  name: Cloud HSM
+  status: ga
+  summary: Keys protected in clusters of FIPS 140-2 Level 3 certified HSMs, managed through Cloud KMS.
+  docs: https://docs.cloud.google.com/kms/docs/hsm
+  pricing: https://cloud.google.com/kms/pricing
+- slug: single-tenant-cloud-hsm
+  name: Single-tenant Cloud HSM
+  status: ga
+  summary: A single-tenant instance of HSM partitions for your exclusive use, managed through Cloud KMS.
+  docs: https://docs.cloud.google.com/kms/docs/single-tenant-hsm
+  pricing: https://cloud.google.com/kms/pricing
+- slug: cloud-ekm
+  name: Cloud External Key Manager
+  status: ga
+  summary: Use keys held in a supported external key manager outside Google Cloud.
+  docs: https://docs.cloud.google.com/kms/docs/ekm
+  pricing: https://cloud.google.com/kms/pricing
+- slug: secret-manager
+  name: Secret Manager
+  status: ga
+  summary: Stores secrets as versioned objects with global or regional service options and rotation schedules.
+  docs: https://docs.cloud.google.com/secret-manager/docs/overview
+  pricing: https://cloud.google.com/secret-manager/pricing
+- slug: certificate-manager
+  name: Certificate Manager
+  status: ga
+  summary: Google-managed and self-managed TLS certificates for Google Cloud load balancers.
+  docs: https://docs.cloud.google.com/certificate-manager/docs/overview
+  pricing: https://cloud.google.com/certificate-manager/pricing
+- slug: certificate-authority-service
+  name: Certificate Authority Service
+  status: ga
+  summary: Managed private CAs, with custom root and subordinate CAs, in DevOps and Enterprise tiers.
+  docs: https://docs.cloud.google.com/certificate-authority-service/docs/ca-service-overview
+  pricing: https://cloud.google.com/certificate-authority-service/pricing
+- slug: security-command-center
+  name: Security Command Center
+  status: ga
+  summary: Security and risk management in Standard and Premium tiers; the Enterprise tier is deprecated and shuts down May 21, 2027.
+  docs: https://docs.cloud.google.com/security-command-center/docs/security-command-center-overview
+  pricing: https://cloud.google.com/security-command-center/pricing
+- slug: event-threat-detection
+  name: Event Threat Detection
+  status: ga
+  summary: Security Command Center service that detects threats in near real time from logs.
+  docs: https://docs.cloud.google.com/security-command-center/docs/concepts-event-threat-detection-overview
+  pricing: https://cloud.google.com/security-command-center/pricing
+- slug: artifact-analysis
+  name: Artifact Analysis
+  status: ga
+  summary: Vulnerability scanning for container images and packages in Artifact Registry.
+  docs: https://docs.cloud.google.com/artifact-analysis/docs/artifact-analysis
+- slug: google-secops
+  name: Google Security Operations
+  status: ga
+  summary: SIEM, SOAR, and threat intelligence platform with a Unified Data Model.
+  docs: https://docs.cloud.google.com/chronicle/docs/secops/secops-overview

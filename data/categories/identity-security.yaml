@@ -7,6 +7,7 @@ category:
   description: Identity and access management, workforce and customer identity, directories, multi-account governance and guardrails, audit and compliance, keys, secrets and certificates, and threat detection and security operations. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure identity and security, side by side: IAM vs Entra ID and Azure RBAC, IAM Identity Center vs Entra SSO, Organizations and SCPs vs management groups and Azure Policy, Cognito vs Entra External ID, KMS vs Key Vault, GuardDuty and Security Hub vs Defender for Cloud, and CloudTrail vs Activity Log."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: identity-access
       name: Identity & access management
@@ -51,6 +52,19 @@ rows:
     - https://learn.microsoft.com/en-us/entra/fundamentals/what-is-entra
     - https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - cloud-iam
+    - iam-deny-policies
+    match: direct
+    answer: 'AWS IAM maps to Google Cloud IAM: allow policies grant predefined or custom roles to principals on resources, and deny policies set guardrails.'
+    differences:
+    - Policies attach to resources in the hierarchy (organization, folder, project, resource) and are inherited; there are no identity-based policy documents like AWS.
+    - User identities come from Cloud Identity, Google Workspace, or Workforce Identity Federation, not from IAM itself.
+    pricing: No charge for IAM.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/overview
+    - https://docs.cloud.google.com/iam/docs/deny-overview
 
 - id: workforce-sso
   group: identity-access
@@ -77,6 +91,19 @@ rows:
     - https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/what-is-single-sign-on
     - https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - cloud-identity
+    - workforce-identity-federation
+    match: direct
+    answer: IAM Identity Center maps to Cloud Identity (users, groups, 2-Step Verification, and SSO) or Workforce Identity Federation, which lets users from an external IdP sign in without account sync.
+    differences:
+    - Cloud Identity can also act as an IdP for third-party SAML apps.
+    - Workforce Identity Federation is sync-less; Cloud Identity can sync from Active Directory or another IdP.
+    pricing: Cloud Identity has free and premium editions; Workforce Identity Federation has no separate charge listed.
+    sources:
+    - https://docs.cloud.google.com/identity/docs/editions
+    - https://docs.cloud.google.com/iam/docs/workforce-identity-federation
 
 - id: workload-identity
   group: identity-access
@@ -100,6 +127,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
     - https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview
+  gcp:
+    services:
+    - service-accounts
+    match: direct
+    answer: IAM roles for AWS services map to service accounts attached to Google Cloud resources, which receive short-lived credentials automatically.
+    differences:
+    - A service account is a principal with its own IAM roles, rather than a role assumed by a service.
+    - Avoid service account keys; attached service accounts and federation remove the need for them.
+    pricing: No charge for service accounts.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/service-account-overview
 
 - id: external-workload-federation
   group: identity-access
@@ -124,6 +162,17 @@ rows:
     - https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html
     - https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - workload-identity-federation
+    match: direct
+    answer: IAM Roles Anywhere maps to Workload Identity Federation, which lets workloads on AWS, Azure, or any OIDC or SAML 2.0 identity provider access Google Cloud without service account keys.
+    differences:
+    - Workload Identity Federation also accepts X.509 client certificates, similar to Roles Anywhere.
+    - Federated identities get short-lived tokens; no long-lived keys are stored.
+    pricing: No charge for Workload Identity Federation.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/workload-identity-federation
 
 - id: privileged-access
   group: identity-access
@@ -146,6 +195,18 @@ rows:
   sources:
     - https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - privileged-access-manager
+    match: direct
+    answer: Just-in-time privileged access maps to Privileged Access Manager, which grants temporary role elevation through entitlements with optional approvals.
+    differences:
+    - Entitlements are defined on organization, folder, or project resources, with a maximum duration.
+    pricing: Check the Privileged Access Manager documentation for pricing.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/pam-overview
+    flags:
+    - Privileged Access Manager pricing was not confirmed on 2026-10-27.
 
 - id: access-review
   group: identity-access
@@ -174,6 +235,19 @@ rows:
     - https://learn.microsoft.com/en-us/entra/permissions-management/overview
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/permissions-management
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - policy-intelligence
+    match: partial
+    answer: 'IAM Access Analyzer maps partly to Policy Intelligence: role recommendations remove excess permissions, and Policy Analyzer shows who has access to what.'
+    differences:
+    - There is no single service that flags external or public access findings like Access Analyzer; Security Command Center covers some misconfigurations.
+    pricing: Role recommendations have no charge; some Policy Analyzer features depend on the Security Command Center tier.
+    sources:
+    - https://docs.cloud.google.com/policy-intelligence/docs/role-recommendations-overview
+    - https://docs.cloud.google.com/policy-intelligence/docs/policy-analyzer-overview
+    flags:
+    - Policy Intelligence tier requirements were not confirmed from a price page on 2026-10-27.
 
 - id: resource-sharing
   group: identity-access
@@ -198,6 +272,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
 
 # ───────────────────────── CUSTOMER IDENTITY & APP ACCESS ─────────────────────────
+  gcp:
+    services:
+    - cloud-iam
+    - resource-manager
+    match: partial
+    answer: AWS RAM has no counterpart because Google Cloud shares resources by granting IAM roles to principals from other projects; networks are shared with Shared VPC.
+    differences:
+    - Projects aren't security boundaries for sharing the way AWS accounts are; IAM grants work across projects in an organization.
+    pricing: No charge.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/overview
+    - https://docs.cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy
 - id: customer-identity
   group: app-identity
   capability: Customer identity and access management (CIAM)
@@ -225,6 +311,17 @@ rows:
     - https://learn.microsoft.com/en-us/entra/external-id/external-identities-overview
     - https://learn.microsoft.com/en-us/azure/active-directory-b2c/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - identity-platform
+    match: direct
+    answer: Amazon Cognito maps to Identity Platform, a customer identity service (the backend for Firebase Authentication) with sign-in methods including SAML and OIDC.
+    differences:
+    - Identity Platform adds enterprise features such as multi-tenancy and SAML/OIDC providers over Firebase Authentication.
+    pricing: Billed per monthly active user for most sign-in methods.
+    sources:
+    - https://docs.cloud.google.com/identity-platform/docs/product-comparison
+    - https://cloud.google.com/identity-platform/pricing
 
 - id: managed-directory
   group: app-identity
@@ -249,6 +346,17 @@ rows:
     - https://docs.aws.amazon.com/directoryservice/latest/admin-guide/what_is.html
     - https://learn.microsoft.com/en-us/entra/identity/domain-services/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - managed-microsoft-ad
+    match: direct
+    answer: AWS Managed Microsoft AD maps to Managed Service for Microsoft Active Directory, highly available, hardened AD domains hosted by Google Cloud.
+    differences:
+    - You can create trusts with on-premises domains.
+    pricing: Billed per domain hour while the domain is provisioned, plus standard rates for related services.
+    sources:
+    - https://docs.cloud.google.com/managed-microsoft-ad/docs/overview
+    - https://cloud.google.com/managed-microsoft-ad/pricing
 
 - id: app-authorization
   group: app-identity
@@ -270,6 +378,15 @@ rows:
   related: [customer-identity]
   sources:
     - https://docs.aws.amazon.com/verifiedpermissions/latest/userguide/what-is-avp.html
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed fine-grained authorization service for your own applications like Amazon Verified Permissions. Implement authorization in the app or use an open-source policy engine.
+    differences:
+    - IAM controls access to Google Cloud resources, not your application's own permissions.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/iam/docs/overview
 
 - id: zero-trust-app-access
   group: app-identity
@@ -295,6 +412,19 @@ rows:
     - https://learn.microsoft.com/en-us/entra/global-secure-access/concept-private-access
 
 # ───────────────────────── GOVERNANCE ─────────────────────────
+  gcp:
+    services:
+    - identity-aware-proxy
+    - chrome-enterprise-premium
+    match: direct
+    answer: AWS Verified Access maps to Identity-Aware Proxy, which grants identity- and context-based access to apps and VMs without a VPN. Chrome Enterprise Premium adds paid zero trust capabilities.
+    differences:
+    - IAP protects apps behind Google Cloud load balancers and VMs through TCP forwarding.
+    pricing: IAP is available at no charge for Google Cloud resources (load balancing charges apply); some capabilities need Chrome Enterprise Premium.
+    sources:
+    - https://docs.cloud.google.com/iap/docs/concepts-overview
+    - https://cloud.google.com/iap/pricing
+    - https://docs.cloud.google.com/iap/docs/using-tcp-forwarding
 - id: multi-account-organization
   group: governance
   capability: Multi-account organization hierarchy
@@ -319,6 +449,17 @@ rows:
     - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_introduction.html
     - https://learn.microsoft.com/en-us/azure/governance/management-groups/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - resource-manager
+    match: direct
+    answer: 'AWS Organizations maps to the Google Cloud resource hierarchy: an organization, folders, and projects.'
+    differences:
+    - Projects roughly correspond to AWS accounts, and folders to organizational units.
+    - Billing accounts are linked to projects separately.
+    pricing: No charge.
+    sources:
+    - https://docs.cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy
 
 - id: org-guardrails
   group: governance
@@ -343,6 +484,18 @@ rows:
     - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps.html
     - https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_rcps.html
     - https://learn.microsoft.com/en-us/azure/governance/policy/overview
+  gcp:
+    services:
+    - organization-policy
+    - iam-deny-policies
+    match: direct
+    answer: Service and resource control policies map to Organization Policy constraints (managed and custom) and IAM deny policies, both inherited down the hierarchy.
+    differences:
+    - Organization policies restrict configurations; deny policies restrict permissions, splitting what SCPs do.
+    pricing: No charge.
+    sources:
+    - https://docs.cloud.google.com/organization-policy/overview
+    - https://docs.cloud.google.com/iam/docs/deny-overview
 
 - id: landing-zones
   group: governance
@@ -371,6 +524,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/governance/blueprints/overview
 
 # ───────────────────────── AUDIT & COMPLIANCE ─────────────────────────
+  gcp:
+    services:
+    - cloud-setup
+    - enterprise-foundations-blueprint
+    match: partial
+    answer: AWS Control Tower maps partly to Google Cloud Setup, a guided flow that configures an organization foundation, and the enterprise foundations blueprint.
+    differences:
+    - There is no ongoing account-vending and guardrail dashboard like Control Tower; you manage projects with Terraform or your own tooling.
+    pricing: No charge for the setup flow; you pay for deployed resources.
+    sources:
+    - https://docs.cloud.google.com/docs/enterprise/cloud-setup
+    - https://docs.cloud.google.com/architecture/blueprints/security-foundations
 - id: audit-logging
   group: audit-compliance
   capability: API and control-plane audit logs
@@ -395,6 +560,18 @@ rows:
     - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-user-guide.html
     - https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
+  gcp:
+    services:
+    - cloud-audit-logs
+    match: direct
+    answer: 'AWS CloudTrail maps to Cloud Audit Logs: Admin Activity, Data Access, System Event, and Policy Denied logs in Cloud Logging.'
+    differences:
+    - Admin Activity logs are always on; most Data Access logs must be enabled.
+    - Use aggregated sinks to collect logs organization-wide.
+    pricing: Billed through Cloud Logging ingestion and storage; check which log types are free.
+    sources:
+    - https://docs.cloud.google.com/logging/docs/audit
+    - https://cloud.google.com/products/observability/pricing
 
 - id: config-compliance
   group: audit-compliance
@@ -419,6 +596,20 @@ rows:
     - https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
     - https://learn.microsoft.com/en-us/azure/governance/policy/overview
     - https://learn.microsoft.com/en-us/azure/governance/resource-graph/overview
+  gcp:
+    services:
+    - cloud-asset-inventory
+    - security-posture
+    match: partial
+    answer: AWS Config maps partly to Cloud Asset Inventory (resource inventory with 35 days of change history) and Security Command Center postures for detecting drift.
+    differences:
+    - History is limited to 35 days unless you export it.
+    - Compliance rules come from Security Command Center findings and postures rather than Config rules.
+    pricing: Asset Inventory has no separate charge listed; postures depend on the Security Command Center tier.
+    sources:
+    - https://docs.cloud.google.com/asset-inventory/docs/asset-inventory-overview
+    - https://docs.cloud.google.com/security-command-center/docs/security-posture-overview
+    - https://cloud.google.com/security-command-center/pricing
 
 - id: audit-evidence
   group: audit-compliance
@@ -445,6 +636,20 @@ rows:
     - https://docs.aws.amazon.com/audit-manager/latest/userguide/audit-manager-availability-change.html
     - https://learn.microsoft.com/en-us/purview/compliance-manager
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/regulatory-compliance-dashboard
+  gcp:
+    services:
+    - compliance-manager
+    - assured-workloads
+    match: partial
+    answer: AWS Audit Manager maps partly to Compliance Manager in Security Command Center, which audits cloud controls and collects evidence, and Assured Workloads control packages.
+    differences:
+    - Audit and evidence features require the Premium or Enterprise tier of Security Command Center.
+    - Assured Workloads enforces controls for regulated workloads rather than producing audit reports.
+    pricing: Included in Security Command Center tier pricing.
+    sources:
+    - https://docs.cloud.google.com/security-command-center/docs/compliance-manager-overview
+    - https://docs.cloud.google.com/assured-workloads/docs/overview
+    - https://cloud.google.com/security-command-center/pricing
 
 - id: compliance-reports
   group: audit-compliance
@@ -469,6 +674,16 @@ rows:
     - https://learn.microsoft.com/en-us/purview/get-started-with-service-trust-portal
 
 # ───────────────────────── KEYS, SECRETS & CERTIFICATES ─────────────────────────
+  gcp:
+    services:
+    - compliance-reports-manager
+    match: direct
+    answer: AWS Artifact maps to Compliance Reports Manager, where you download Google Cloud compliance reports and certifications.
+    differences:
+    - Some reports require signing in or an agreement.
+    pricing: No charge.
+    sources:
+    - https://cloud.google.com/security/compliance/compliance-reports-manager
 - id: key-management
   group: keys-secrets
   capability: Managed encryption keys
@@ -493,6 +708,21 @@ rows:
     - https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
     - https://learn.microsoft.com/en-us/azure/key-vault/general/overview
     - https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview
+  gcp:
+    services:
+    - cloud-kms
+    - cloud-hsm
+    - cloud-ekm
+    match: direct
+    answer: AWS KMS maps to Cloud KMS, with software, hardware (Cloud HSM), and external (Cloud EKM) protection levels.
+    differences:
+    - Customer-managed encryption keys (CMEK) integrate with many Google Cloud services.
+    - Cloud EKM keeps key material in a supported external key manager.
+    pricing: Billed per active key version per hour by protection level, plus key operations.
+    sources:
+    - https://docs.cloud.google.com/kms/docs/key-management-service
+    - https://docs.cloud.google.com/kms/docs/ekm
+    - https://cloud.google.com/kms/pricing
 
 - id: dedicated-hsm
   group: keys-secrets
@@ -519,6 +749,21 @@ rows:
     - https://docs.aws.amazon.com/cloudhsm/latest/userguide/introduction.html
     - https://learn.microsoft.com/en-us/azure/cloud-hsm/overview
     - https://learn.microsoft.com/en-us/azure/dedicated-hsm/overview
+  gcp:
+    services:
+    - single-tenant-cloud-hsm
+    match: direct
+    answer: AWS CloudHSM maps to Single-tenant Cloud HSM, which gives a single-tenant instance of HSM partitions for your exclusive use, managed through Cloud KMS.
+    differences:
+    - Single-tenant keys are created and used through Cloud KMS rather than by connecting directly to the HSM like CloudHSM.
+    - Multi-tenant Cloud HSM uses FIPS 140-2 Level 3 certified HSMs.
+    pricing: Single-tenant Cloud HSM incurs instance charges; see Cloud KMS pricing.
+    sources:
+    - https://docs.cloud.google.com/kms/docs/single-tenant-hsm
+    - https://docs.cloud.google.com/kms/docs/hsm
+    - https://cloud.google.com/kms/pricing
+    flags:
+    - Single-tenant Cloud HSM launch stage and API details were not fully confirmed on 2026-10-27.
 
 - id: secrets-management
   group: keys-secrets
@@ -543,6 +788,18 @@ rows:
     - https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
     - https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html
     - https://learn.microsoft.com/en-us/azure/key-vault/general/overview
+  gcp:
+    services:
+    - secret-manager
+    match: direct
+    answer: AWS Secrets Manager maps to Secret Manager, with versioned secrets, global or regional services, and rotation schedules.
+    differences:
+    - Rotation schedules send notifications; you write the rotation logic (for example in Cloud Run functions).
+    pricing: Billed per active secret version and per access operation.
+    sources:
+    - https://docs.cloud.google.com/secret-manager/docs/overview
+    - https://docs.cloud.google.com/secret-manager/docs/secret-rotation
+    - https://cloud.google.com/secret-manager/pricing
 
 - id: tls-certificates
   group: keys-secrets
@@ -566,6 +823,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/acm/latest/userguide/acm-overview.html
     - https://learn.microsoft.com/en-us/azure/key-vault/certificates/about-certificates
+  gcp:
+    services:
+    - certificate-manager
+    match: direct
+    answer: AWS Certificate Manager maps to Certificate Manager, which provides Google-managed (including Let's Encrypt or Public CA) and self-managed certificates for Google Cloud load balancers.
+    differences:
+    - Certificates are used by load balancers; they aren't exported to VMs.
+    pricing: Billed monthly per certificate per project; the first 100 are free.
+    sources:
+    - https://docs.cloud.google.com/certificate-manager/docs/overview
+    - https://cloud.google.com/certificate-manager/pricing
 
 - id: private-ca
   group: keys-secrets
@@ -590,6 +858,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/key-vault/certificates/how-to-integrate-certificate-authority
 
 # ───────────────────────── THREAT DETECTION & SECOPS ─────────────────────────
+  gcp:
+    services:
+    - certificate-authority-service
+    match: direct
+    answer: AWS Private CA maps to Certificate Authority Service, with managed root and subordinate CAs in DevOps and Enterprise tiers.
+    differences:
+    - The DevOps tier suits high-volume short-lived certificates and doesn't track issued certificates.
+    pricing: Billed monthly per CA by tier, plus per certificate issued with volume tiers.
+    sources:
+    - https://docs.cloud.google.com/certificate-authority-service/docs/ca-service-overview
+    - https://cloud.google.com/certificate-authority-service/pricing
 - id: threat-detection
   group: threat-detection
   capability: Managed threat detection
@@ -613,6 +892,20 @@ rows:
   sources:
     - https://docs.aws.amazon.com/guardduty/latest/ug/what-is-guardduty.html
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction
+  gcp:
+    services:
+    - event-threat-detection
+    - security-command-center
+    match: direct
+    answer: Amazon GuardDuty maps to Security Command Center threat detection, including Event Threat Detection, which analyzes logs to detect threats in near real time.
+    differences:
+    - Threat detection services need the Security Command Center Premium tier.
+    - The Enterprise tier is deprecated and shuts down on May 21, 2027; organizations move to Premium.
+    pricing: Included in Security Command Center Premium pricing.
+    sources:
+    - https://docs.cloud.google.com/security-command-center/docs/concepts-event-threat-detection-overview
+    - https://docs.cloud.google.com/security-command-center/docs/security-command-center-overview
+    - https://cloud.google.com/security-command-center/pricing
 
 - id: security-posture
   group: threat-detection
@@ -639,6 +932,19 @@ rows:
     - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html
     - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management
+  gcp:
+    services:
+    - security-command-center
+    - security-posture
+    match: direct
+    answer: AWS Security Hub maps to Security Command Center, which detects misconfigurations, vulnerabilities, and threats, with security postures to manage policy drift.
+    differences:
+    - Standard tier includes basic findings; Premium adds advanced detectors and compliance reporting.
+    - The Enterprise tier is deprecated (shuts down May 21, 2027).
+    pricing: Standard tier has no charge; Premium is priced by subscription or usage.
+    sources:
+    - https://docs.cloud.google.com/security-command-center/docs/security-command-center-overview
+    - https://cloud.google.com/security-command-center/pricing
 
 - id: vulnerability-scanning
   group: threat-detection
@@ -664,6 +970,20 @@ rows:
     - https://docs.aws.amazon.com/inspector/latest/user/what-is-inspector.html
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-servers-overview
     - https://docs.aws.amazon.com/general/latest/gr/full_shutdown_services.html
+  gcp:
+    services:
+    - artifact-analysis
+    - security-command-center
+    match: partial
+    answer: Amazon Inspector maps partly to Artifact Analysis for container image vulnerabilities and Security Command Center vulnerability findings for VMs and GKE.
+    differences:
+    - There is no single scanner across VMs, containers, and functions like Inspector.
+    pricing: See Artifact Analysis pricing; Security Command Center findings depend on the tier.
+    sources:
+    - https://docs.cloud.google.com/artifact-analysis/docs/artifact-analysis
+    - https://docs.cloud.google.com/security-command-center/docs/concepts-vulnerabilities-findings
+    flags:
+    - Artifact Analysis pricing was not confirmed from a price page on 2026-10-27.
 
 - id: sensitive-data-discovery
   group: threat-detection
@@ -687,6 +1007,17 @@ rows:
     - https://docs.aws.amazon.com/macie/latest/user/what-is-macie.html
     - https://learn.microsoft.com/en-us/purview/purview
     - https://learn.microsoft.com/en-us/purview/data-map-classification
+  gcp:
+    services:
+    - sensitive-data-protection
+    match: direct
+    answer: Amazon Macie maps to Sensitive Data Protection discovery, which profiles data across BigQuery, Cloud Storage, and other sources to find sensitive data.
+    differences:
+    - Sensitive Data Protection also inspects and de-identifies data, beyond Macie's discovery.
+    pricing: Discovery is priced separately from inspection and transformation, which are billed per GB.
+    sources:
+    - https://docs.cloud.google.com/sensitive-data-protection/docs/data-profiles
+    - https://cloud.google.com/sensitive-data-protection/pricing
 
 - id: security-investigation
   group: threat-detection
@@ -713,6 +1044,17 @@ rows:
     - https://docs.aws.amazon.com/detective/latest/userguide/what-is-detective.html
     - https://learn.microsoft.com/en-us/azure/sentinel/overview
     - https://learn.microsoft.com/en-us/azure/sentinel/microsoft-sentinel-defender-portal
+  gcp:
+    services:
+    - google-secops
+    match: partial
+    answer: Amazon Detective maps partly to Google Security Operations, a SIEM and SOAR platform for detection, investigation, and response.
+    differences:
+    - Google SecOps is a full SIEM, broader than Detective's graph-based investigation.
+    pricing: Contact sales; Google SecOps is sold by package.
+    sources:
+    - https://docs.cloud.google.com/chronicle/docs/secops/secops-overview
+    - https://cloud.google.com/security/products/security-operations
 
 - id: security-data-lake
   group: threat-detection
@@ -735,3 +1077,14 @@ rows:
   sources:
     - https://docs.aws.amazon.com/security-lake/latest/userguide/what-is-security-lake.html
     - https://learn.microsoft.com/en-us/azure/sentinel/datalake/sentinel-lake-overview
+  gcp:
+    services:
+    - google-secops
+    match: partial
+    answer: Amazon Security Lake maps partly to Google Security Operations, which normalizes security telemetry into its Unified Data Model.
+    differences:
+    - Data lives in Google SecOps rather than in your own storage in an open format like OCSF.
+    pricing: Contact sales.
+    sources:
+    - https://docs.cloud.google.com/chronicle/docs/secops/secops-overview
+    - https://cloud.google.com/security/products/security-operations
