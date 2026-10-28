@@ -1,0 +1,33 @@
+name: Check
+
+# Builds and checks blog draft branches and pull requests without deploying.
+on:
+  push:
+    branches: ["blog/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Validate, build, check
+        run: |
+          npm ci
+          npm run validate
+          npm run build
+          node scripts/check-site.mjs
+      - name: Upload preview of the built site
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: dist
+          retention-days: 14

@@ -1,0 +1,128 @@
+# Official provider news feeds for the weekly blog job (read by `npm run news`).
+# Every URL below was fetched and parsed as valid RSS 2.0 or Atom with at least one entry on the
+# `verified` date. Re-check with `npm run news -- --check`. Only add feeds published by the provider itself.
+# format: rss | atom.  kind: announcements | blog | release-notes | certification | security
+feeds:
+  # ---- AWS ----
+  - id: aws-whats-new
+    name: AWS What's New
+    provider: aws
+    kind: announcements
+    format: rss
+    url: https://aws.amazon.com/about-aws/whats-new/recent/feed/
+    site: https://aws.amazon.com/new/
+    verified: 2026-10-28
+  - id: aws-news-blog
+    name: AWS News Blog
+    provider: aws
+    kind: blog
+    format: rss
+    url: https://aws.amazon.com/blogs/aws/feed/
+    site: https://aws.amazon.com/blogs/aws/
+    verified: 2026-10-28
+  - id: aws-training-certification-blog
+    name: AWS Training and Certification Blog
+    provider: aws
+    kind: certification
+    format: rss
+    url: https://aws.amazon.com/blogs/training-and-certification/feed/
+    site: https://aws.amazon.com/blogs/training-and-certification/
+    verified: 2026-10-28
+  - id: aws-architecture-blog
+    name: AWS Architecture Blog
+    provider: aws
+    kind: blog
+    format: rss
+    url: https://aws.amazon.com/blogs/architecture/feed/
+    site: https://aws.amazon.com/blogs/architecture/
+    verified: 2026-10-28
+  - id: aws-security-blog
+    name: AWS Security Blog
+    provider: aws
+    kind: security
+    format: rss
+    url: https://aws.amazon.com/blogs/security/feed/
+    site: https://aws.amazon.com/blogs/security/
+    verified: 2026-10-28
+  - id: aws-security-bulletins
+    name: AWS Security Bulletins
+    provider: aws
+    kind: security
+    format: rss
+    url: https://aws.amazon.com/security/security-bulletins/rss/feed/
+    site: https://aws.amazon.com/security/security-bulletins/
+    verified: 2026-10-28
+  # ---- Microsoft Azure ----
+  - id: azure-updates
+    name: Azure Updates
+    provider: azure
+    kind: announcements
+    format: rss
+    url: https://www.microsoft.com/releasecommunications/api/v2/azure/rss
+    site: https://azure.microsoft.com/en-us/updates/
+    verified: 2026-10-28
+  - id: azure-blog
+    name: Microsoft Azure Blog
+    provider: azure
+    kind: blog
+    format: rss
+    url: https://azure.microsoft.com/en-us/blog/feed/
+    site: https://azure.microsoft.com/en-us/blog/
+    verified: 2026-10-28
+  - id: azure-architecture-blog
+    name: Azure Architecture Blog (Microsoft Tech Community)
+    provider: azure
+    kind: blog
+    format: rss
+    url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzureArchitectureBlog
+    site: https://techcommunity.microsoft.com/category/azure/blog/azurearchitectureblog
+    verified: 2026-10-28
+  - id: microsoft-skills-hub-blog
+    name: The Skills Hub Blog (Microsoft Learn and certification news)
+    provider: azure
+    kind: certification
+    format: rss
+    url: https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=skills-hub-blog
+    site: https://techcommunity.microsoft.com/category/skills-hub/blog/skills-hub-blog
+    verified: 2026-10-28
+  # ---- Google Cloud ----
+  - id: gcp-release-notes
+    name: Google Cloud release notes (all products)
+    provider: gcp
+    kind: release-notes
+    format: atom
+    url: https://docs.cloud.google.com/feeds/gcp-release-notes.xml
+    site: https://docs.cloud.google.com/release-notes
+    verified: 2026-10-28
+  - id: gcp-blog
+    name: Google Cloud Blog
+    provider: gcp
+    kind: blog
+    format: rss
+    url: https://cloudblog.withgoogle.com/rss/
+    site: https://cloud.google.com/blog
+    verified: 2026-10-28
+  - id: gcp-blog-whats-new
+    name: Google Cloud Blog, Google Cloud product news
+    provider: gcp
+    kind: blog
+    format: rss
+    url: https://cloudblog.withgoogle.com/products/gcp/rss/
+    site: https://cloud.google.com/blog/products/gcp
+    verified: 2026-10-28
+  - id: gcp-training-certifications
+    name: Google Cloud Blog, Training and Certifications
+    provider: gcp
+    kind: certification
+    format: rss
+    url: https://cloudblog.withgoogle.com/topics/training-certifications/rss/
+    site: https://cloud.google.com/blog/topics/training-certifications
+    verified: 2026-10-28
+  - id: gke-release-notes
+    name: Google Kubernetes Engine release notes
+    provider: gcp
+    kind: release-notes
+    format: atom
+    url: https://docs.cloud.google.com/static/feeds/gke-main-release-notes.xml
+    site: https://docs.cloud.google.com/kubernetes-engine/docs/release-notes
+    verified: 2026-10-28

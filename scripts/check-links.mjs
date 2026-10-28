@@ -1,7 +1,9 @@
-// Checks every URL in data/ for HTTP status. Usage: node scripts/check-links.mjs
+// Checks every URL in data/ and content/blog/ for HTTP status. Usage: node scripts/check-links.mjs
 import fs from 'node:fs'; import path from 'node:path'; import yaml from 'js-yaml';
 const files = [];
 (function walk(d){ for (const f of fs.readdirSync(d)) { const p = path.join(d,f); fs.statSync(p).isDirectory() ? walk(p) : p.endsWith('.yaml') && files.push(p); } })('data');
+// Blog post sources and links (published posts and drafts).
+if (fs.existsSync('content/blog')) (function walk(d){ for (const f of fs.readdirSync(d)) { const p = path.join(d,f); fs.statSync(p).isDirectory() ? walk(p) : p.endsWith('.md') && files.push(p); } })('content/blog');
 const urls = new Set();
 for (const f of files) { const t = fs.readFileSync(f,'utf8'); for (const m of t.matchAll(/https?:\/\/[^\s"'<>)]+/g)) urls.add(m[0].replace(/[.,]$/,'')); }
 const UA = {'user-agent':'Mozilla/5.0 (cloud-compare link checker)'};

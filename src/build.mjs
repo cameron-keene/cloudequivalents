@@ -3,11 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { loadData } from './data.mjs';
 import { makeOgRenderer } from './og.mjs';
+import { loadPosts } from './blog.mjs';
 
 const D = loadData();
 if (D.errors.length) { console.error('Data errors:\n' + D.errors.join('\n')); process.exit(1); }
 const { ROOT, config, providers, exams, services, categories, rowsById, examGuides } = D;
 const OUT = path.join(ROOT, 'dist');
+// Blog: published posts only (drafts and future-dated posts are never built). BUILD_DATE=YYYY-MM-DD overrides today (UTC).
+const BUILD_DATE = process.env.BUILD_DATE || new Date().toISOString().slice(0, 10);
+const BLOG = loadPosts(ROOT, { today: BUILD_DATE, knownRows: rowsById });
+if (BLOG.errors.length) { console.error('Blog errors:\n' + BLOG.errors.join('\n')); process.exit(1); }
 fs.rmSync(OUT, { recursive: true, force: true });
 const renderOg = makeOgRenderer(ROOT);
 const BASE = config.baseUrl.replace(/\/$/, '');
@@ -21,6 +26,7 @@ const PREFIX = (() => {
 const rel = (p) => PREFIX + p;
 const [PA, PB] = providers;
 const pages = []; // for sitemap
+const lastmods = new Map(); // url -> YYYY-MM-DD (blog pages); everything else uses the data date
 const usedTitles = new Set();
 
 // ---------- helpers ----------
@@ -70,13 +76,13 @@ function breadcrumbs(items) {
 
 const HEADER = (active) => `<header class="top"><div class="wrap top-in">
   <a class="brand" href="${rel('/')}"><span class="logo" aria-hidden="true"><i></i><i></i></span>${esc(config.siteName)}</a>
-  <nav class="nav" aria-label="Main"><a href="${rel('/')}"${active === 'home' ? ' aria-current="page"' : ''}>Matrix</a><a href="${rel('/category/')}"${active === 'cat' ? ' aria-current="page"' : ''}>Categories</a><a href="${rel('/aws/')}"${active === 'aws' ? ' aria-current="page"' : ''}>AWS</a><a href="${rel('/azure/')}"${active === 'azure' ? ' aria-current="page"' : ''}>Azure</a>${GCP ? `<a href="${rel('/gcp/')}"${active === 'gcp' ? ' aria-current="page"' : ''}>GCP</a>` : ''}<a href="${rel('/exams/')}"${active === 'exams' ? ' aria-current="page"' : ''}>Exams</a><a href="${rel('/about/')}"${active === 'about' ? ' aria-current="page"' : ''}>About</a></nav>
+  <nav class="nav" aria-label="Main"><a href="${rel('/')}"${active === 'home' ? ' aria-current="page"' : ''}>Matrix</a><a href="${rel('/category/')}"${active === 'cat' ? ' aria-current="page"' : ''}>Categories</a><a href="${rel('/aws/')}"${active === 'aws' ? ' aria-current="page"' : ''}>AWS</a><a href="${rel('/azure/')}"${active === 'azure' ? ' aria-current="page"' : ''}>Azure</a>${GCP ? `<a href="${rel('/gcp/')}"${active === 'gcp' ? ' aria-current="page"' : ''}>GCP</a>` : ''}<a href="${rel('/exams/')}"${active === 'exams' ? ' aria-current="page"' : ''}>Exams</a><a href="${rel('/blog/')}"${active === 'blog' ? ' aria-current="page"' : ''}>Blog</a><a href="${rel('/about/')}"${active === 'about' ? ' aria-current="page"' : ''}>About</a></nav>
   <form class="search" action="${rel('/')}" method="get" role="search"><label class="sr" for="q">Search services</label><input id="q" name="q" type="search" placeholder="Search services…" autocomplete="off"><kbd aria-hidden="true">⌘K</kbd></form>
 </div></header>`;
 
 const FOOTER = `<footer class="foot"><div class="wrap">
   <p>${esc(config.siteName)} is an open-source, community-maintained study guide. It is not affiliated with Amazon Web Services, Microsoft, or Google. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
-  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
+  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/blog/')}">Blog</a> · <a href="${rel('/blog/feed.xml')}">Blog feed</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
 </div></footer>`;
 
 // Optional cookieless analytics (site.config.json "analytics"). Empty provider => nothing is emitted.
@@ -98,8 +104,9 @@ const ANALYTICS = (() => {
 // Cmd+K / "/" focuses the header search (content pages ship only this tiny script).
 const KEY_JS = `<script>addEventListener('keydown',function(e){if((e.key==='k'&&(e.metaKey||e.ctrlKey))||(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))){e.preventDefault();var q=document.getElementById('q');q.focus();q.select()}})</script>`;
 
-function page({ url, title, description, h1, body, ld = [], ogImage, ogType = 'article', active, scripts = '', extraHead = '' }) {
-  pages.push(url);
+function page({ url, title, description, h1, body, ld = [], ogImage, ogType = 'article', active, scripts = '', extraHead = '', lastmod, noindex = false }) {
+  if (!noindex) pages.push(url);
+  if (lastmod) lastmods.set(url, lastmod);
   // Prefix root-relative hrefs inside body (HEADER/FOOTER/assets already use rel()).
   body = body.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, a, path) => path.startsWith(PREFIX + '/') || path === PREFIX ? `${a}="${path}"` : `${a}="${PREFIX}${path}"`);
   const jsonld = ld.length ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': ld }).replace(/</g, '\\u003c')}</script>` : '';
@@ -128,7 +135,8 @@ ${BOOT}
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(description)}">
 <meta name="twitter:image" content="${img}">
-<link rel="icon" href="${rel('/favicon.svg')}" type="image/svg+xml">
+<link rel="alternate" type="application/atom+xml" title="${esc(config.siteName)} blog" href="${abs('/blog/feed.xml')}">
+<link rel="icon" href="${rel('/favicon.svg')}" type="image/svg+xml">${noindex ? '\n<meta name="robots" content="noindex">' : ''}
 <link rel="stylesheet" href="${rel('/assets/site.css')}">
 ${extraHead}${jsonld}
 </head>
@@ -569,6 +577,78 @@ function aboutPage() {
   write(url, page({ url, title: `About & methodology | ${config.siteName}`, description: `How ${config.siteName} maps AWS and Azure services: official-source verification, lifecycle tracking, no invented prices, and open-source YAML data.`, h1, body, ld: [bc.ld], ogType: 'website', active: 'about' }));
 }
 
+// ---------- blog (content/blog/*.md; see src/blog.mjs and README "Blog") ----------
+const xmlEsc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+const absolutize = (html) => html.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, a, p) => `${a}="${BASE}${p}"`);
+function blogPages() {
+  const posts = BLOG.posts; const PER = 10;
+  const pageCount = Math.max(1, Math.ceil(posts.length / PER));
+  const tagList = (tags) => `<ul class="tags" aria-label="Tags">${tags.map((t) => `<li>${esc(t)}</li>`).join('')}</ul>`;
+  const meta = (p) => `<time datetime="${p.date}">${fmtDate(p.date)}</time>${p.updated !== p.date ? ` · Updated <time datetime="${p.updated}">${fmtDate(p.updated)}</time>` : ''} · ${Math.max(1, Math.round(p.words / 220))} min read`;
+  const publisher = { '@type': 'Organization', name: config.siteName, url: BASE + '/' };
+  renderOg({ kicker: 'Blog', title: `${config.siteName} blog`, subtitle: 'What changed across AWS, Azure and Google Cloud, and how the services map.', siteName: config.siteName }, path.join(OUT, '/og/blog.png'));
+
+  // Index pages: /blog/, /blog/page/2/, ...
+  for (let n = 1; n <= pageCount; n++) {
+    const url = n === 1 ? '/blog/' : `/blog/page/${n}/`;
+    const slice = posts.slice((n - 1) * PER, n * PER);
+    const bc = breadcrumbs(n === 1 ? [{ name: 'Home', url: '/' }, { name: 'Blog', url }] : [{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog/' }, { name: `Page ${n}`, url }]);
+    const h1 = n === 1 ? `${config.siteName} blog` : `${config.siteName} blog, page ${n}`;
+    const list = slice.length ? `<ol class="post-list">${slice.map((p) => `<li class="cat-card post-card"><p class="small muted post-meta">${meta(p)}</p><h2><a href="${p.url}">${esc(p.title)}</a></h2><p>${esc(p.description)}</p>${tagList(p.tags)}</li>`).join('')}</ol>`
+      : `<div class="empty-state"><p><strong>No posts yet.</strong> Weekly posts on what changed across AWS, Azure and Google Cloud will appear here.</p><p class="small">Subscribe to the <a href="/blog/feed.xml">Atom feed</a> to get them, or browse the <a href="/">service matrix</a> in the meantime.</p></div>`;
+    const pager = pageCount > 1 ? `<nav class="pager" aria-label="Blog pages">${n > 1 ? `<a href="${n === 2 ? '/blog/' : `/blog/page/${n - 1}/`}" rel="prev">← Newer posts</a>` : '<span></span>'}<span class="small muted">Page ${n} of ${pageCount}</span>${n < pageCount ? `<a href="/blog/page/${n + 1}/" rel="next">Older posts →</a>` : '<span></span>'}</nav>` : '';
+    const body = `${bc.html}<article class="doc"><header class="doc-head"><h1>${esc(h1)}</h1>
+<p class="answer"><strong>What changed across AWS, Azure and Google Cloud, and what it means for the service mappings and certification exams.</strong></p>
+<p class="small muted">Every post links its official sources. <a href="/blog/feed.xml">Atom feed</a></p></header>
+${list}${pager}</article>`;
+    const ld = [bc.ld, { '@type': 'Blog', name: `${config.siteName} blog`, url: abs('/blog/'), publisher, blogPost: slice.map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: abs(p.url), datePublished: p.date, dateModified: p.updated })) }];
+    write(url, page({ url, title: n === 1 ? `Blog: AWS, Azure and Google Cloud changes | ${config.siteName}` : `Blog, page ${n} | ${config.siteName}`, description: n === 1 ? `Weekly notes on AWS, Azure and Google Cloud service changes, how they affect the ${config.siteName} mappings, and certification news, with official sources.` : `Older ${config.siteName} blog posts, page ${n} of ${pageCount}.`, h1, body, ld, ogImage: '/og/blog.png', ogType: 'website', active: 'blog', lastmod: posts[0]?.updated }));
+  }
+
+  // Post pages
+  posts.forEach((p, i) => {
+    const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: 'Blog', url: '/blog/' }, { name: p.title, url: p.url }]);
+    const og = `/og/blog/${p.slug}.png`;
+    renderOg({ kicker: `Blog · ${fmtDate(p.date)}`, title: p.title, subtitle: p.description, siteName: config.siteName }, path.join(OUT, og));
+    const rows = p.compares.map((id) => rowsById.get(id));
+    const newer = posts[i - 1]; const older = posts[i + 1];
+    const body = `${bc.html}<article class="doc post"><header class="doc-head"><p class="small muted post-meta">${meta(p)}</p><h1>${esc(p.title)}</h1>
+<p class="answer"><strong>${esc(p.description)}</strong></p>${tagList(p.tags)}</header>
+<div class="prose">${p.html}</div>
+${rows.length ? `<section aria-labelledby="post-related"><h2 id="post-related">Related comparisons</h2><ul class="diffs">${rows.map((r) => `<li><a href="${r.url}">${esc(r.capability)}</a> <span class="muted small">${esc(r.what_for)}</span></li>`).join('')}</ul></section>` : ''}
+<section aria-labelledby="post-sources"><h2 id="post-sources">Sources</h2><ol class="sources">${p.sources.map((s) => `<li><a href="${esc(s.url)}" rel="noopener">${esc(s.title)}</a> <span class="path">${esc(host(s.url))}</span></li>`).join('')}</ol></section>
+<nav class="pager" aria-label="More posts">${newer ? `<a href="${newer.url}" rel="prev">← ${esc(newer.title)}</a>` : '<span></span>'}<a href="/blog/">All posts</a>${older ? `<a href="${older.url}" rel="next">${esc(older.title)} →</a>` : '<span></span>'}</nav>
+</article>`;
+    const ld = [bc.ld, { '@type': 'BlogPosting', headline: clip(p.title, 110), description: p.description, datePublished: p.date, dateModified: p.updated, url: abs(p.url), mainEntityOfPage: abs(p.url), image: abs(og), keywords: p.tags.join(', '), wordCount: p.words, author: publisher, publisher, isPartOf: { '@type': 'Blog', name: `${config.siteName} blog`, url: abs('/blog/') }, citation: p.sources.map((s) => ({ '@type': 'CreativeWork', name: s.title, url: s.url })) }];
+    write(p.url, page({ url: p.url, title: `${p.title} | ${config.siteName}`, description: p.description, h1: p.title, body, ld, ogImage: og, ogType: 'article', active: 'blog', lastmod: p.updated,
+      extraHead: `<meta property="article:published_time" content="${p.date}">\n<meta property="article:modified_time" content="${p.updated}">\n${p.tags.map((t) => `<meta property="article:tag" content="${esc(t)}">`).join('\n')}\n` }));
+  });
+
+  // Atom feed (always written, valid even with no entries).
+  const feedUpdated = (posts.length ? posts.map((p) => p.updated).sort().pop() : categories.map((c) => c.last_verified).sort().pop()) + 'T12:00:00Z';
+  write('/blog/feed.xml', `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${xmlEsc(config.siteName)} blog</title>
+  <subtitle>What changed across AWS, Azure and Google Cloud, with official sources.</subtitle>
+  <link rel="self" type="application/atom+xml" href="${abs('/blog/feed.xml')}"/>
+  <link rel="alternate" type="text/html" href="${abs('/blog/')}"/>
+  <id>${abs('/blog/')}</id>
+  <updated>${feedUpdated}</updated>
+  <author><name>${xmlEsc(config.siteName)}</name><uri>${BASE}/</uri></author>
+${posts.slice(0, 20).map((p) => `  <entry>
+    <title>${xmlEsc(p.title)}</title>
+    <link rel="alternate" type="text/html" href="${abs(p.url)}"/>
+    <id>${abs(p.url)}</id>
+    <published>${p.date}T12:00:00Z</published>
+    <updated>${p.updated}T12:00:00Z</updated>
+    <summary>${xmlEsc(p.description)}</summary>
+${p.tags.map((t) => `    <category term="${xmlEsc(t)}"/>`).join('\n')}
+    <content type="html">${xmlEsc(absolutize(p.html) + `<h2>Sources</h2><ol>${p.sources.map((s) => `<li><a href="${esc(s.url)}">${esc(s.title)}</a></li>`).join('')}</ol>`)}</content>
+  </entry>`).join('\n')}
+</feed>
+`);
+}
+
 // ---------- home (interactive matrix over server-rendered HTML) ----------
 function homePage() {
   const all = [...rowsById.values()];
@@ -664,11 +744,12 @@ for (const p of providers) { providerIndex(p); for (const s of services[p.id].va
 for (const g of examGuides.values()) examGuidePage(g);
 examsPage();
 aboutPage();
+blogPages();
 write('/404.html', page({ url: '/404.html', title: `Not found | ${config.siteName}`, description: 'Page not found.', h1: 'Page not found', body: '<article class="doc"><h1>Page not found</h1><p>Try the <a href="/">service matrix</a> or search above.</p></article>' }).replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"'));
 pages.splice(pages.indexOf('/404.html'), 1);
 const today = categories.map((c) => c.last_verified).sort().pop();
-write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${lastmods.get(u) || today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 write('/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${abs('/sitemap.xml')}\n`);
 // IndexNow (Bing, Yandex, etc.) ownership key file
 if (config.indexNowKey) write(`/${config.indexNowKey}.txt`, config.indexNowKey);
-console.log(`Built ${pages.length} pages (${rowsById.size} compare pages) into dist/`);
+console.log(`Built ${pages.length} pages (${rowsById.size} compare pages, ${BLOG.posts.length} blog posts; ${BLOG.drafts.length} drafts and ${BLOG.scheduled.length} future-dated posts skipped) into dist/`);

@@ -42,6 +42,8 @@ npm run build         # writes the pre-rendered site to dist/
 node scripts/check-site.mjs   # one H1, unique titles/descriptions, JSON-LD, internal links, OG images
 npm run check-links   # HTTP-checks every URL in data/ (writes link-report.json)
 npm run preview       # http://localhost:4173/
+npm run new-post -- "Title"   # new blog post skeleton in content/blog/ (see "Blog" below)
+npm run news -- --days 7      # digest of official AWS/Azure/Google Cloud news feeds (data/news-feeds.yaml)
 ```
 
 Requires Node 20 or later. The build needs no network access and no paid services. Open Graph images are rendered locally with `@resvg/resvg-js` using the bundled DejaVu fonts.
@@ -69,6 +71,9 @@ Requires Node 20 or later. The build needs no network access and no paid service
 | `/exams/` | Certification exams mapped to comparisons, plus the exam-guide index |
 | `/exams/<code>-for-aws-engineers/` | Azure exam guides for AWS engineers (AZ-900, AZ-104, AZ-305, AZ-400, SC-500, AI-901, AI-200, AI-103, AI-300, DP-300): official domains and weights, how each domain maps to AWS, linked compare pages, gotchas, closest AWS cert, last-verified date |
 | `/about/` | Methodology |
+| `/blog/`, `/blog/page/<n>/` | Blog index, newest first, 10 posts per page (shows an empty state when there are no posts) |
+| `/blog/<slug>/` | One page per published post, with BlogPosting JSON-LD, an OG image, related comparisons, and a sources list |
+| `/blog/feed.xml` | Atom feed of the latest 20 posts, linked from every page's `<head>` |
 
 SEO and performance features:
 
@@ -147,6 +152,86 @@ A future provider follows the same steps: services in `data/services/<id>/`, `en
 ## Adding a category
 
 Create `data/categories/<id>.yaml` with a `category:` block (`id`, `name`, `short`, `order`, `description`, optional `seo_description`, `last_verified`, `groups`) and `rows:`. Put new services in `data/services/<provider>/<id>.yaml`. Group ids must be unique across all categories. A service already defined in another category's file can be reused by slug. The nav, home matrix, category pages, hubs, exams page, and sitemap pick up the new category automatically.
+
+## Blog
+
+Posts are Markdown files in `content/blog/`, built into `/blog/<slug>/`, the `/blog/` index, the Atom feed at `/blog/feed.xml`, and the sitemap.
+
+### Post format
+
+File name: `content/blog/YYYY-MM-DD-slug.md`. The slug (lowercase letters, digits, hyphens) becomes the URL `/blog/slug/`, and the date in the file name must match `date:`.
+
+```markdown
+---
+title: "AWS, Azure and Google Cloud: week of Nov 2, 2026"
+date: 2026-11-02
+description: "50-160 characters. Used as the meta description, the social card text, and the lead paragraph."
+tags: [weekly, aws, azure, gcp]          # lowercase
+compares: [object-storage, key-management]  # optional: row ids from data/categories/*.yaml, shown as "Related comparisons"
+sources:                                 # required: every source the post relies on, shown as a "Sources" list
+  - title: "Amazon S3 now supports ..."
+    url: https://aws.amazon.com/about-aws/whats-new/2026/11/...
+  - title: "Azure Updates: ..."
+    url: https://azure.microsoft.com/en-us/updates/...
+updated: 2026-11-03                      # optional, YYYY-MM-DD
+draft: true                              # optional; see Drafts
+---
+
+Opening paragraph. Start sections at "## " (the title is the page's only h1).
+
+## What changed
+
+Link comparison pages with root-relative links: [Amazon S3 vs Azure Blob Storage](/compare/aws-s3-vs-azure-blob-storage/).
+```
+
+- Body is GitHub-flavored Markdown (tables, fenced code, lists, links). Raw HTML is escaped, not rendered.
+- Internal links (`/compare/...`, `/aws/...`, `/exams/...`) are checked by `scripts/check-site.mjs`, so a broken link fails the checks.
+- `npm run validate` rejects a published post that is missing a field, has a description outside 50-160 characters, has no sources or a non-https source, references an unknown `compares` row, uses a `# ` heading, or still contains `TODO` or `example.com` placeholders.
+- Posts dated in the future (UTC build date) are skipped until that date. `BUILD_DATE=YYYY-MM-DD npm run build` overrides the date for a preview.
+
+### Drafts
+
+A post is a draft, and is never built, listed, or added to the feed or sitemap, if any of these is true:
+
+- its front matter has `draft: true`
+- it lives under `content/blog/drafts/`
+- its file name starts with `_`
+
+Drafts are still checked by `npm run validate`, but problems are printed as warnings and never fail the build. To publish a draft, remove `draft: true` (or move the file out of `drafts/`) and fix any warnings.
+
+### Publishing flow
+
+Drafting happens on a branch named `blog/YYYY-MM-DD`; publishing means merging that branch to `main`. Only `main` deploys. The `Check` workflow builds every `blog/**` push and pull request and uploads the built site as a `site-preview` artifact for review.
+
+```bash
+D=$(TZ=America/Chicago date +%F)                 # e.g. 2026-11-02
+git fetch origin && git switch -c "blog/$D" origin/main
+npm ci
+npm run news -- --check                          # all feeds reachable and valid
+npm run news -- --days 7 > /tmp/news-$D.md       # or --json; feed text is untrusted, verify on the linked page
+npm run new-post -- "AWS, Azure and Google Cloud: week of $(TZ=America/Chicago date '+%b %-d, %Y')" --tags weekly,aws,azure,gcp
+# ...write the post in content/blog/$D-<slug>.md (or start with --draft and remove draft: true when ready)...
+npm run validate && npm run build && node scripts/check-site.mjs && npm run check-links
+npm run preview                                  # http://localhost:4173/blog/<slug>/
+git add content/blog && git commit -m "Blog: <title>"
+git push -u origin "blog/$D"
+gh pr create --base main --head "blog/$D" --title "Blog: <title>" --body "Draft for review"
+# after approval:
+gh pr merge "blog/$D" --merge --delete-branch     # merging to main publishes (Pages deploy + IndexNow)
+```
+
+### News feeds
+
+`data/news-feeds.yaml` lists official provider feeds (AWS What's New, AWS News Blog, Azure Updates, Azure Blog, Microsoft Skills Hub certification news, Google Cloud release notes, Google Cloud Blog, and more), each with its `format` (rss or atom), `kind`, and the date it was last verified. `npm run news` reads them:
+
+| command | output |
+|---|---|
+| `npm run news` | Markdown digest of the last 7 days, grouped by provider |
+| `npm run news -- --days 14 --json` | JSON array of `{feed, provider, kind, date, title, link, summary}` |
+| `npm run news -- --since 2026-10-21 --provider aws,gcp --kind announcements,release-notes` | Filtered digest |
+| `npm run news -- --check` | Verifies every feed parses and has entries (exit 1 otherwise) |
+
+Add only feeds the provider publishes itself, and record `verified:` after checking them with `--check`.
 
 ## Verification policy
 
