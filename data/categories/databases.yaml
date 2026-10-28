@@ -7,6 +7,7 @@ category:
   description: Managed relational engines, cloud-native and serverless SQL, high availability and replication, NoSQL (key-value, document, wide-column, graph), time series, in-memory caches, and database migration. AWS mapped to Azure, verified against official docs.
   seo_description: "AWS vs Azure databases, side by side: RDS vs Azure Database for PostgreSQL and MySQL, RDS for SQL Server vs Azure SQL, Aurora vs HorizonDB, DynamoDB vs Cosmos DB, DocumentDB vs Azure DocumentDB, ElastiCache vs Azure Managed Redis, and AWS DMS vs Azure DMS."
   last_verified: "2026-10-24"
+  gcp_last_verified: "2026-10-27"
   groups:
     - id: relational-engines
       name: Managed relational engines
@@ -48,6 +49,20 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
     - https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - cloud-sql-postgresql
+    match: direct
+    answer: The Google Cloud equivalent of Amazon RDS for PostgreSQL is Cloud SQL for PostgreSQL.
+    differences:
+    - 'Cloud SQL has two editions: Enterprise and Enterprise Plus (higher performance and availability features).'
+    - Machine sizes are vCPU and memory choices rather than db.* instance classes.
+    - AlloyDB for PostgreSQL is Google's higher-end PostgreSQL option, comparable to Aurora.
+    pricing: Billed per vCPU and GB of memory per hour by edition (Enterprise or Enterprise Plus), plus storage, backups, and network. Committed use discounts are available.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/introduction
+    - https://docs.cloud.google.com/sql/docs/mysql/editions-intro
+    - https://cloud.google.com/sql/pricing
 
 - id: managed-mysql
   group: relational-engines
@@ -73,6 +88,19 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MySQL.html
     - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - cloud-sql-mysql
+    match: direct
+    answer: Amazon RDS for MySQL maps to Cloud SQL for MySQL.
+    differences:
+    - Cloud SQL Enterprise Plus edition adds faster maintenance, advanced DR, and a data cache.
+    - There is no Aurora MySQL counterpart; AlloyDB is PostgreSQL-only.
+    pricing: Billed per vCPU and GB of memory per hour by edition (Enterprise or Enterprise Plus), plus storage, backups, and network. Committed use discounts are available.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/mysql/introduction
+    - https://docs.cloud.google.com/sql/docs/mysql/editions-intro
+    - https://cloud.google.com/sql/pricing
 
 - id: managed-mariadb
   group: relational-engines
@@ -95,6 +123,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_MariaDB.html
     - https://learn.microsoft.com/en-us/lifecycle/products/azure-database-for-mariadb
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed MariaDB service. Migrate to Cloud SQL for MySQL or self-manage MariaDB on Compute Engine.
+    differences:
+    - Check MariaDB-specific features (such as system-versioned tables) before moving to MySQL.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/mysql/introduction
 
 - id: managed-sql-server
   group: relational-engines
@@ -126,6 +163,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/azure-sql/managed-instance/sql-managed-instance-paas-overview
     - https://learn.microsoft.com/en-us/azure/azure-sql/database/sql-database-paas-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - cloud-sql-sqlserver
+    match: direct
+    answer: Amazon RDS for SQL Server maps to Cloud SQL for SQL Server, a managed SQL Server with license-included pricing.
+    differences:
+    - Like RDS, Cloud SQL doesn't give sysadmin or OS access; for that, run SQL Server on Compute Engine.
+    - Cloud SQL doesn't support bring-your-own SQL Server licenses; licenses are billed by Google.
+    pricing: Billed per vCPU and GB of memory per hour by edition (Enterprise or Enterprise Plus), plus storage, backups, and network. Committed use discounts are available. SQL Server licenses are billed per vCPU on top.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/sqlserver/introduction
+    - https://cloud.google.com/sql/pricing
 
 - id: sql-server-full-control
   group: relational-engines
@@ -150,6 +199,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-custom.html
     - https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-server-on-azure-vm-iaas-what-is-overview
+  gcp:
+    services:
+    - sql-server-on-compute-engine
+    match: partial
+    answer: Amazon RDS Custom has no Google Cloud counterpart. For OS-level control, run SQL Server on Compute Engine with license-included images or your own licenses.
+    differences:
+    - You manage HA, backups, and patching yourself (Backup and DR can protect SQL Server on VMs).
+    - There is no managed-but-customizable middle ground like RDS Custom.
+    pricing: Compute Engine VM pricing plus per-vCPU SQL Server license fees for license-included images.
+    sources:
+    - https://docs.cloud.google.com/compute/docs/instances/sql-server/creating-sql-server-instances
+    - https://cloud.google.com/products/compute/pricing
 
 - id: managed-oracle
   group: relational-engines
@@ -175,6 +236,19 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_Oracle.html
     - https://docs.aws.amazon.com/odb/latest/UserGuide/what-is-odb.html
     - https://learn.microsoft.com/en-us/azure/oracle/oracle-db/database-overview
+  gcp:
+    services:
+    - oracle-database-google-cloud
+    match: partial
+    answer: RDS for Oracle and Oracle Database@AWS map to Oracle Database@Google Cloud, which runs Oracle Exadata and Autonomous Database services, operated by Oracle, in Google Cloud data centers.
+    differences:
+    - There is no Google-managed Oracle like RDS for Oracle; Oracle operates the service on OCI technology.
+    - Purchasing goes through Google Cloud Marketplace with Oracle pricing.
+    pricing: Priced by Oracle through Google Cloud Marketplace offers.
+    sources:
+    - https://docs.cloud.google.com/oracle/database/docs/overview
+    flags:
+    - No public Google Cloud price page for Oracle Database@Google Cloud was found on 2026-10-27.
 
 - id: managed-db2
   group: relational-engines
@@ -199,6 +273,15 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
 
 # ───────────────────────── CLOUD-NATIVE / SERVERLESS ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed IBM Db2 service. Run Db2 on Compute Engine or migrate to Cloud SQL or AlloyDB.
+    differences:
+    - Database Migration Service doesn't list Db2 as a source.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/database-migration/docs/overview
 - id: cloud-native-postgresql
   group: relational-cloud-native
   capability: Cloud-native PostgreSQL (separate compute and storage)
@@ -226,6 +309,19 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html
     - https://learn.microsoft.com/en-us/azure/horizondb/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - alloydb
+    match: direct
+    answer: Aurora PostgreSQL maps to AlloyDB for PostgreSQL, a PostgreSQL-compatible database with disaggregated storage, read pool instances, and a columnar engine for analytics.
+    differences:
+    - AlloyDB's columnar engine accelerates analytical queries inside the operational database.
+    - Storage is billed for what you use, like Aurora; compute is billed by primary and read pool machine size.
+    pricing: Billed for vCPU and memory of primary and read pool instances, plus database storage and backup storage.
+    sources:
+    - https://docs.cloud.google.com/alloydb/docs/overview
+    - https://docs.cloud.google.com/alloydb/docs/columnar-engine/about
+    - https://cloud.google.com/alloydb/pricing
 
 - id: aurora-mysql-compatible
   group: relational-cloud-native
@@ -249,6 +345,18 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraMySQL.html
     - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview
+  gcp:
+    services:
+    - cloud-sql-mysql
+    match: partial
+    answer: Aurora MySQL has no cloud-native MySQL counterpart on Google Cloud. The closest option is Cloud SQL for MySQL Enterprise Plus edition.
+    differences:
+    - Cloud SQL uses attached storage per instance, not Aurora's shared distributed storage.
+    - Read replicas are separate instances with their own storage.
+    pricing: Billed per vCPU and GB of memory per hour by edition (Enterprise or Enterprise Plus), plus storage, backups, and network. Committed use discounts are available.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/mysql/editions-intro
+    - https://cloud.google.com/sql/pricing
 
 - id: serverless-relational
   group: relational-cloud-native
@@ -275,6 +383,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/azure-sql/database/serverless-tier-overview
     - https://learn.microsoft.com/en-us/fabric/database/sql/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - spanner
+    match: partial
+    answer: Aurora Serverless v2 has no direct counterpart. Spanner with its managed autoscaler adjusts compute capacity automatically, but it doesn't pause to zero, and Cloud SQL instances don't autoscale compute.
+    differences:
+    - Spanner compute is measured in processing units and can be very small, but there is always a minimum capacity.
+    - Spanner is a different engine (GoogleSQL or PostgreSQL dialect), not a drop-in MySQL/PostgreSQL.
+    pricing: Spanner bills compute capacity (processing units or nodes) per hour by edition and region, plus storage.
+    sources:
+    - https://docs.cloud.google.com/spanner/docs/managed-autoscaler
+    - https://docs.cloud.google.com/spanner/docs/instances
+    - https://cloud.google.com/spanner/pricing
 
 - id: distributed-sql
   group: relational-cloud-native
@@ -296,6 +417,19 @@ rows:
   related: [global-database, multi-region-nosql]
   sources:
     - https://docs.aws.amazon.com/aurora-dsql/latest/userguide/what-is-aurora-dsql.html
+  gcp:
+    services:
+    - spanner
+    match: partial
+    answer: Aurora DSQL maps partly to Spanner, a globally distributed, strongly consistent relational database with multi-region configurations and up to 99.999% availability.
+    differences:
+    - Spanner is provisioned in compute capacity (with optional autoscaling); DSQL is serverless and billed per use.
+    - Spanner offers a PostgreSQL dialect but is not wire-compatible PostgreSQL for every feature.
+    pricing: Billed for compute capacity per hour by edition and region, plus storage and replication.
+    sources:
+    - https://docs.cloud.google.com/spanner/docs/instances
+    - https://docs.cloud.google.com/spanner/docs/postgresql-interface
+    - https://cloud.google.com/spanner/pricing
 
 - id: sharded-postgresql
   group: relational-cloud-native
@@ -320,6 +454,17 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/limitless.html
     - https://learn.microsoft.com/en-us/azure/postgresql/elastic-clusters/concepts-elastic-clusters
     - https://learn.microsoft.com/en-us/azure/cosmos-db/postgresql/introduction
+  gcp:
+    services:
+    - spanner
+    match: partial
+    answer: Aurora PostgreSQL Limitless maps partly to Spanner with its PostgreSQL interface, which scales horizontally without manual sharding.
+    differences:
+    - Spanner's PostgreSQL interface supports PostgreSQL syntax and clients but is not PostgreSQL itself; extensions and some features differ.
+    pricing: Billed for compute capacity and storage.
+    sources:
+    - https://docs.cloud.google.com/spanner/docs/postgresql-interface
+    - https://cloud.google.com/spanner/pricing
 
 - id: sql-server-compatibility-layer
   group: relational-cloud-native
@@ -343,6 +488,15 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/babelfish.html
 
 # ───────────────────────── OPERATIONS ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no SQL Server compatibility layer for PostgreSQL like Babelfish. Database Migration Service converts schemas for heterogeneous migrations instead.
+    differences:
+    - Applications need code changes for T-SQL to PostgreSQL.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/database-migration/docs/overview
 - id: ha-standby
   group: relational-operations
   capability: In-region high availability with automatic failover
@@ -367,6 +521,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html
     - https://learn.microsoft.com/en-us/azure/postgresql/high-availability/concepts-high-availability
     - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-high-availability
+  gcp:
+    services:
+    - cloud-sql-editions
+    match: direct
+    answer: RDS Multi-AZ maps to Cloud SQL high availability (a regional instance with a primary and standby in two zones) and AlloyDB's built-in HA.
+    differences:
+    - Failover promotes the standby in the secondary zone, keeping the same IP address.
+    - Cloud SQL Enterprise Plus has a 99.99% availability SLA including maintenance, versus 99.95% excluding maintenance for Enterprise.
+    pricing: HA (regional) instances cost more than zonal instances; see Cloud SQL pricing.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/high-availability
+    - https://cloud.google.com/sql/pricing
 
 - id: read-replicas
   group: relational-operations
@@ -391,6 +557,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ReadRepl.html
     - https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas
     - https://learn.microsoft.com/en-us/azure/mysql/flexible-server/concepts-read-replicas
+  gcp:
+    services:
+    - cloud-sql-postgresql
+    - cloud-sql-mysql
+    match: direct
+    answer: RDS read replicas map to Cloud SQL read replicas, in-region, cross-region, or cascading.
+    differences:
+    - AlloyDB uses read pool instances that share storage, closer to Aurora replicas.
+    pricing: Replicas are billed as separate instances.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/replication
+    - https://cloud.google.com/sql/pricing
 
 - id: global-database
   group: relational-operations
@@ -415,6 +593,20 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-global-database.html
     - https://learn.microsoft.com/en-us/azure/azure-sql/database/failover-group-sql-db
     - https://learn.microsoft.com/en-us/azure/postgresql/read-replica/concepts-read-replicas
+  gcp:
+    services:
+    - cloud-sql-editions
+    - alloydb
+    match: partial
+    answer: Aurora Global Database maps partly to Cloud SQL advanced DR (Enterprise Plus cross-region DR replicas with failover and zero-data-loss switchover) and AlloyDB cross-region secondary clusters.
+    differences:
+    - Replication is asynchronous; replica failover can lose recent writes, while planned switchover has zero data loss.
+    - For multi-region writes with strong consistency, use Spanner.
+    pricing: Cross-region replicas or secondary clusters are billed as separate instances, plus inter-region transfer.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/replication/cross-region-replicas
+    - https://docs.cloud.google.com/sql/docs/mysql/intro-to-cloud-sql-disaster-recovery
+    - https://docs.cloud.google.com/alloydb/docs/cross-region-replication/about-cross-region-replication
 
 - id: connection-pooling
   group: relational-operations
@@ -438,6 +630,19 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/rds-proxy.html
     - https://learn.microsoft.com/en-us/azure/postgresql/connectivity/concepts-pgbouncer
+  gcp:
+    services:
+    - cloud-sql-editions
+    - alloydb
+    match: direct
+    answer: RDS Proxy maps to managed connection pooling in Cloud SQL (Enterprise Plus edition) and AlloyDB.
+    differences:
+    - Managed connection pooling in Cloud SQL requires Enterprise Plus edition.
+    - The Cloud SQL Auth Proxy is a secure connector, not a pooler.
+    pricing: Check the Cloud SQL and AlloyDB pricing pages; pooling runs as part of the instance.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/managed-connection-pooling
+    - https://docs.cloud.google.com/alloydb/docs/configure-managed-connection-pooling
 
 - id: blue-green-upgrades
   group: relational-operations
@@ -460,6 +665,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html
     - https://learn.microsoft.com/en-us/azure/postgresql/configure-maintain/concepts-major-version-upgrade
+  gcp:
+    services: []
+    match: none
+    answer: Cloud SQL has no blue/green deployment feature. Major versions are upgraded in place, or by migrating to a new instance with Database Migration Service.
+    differences:
+    - In-place major version upgrades take the instance offline for the upgrade.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/sql/docs/postgres/upgrade-major-db-version-inplace
 
 - id: hybrid-database
   group: relational-operations
@@ -485,6 +699,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/azure-arc/data/managed-instance-overview
 
 # ───────────────────────── NOSQL ─────────────────────────
+  gcp:
+    services:
+    - alloydb-omni
+    match: partial
+    answer: RDS on Outposts maps partly to AlloyDB Omni, a downloadable AlloyDB that runs on Linux VMs, on premises, or on Kubernetes, which you operate yourself.
+    differences:
+    - AlloyDB Omni is self-managed software, not a managed service on your hardware.
+    pricing: Licensed separately; see AlloyDB Omni documentation for licensing.
+    sources:
+    - https://docs.cloud.google.com/alloydb/omni/docs/overview
+    flags:
+    - AlloyDB Omni licensing and pricing were not confirmed from a price page on 2026-10-27.
 - id: key-value-document
   group: nosql
   capability: Serverless key-value and document database
@@ -516,6 +742,19 @@ rows:
     - https://learn.microsoft.com/en-us/azure/cosmos-db/overview
     - https://learn.microsoft.com/en-us/azure/cosmos-db/serverless
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - firestore
+    match: direct
+    answer: Amazon DynamoDB maps to Firestore, a serverless document database. For very high-throughput key-value access, Bigtable is the other option.
+    differences:
+    - Firestore is a document model with collections and indexes; DynamoDB is key-value with partition and sort keys.
+    - Firestore Enterprise edition adds an advanced query engine and a different pricing model.
+    pricing: Standard edition bills per document read, write, and delete plus storage. Enterprise edition bills by bytes read and written (in tranches), storage, and egress.
+    sources:
+    - https://docs.cloud.google.com/firestore/native/docs/overview
+    - https://docs.cloud.google.com/firestore/native/docs/editions-overview
+    - https://cloud.google.com/firestore/pricing
 
 - id: multi-region-nosql
   group: nosql
@@ -540,6 +779,19 @@ rows:
   sources:
     - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GlobalTables.html
     - https://learn.microsoft.com/en-us/azure/cosmos-db/distribute-data-globally
+  gcp:
+    services:
+    - firestore
+    - bigtable
+    match: partial
+    answer: DynamoDB global tables map partly to Firestore multi-region locations (one database replicated across regions) and Bigtable replication with multi-cluster routing (writes in any cluster, eventually consistent).
+    differences:
+    - Firestore multi-region locations are fixed configurations, not arbitrary region sets.
+    - Bigtable reads and writes to different clusters are eventually consistent, as with global tables.
+    pricing: Multi-region Firestore and replicated Bigtable clusters cost more for storage and capacity.
+    sources:
+    - https://docs.cloud.google.com/firestore/native/docs/locations
+    - https://docs.cloud.google.com/bigtable/docs/replication-overview
 
 - id: nosql-change-streams
   group: nosql
@@ -564,6 +816,17 @@ rows:
   sources:
     - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Streams.html
     - https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed
+  gcp:
+    services:
+    - bigtable
+    match: partial
+    answer: DynamoDB Streams maps to Bigtable change streams for Bigtable. Firestore changes are consumed through Eventarc triggers or client listeners rather than a stream API.
+    differences:
+    - Spanner also has change streams for relational data.
+    pricing: Change streams add storage and processing costs.
+    sources:
+    - https://docs.cloud.google.com/bigtable/docs/change-streams-overview
+    - https://docs.cloud.google.com/spanner/docs/change-streams
 
 - id: nosql-cache
   group: nosql
@@ -588,6 +851,15 @@ rows:
   sources:
     - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DAX.html
     - https://learn.microsoft.com/en-us/azure/cosmos-db/integrated-cache
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no built-in cache for Firestore or Bigtable like DAX. Use Memorystore for Valkey in front of the database.
+    differences:
+    - You manage cache invalidation in application code.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/memorystore/docs/valkey/product-overview
 
 - id: simple-table-store
   group: nosql
@@ -613,6 +885,17 @@ rows:
     - https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-overview
     - https://learn.microsoft.com/en-us/azure/cosmos-db/table/introduction
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - firestore
+    match: partial
+    answer: Low-cost key-attribute tables map partly to Firestore (serverless, pay per operation) or Bigtable for large scale.
+    differences:
+    - There is no separate low-cost table tier like Azure Table Storage.
+    pricing: Firestore bills per operation and storage.
+    sources:
+    - https://docs.cloud.google.com/firestore/native/docs/overview
+    - https://cloud.google.com/firestore/pricing
 
 - id: document-database
   group: nosql
@@ -640,6 +923,18 @@ rows:
     - https://docs.aws.amazon.com/documentdb/latest/developerguide/what-is.html
     - https://learn.microsoft.com/en-us/azure/documentdb/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - firestore-mongodb
+    match: direct
+    answer: Amazon DocumentDB maps to Firestore with MongoDB compatibility, which accepts MongoDB drivers and the MongoDB Query Language on serverless Firestore Enterprise edition.
+    differences:
+    - Firestore is serverless with no instances to size; DocumentDB has instance-based and elastic clusters.
+    - Check feature support per MongoDB version before migrating.
+    pricing: 'Firestore Enterprise edition pricing: bytes read and written, storage, and egress.'
+    sources:
+    - https://docs.cloud.google.com/firestore/mongodb-compatibility/docs/overview
+    - https://cloud.google.com/firestore/pricing
 
 - id: wide-column
   group: nosql
@@ -665,6 +960,20 @@ rows:
     - https://learn.microsoft.com/en-us/azure/cosmos-db/cassandra/introduction
     - https://learn.microsoft.com/en-us/azure/managed-instance-apache-cassandra/introduction
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - bigtable
+    - spanner
+    match: partial
+    answer: Amazon Keyspaces maps partly to Bigtable (wide-column, HBase-compatible) and to Spanner's Cassandra Adapter, which lets Cassandra clients use Spanner.
+    differences:
+    - Bigtable isn't CQL-compatible; data models and queries need rework.
+    - The Spanner Cassandra Adapter keeps CQL clients but runs on Spanner's engine.
+    pricing: Bigtable bills per node and storage; Spanner bills compute capacity and storage.
+    sources:
+    - https://docs.cloud.google.com/bigtable/docs/overview
+    - https://docs.cloud.google.com/spanner/docs/non-relational/connect-cassandra-adapter
+    - https://cloud.google.com/bigtable/pricing
 
 - id: graph-database
   group: nosql
@@ -693,6 +1002,18 @@ rows:
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
 
 # ───────────────────────── SPECIALTY ─────────────────────────
+  gcp:
+    services:
+    - spanner-graph
+    match: partial
+    answer: Amazon Neptune maps partly to Spanner Graph, which adds an ISO GQL-compatible graph interface to Spanner.
+    differences:
+    - Spanner Graph uses GQL, not Gremlin, openCypher, or SPARQL.
+    - Graph and relational data live in the same database.
+    pricing: Spanner compute capacity and storage pricing.
+    sources:
+    - https://docs.cloud.google.com/spanner/docs/graph/overview
+    - https://cloud.google.com/spanner/pricing
 - id: time-series
   group: specialty-databases
   capability: Serverless time-series database
@@ -719,6 +1040,17 @@ rows:
     - https://docs.aws.amazon.com/timestream/latest/developerguide/what-is-timestream.html
     - https://learn.microsoft.com/en-us/azure/data-explorer/data-explorer-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - bigtable
+    match: partial
+    answer: Amazon Timestream has no purpose-built Google Cloud counterpart. Bigtable is commonly used for time-series data, with BigQuery for analysis.
+    differences:
+    - You design row keys for time-series access yourself.
+    pricing: Bigtable bills per node and storage.
+    sources:
+    - https://docs.cloud.google.com/bigtable/docs/overview
+    - https://cloud.google.com/bigtable/pricing
 
 - id: influxdb
   group: specialty-databases
@@ -740,6 +1072,15 @@ rows:
   related: [time-series]
   sources:
     - https://docs.aws.amazon.com/timestream/latest/developerguide/timestream-for-influxdb.html
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no managed InfluxDB. Run InfluxDB on GKE or Compute Engine, or use a marketplace offering.
+    differences:
+    - Bigtable or BigQuery can replace InfluxDB with application changes.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/bigtable/docs/overview
 
 - id: in-memory-cache
   group: specialty-databases
@@ -767,6 +1108,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonElastiCache/latest/dg/WhatIs.html
     - https://learn.microsoft.com/en-us/azure/redis/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - memorystore-valkey
+    match: direct
+    answer: Amazon ElastiCache maps to Memorystore for Valkey, a managed cache compatible with open-source Redis clients.
+    differences:
+    - Memorystore for Valkey supports cluster mode, replicas, and optional persistence.
+    - Valkey is the open-source fork of Redis; check feature parity with ElastiCache for Redis OSS or Valkey.
+    pricing: Billed per node-hour by node type and replica count.
+    sources:
+    - https://docs.cloud.google.com/memorystore/docs/valkey/product-overview
+    - https://cloud.google.com/memorystore/valkey/pricing
 
 - id: durable-in-memory
   group: specialty-databases
@@ -790,6 +1143,18 @@ rows:
     - https://docs.aws.amazon.com/memorydb/latest/devguide/what-is-memorydb.html
     - https://learn.microsoft.com/en-us/azure/redis/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - memorystore-valkey
+    match: partial
+    answer: Amazon MemoryDB has no exact counterpart. Memorystore for Valkey with AOF persistence (fsync every second by default, or on every write) is the closest option.
+    differences:
+    - MemoryDB uses a multi-AZ transaction log; Memorystore AOF persistence writes to durable storage per node.
+    - You must choose RDB or AOF persistence, not both.
+    pricing: Billed per node-hour; AOF persistence adds cost, RDB persistence doesn't.
+    sources:
+    - https://docs.cloud.google.com/memorystore/docs/valkey/about-aof-persistence
+    - https://cloud.google.com/memorystore/valkey/pricing
 
 - id: ledger-database
   group: specialty-databases
@@ -816,6 +1181,15 @@ rows:
     - https://learn.microsoft.com/en-us/sql/relational-databases/security/ledger/ledger-overview
 
 # ───────────────────────── MIGRATION & INTEGRATION ─────────────────────────
+  gcp:
+    services: []
+    match: none
+    answer: Google Cloud has no ledger database. QLDB itself is retired; use application-level hash chaining in Spanner or Cloud SQL, or append-only Cloud Storage with Bucket Lock.
+    differences:
+    - Bucket Lock gives WORM retention but not cryptographic verification of history.
+    pricing: Not applicable.
+    sources:
+    - https://docs.cloud.google.com/storage/docs/bucket-lock
 - id: database-migration
   group: database-migration
   capability: Database migration and continuous replication
@@ -841,6 +1215,20 @@ rows:
     - https://docs.aws.amazon.com/dms/latest/userguide/Welcome.html
     - https://learn.microsoft.com/en-us/azure/dms/dms-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
+  gcp:
+    services:
+    - database-migration-service
+    - datastream
+    match: direct
+    answer: AWS DMS maps to Database Migration Service (one-time and continuous migrations into Cloud SQL and AlloyDB) and Datastream (serverless change data capture).
+    differences:
+    - Database Migration Service targets Cloud SQL and AlloyDB; for other targets, use Datastream.
+    - Heterogeneous migrations (for example Oracle to PostgreSQL) include schema conversion.
+    pricing: Homogeneous migrations to Cloud SQL or AlloyDB are free; heterogeneous migrations are billed per GiB processed. Datastream is billed per GiB processed.
+    sources:
+    - https://docs.cloud.google.com/database-migration/docs/overview
+    - https://cloud.google.com/database-migration/pricing
+    - https://docs.cloud.google.com/datastream/docs/overview
 
 - id: operational-analytics
   group: database-migration
@@ -864,3 +1252,16 @@ rows:
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/zero-etl.html
     - https://learn.microsoft.com/en-us/fabric/mirroring/overview
+  gcp:
+    services:
+    - datastream
+    match: partial
+    answer: RDS and Aurora zero-ETL integrations map partly to Datastream replication into BigQuery, or to BigQuery federated queries against Cloud SQL. AlloyDB's columnar engine handles analytics in place.
+    differences:
+    - Datastream is a CDC pipeline you configure, not a single checkbox integration.
+    - Federated queries read live data without copying it.
+    pricing: Datastream is billed per GiB processed, plus BigQuery storage and queries.
+    sources:
+    - https://docs.cloud.google.com/datastream/docs/overview
+    - https://docs.cloud.google.com/bigquery/docs/cloud-sql-federated-queries
+    - https://cloud.google.com/datastream/pricing

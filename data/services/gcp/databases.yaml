@@ -1,0 +1,94 @@
+- slug: cloud-sql-postgresql
+  name: Cloud SQL for PostgreSQL
+  status: ga
+  summary: Managed PostgreSQL in Enterprise and Enterprise Plus editions, with high availability, read replicas, backups, and point-in-time recovery.
+  docs: https://docs.cloud.google.com/sql/docs/postgres/introduction
+  pricing: https://cloud.google.com/sql/pricing
+- slug: cloud-sql-mysql
+  name: Cloud SQL for MySQL
+  status: ga
+  summary: Managed MySQL in Enterprise and Enterprise Plus editions, with high availability, read replicas, backups, and point-in-time recovery.
+  docs: https://docs.cloud.google.com/sql/docs/mysql/introduction
+  pricing: https://cloud.google.com/sql/pricing
+- slug: cloud-sql-sqlserver
+  name: Cloud SQL for SQL Server
+  status: ga
+  summary: Managed Microsoft SQL Server with high availability, backups, and license-included pricing.
+  docs: https://docs.cloud.google.com/sql/docs/sqlserver/introduction
+  pricing: https://cloud.google.com/sql/pricing
+- slug: cloud-sql-editions
+  name: Cloud SQL Enterprise Plus edition features (HA, advanced DR, managed connection pooling)
+  status: ga
+  summary: Regional HA instances, cross-region DR replicas with switchover, and managed connection pooling (Enterprise Plus) for Cloud SQL.
+  docs: https://docs.cloud.google.com/sql/docs/mysql/editions-intro
+  pricing: https://cloud.google.com/sql/pricing
+- slug: sql-server-on-compute-engine
+  name: SQL Server on Compute Engine
+  status: ga
+  summary: Compute Engine VMs with license-included SQL Server images (or your own licenses), giving full OS and instance control.
+  docs: https://docs.cloud.google.com/compute/docs/instances/sql-server/creating-sql-server-instances
+  pricing: https://cloud.google.com/products/compute/pricing
+- slug: oracle-database-google-cloud
+  name: Oracle Database@Google Cloud
+  status: ga
+  summary: Oracle Exadata and Autonomous Database services operated by Oracle (OCI) and deployed in Google Cloud data centers, integrated with Google Cloud networking and console.
+  docs: https://docs.cloud.google.com/oracle/database/docs/overview
+- slug: alloydb
+  name: AlloyDB for PostgreSQL
+  status: ga
+  summary: Fully managed PostgreSQL-compatible database with disaggregated storage, read pool instances, a columnar engine, and cross-region secondary clusters.
+  docs: https://docs.cloud.google.com/alloydb/docs/overview
+  pricing: https://cloud.google.com/alloydb/pricing
+- slug: alloydb-omni
+  name: AlloyDB Omni
+  status: ga
+  summary: Downloadable edition of AlloyDB that runs on Linux VMs, on premises, or in Kubernetes (with an operator).
+  docs: https://docs.cloud.google.com/alloydb/omni/docs/overview
+- slug: spanner
+  name: Spanner
+  status: ga
+  summary: Globally distributed, strongly consistent relational database with GoogleSQL and PostgreSQL dialects, up to 99.999% availability, and compute measured in processing units or nodes.
+  docs: https://docs.cloud.google.com/spanner/docs/instances
+  pricing: https://cloud.google.com/spanner/pricing
+- slug: spanner-graph
+  name: Spanner Graph
+  status: ga
+  summary: Graph database capability in Spanner with an ISO GQL-compatible query interface over relational data.
+  docs: https://docs.cloud.google.com/spanner/docs/graph/overview
+  pricing: https://cloud.google.com/spanner/pricing
+- slug: firestore
+  name: Firestore
+  status: ga
+  summary: Serverless document database (Standard and Enterprise editions) with regional or multi-region locations, strong consistency, and client SDKs for web and mobile.
+  docs: https://docs.cloud.google.com/firestore/native/docs/overview
+  pricing: https://cloud.google.com/firestore/pricing
+- slug: firestore-mongodb
+  name: Firestore with MongoDB compatibility
+  status: ga
+  summary: MongoDB-compatible API (drivers, MQL, tools) on Firestore Enterprise edition, serverless with multi-region replication.
+  docs: https://docs.cloud.google.com/firestore/mongodb-compatibility/docs/overview
+  pricing: https://cloud.google.com/firestore/pricing
+- slug: bigtable
+  name: Bigtable
+  status: ga
+  summary: Wide-column NoSQL database for large, low-latency workloads, with an HBase-compatible client, replication across clusters, and change streams.
+  docs: https://docs.cloud.google.com/bigtable/docs/overview
+  pricing: https://cloud.google.com/bigtable/pricing
+- slug: memorystore-valkey
+  name: Memorystore for Valkey
+  status: ga
+  summary: Managed Valkey (open-source Redis-compatible) with cluster mode, replicas, and optional RDB or AOF persistence.
+  docs: https://docs.cloud.google.com/memorystore/docs/valkey/product-overview
+  pricing: https://cloud.google.com/memorystore/valkey/pricing
+- slug: database-migration-service
+  name: Database Migration Service
+  status: ga
+  summary: Managed migrations into Cloud SQL and AlloyDB, homogeneous (for example MySQL to Cloud SQL for MySQL) and heterogeneous (for example Oracle to Cloud SQL for PostgreSQL).
+  docs: https://docs.cloud.google.com/database-migration/docs/overview
+  pricing: https://cloud.google.com/database-migration/pricing
+- slug: datastream
+  name: Datastream
+  status: ga
+  summary: Serverless change data capture and replication from operational databases into BigQuery, Cloud Storage, and other targets.
+  docs: https://docs.cloud.google.com/datastream/docs/overview
+  pricing: https://cloud.google.com/datastream/pricing
