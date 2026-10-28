@@ -9,5 +9,10 @@
     "aws",
     "azure"
   ],
-  "indexNowKey": "02525af08bc0d637b5aec3789c6b55a9"
+  "indexNowKey": "02525af08bc0d637b5aec3789c6b55a9",
+  "analytics": {
+    "provider": "",
+    "token": "",
+    "code": ""
+  }
 }

@@ -73,6 +73,22 @@ const FOOTER = `<footer class="foot"><div class="wrap">
   <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
 </div></footer>`;
 
+// Optional cookieless analytics (site.config.json "analytics"). Empty provider => nothing is emitted.
+// cloudflare: { "provider": "cloudflare", "token": "<Web Analytics beacon token>" }
+// goatcounter: { "provider": "goatcounter", "code": "<your GoatCounter site code>" }
+const ANALYTICS = (() => {
+  const a = config.analytics || {};
+  const prov = String(a.provider || '').trim().toLowerCase();
+  if (prov === 'cloudflare' && /^[A-Za-z0-9]+$/.test(String(a.token || '').trim())) {
+    return `<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='${JSON.stringify({ token: String(a.token).trim() })}'></script>`;
+  }
+  if (prov === 'goatcounter' && /^[a-z0-9-]+$/i.test(String(a.code || '').trim())) {
+    return `<script data-goatcounter="https://${String(a.code).trim()}.goatcounter.com/count" defer src="https://gc.zgo.at/count.js"></script>`;
+  }
+  if (prov) console.warn(`analytics: provider "${prov}" set but token/code missing or invalid; nothing emitted`);
+  return '';
+})();
+
 // Cmd+K / "/" focuses the header search (content pages ship only this tiny script).
 const KEY_JS = `<script>addEventListener('keydown',function(e){if((e.key==='k'&&(e.metaKey||e.ctrlKey))||(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))){e.preventDefault();var q=document.getElementById('q');q.focus();q.select()}})</script>`;
 
@@ -118,7 +134,7 @@ ${body}
 </main>
 ${FOOTER}
 <script>window.__PREFIX__=${JSON.stringify(PREFIX)}</script>
-${KEY_JS}<script src="${rel('/assets/site.js')}" defer></script>${scripts}
+${KEY_JS}<script src="${rel('/assets/site.js')}" defer></script>${scripts}${ANALYTICS}
 </body>
 </html>`;
   return html;

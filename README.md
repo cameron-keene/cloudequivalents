@@ -53,6 +53,7 @@ Requires Node 20 or later. The build needs no network access and no paid service
 | `baseUrl` | Canonical origin, used for canonical URLs, sitemap, OG URLs, and JSON-LD. `https://cloudequivalents.com` (custom domain set in GitHub Pages settings; no CNAME file is needed because the site deploys via Actions). For a GitHub Pages project-site URL such as `https://<user>.github.io/<repo>`, the path prefix is applied automatically. |
 | `repoUrl` / `repoBranch` | Target of the "Edit on GitHub" and "Report an error" links. `https://github.com/cameron-keene/cloudequivalents` |
 | `activeProviders` | Provider columns to render. Each must also be `enabled` in `data/providers.yaml`. |
+| `analytics` | Optional cookieless analytics. Leave `provider` empty to emit nothing. Cloudflare Web Analytics: `{"provider": "cloudflare", "token": "<beacon token>"}`. GoatCounter: `{"provider": "goatcounter", "code": "<site code>"}` (the `<code>` part of `https://<code>.goatcounter.com`). The script is added just before `</body>` on every page with `defer`, so it causes no layout shift. |
 
 ## Site structure
 
