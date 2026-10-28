@@ -64,7 +64,8 @@ Requires Node 20 or later. The build needs no network access and no paid service
 | `/aws/<service>/` and `/azure/<service>/` | Hub pages ("Azure equivalent of X" and the reverse) |
 | `/aws/`, `/azure/` | Service indexes |
 | `/category/` and `/category/<id>/` | Category index and per-category overviews (groups are collapsible) |
-| `/exams/` | Certification exams mapped to comparisons |
+| `/exams/` | Certification exams mapped to comparisons, plus the exam-guide index |
+| `/exams/<code>-for-aws-engineers/` | Azure exam guides for AWS engineers (AZ-900, AZ-104, AZ-305, AZ-400, SC-500, AI-901, AI-200, AI-103, AI-300, DP-300): official domains and weights, how each domain maps to AWS, linked compare pages, gotchas, closest AWS cert, last-verified date |
 | `/about/` | Methodology |
 
 SEO and performance features:
@@ -85,6 +86,8 @@ data/
   services/<provider>/<category>.yaml   # one entry per service: slug, name, status, status_note, summary, docs, pricing
                                         # (slugs are unique per provider across all files)
   categories/<category>.yaml            # category metadata (id, name, short, order, groups) and the mapping rows
+  exam-guides/<code>.yaml               # exam guide for AWS engineers: domains (name, weight, official areas, aws, rows), gotchas,
+                                        # closest_aws, sources, last_verified (row ids and exam codes are validated)
 ```
 
 A row (`data/categories/*.yaml`):

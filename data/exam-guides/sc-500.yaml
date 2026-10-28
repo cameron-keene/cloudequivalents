@@ -1,0 +1,147 @@
+# Exam guide for AWS engineers: SC-500. Weights and areas copied from the official study guide.
+code: SC-500
+order: 4
+title: Implementing End-to-End Security Controls for Cloud and AI Workloads
+last_verified: '2026-10-27'
+skills_as_of: null
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-500
+passing_score: 700
+summary: >-
+  SC-500 is the Cloud and AI Security Engineer Associate exam. It replaces the retired AZ-500 (Azure Security Engineer Associate).
+  It covers identity and governance, platform security for storage, databases and networks, compute and AI workload protection,
+  and security operations with Defender for Cloud, Microsoft Sentinel and Security Copilot. Compared with AWS security work,
+  it reaches further into Microsoft 365 and AI-agent security.
+audience:
+- AWS security engineers (the SCS-C03 audience) taking on Azure.
+- Former AZ-500 candidates. AZ-500 and its certification retired on Aug 31, 2026.
+- Engineers who secure AI workloads and agents as well as classic infrastructure.
+domains:
+- name: Manage identity, access, and governance
+  weight: 20–25%
+  areas:
+  - Secure access to resources by using Microsoft Entra ID
+  - Secure secrets and keys by using Azure Key Vault
+  - Implement governance to enforce security and regulatory compliance
+  aws: >-
+    IAM, IAM Identity Center, KMS/Secrets Manager and Organizations/SCPs carry over conceptually. The Azure versions: Entra
+    Privileged Identity Management (just-in-time role elevation), Conditional Access, managed identities, OAuth consent settings,
+    Key Vault (with its own firewall and RBAC), Azure Policy, resource locks, and custom Azure and Entra roles.
+  rows:
+  - cloud-iam
+  - privileged-access
+  - workload-identity
+  - access-review
+  - key-management
+  - secrets-management
+  - tls-certificates
+  - org-guardrails
+  - config-compliance
+  - landing-zones
+  - backup-vault-lock
+- name: Secure storage, databases, and networking
+  weight: 25–30%
+  areas:
+  - Implement security for storage accounts
+  - Implement security for databases
+  - Implement security for Azure network services
+  aws: >-
+    S3 bucket policies and Block Public Access map to the storage account firewall, SAS and access policies, with Defender
+    for Storage for threat detection. RDS security maps to Azure SQL auditing and Defender for Databases. VPC security maps
+    to NSGs and application security groups, Virtual Network Manager security admin rules, Virtual WAN, VPN, private endpoints
+    and Private Link, Azure Firewall, and Entra Private Access (≈ Verified Access).
+  rows:
+  - object-access-control
+  - block-public-access
+  - managed-sql-server
+  - instance-firewall
+  - subnet-acl
+  - transit-hub
+  - site-to-site-vpn
+  - private-endpoints
+  - managed-firewall
+  - zero-trust-app-access
+  - network-diagnostics
+- name: Secure compute
+  weight: 20–25%
+  areas:
+  - Implement security for AI
+  - Implement security for servers and virtual machines (VMs)
+  - Implement security for application platform services
+  aws: >-
+    New ground for AWS security engineers. The AI section covers SharePoint oversharing, Copilot and AI app risk, Entra Agent
+    ID and the AI Gateway in API Management, Defender for AI Services, and guardrails for agents in Foundry. Closest AWS references:
+    Bedrock Guardrails and AgentCore Identity. VM security maps to Inspector, Systems Manager and Nitro features (disk encryption,
+    Bastion, just-in-time VM access, Defender for Servers, Trusted Launch). Container and app-platform security covers AKS,
+    ACR, Functions, App Service and WAF.
+  rows:
+  - agent-identity-governance
+  - guardrails
+  - api-gateway-managed
+  - vm-remote-access
+  - vulnerability-scanning
+  - secure-boot-vtpm
+  - confidential-compute
+  - managed-kubernetes
+  - container-registry
+  - serverless-functions
+  - app-platform
+  - web-application-firewall
+- name: Manage and monitor security posture
+  weight: 20–25%
+  areas:
+  - Manage security posture by using Defender for Cloud
+  - Implement activity and event collection in Microsoft Sentinel
+  - Implement Microsoft Security Copilot
+  aws: >-
+    Security Hub CSPM and GuardDuty map to Defender for Cloud: Defender CSPM, regulatory compliance and workload protection
+    plans, including AWS and GCP connectors. Security Lake and Detective map to Microsoft Sentinel, which is a full SIEM/SOAR
+    with KQL analytics, data connectors and playbooks. Security Copilot has no direct AWS equivalent.
+  rows:
+  - security-posture
+  - threat-detection
+  - audit-evidence
+  - security-investigation
+  - security-data-lake
+  - audit-logging
+gotchas:
+- title: Defender for Cloud is both CSPM and CWPP
+  detail: >-
+    Foundational CSPM is free. Defender CSPM and the per-resource-type workload protection plans (Servers, Storage, Databases,
+    Containers, AI services, Key Vault…) are paid and enabled per subscription. AWS splits the same ground across Security
+    Hub, GuardDuty, Inspector and Macie.
+- title: PIM eligibility vs active assignment
+  detail: >-
+    Entra PIM separates "eligible" from "active" role assignments: users activate an eligible role for a limited time, with
+    optional MFA, justification and approval. IAM Identity Center has no built-in eligible/activate model.
+- title: 'Key Vault access: RBAC or access policies'
+  detail: >-
+    Key Vault supports Azure RBAC (recommended) or the legacy vault access policy model, plus its own network firewall and
+    private endpoints. Questions often turn on which permission model a vault uses.
+- title: Sentinel runs on Log Analytics
+  detail: >-
+    Sentinel is enabled on a Log Analytics workspace. Data connectors, retention and analytics rules all depend on that workspace,
+    and queries are KQL. Plan workspace topology the way you would plan Security Lake accounts and Regions.
+- title: Microsoft 365 is in scope
+  detail: >-
+    Objectives include SharePoint data overexposure, Copilot and AI app risk, and Purview Audit in Defender XDR. An AWS-only
+    security background won't cover these.
+- title: Just-in-time VM access
+  detail: >-
+    Defender for Servers can lock management ports and open them on request for a limited time. On AWS you would get the same
+    outcome with Session Manager and no open ports. Both approaches appear in Azure guidance: Azure Bastion, or JIT on NSG
+    and Azure Firewall rules.
+closest_aws:
+- code: SCS-C03
+  why: Same role. SC-500 adds Microsoft 365 and AI-agent security that SCS-C03 doesn't cover.
+flags:
+- The SC-500 study guide did not show a "skills measured as of" date when checked, and the certification page says a practice
+  assessment isn't available yet (usually within 8 weeks of an exam leaving beta). Recheck the study guide before you book.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/sc-500
+- https://learn.microsoft.com/en-us/credentials/certifications/cloud-and-ai-security-engineer-associate/
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-security-engineer/
+- https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-cloud-introduction
+- https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
+- https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-access-policy
+- https://learn.microsoft.com/en-us/azure/sentinel/overview
+- https://learn.microsoft.com/en-us/azure/defender-for-cloud/just-in-time-access-usage

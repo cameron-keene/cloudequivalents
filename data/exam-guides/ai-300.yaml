@@ -1,0 +1,119 @@
+# Exam guide for AWS engineers: AI-300. Weights and areas copied from the official study guide.
+code: AI-300
+order: 9
+title: Operationalizing Machine Learning and Generative AI Solutions
+last_verified: '2026-10-27'
+skills_as_of: null
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-300
+passing_score: 700
+summary: >-
+  AI-300 is the Machine Learning Operations Engineer Associate exam, the closest successor in scope to the retired DP-100.
+  It covers MLOps on Azure Machine Learning (workspaces, MLflow, pipelines, endpoints, monitoring) and GenAIOps on Foundry
+  (model deployment, prompt versioning, evaluation, observability, RAG and fine-tuning). It maps closely to SageMaker AI plus
+  Bedrock operations.
+audience:
+- AWS ML engineers (the MLA-C01/MLA-C02 audience) running SageMaker in production.
+- Former DP-100 candidates. DP-100 is retired.
+- Platform engineers automating ML and GenAI infrastructure with Bicep and GitHub Actions.
+domains:
+- name: Design and implement an MLOps infrastructure
+  weight: 15–20%
+  areas:
+  - Create and manage resources in a Machine Learning workspace
+  - Create and manage assets in a Machine Learning workspace
+  - Implement IaC for Machine Learning
+  aws: >-
+    SageMaker domains and Studio map to the Azure Machine Learning workspace, datastores, compute targets, environments, components
+    and registries, deployed with Bicep and GitHub Actions.
+  rows:
+  - ml-platform
+  - ml-studio-ide
+  - ml-training-jobs
+  - model-registry
+- name: Implement machine learning model lifecycle and operations
+  weight: 25–30%
+  areas:
+  - Orchestrate model training
+  - Implement model registration and versioning
+  - Deploy machine learning models for production environments
+  - Monitor and maintain machine learning models in production
+  aws: >-
+    SageMaker Experiments/MLflow, Autopilot, training jobs, Pipelines, Model Registry, endpoints and Model Monitor map to
+    MLflow tracking, AutoML, command and sweep jobs, Azure ML pipelines, MLflow model registration, managed online and batch
+    endpoints, and data drift monitoring.
+  rows:
+  - mlflow-tracking
+  - automl
+  - ml-training-jobs
+  - large-scale-training-clusters
+  - ml-pipelines
+  - model-registry
+  - feature-store
+  - ml-inference-endpoints
+  - model-monitoring
+  - bias-explainability
+- name: Design and implement a GenAIOps infrastructure
+  weight: 20–25%
+  areas:
+  - Implement Foundry environments and platform configuration
+  - Deploy and manage foundation models for production workloads
+  - Implement prompt versioning and management with source control
+  aws: >-
+    Bedrock model access and provisioned throughput map to Foundry resources and projects, serverless API vs managed deployments,
+    and PTUs. Prompt management maps to prompts versioned in Git.
+  rows:
+  - foundation-model-api
+  - model-catalog-open-weights
+  - provisioned-throughput
+  - genai-workflows
+- name: Implement generative AI quality assurance and observability
+  weight: 10–15%
+  areas:
+  - Configure evaluation and validation for generative AI applications and agents
+  - Implement observability for generative AI applications and agents
+  aws: >-
+    Bedrock evaluations and AgentCore observability map to Foundry evaluations (groundedness, relevance, safety) and continuous
+    monitoring and tracing.
+  rows:
+  - genai-evaluation
+  - guardrails
+- name: Optimize generative AI systems and model performance
+  weight: 10–15%
+  areas:
+  - Optimize retrieval-augmented generation (RAG) performance and accuracy
+  - Implement advanced fine-tuning and model customization
+  aws: >-
+    Knowledge Bases tuning and Bedrock model customization map to RAG tuning (chunking, embeddings, hybrid search) and Foundry
+    fine-tuning with synthetic data.
+  rows:
+  - rag-knowledge-bases
+  - vector-storage
+  - model-customization
+gotchas:
+- title: MLflow is the native API
+  detail: >-
+    Azure ML workspaces are MLflow-compatible tracking servers, and MLflow models are the preferred registration format. SageMaker
+    offers managed MLflow as one option among several. Here it is the default.
+- title: Endpoints have deployments
+  detail: >-
+    A managed online endpoint holds one or more deployments with a traffic split, which is how blue-green and canary rollouts
+    are done. This is close to SageMaker production variants, but with different terms and commands.
+- title: Registries are cross-workspace
+  detail: >-
+    Azure ML registries share models, environments and components across workspaces and regions. That's broader than a SageMaker
+    Model Registry model package group.
+- title: About half the exam is GenAIOps
+  detail: >-
+    The three Foundry domains (GenAIOps infrastructure, quality and observability, and RAG and fine-tuning optimization) add
+    up to 40–55% of the weight. That's much more GenAI than DP-100 or MLA-C01 had.
+closest_aws:
+- code: MLA-C01
+  why: Same MLOps role. MLA-C01 is being replaced by MLA-C02.
+flags:
+- The AI-300 study guide did not show a "skills measured as of" date when checked.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-300
+- https://learn.microsoft.com/en-us/credentials/certifications/operationalizing-machine-learning-and-generative-ai-solutions/
+- https://learn.microsoft.com/en-us/azure/machine-learning/concept-mlflow
+- https://learn.microsoft.com/en-us/azure/machine-learning/concept-endpoints-online
+- https://learn.microsoft.com/en-us/azure/machine-learning/how-to-share-models-pipelines-across-workspaces-with-registries

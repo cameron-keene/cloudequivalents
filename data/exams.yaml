@@ -37,6 +37,13 @@
   status: current
   url: https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/
   note: AI-901 replaces AI-900 for this certification (English version updated Apr 15, 2026). Covers Microsoft Foundry.
+- code: AI-900
+  provider: azure
+  name: Microsoft Azure AI Fundamentals (previous exam)
+  level: Fundamentals
+  status: retired
+  url: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-900
+  note: Retired on Jun 30, 2026 (per the AI-900 study guide). AI-901 is now the exam for the Azure AI Fundamentals certification.
 - code: AI-103
   provider: azure
   name: Microsoft Certified – Azure AI Apps and Agents Developer Associate

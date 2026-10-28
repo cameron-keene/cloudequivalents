@@ -1,0 +1,118 @@
+# Exam guide for AWS engineers: DP-300. Weights and areas copied from the official study guide.
+code: DP-300
+order: 10
+title: Administering Microsoft Azure SQL Solutions
+last_verified: '2026-10-27'
+skills_as_of: '2026-10-27'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-300
+passing_score: 700
+summary: >-
+  DP-300 is the Azure Database Administrator Associate exam. It covers deep SQL Server administration across Azure SQL Database,
+  Azure SQL Managed Instance and SQL Server on Azure VMs: deployment, security, performance tuning, automation and HA/DR.
+  An AWS engineer who has run RDS for SQL Server will recognize the platform layer. Most of the exam is T-SQL and SQL Server
+  engine depth.
+audience:
+- DBAs and engineers who run RDS for SQL Server, RDS Custom or SQL Server on EC2.
+- Teams migrating SQL Server estates from AWS to Azure.
+- AWS engineers looking for a data credential. AWS no longer offers a database-specific certification.
+domains:
+- name: Plan and implement data platform resources
+  weight: 15–20%
+  areas:
+  - Plan and deploy Azure SQL solutions
+  - Configure resources for scale and performance
+  - Plan and implement a migration strategy
+  aws: >-
+    RDS for SQL Server, RDS Custom and SQL on EC2 map to Azure SQL Database, Managed Instance and SQL Server on VMs. DMS maps
+    to Azure Database Migration Service. Outposts maps to Arc-enabled SQL.
+  rows:
+  - managed-sql-server
+  - sql-server-full-control
+  - serverless-relational
+  - hybrid-database
+  - database-migration
+  - sharded-postgresql
+- name: Implement a secure environment
+  weight: 20–25%
+  areas:
+  - Configure database authentication and authorization
+  - Implement security for data at rest and data in transit
+  - Implement compliance controls for sensitive data
+  aws: >-
+    IAM database authentication maps to Microsoft Entra authentication. KMS-backed encryption maps to TDE with service- or
+    customer-managed keys. Security groups map to server and database firewall rules and Private Link. Also covered: Always
+    Encrypted, auditing, ledger, masking and row-level security.
+  rows:
+  - key-management
+  - private-endpoints
+  - ledger-database
+  - audit-logging
+- name: Monitor, configure, and optimize database resources
+  weight: 20–25%
+  areas:
+  - Monitor resource activity and performance
+  - Monitor and optimize query performance
+  - Configure database solutions for optimal performance
+  aws: >-
+    Performance Insights maps to Query Store, DMVs, database watcher, Intelligent Insights and automatic tuning. This is engine-level
+    SQL Server depth.
+  rows:
+  - managed-sql-server
+- name: Configure and manage automation of tasks
+  weight: 15–20%
+  areas:
+  - Create and manage SQL Server Agent jobs
+  - Automate deployment of database resources
+  - Create and manage database tasks in Azure
+  aws: >-
+    Without SQL Server Agent in Azure SQL Database you use elastic jobs, plus ARM/Bicep, PowerShell and CLI deployment. SQL
+    Agent is available in Managed Instance and on VMs.
+  rows:
+  - managed-sql-server
+  - scheduled-jobs
+- name: Plan and configure a high availability and disaster recovery (HA/DR) environment
+  weight: 20–25%
+  areas:
+  - Plan an HA/DR strategy for database solutions
+  - Plan and perform backup and restore of a database
+  - Configure HA/DR for database solutions
+  aws: >-
+    Multi-AZ, read replicas and cross-region replicas map to zone redundancy, active geo-replication, failover groups, Always
+    On availability groups and FCIs on VMs. Automated backups map to point-in-time restore and long-term retention.
+  rows:
+  - ha-standby
+  - read-replicas
+  - global-database
+  - backup-service
+gotchas:
+- title: DTU vs vCore
+  detail: >-
+    Azure SQL Database offers two purchasing models: DTU (bundled compute, memory and IO) and vCore (independent compute and
+    storage, with General Purpose, Business Critical and Hyperscale tiers, plus serverless). RDS has only instance classes.
+- title: Elastic pools
+  detail: >-
+    Many databases can share a pool of resources. RDS has no equivalent. The closest is consolidating several databases on
+    one instance.
+- title: Failover groups vs active geo-replication
+  detail: >-
+    Active geo-replication works per database with readable secondaries. Failover groups add a listener endpoint and group
+    failover. Know which one supports Managed Instance (failover groups).
+- title: TDE is on by default
+  detail: >-
+    New Azure SQL databases have transparent data encryption enabled with a service-managed key. Customer-managed keys in
+    Key Vault are the configurable part.
+- title: No AWS database certification
+  detail: >-
+    AWS no longer offers a Database Specialty certification, so there's no direct AWS counterpart to compare against.
+closest_aws: []
+closest_aws_note: >-
+  None current. The AWS Certified Database – Specialty URL now redirects to the AWS Certification home page, which lists no
+  database certification. Data Engineer – Associate (DEA-C01) covers data pipelines, not database administration.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/dp-300
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-database-administrator-associate/
+- https://learn.microsoft.com/en-us/azure/azure-sql/database/purchasing-models
+- https://learn.microsoft.com/en-us/azure/azure-sql/database/elastic-pool-overview
+- https://learn.microsoft.com/en-us/azure/azure-sql/database/failover-group-sql-db
+- https://learn.microsoft.com/en-us/azure/azure-sql/database/transparent-data-encryption-tde-overview
+- https://learn.microsoft.com/en-us/azure/azure-sql/database/elastic-jobs-overview

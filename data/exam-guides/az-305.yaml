@@ -1,0 +1,161 @@
+# Exam guide for AWS engineers: AZ-305. Weights and areas copied from the official study guide.
+code: AZ-305
+order: 3
+title: Designing Microsoft Azure Infrastructure Solutions
+last_verified: '2026-10-27'
+skills_as_of: '2026-04-17'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305
+passing_score: 700
+summary: >-
+  AZ-305 is the design exam for the Azure Solutions Architect Expert certification. Every objective starts with "recommend":
+  you pick the right Azure service and tier for a set of requirements. An AWS Solutions Architect already has the design reasoning.
+  What needs work is the Azure decision trees.
+audience:
+- AWS Solutions Architects (Associate or Professional) designing on Azure.
+- Engineers who already hold, or are working toward, the Azure Administrator Associate certification. Microsoft requires it
+  to earn the Expert certification.
+- Architects comparing multi-cloud designs who need Azure's preferred patterns.
+prereq: >-
+  To earn the Azure Solutions Architect Expert certification you must also hold Microsoft Certified: Azure Administrator Associate
+  (AZ-104).
+domains:
+- name: Design identity, governance, and monitoring solutions
+  weight: 25–30%
+  areas:
+  - Design solutions for logging and monitoring
+  - Design authentication and authorization solutions
+  - Design governance
+  aws: >-
+    Maps to your AWS Organizations, IAM Identity Center, CloudTrail/CloudWatch and Secrets Manager/KMS knowledge, but the
+    answers are Azure-specific: management group and subscription hierarchy, Log Analytics workspace design and diagnostic
+    settings for routing logs, Entra ID (B2B/external identities, Conditional Access, PIM), managed identities, and Key Vault
+    vs Managed HSM.
+  rows:
+  - multi-account-organization
+  - landing-zones
+  - org-guardrails
+  - audit-logging
+  - workforce-sso
+  - workload-identity
+  - privileged-access
+  - access-review
+  - key-management
+  - secrets-management
+  - managed-directory
+- name: Design data storage solutions
+  weight: 20–25%
+  areas:
+  - Design data storage solutions for relational data
+  - Design data storage solutions for semi-structured and unstructured data
+  - Design data integration
+  aws: >-
+    Maps to choosing between RDS, Aurora, DynamoDB and S3 classes, but with Azure tiers. Azure SQL Database (DTU vs vCore,
+    serverless, Hyperscale, elastic pools), Azure SQL Managed Instance or SQL Server on VMs. Cosmos DB API and consistency
+    level. Blob tier and redundancy. Data Factory and Synapse/Fabric for integration and analysis.
+  rows:
+  - managed-sql-server
+  - sql-server-full-control
+  - serverless-relational
+  - managed-postgresql
+  - key-value-document
+  - multi-region-nosql
+  - object-storage
+  - storage-classes
+  - data-lake-storage
+  - operational-analytics
+- name: Design business continuity solutions
+  weight: 15–20%
+  areas:
+  - Design solutions for backup and disaster recovery
+  - Design for high availability
+  aws: >-
+    Maps to AWS Backup, Elastic Disaster Recovery, Multi-AZ and Aurora Global Database. On Azure: Azure Backup vs Site Recovery,
+    availability zones vs region pairs, zone-redundant services, SQL failover groups vs active geo-replication, and storage
+    GRS/GZRS.
+  rows:
+  - backup-service
+  - backup-vault-lock
+  - disaster-recovery
+  - ha-standby
+  - global-database
+  - read-replicas
+  - object-replication
+  - multi-region-nosql
+- name: Design infrastructure solutions
+  weight: 30–35%
+  areas:
+  - Design compute solutions
+  - Design an application architecture
+  - Design migrations
+  - Design network solutions
+  aws: >-
+    The biggest domain. Compute: VMs, scale sets, AKS, Container Apps, Functions, App Service, Batch. App architecture: Service
+    Bus vs Event Grid vs Event Hubs, API Management, Azure Managed Redis, App Configuration. Migration: Azure Migrate and
+    the Cloud Adoption Framework. Networking: ExpressRoute, VPN, Virtual WAN, and Front Door vs Traffic Manager vs Application
+    Gateway vs Load Balancer.
+  rows:
+  - virtual-servers
+  - auto-scaling
+  - managed-kubernetes
+  - container-orchestrator
+  - serverless-functions
+  - app-platform
+  - batch-jobs
+  - message-queues
+  - event-bus
+  - pubsub-fanout
+  - api-gateway-managed
+  - in-memory-cache
+  - database-migration
+  - dedicated-connection
+  - site-to-site-vpn
+  - transit-hub
+  - cdn
+  - dns-traffic-routing
+  - application-load-balancing
+  - network-load-balancing
+  - private-endpoints
+  - managed-firewall
+gotchas:
+- title: Load-balancing decision tree
+  detail: >-
+    Azure splits load balancing by two axes: global vs regional, and HTTP(S) vs any protocol. Front Door is global HTTP(S)
+    with CDN and WAF. Traffic Manager is global DNS-based. Application Gateway is regional layer 7 (≈ ALB). Load Balancer
+    is regional layer 4 (≈ NLB). Expect "which service" questions built on that matrix.
+- title: Three SQL Server landing spots
+  detail: >-
+    Azure SQL Database (PaaS database, no SQL Agent or instance-level features), Azure SQL Managed Instance (near-full SQL
+    Server instance compatibility) and SQL Server on Azure VMs (full control). The AWS split is RDS for SQL Server vs RDS
+    Custom vs EC2, but the feature boundaries differ.
+- title: Messaging has three services, not two
+  detail: >-
+    Service Bus is the enterprise broker (queues, topics, sessions, transactions; ≈ SQS + SNS + Amazon MQ). Event Grid is
+    push-based event routing (≈ EventBridge). Event Hubs is high-throughput streaming (≈ Kinesis Data Streams / MSK). Picking
+    the wrong one is a common mistake.
+- title: Monitoring design is workspace design
+  detail: >-
+    Logs go to Log Analytics workspaces through diagnostic settings. Questions about routing, retention and access come down
+    to how many workspaces you use, where they live and who can read them. There is no CloudWatch-style per-service default
+    log group.
+- title: Cosmos DB consistency levels
+  detail: >-
+    Cosmos DB offers five consistency levels (strong, bounded staleness, session, consistent prefix, eventual). DynamoDB offers
+    eventually or strongly consistent reads per request, plus multi-region strong consistency for global tables. Expect design
+    questions on the latency and availability trade-offs.
+- title: Cloud Adoption Framework and Well-Architected Framework
+  detail: >-
+    Migration objectives reference the Microsoft Cloud Adoption Framework. Its role is close to AWS's Migration Acceleration
+    Program and Well-Architected guidance, with its own terminology (landing zones, plan/ready/adopt).
+closest_aws:
+- code: SAP-C02
+  why: 'Same role and depth: multi-service design trade-offs. SAP-C02 is being updated to SAP-C03.'
+- code: SAA-C03
+  why: Lighter-weight design overlap.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-305
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-solutions-architect/
+- https://learn.microsoft.com/en-us/azure/architecture/guide/technology-choices/load-balancing-overview
+- https://learn.microsoft.com/en-us/azure/azure-sql/azure-sql-iaas-vs-paas-what-is-overview
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services
+- https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels
+- https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/overview

@@ -296,3 +296,6 @@ details:not(.cat-group) p{margin:0 0 12px}
 .cat-card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:4px 16px 10px}
 .cat-card h2{font-size:1.15rem;margin:.7em 0 .3em}
 .ex-cat{margin:.8em 0 .2em}
+.exam-domain{border-bottom:1px solid var(--line);padding-bottom:6px}
+.exam-domain h3{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.cat-card h3{font-size:1.05rem;margin:.7em 0 .3em}

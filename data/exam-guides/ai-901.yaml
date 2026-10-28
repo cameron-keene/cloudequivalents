@@ -1,0 +1,87 @@
+# Exam guide for AWS engineers: AI-901. Weights and areas copied from the official study guide.
+code: AI-901
+order: 6
+title: Microsoft Azure AI Fundamentals
+last_verified: '2026-10-27'
+skills_as_of: '2026-04-15'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-901
+passing_score: 700
+summary: >-
+  AI-901 is the current exam for the Azure AI Fundamentals certification. It replaced AI-900, which retired on Jun 30, 2026.
+  Unlike AI-900 and AWS's AI Practitioner exam, more than half of AI-901 is hands-on: you deploy models and build small apps
+  and agents in Microsoft Foundry using Python.
+audience:
+- AWS engineers who know Bedrock or the AWS AI Practitioner material and want the Azure equivalent.
+- Developers starting in AI on Azure. Microsoft expects Python syntax knowledge and familiarity with Azure resources.
+- Anyone who was studying for AI-900. Its skills outline is out of date now that the exam is retired.
+alt_codes:
+- AI-900
+domains:
+- name: Identify AI concepts and capabilities
+  weight: 40–45%
+  areas:
+  - Describe principles of responsible AI
+  - Identify AI model components and configurations
+  - Identify AI workloads
+  aws: >-
+    Mostly conceptual and close to AWS AI Practitioner material: how generative models work, choosing a model, deployment
+    options and parameters, and common workloads (text analysis, speech, vision, information extraction). Microsoft's six
+    responsible AI principles are tested by name.
+  rows:
+  - foundation-model-api
+  - first-party-models
+  - provisioned-throughput
+  - guardrails
+  - text-analytics
+  - speech-to-text
+  - text-to-speech
+  - image-analysis
+  - multimodal-extraction
+- name: Implement AI solutions by using Microsoft Foundry
+  weight: 55–60%
+  areas:
+  - Implement generative AI apps and agents by using Foundry
+  - Implement AI solutions for text and speech by using Foundry
+  - Implement AI solutions with computer vision and image-generation capabilities by using Foundry
+  - Implement AI solutions for information extraction by using Foundry
+  aws: >-
+    Hands-on in Foundry. Bedrock model access and the Converse API map to Foundry model deployments and the Foundry SDK. Bedrock
+    Agents/AgentCore map to Foundry Agent Service. Transcribe and Polly map to Azure Speech in Foundry Tools. Textract and
+    Bedrock Data Automation map to Content Understanding.
+  rows:
+  - foundation-model-api
+  - managed-agents
+  - agent-tools
+  - speech-to-text
+  - text-to-speech
+  - realtime-voice
+  - image-analysis
+  - document-ocr
+  - multimodal-extraction
+  - text-analytics
+gotchas:
+- title: It's no longer purely conceptual
+  detail: >-
+    AI-900 and AWS AIF-C01 are "describe" exams. AI-901 spends 55–60% on implementing with Foundry: prompts, deploying a model,
+    building a chat client and a single agent with the SDK, plus speech, vision and extraction apps.
+- title: Naming churn
+  detail: >-
+    The platform is now Microsoft Foundry (previously Azure AI Foundry / Azure AI Studio), and the prebuilt AI services are
+    grouped as Foundry Tools. Older study material uses the old names.
+- title: Six responsible AI principles
+  detail: >-
+    Fairness, reliability and safety, privacy and security, inclusiveness, transparency, and accountability. Expect scenario
+    questions that map a concern to a principle.
+- title: Content Understanding replaces several older services in scope
+  detail: >-
+    Extracting information from documents, images, audio and video is taught through Azure Content Understanding, which plays
+    the role of Bedrock Data Automation.
+closest_aws:
+- code: AIF-C01
+  why: Same tier. AI-901 adds hands-on SDK work that AIF-C01 doesn't have.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-901
+- https://learn.microsoft.com/en-us/credentials/certifications/exams/ai-901/
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-900
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-fundamentals/
+- https://learn.microsoft.com/en-us/azure/ai-foundry/what-is-azure-ai-foundry

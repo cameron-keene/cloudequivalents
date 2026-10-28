@@ -1,0 +1,121 @@
+# Exam guide for AWS engineers: AZ-400. Weights and areas copied from the official study guide.
+code: AZ-400
+order: 5
+title: Designing and Implementing Microsoft DevOps Solutions
+last_verified: '2026-10-27'
+skills_as_of: '2026-07-27'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-400
+passing_score: 700
+summary: >-
+  AZ-400 is the DevOps Engineer Expert exam. More than half of it is build and release pipelines, split between GitHub (Actions,
+  Advanced Security, Packages) and Azure DevOps (Boards, Repos, Pipelines, Artifacts). If you know AWS CodePipeline and CodeBuild,
+  the concepts transfer, but very few questions are about AWS-style managed CI/CD services.
+audience:
+- AWS DevOps engineers (the DOP-C02 audience) moving pipelines to GitHub or Azure DevOps.
+- Platform engineers who own CI/CD, IaC and release governance for Azure workloads.
+- Anyone who already holds an Azure Administrator Associate certification. A related associate certification is required for
+  the Expert credential.
+prereq: >-
+  Microsoft lists the Azure Administrator Associate or Azure Developer Associate certification as the prerequisite for DevOps
+  Engineer Expert. The Azure Developer Associate (AZ-204) is retired, so for most new candidates that means AZ-104.
+domains:
+- name: Design and implement processes and communications
+  weight: 10–15%
+  areas:
+  - Design and implement traceability and flow of work
+  - Design and implement appropriate metrics and queries for DevOps
+  - Configure collaboration and communication
+  aws: >-
+    No AWS equivalent is tested. This domain covers Azure Boards and GitHub Projects for work tracking, dashboards and DevOps
+    metrics (cycle time, lead time), wikis, release notes and Teams integration.
+  rows: []
+- name: Design and implement a source control strategy
+  weight: 10–15%
+  areas:
+  - Design and implement branching strategies for the source code
+  - Configure and manage repositories
+  aws: >-
+    Git branching (trunk-based, feature branches), pull-request policies and branch protection are tool-agnostic. CodeCommit
+    experience carries over only conceptually. Expect Git LFS, repository scaling and removing secrets from history.
+  rows: []
+- name: Design and implement build and release pipelines
+  weight: 50–55%
+  areas:
+  - Design and implement a package management strategy
+  - Design and implement a testing strategy for pipelines
+  - Design and implement pipelines
+  - Design and implement deployments
+  - Design and implement infrastructure as code (IaC)
+  - Maintain pipelines
+  aws: >-
+    This domain is about half the exam. CodeBuild/CodePipeline/CodeDeploy map to GitHub Actions or Azure Pipelines YAML, with
+    environments, checks and approvals. CodeArtifact maps to Azure Artifacts and GitHub Packages. CloudFormation/CDK map to
+    Bicep/ARM (and Terraform). AppConfig feature flags map to Azure App Configuration feature management. Blue-green and canary
+    deployments target App Service slots, AKS and Container Apps.
+  rows:
+  - container-registry
+  - app-platform
+  - managed-kubernetes
+  - container-orchestrator
+  - serverless-functions
+  - landing-zones
+- name: Develop a security and compliance plan
+  weight: 10–15%
+  areas:
+  - Design and implement authentication and authorization methods
+  - Design and implement a strategy for managing sensitive information in automation
+  - Automate security and compliance scanning
+  aws: >-
+    Secrets Manager maps to Key Vault. GitHub-to-AWS OIDC role trust maps to Entra workload identity federation (secretless
+    service connections). Inspector and ECR scanning map to GitHub Advanced Security, Dependabot and Defender for Cloud DevOps
+    security.
+  rows:
+  - secrets-management
+  - workload-identity
+  - external-workload-federation
+  - vulnerability-scanning
+  - security-posture
+- name: Implement an instrumentation strategy
+  weight: 5–10%
+  areas:
+  - Configure monitoring for a DevOps environment
+  - Analyze metrics from instrumentation
+  aws: >-
+    CloudWatch and X-Ray map to Azure Monitor, Application Insights and Log Analytics. Queries are KQL.
+  rows:
+  - audit-logging
+gotchas:
+- title: Azure DevOps is its own SaaS
+  detail: >-
+    An Azure DevOps organization (Boards, Repos, Pipelines, Artifacts, Test Plans) is separate from Azure subscriptions. It
+    reaches Azure through service connections. Projects, teams, security groups and stakeholder access are their own permission
+    system.
+- title: Two pipeline products
+  detail: >-
+    Questions mix GitHub Actions workflows and Azure Pipelines YAML: stages, jobs, templates, variable groups, self-hosted
+    agents vs runners. Migrating classic release pipelines to YAML is an explicit objective.
+- title: Secretless authentication
+  detail: >-
+    Prefer Entra workload identity federation (OIDC) for GitHub Actions and Azure DevOps service connections over stored service
+    principal secrets. It's the same idea as an AWS IAM OIDC identity provider for GitHub.
+- title: GitHub Advanced Security
+  detail: >-
+    Code scanning (CodeQL), secret scanning and dependency review appear by name, including Advanced Security for Azure DevOps
+    and its integration with Defender for Cloud. AWS has no single equivalent.
+- title: KQL for instrumentation
+  detail: >-
+    The instrumentation domain expects basic KQL over Azure Monitor Logs and Application Insights, not CloudWatch Logs Insights.
+- title: A new expert exam in beta
+  detail: >-
+    Microsoft has an Agentic DevOps Engineer Expert certification (exam AZ-401) in beta. AZ-400 itself shows no retirement
+    date.
+closest_aws:
+- code: DOP-C02
+  why: Same role. AZ-400 is tool-specific to GitHub and Azure DevOps rather than to cloud-native CI/CD services.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-400
+- https://learn.microsoft.com/en-us/credentials/certifications/devops-engineer/
+- https://learn.microsoft.com/en-us/azure/devops/user-guide/what-is-azure-devops
+- https://learn.microsoft.com/en-us/azure/devops/pipelines/library/service-endpoints
+- https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation
+- https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-feature-management

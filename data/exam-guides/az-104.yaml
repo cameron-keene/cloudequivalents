@@ -1,0 +1,162 @@
+# Exam guide for AWS engineers: AZ-104. Weights and areas copied from the official study guide.
+code: AZ-104
+order: 2
+title: Microsoft Azure Administrator
+last_verified: '2026-10-27'
+skills_as_of: '2026-04-17'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104
+passing_score: 700
+summary: >-
+  AZ-104 is the hands-on Azure administration exam. It covers identity and governance, storage, compute, networking, monitoring
+  and backup. For an AWS engineer it lines up closely with the CloudOps (SysOps) skill set, but the tooling, portal flows
+  and several networking and storage defaults are different.
+audience:
+- AWS CloudOps/SysOps administrators and platform engineers taking over Azure subscriptions.
+- Engineers who will run VMs, storage accounts, VNets and backup in Azure day to day.
+- Anyone aiming for Azure Solutions Architect Expert or DevOps Engineer Expert. Both list the Azure Administrator Associate
+  certification as a prerequisite option.
+domains:
+- name: Manage Azure identities and governance
+  weight: 20–25%
+  areas:
+  - Manage Microsoft Entra users and groups
+  - Manage access to Azure resources
+  - Manage Azure subscriptions and governance
+  aws: >-
+    IAM users and groups become Microsoft Entra users and groups, with license assignment and self-service password reset
+    added on top. IAM policies become Azure RBAC role assignments at management group, subscription, resource group or resource
+    scope. Organizations, SCPs, tagging and Budgets become management groups, Azure Policy, tags, and Cost Management budgets
+    and alerts. Resource locks are new.
+  rows:
+  - cloud-iam
+  - workforce-sso
+  - multi-account-organization
+  - org-guardrails
+  - config-compliance
+  - rightsizing
+- name: Implement and manage storage
+  weight: 15–20%
+  areas:
+  - Configure access to storage
+  - Configure and manage storage accounts
+  - Configure Azure Files and Azure Blob Storage
+  aws: >-
+    S3 maps to Blob Storage, and EFS and FSx for Windows map to Azure Files, but both live inside a storage account that also
+    sets networking, encryption and redundancy. Presigned URLs map to shared access signatures (SAS). S3 lifecycle rules,
+    versioning and replication map to blob lifecycle management, blob versioning and object replication. DataSync and the
+    AWS CLI map to AzCopy and Storage Explorer.
+  rows:
+  - object-storage
+  - object-access-control
+  - storage-classes
+  - object-lifecycle
+  - object-replication
+  - object-lock
+  - nfs-file-storage
+  - windows-file-storage
+  - online-data-migration
+- name: Deploy and manage Azure compute resources
+  weight: 20–25%
+  areas:
+  - Automate deployment of resources by using Azure Resource Manager (ARM) templates or Bicep files
+  - Create and configure virtual machines
+  - Provision and manage containers in the Azure portal
+  - Create and configure Azure App Service
+  aws: >-
+    CloudFormation maps to ARM templates and Bicep. You need to read and modify them, not just deploy them. EC2 and Auto Scaling
+    groups map to Virtual Machines and Virtual Machine Scale Sets. ECR, Fargate and App Runner map to Azure Container Registry,
+    Container Instances and Container Apps. Elastic Beanstalk maps to App Service, where deployment slots, App Service plans
+    and custom domain/TLS binding are heavily tested.
+  rows:
+  - virtual-servers
+  - instance-families
+  - block-volumes
+  - auto-scaling
+  - container-registry
+  - serverless-containers
+  - container-orchestrator
+  - app-platform
+  - simple-container-web
+- name: Implement and manage virtual networking
+  weight: 15–20%
+  areas:
+  - Configure and manage virtual networks in Azure
+  - Configure secure access to virtual networks
+  - Configure name resolution and load balancing
+  aws: >-
+    VPC maps to Virtual Network. Security groups and NACLs map to network security groups (NSGs) and application security
+    groups. Session Manager/bastion hosts map to Azure Bastion. Gateway and interface endpoints map to service endpoints and
+    private endpoints. Route 53 maps to Azure DNS, and NLB to Azure Load Balancer. Expect troubleshooting questions on effective
+    NSG rules and effective routes.
+  rows:
+  - virtual-network
+  - subnets-zones
+  - vnet-peering
+  - public-ip-addresses
+  - route-tables
+  - internet-egress
+  - instance-firewall
+  - vm-remote-access
+  - service-endpoints
+  - private-endpoints
+  - public-dns
+  - private-dns
+  - network-load-balancing
+  - network-diagnostics
+- name: Monitor and maintain Azure resources
+  weight: 10–15%
+  areas:
+  - Monitor resources in Azure
+  - Implement backup and recovery
+  aws: >-
+    CloudWatch metrics, Logs and alarms map to Azure Monitor metrics, Log Analytics and alert rules with action groups. Queries
+    use KQL, not CloudWatch Logs Insights syntax. VPC Reachability Analyzer and flow logs map to Network Watcher and Connection
+    Monitor. AWS Backup maps to Azure Backup, and Elastic Disaster Recovery maps to Azure Site Recovery.
+  rows:
+  - backup-service
+  - disaster-recovery
+  - flow-logs
+  - network-diagnostics
+  - audit-logging
+gotchas:
+- title: Subnets are regional, not zonal
+  detail: >-
+    An AWS subnet lives in one Availability Zone. An Azure subnet spans every zone in the region, and you pick the zone on
+    the VM, disk or zonal resource instead. Designs that use "one subnet per AZ" don't carry over.
+- title: NSGs are stateful but have allow and deny rules with priorities
+  detail: >-
+    AWS splits this between stateful, allow-only security groups and stateless NACLs. An Azure NSG is stateful, has numbered
+    priority rules that can allow or deny, includes default rules, and can be attached to a subnet, a NIC, or both. When both
+    are attached, traffic has to pass both.
+- title: Storage account keys are all-powerful
+  detail: >-
+    An account access key grants full access to the whole storage account. Prefer Microsoft Entra authorization and user delegation
+    SAS. A stored access policy lets you revoke a service SAS without rotating the keys.
+- title: Two kinds of backup vault
+  detail: >-
+    Azure Backup uses Recovery Services vaults for some workloads (for example VMs and SQL in VMs) and Backup vaults for others
+    (for example blobs, disks and PostgreSQL). The exam expects you to know which vault type a workload needs.
+- title: App Service plans are the compute
+  detail: >-
+    Apps run on an App Service plan, which is the VM capacity you pay for. Several apps can share one plan, and scaling happens
+    on the plan. Deployment slots (staging, swap) are a plan-tier feature with no direct Elastic Beanstalk equivalent other
+    than swapping environment URLs.
+- title: Basic SKUs are gone
+  detail: >-
+    Basic Load Balancer and Basic public IP SKUs were retired on Sep 30, 2025. Current questions assume Standard SKUs, which
+    are secure by default (closed to inbound traffic unless an NSG allows it).
+closest_aws:
+- code: SOA-C03
+  why: 'Same operational scope: deploy, manage, monitor and back up workloads.'
+- code: SAA-C03
+  why: Partial overlap on networking, storage and compute design.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-104
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/
+- https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview
+- https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview
+- https://learn.microsoft.com/en-us/azure/backup/backup-azure-recovery-services-vault-overview
+- https://learn.microsoft.com/en-us/azure/backup/backup-vault-overview
+- https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans
+- https://learn.microsoft.com/en-us/azure/load-balancer/skus
+- https://learn.microsoft.com/en-us/azure/virtual-network/ip-services/public-ip-addresses

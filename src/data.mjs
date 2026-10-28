@@ -80,5 +80,25 @@ export function loadData() {
       if (!s.rows.length) errors.push(`${p.id}: service ${s.slug} is not used by any row`);
     }
   }
-  return { ROOT, config, providers, allProviders, exams, services, categories, rowsById, errors };
+  // Exam guides for cloud switchers: data/exam-guides/<code>.yaml -> /exams/<code>-for-aws-engineers/
+  const examGuides = new Map();
+  const gdir = path.join(ROOT, 'data/exam-guides');
+  if (fs.existsSync(gdir)) for (const f of fs.readdirSync(gdir).filter((f) => f.endsWith('.yaml')).sort()) {
+    const g = read(`data/exam-guides/${f}`);
+    const where = `exam guide ${f}`;
+    if (!exams.has(g.code)) errors.push(`${where}: unknown exam ${g.code}`);
+    for (const k of ['title', 'last_verified', 'study_guide', 'summary', 'audience', 'domains', 'gotchas', 'sources']) if (!g[k] || (Array.isArray(g[k]) && !g[k].length)) errors.push(`${where}: missing ${k}`);
+    for (const d of g.domains || []) {
+      if (!d.name || !/^\d+–\d+%$/.test(d.weight || '')) errors.push(`${where}: domain needs name and weight like 20–25% (${d.name})`);
+      for (const id of d.rows || []) if (!rowsById.has(id)) errors.push(`${where}: unknown row ${id}`);
+    }
+    for (const c of g.closest_aws || []) if (!exams.has(c.code)) errors.push(`${where}: unknown AWS exam ${c.code}`);
+    g.file = `data/exam-guides/${f}`;
+    g.slug = `${g.code.toLowerCase()}-for-aws-engineers`;
+    g.url = `/exams/${g.slug}/`;
+    if (examGuides.has(g.code)) errors.push(`${where}: duplicate guide for ${g.code}`);
+    examGuides.set(g.code, g);
+  }
+  const sortedGuides = new Map([...examGuides.entries()].sort((a, b) => (a[1].order ?? 99) - (b[1].order ?? 99)));
+  return { ROOT, config, providers, allProviders, exams, services, categories, rowsById, examGuides: sortedGuides, errors };
 }

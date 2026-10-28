@@ -6,7 +6,7 @@ import { makeOgRenderer } from './og.mjs';
 
 const D = loadData();
 if (D.errors.length) { console.error('Data errors:\n' + D.errors.join('\n')); process.exit(1); }
-const { ROOT, config, providers, exams, services, categories, rowsById } = D;
+const { ROOT, config, providers, exams, services, categories, rowsById, examGuides } = D;
 const OUT = path.join(ROOT, 'dist');
 fs.rmSync(OUT, { recursive: true, force: true });
 const renderOg = makeOgRenderer(ROOT);
@@ -143,6 +143,10 @@ ${KEY_JS}<script src="${rel('/assets/site.js')}" defer></script>${scripts}${ANAL
 const sourcesList = (urls) => `<ul class="sources">${urls.map((u) => `<li><a href="${esc(u)}" rel="noopener">${esc(host(u))}<span class="path">${esc(new URL(u).pathname.replace(/\/$/, '').slice(0, 90))}</span></a></li>`).join('')}</ul>`;
 
 // ---------- compare pages ----------
+const guideLink = (code) => examGuides.get(code);
+// Row id -> exam guides whose domains list that row.
+const guidesByRow = new Map();
+for (const g of examGuides.values()) for (const d of g.domains) for (const id of d.rows || []) { const l = guidesByRow.get(id) || []; if (!l.includes(g)) l.push(g); guidesByRow.set(id, l); }
 function examsFor(r) { return providers.flatMap((p) => (r.exams?.[p.id] || [])); }
 
 function derivedFaq(r) {
@@ -208,8 +212,9 @@ ${rest(r.answer) ? `<p class="lede">${esc(rest(r.answer))}</p>` : ''}
 <dl class="pricing">${providers.map((p) => `<div><dt class="p-${p.id}">${esc(p.name)}</dt><dd>${esc(r.pricing?.[p.id] || 'No direct equivalent.')}${r.svc[p.id].filter((s) => s.pricing).map((s) => ` <a href="${esc(s.pricing)}" rel="noopener">${esc(s.name)} pricing →</a>`).join('')}</dd></div>`).join('')}</dl></section>
 ${ex.length ? `<section aria-labelledby="t-exam"><h2 id="t-exam">Certification exam mapping</h2>
 <table class="exams"><thead><tr><th scope="col">Exam</th><th scope="col">Provider</th><th scope="col">Level</th><th scope="col">Status</th></tr></thead><tbody>
-${ex.map((c) => { const e = exams.get(c); return `<tr><td><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a>${e.unverified_code ? '' : ` <span class="code">${esc(e.code)}</span>`}</td><td>${esc(providers.find((p) => p.id === e.provider)?.name || e.provider)}</td><td>${esc(e.level)}</td><td>${esc(e.status)}${e.note ? `<div class="small muted">${esc(e.note)}</div>` : ''}</td></tr>`; }).join('')}
+${ex.map((c) => { const e = exams.get(c); return `<tr><td><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a>${e.unverified_code ? '' : ` <span class="code">${esc(e.code)}</span>`}${guideLink(c) ? `<div class="small"><a href="${guideLink(c).url}">${esc(c)} guide for AWS engineers →</a></div>` : ''}</td><td>${esc(providers.find((p) => p.id === e.provider)?.name || e.provider)}</td><td>${esc(e.level)}</td><td>${esc(e.status)}${e.note ? `<div class="small muted">${esc(e.note)}</div>` : ''}</td></tr>`; }).join('')}
 </tbody></table><p class="small muted">Relevance is based on each exam's published scope, not a line-by-line objective match. Check the official study guide.</p></section>` : ''}
+${guidesByRow.get(r.id) ? `<section aria-labelledby="t-guides"><h2 id="t-guides">Azure exam guides for AWS engineers</h2><p>This comparison is on the study list for: ${guidesByRow.get(r.id).map((g) => `<a href="${g.url}">${esc(g.code)} for AWS engineers</a>`).join(', ')}.</p></section>` : ''}
 ${r.flags?.length ? `<section aria-labelledby="t-flag" class="flags"><h2 id="t-flag">Verification notes</h2><ul>${r.flags.map((f) => `<li>${esc(f)}</li>`).join('')}</ul></section>` : ''}
 <section aria-labelledby="t-faq"><h2 id="t-faq">FAQ</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>
 ${related.length ? `<section aria-labelledby="t-rel"><h2 id="t-rel">Related comparisons</h2><ul class="related">${related.map((x) => `<li><a href="${x.url}">${esc(x.capability)}</a> <span class="muted small">${esc(joinNames(names(x.svc[PA.id])))} → ${esc(joinNames(names(x.svc[PB.id])) || 'none')}</span></li>`).join('')}</ul></section>` : ''}
@@ -340,6 +345,72 @@ function categoryIndex() {
 }
 
 // ---------- exams page ----------
+// ---------- exam guides for AWS engineers ----------
+function examGuidePage(g) {
+  const e = exams.get(g.code);
+  const url = g.url;
+  const alt = (g.alt_codes || []).length ? ` (replaces ${g.alt_codes.join(', ')})` : '';
+  const h1 = `${g.code}${alt} for AWS engineers: ${g.title}`;
+  const title = clip(`${g.code}${(g.alt_codes || []).length ? ` (${g.alt_codes.join(', ')})` : ''} for AWS engineers: domains mapped to AWS`, 65);
+  const description = clip(`${g.code} (${g.title}) study guide for AWS engineers: official domains and weights, how each maps to AWS services you know, and the Azure concepts that trip AWS people up.`, 158);
+  const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: 'Exams', url: '/exams/' }, { name: `${g.code} for AWS engineers`, url }]);
+  const awsName = (r) => joinNames(names(r.svc[PA.id])) || 'none';
+  const azName = (r) => joinNames(names(r.svc[PB.id])) || 'none';
+  const closest = (g.closest_aws || []).map((c) => { const x = exams.get(c.code); return `<li><a href="${esc(x.url)}" rel="noopener">${esc(x.name)}</a>${x.unverified_code ? '' : ` <span class="code">${esc(x.code)}</span>`}${statusBadge(x.status)}: ${esc(c.why)}${x.note ? ` <span class="small muted">${esc(x.note)}</span>` : ''}</li>`; }).join('');
+  const domainRows = g.domains.map((d, i) => `<tr><td><a href="#d${i + 1}">${esc(d.name)}</a></td><td class="code">${esc(d.weight)}</td><td>${(d.rows || []).length || '—'}</td></tr>`).join('');
+  const domains = g.domains.map((d, i) => {
+    const rows = (d.rows || []).map((id) => rowsById.get(id));
+    return `<section class="exam-domain" aria-labelledby="d${i + 1}"><h3 id="d${i + 1}">${i + 1}. ${esc(d.name)} <span class="badge">${esc(d.weight)}</span></h3>
+<p class="small muted">Official skill areas: ${esc(d.areas.join(' · '))}</p>
+<p><strong>From AWS:</strong> ${esc(d.aws)}</p>
+${rows.length ? `<p class="small muted">Compare pages to study (${rows.length}):</p><ul class="related">${rows.map((r) => `<li><a href="${r.url}">${esc(r.capability)}</a> <span class="muted small">${esc(awsName(r))} → ${esc(azName(r))}</span></li>`).join('')}</ul>` : '<p class="small muted">No AWS↔Azure service comparison on this site maps to this domain.</p>'}</section>`;
+  }).join('\n');
+  const faq = [
+    { q: `What does ${g.code} cover, and how is it weighted?`, a: `${g.code} (${g.title}) has ${g.domains.length} domains: ${g.domains.map((d) => `${d.name} (${d.weight})`).join('; ')}. Weights are from the official Microsoft Learn study guide${g.skills_as_of ? ` (skills measured as of ${fmtDate(g.skills_as_of)})` : ''}.` },
+    { q: `What is the closest AWS certification to ${g.code}?`, a: (g.closest_aws || []).length ? g.closest_aws.map((c) => { const x = exams.get(c.code); return `${x.name}${x.unverified_code ? '' : ` (${x.code})`}: ${c.why}`; }).join(' ') : (g.closest_aws_note || 'None.') },
+    { q: `Is ${g.code} a current exam?`, a: `As of ${fmtDate(g.last_verified)}, Microsoft Learn lists ${g.code} as ${e.status}.${e.note ? ' ' + e.note : ''}` },
+  ];
+  const body = `${bc.html}
+<article class="doc">
+<header class="doc-head">
+<p class="kicker">Exam guide for cloud switchers · ${esc(e.level)}</p>
+<h1>${esc(h1)}</h1>
+<p class="answer"><strong>${esc(firstSentence(g.summary))}</strong></p>
+${rest(g.summary) ? `<p class="lede">${esc(rest(g.summary))}</p>` : ''}
+<p class="meta small">Last verified: <time datetime="${g.last_verified}">${fmtDate(g.last_verified)}</time> against the <a href="${esc(g.study_guide)}" rel="noopener">official ${esc(g.code)} study guide</a> · <a href="${editUrl(g.file)}" rel="noopener">Edit on GitHub</a> · <a href="${issueUrl('Correction: exam guide ' + g.code)}" rel="noopener">Report an error</a></p>
+</header>
+<section aria-labelledby="t-facts"><h2 id="t-facts">Exam at a glance</h2>
+<div class="tscroll"><table class="facts"><tbody>
+<tr><th scope="row">Exam</th><td>${esc(g.code)}: ${esc(g.title)}</td></tr>
+<tr><th scope="row">Certification</th><td><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a> (${esc(e.level)})</td></tr>
+<tr><th scope="row">Status</th><td>${esc(e.status)}${statusBadge(e.status)}${e.note ? `<div class="small muted">${esc(e.note)}</div>` : ''}</td></tr>
+<tr><th scope="row">Skills measured as of</th><td>${g.skills_as_of ? fmtDate(g.skills_as_of) : 'Not stated on the study guide'}</td></tr>
+<tr><th scope="row">Passing score</th><td>${esc(String(g.passing_score))} or greater (per the study guide)</td></tr>
+${g.prereq ? `<tr><th scope="row">Prerequisite</th><td>${esc(g.prereq)}</td></tr>` : ''}
+<tr><th scope="row">Closest AWS cert</th><td>${(g.closest_aws || []).map((c) => esc(examLabel(c.code))).join(', ') || 'None current'}</td></tr>
+</tbody></table></div>
+<p class="small muted">Exam prices vary by country and are set on the exam page, so none are quoted here. Microsoft doesn't publish pass rates.</p></section>
+<section aria-labelledby="t-who"><h2 id="t-who">Who it's for</h2><ul class="diffs">${g.audience.map((a) => `<li>${esc(a)}</li>`).join('')}</ul></section>
+<section aria-labelledby="t-dom"><h2 id="t-dom">Domains and how they map to AWS</h2>
+<div class="tscroll"><table class="exams"><thead><tr><th scope="col">Domain (official)</th><th scope="col">Weight</th><th scope="col">Compare pages</th></tr></thead><tbody>${domainRows}</tbody></table></div>
+${domains}</section>
+<section aria-labelledby="t-trip"><h2 id="t-trip">Concepts that trip AWS engineers up</h2>${g.gotchas.map((x) => `<h3>${esc(x.title)}</h3><p>${esc(x.detail)}</p>`).join('')}</section>
+<section aria-labelledby="t-aws"><h2 id="t-aws">Closest AWS certification</h2>${closest ? `<ul class="diffs">${closest}</ul>` : ''}${g.closest_aws_note ? `<p>${esc(g.closest_aws_note)}</p>` : ''}</section>
+${g.flags?.length ? `<section aria-labelledby="t-flag" class="flags"><h2 id="t-flag">Verification notes</h2><ul>${g.flags.map((f) => `<li>${esc(f)}</li>`).join('')}</ul></section>` : ''}
+<section aria-labelledby="t-faq"><h2 id="t-faq">FAQ</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>
+<section aria-labelledby="t-more"><h2 id="t-more">Other exam guides</h2><ul class="related">${[...examGuides.values()].filter((x) => x.code !== g.code).map((x) => `<li><a href="${x.url}">${esc(x.code)} for AWS engineers</a> <span class="muted small">${esc(x.title)}</span></li>`).join('')}</ul></section>
+<section aria-labelledby="t-src"><h2 id="t-src">Official sources</h2>${sourcesList(g.sources)}</section>
+</article>`;
+  const og = `/og/exams/${g.slug}.png`;
+  renderOg({ kicker: 'Exam guide for AWS engineers', title: `${g.code}${alt}: ${g.title}`, subtitle: g.domains.map((d) => `${d.name} ${d.weight}`).join(' · '), badge: e.level, siteName: config.siteName }, path.join(OUT, og));
+  const ld = [bc.ld,
+    { '@type': 'TechArticle', headline: h1, description, url: abs(url), dateModified: g.last_verified, inLanguage: 'en', image: abs(og),
+      about: { '@type': 'EducationalOccupationalCredential', name: e.name, credentialCategory: 'certification', url: e.url, recognizedBy: { '@type': 'Organization', name: 'Microsoft' } },
+      audience: { '@type': 'Audience', audienceType: 'AWS engineers learning Azure' }, isPartOf: { '@type': 'WebSite', name: config.siteName, url: BASE + '/' }, citation: g.sources },
+    { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }];
+  write(url, page({ url, title, description, h1, body, ld, ogImage: og, active: 'exams' }));
+}
+
 function examsPage() {
   const url = '/exams/';
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: 'Exams', url }]);
@@ -348,9 +419,12 @@ function examsPage() {
   const body = `${bc.html}<article class="doc wide"><header class="doc-head"><h1>${esc(h1)}</h1>
 <p class="answer"><strong>Which comparisons to study for each AWS and Microsoft certification, including exams that are retiring or retired.</strong></p>
 <p class="small muted">Relevance is based on each exam's published scope summary. Always check the official exam guide.</p></header>
+${examGuides.size ? `<section aria-labelledby="ex-guides"><h2 id="ex-guides">Azure exam guides for AWS engineers</h2>
+<p>For each exam: who it's for, the official domains and weights, how each domain maps to the AWS services you already know, and the Azure concepts that trip AWS people up.</p>
+<div class="cat-cards">${[...examGuides.values()].map((g) => `<div class="cat-card"><h3><a href="${g.url}">${esc(g.code)} for AWS engineers</a></h3><p class="small">${esc(g.title)} · ${esc(exams.get(g.code).level)}</p><p class="small muted">${g.domains.length} domains · closest AWS: ${esc((g.closest_aws || []).map((c) => examLabel(c.code)).join(', ') || 'none')}</p></div>`).join('')}</div></section>` : ''}
 ${providers.map((p) => `<section aria-labelledby="ex-${p.id}"><h2 id="ex-${p.id}">${esc(p.long_name)}</h2>
 ${[...exams.values()].filter((e) => e.provider === p.id).map((e) => { const rows = all.filter((r) => (r.exams?.[p.id] || []).includes(e.code)); return `<div class="exam-block" id="${esc(e.code)}"><h3><a href="${esc(e.url)}" rel="noopener">${esc(e.name)}</a>${e.unverified_code ? '' : ` <span class="code">${esc(e.code)}</span>`}${statusBadge(e.status)}</h3>
-<p class="small">${esc(e.level)}${e.note ? ` · ${esc(e.note)}` : ''}</p>
+<p class="small">${esc(e.level)}${e.note ? ` · ${esc(e.note)}` : ''}</p>${guideLink(e.code) ? `<p class="small"><a href="${guideLink(e.code).url}">${esc(e.code)} guide for AWS engineers →</a></p>` : ''}
 ${rows.length ? categories.map((c) => { const cr = rows.filter((r) => r.category === c.id); return cr.length ? `<p class="small muted ex-cat">${esc(c.name)} (${cr.length})</p><ul class="cols">${cr.map((r) => `<li><a href="${r.url}">${esc(r.capability)}</a></li>`).join('')}</ul>` : ''; }).join('') : '<p class="muted small">No comparisons mapped to this exam.</p>'}</div>`; }).join('')}</section>`).join('')}
 </article>`;
   const codes = (pid) => [...exams.values()].filter((e) => e.provider === pid && e.status !== 'retired' && !e.unverified_code).map((e) => e.code);
@@ -465,6 +539,7 @@ categories.forEach(categoryPage);
 categoryIndex();
 for (const r of rowsById.values()) comparePage(r);
 for (const p of providers) { providerIndex(p); for (const s of services[p.id].values()) hubPage(p, s); }
+for (const g of examGuides.values()) examGuidePage(g);
 examsPage();
 aboutPage();
 write('/404.html', page({ url: '/404.html', title: `Not found | ${config.siteName}`, description: 'Page not found.', h1: 'Page not found', body: '<article class="doc"><h1>Page not found</h1><p>Try the <a href="/">service matrix</a> or search above.</p></article>' }).replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"'));

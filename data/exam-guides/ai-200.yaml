@@ -1,0 +1,107 @@
+# Exam guide for AWS engineers: AI-200. Weights and areas copied from the official study guide.
+code: AI-200
+order: 7
+title: Developing AI Cloud Solutions on Azure
+last_verified: '2026-10-27'
+skills_as_of: '2026-10-07'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-200
+passing_score: 700
+summary: >-
+  AI-200 is the Azure AI Cloud Developer Associate exam and the closest current successor to the retired AZ-204 developer
+  exam. It covers containers, data services with vector search, messaging and Functions, and secure, observable apps. An AWS
+  developer will recognize every building block. The details that need study are Cosmos DB request units, Functions bindings
+  and KQL.
+audience:
+- AWS developers (the DVA-C02/DVA-C03 audience) building back ends on Azure.
+- Former AZ-204 candidates. AZ-204 is retired, and AI-200 covers the same developer ground with an AI-data focus.
+- 'Engineers who build the services behind RAG and agent apps: vector stores, caches, queues and APIs.'
+domains:
+- name: Develop containerized solutions on Azure
+  weight: 20–25%
+  areas:
+  - Implement container application hosting
+  - Implement container-orchestrated solutions
+  aws: >-
+    ECR, App Runner, ECS/Fargate and EKS map to Azure Container Registry (and ACR Tasks), App Service for containers, Container
+    Apps (KEDA-based scaling) and AKS.
+  rows:
+  - container-registry
+  - simple-container-web
+  - container-orchestrator
+  - serverless-containers
+  - managed-kubernetes
+- name: Develop AI solutions by using Azure data management services
+  weight: 30–35%
+  areas:
+  - Develop AI solutions by using Azure Cosmos DB for NoSQL
+  - Develop AI solutions by using Azure Database for PostgreSQL
+  - Integrate Azure Managed Redis in AI solutions
+  aws: >-
+    DynamoDB maps to Cosmos DB for NoSQL (SDK, RUs, change feed, vector search). RDS/Aurora PostgreSQL with pgvector maps
+    to Azure Database for PostgreSQL. ElastiCache/MemoryDB maps to Azure Managed Redis, including vector indexing.
+  rows:
+  - key-value-document
+  - nosql-change-streams
+  - managed-postgresql
+  - in-memory-cache
+  - vector-storage
+- name: Connect to and consume Azure services
+  weight: 20–25%
+  areas:
+  - Develop event- and message-based AI solutions
+  - Develop and implement Azure Functions
+  aws: >-
+    SQS/SNS maps to Service Bus (queues, topics, sessions, dead-lettering). EventBridge maps to Event Grid. Lambda maps to
+    Azure Functions with triggers and bindings.
+  rows:
+  - message-queues
+  - pubsub-fanout
+  - event-bus
+  - serverless-functions
+  - function-http-endpoint
+- name: Secure, monitor, and troubleshoot Azure solutions
+  weight: 20–25%
+  areas:
+  - Implement secure Azure solutions
+  - Monitor and troubleshoot Azure solutions
+  aws: >-
+    Secrets Manager maps to Key Vault. AppConfig/Parameter Store maps to Azure App Configuration. X-Ray/ADOT maps to OpenTelemetry
+    into Azure Monitor. CloudWatch Logs Insights queries become KQL.
+  rows:
+  - secrets-management
+  - workload-identity
+gotchas:
+- title: Request Units are the currency
+  detail: >-
+    Cosmos DB charges and throttles in request units (RU/s), whether provisioned, autoscale or serverless. Query shape, indexing
+    policy and partition key choice drive RU cost much more directly than DynamoDB read and write units do.
+- title: Functions bindings
+  detail: >-
+    Azure Functions has declarative input and output bindings, for example to Cosmos DB, Service Bus or Blob Storage, as well
+    as triggers. Lambda only has triggers and event source mappings, so code that a binding replaces shows up in exam answers.
+- title: Service Bus vs Event Grid
+  detail: >-
+    Service Bus is a pull-based broker with sessions, transactions and dead-letter queues. Event Grid pushes discrete events
+    to handlers. The SQS/SNS/EventBridge split doesn't map one to one.
+- title: Container Apps scaling is KEDA
+  detail: >-
+    Scale rules (HTTP, queue length, custom) are KEDA scalers. The exam asks about configuring them directly, which ECS service
+    auto scaling doesn't prepare you for.
+- title: Successor framing is ours
+  detail: >-
+    Microsoft retired AZ-204 without naming a single replacement. We treat AI-200 as the closest current developer exam because
+    its scope covers the same building blocks.
+closest_aws:
+- code: DVA-C02
+  why: Same developer role. DVA-C02 is being replaced by DVA-C03.
+flags:
+- On the AI-200 study guide, the "Skills at a glance" list gives 30–35% for "Develop AI solutions by using Azure data management
+  services", but that section's own heading still says 25–30%. The change log says the weight increased on Oct 7, 2026, so
+  this guide uses 30–35%.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-200
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-cloud-developer-associate/
+- https://learn.microsoft.com/en-us/azure/cosmos-db/request-units
+- https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings
+- https://learn.microsoft.com/en-us/azure/container-apps/scale-app
+- https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services

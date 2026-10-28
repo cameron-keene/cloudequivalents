@@ -1,0 +1,127 @@
+# Exam guide for AWS engineers: AZ-900. Weights and areas copied from the official study guide.
+code: AZ-900
+order: 1
+title: Microsoft Azure Fundamentals
+last_verified: '2026-10-27'
+skills_as_of: '2026-07-20'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-900
+passing_score: 700
+summary: >-
+  AZ-900 checks that you can describe cloud concepts and the core Azure services, governance and management tools. If you
+  already know AWS, most of the cloud-concept domain is review, and the work is learning Azure names and the Azure resource
+  hierarchy.
+audience:
+- Engineers who know AWS and need a fast, broad map of Azure before a role-based exam.
+- Managers, architects and sales engineers who work across both clouds and need the vocabulary.
+- Anyone starting the Azure Administrator (AZ-104) or Solutions Architect (AZ-305) path. AZ-900 is not a prerequisite for
+  them.
+domains:
+- name: Describe cloud concepts
+  weight: 25–30%
+  areas:
+  - Describe cloud computing
+  - Describe the benefits of using cloud services
+  - Describe cloud service types
+  aws: >-
+    This domain is about cloud concepts, not about Azure, so it transfers almost entirely from AWS. Shared responsibility,
+    IaaS/PaaS/SaaS, consumption pricing and serverless mean the same things. Learn the Microsoft framing: public, private
+    and hybrid cloud models, and comparing pricing models (pay-as-you-go, reservations, savings plans, spot).
+  rows:
+  - serverless-functions
+  - purchase-spot
+  - commitment-reserved
+  - commitment-savings-plan
+- name: Describe Azure architecture and services
+  weight: 35–40%
+  areas:
+  - Describe the core architectural components of Azure
+  - Describe Azure compute and networking services
+  - Describe Azure storage services
+  - Describe Azure identity, access, and security
+  aws: >-
+    This is the biggest domain and has the most new vocabulary. Map AWS accounts to subscriptions and Organizations OUs to
+    management groups. Resource groups are new. Then map the services: EC2 to Virtual Machines, Auto Scaling to Virtual Machine
+    Scale Sets, Lambda to Azure Functions, Elastic Beanstalk to App Service, VPC to Virtual Network, Direct Connect to ExpressRoute,
+    S3 to Blob Storage, IAM Identity Center to Microsoft Entra ID, and GuardDuty/Security Hub to Microsoft Defender for Cloud.
+  rows:
+  - virtual-servers
+  - auto-scaling
+  - virtual-desktops
+  - app-platform
+  - container-orchestrator
+  - serverless-functions
+  - virtual-network
+  - site-to-site-vpn
+  - dedicated-connection
+  - private-endpoints
+  - object-storage
+  - storage-classes
+  - object-replication
+  - online-data-migration
+  - offline-data-transfer
+  - multi-account-organization
+  - cloud-iam
+  - workforce-sso
+  - customer-identity
+  - managed-directory
+  - threat-detection
+- name: Describe Azure management and governance
+  weight: 30–35%
+  areas:
+  - Describe cost management in Azure
+  - Describe features and tools in Azure for governance and compliance
+  - Describe features and tools for managing and deploying Azure resources
+  - Describe monitoring tools in Azure
+  aws: >-
+    Governance is where Azure differs most from AWS. Azure Policy covers ground that AWS splits between SCPs and Config rules.
+    Resource locks and tags apply at any scope. Cost Management + Billing plays the role of Cost Explorer and Budgets, and
+    Azure Advisor the role of Trusted Advisor and Compute Optimizer. ARM and Bicep are the CloudFormation equivalents. Azure
+    Monitor (with Log Analytics and Application Insights) covers CloudWatch and X-Ray.
+  rows:
+  - org-guardrails
+  - config-compliance
+  - landing-zones
+  - audit-logging
+  - rightsizing
+  - sensitive-data-discovery
+  - hybrid-database
+gotchas:
+- title: Resource groups have no AWS equivalent
+  detail: >-
+    Every Azure resource lives in exactly one resource group inside a subscription. Resource groups are a lifecycle and access
+    boundary: you can assign RBAC, policy and locks at the resource-group level, and deleting the group deletes everything
+    in it. The hierarchy is management group → subscription → resource group → resource.
+- title: Identity lives outside the subscription
+  detail: >-
+    A Microsoft Entra ID tenant is the identity directory. Subscriptions trust a tenant, and one tenant can back many subscriptions.
+    AWS IAM, by contrast, is per account. Entra roles (for managing the directory) and Azure RBAC roles (for managing resources)
+    are two separate role systems.
+- title: Permissions are role assignments, not attached policies
+  detail: >-
+    Azure RBAC grants access by assigning a role definition to a security principal at a scope, and that access is inherited
+    downward. You don't attach JSON policy documents to users the way you do with IAM. Azure Policy is a different thing:
+    it governs resource properties, not who can act.
+- title: Regions come in pairs (mostly)
+  detail: >-
+    Many Azure regions have a designated paired region that Microsoft uses for sequenced platform updates and prioritized
+    recovery. Some regions have no pair. AWS has no concept of region pairs.
+- title: Storage redundancy is a setting you choose
+  detail: >-
+    An Azure storage account holds blobs, files, queues and tables, and you choose its redundancy: LRS, ZRS, GRS or GZRS (plus
+    read-access variants). In S3 the storage class sets the durability and AZ placement, and cross-region copies need replication
+    rules.
+- title: Resource locks
+  detail: >-
+    CanNotDelete and ReadOnly locks can be applied at subscription, resource group or resource level and override RBAC permissions.
+    AWS has no general-purpose equivalent, only per-service features such as EC2 termination protection.
+closest_aws:
+- code: CLF-C02
+  why: 'Same level and purpose: broad, conceptual, no hands-on tasks.'
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/az-900
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/
+- https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview
+- https://learn.microsoft.com/en-us/azure/role-based-access-control/overview
+- https://learn.microsoft.com/en-us/azure/reliability/cross-region-replication-azure
+- https://learn.microsoft.com/en-us/azure/storage/common/storage-redundancy
+- https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources

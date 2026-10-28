@@ -1,0 +1,123 @@
+# Exam guide for AWS engineers: AI-103. Weights and areas copied from the official study guide.
+code: AI-103
+order: 8
+title: Developing AI Apps and Agents on Azure
+last_verified: '2026-10-27'
+skills_as_of: '2026-04-16'
+study_guide: https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103
+passing_score: 700
+summary: >-
+  AI-103 is the Azure AI Apps and Agents Developer Associate exam and the successor in scope to the retired AI-102. It covers
+  generative AI apps and agents in Microsoft Foundry, RAG with Azure AI Search, vision, speech, text and extraction, along
+  with responsible AI and operations. If you build on Bedrock, most domains map one to one.
+audience:
+- AWS developers building on Bedrock, Bedrock Agents/AgentCore and Knowledge Bases.
+- Former AI-102 candidates. AI-102 is retired.
+- Engineers who will own RAG pipelines, agent tools and content safety in production.
+domains:
+- name: Plan and manage an Azure AI solution
+  weight: 25–30%
+  areas:
+  - Choose the appropriate Foundry services for generative AI and agents
+  - Set up AI solutions in Foundry
+  - Manage, monitor, and secure AI systems
+  - Implement responsible AI across generative AI and agentic systems
+  aws: >-
+    Choosing models and services, infrastructure and deployment types, quotas and rate limits, monitoring and private networking,
+    plus responsible AI controls. This maps to Bedrock model choice, provisioned throughput, Guardrails and CloudWatch for
+    Bedrock.
+  rows:
+  - foundation-model-api
+  - first-party-models
+  - model-catalog-open-weights
+  - provisioned-throughput
+  - guardrails
+  - genai-evaluation
+  - agent-identity-governance
+- name: Implement generative AI and agentic solutions
+  weight: 30–35%
+  areas:
+  - Build generative applications by using Foundry
+  - Build agents by using Foundry
+  - Optimize and operationalize generative AI systems
+  aws: >-
+    Bedrock Converse, Flows and Agents/AgentCore map to Foundry SDKs, workflows and Foundry Agent Service. Multi-agent orchestration
+    and tool use map to the Microsoft Agent Framework (≈ Strands Agents). Evaluation maps to Foundry evaluations and observability.
+  rows:
+  - foundation-model-api
+  - genai-workflows
+  - managed-agents
+  - agent-tools
+  - agent-memory
+  - agent-frameworks
+  - genai-evaluation
+  - rag-knowledge-bases
+- name: Implement computer vision solutions
+  weight: 10–15%
+  areas:
+  - Design and implement image- and video-generation solutions
+  - Design and implement multimodal understanding workflows
+  - Implement responsible AI for multimodal content
+  aws: >-
+    Image and video generation (≈ Nova Canvas/Reel) and multimodal understanding with Content Understanding (≈ Rekognition
+    plus Bedrock Data Automation), with visual content safety.
+  rows:
+  - image-analysis
+  - video-analysis
+  - multimodal-extraction
+  - content-moderation
+- name: Implement text analysis solutions
+  weight: 10–15%
+  areas:
+  - Apply language model text analysis
+  - Implement speech solutions
+  aws: >-
+    Comprehend, Translate, Transcribe and Polly map to language-model text analysis, Translator and Azure Speech in Foundry
+    Tools, including speech as an agent modality.
+  rows:
+  - text-analytics
+  - pii-detection
+  - translation
+  - speech-to-text
+  - text-to-speech
+  - realtime-voice
+- name: Implement information extraction solutions
+  weight: 10–15%
+  areas:
+  - Build retrieval and grounding pipelines
+  - Extract content from documents
+  aws: >-
+    Bedrock Knowledge Bases and Kendra map to Azure AI Search (indexers, skillsets, hybrid and vector search) and Foundry
+    IQ. Textract and Bedrock Data Automation map to Content Understanding analyzers.
+  rows:
+  - rag-knowledge-bases
+  - enterprise-search
+  - vector-storage
+  - document-ocr
+  - multimodal-extraction
+gotchas:
+- title: Retrieval is a separate service
+  detail: >-
+    Bedrock Knowledge Bases bundle chunking, embedding and the vector store. On Azure you usually design the Azure AI Search
+    index, indexers and skillsets yourself, or use Foundry IQ on top. The exam tests index and query configuration such as
+    semantic ranking and hybrid search.
+- title: Deployments and quota
+  detail: >-
+    Models are deployed into a Foundry resource with a deployment type (for example standard, global or provisioned) and a
+    tokens-per-minute quota. Rate limits and PTUs are design questions, much like Bedrock on-demand vs provisioned throughput.
+- title: Content filters are on by default
+  detail: >-
+    Azure OpenAI and Foundry model deployments apply default content filtering. Guardrails are configured rather than added.
+    Bedrock Guardrails are opt-in.
+- title: Python-first
+  detail: >-
+    Microsoft notes that the exam assumes Python for code-based questions.
+closest_aws:
+- code: AWS-GAI-PRO
+  why: The closest AWS role (generative AI developer). The AWS exam is Professional level, AI-103 is Associate.
+sources:
+- https://learn.microsoft.com/en-us/credentials/certifications/resources/study-guides/ai-103
+- https://learn.microsoft.com/en-us/credentials/certifications/azure-ai-apps-and-agents-developer-associate/
+- https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search
+- https://learn.microsoft.com/en-us/azure/ai-foundry/agents/overview
+- https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/content-filter
