@@ -4,7 +4,7 @@
   "baseUrl": "https://cloudequivalents.com",
   "repoUrl": "https://github.com/cameron-keene/cloudequivalents",
   "repoBranch": "main",
-  "lastBuiltNote": "Data verified against official AWS and Microsoft documentation.",
+  "lastBuiltNote": "Data verified against official AWS, Microsoft, and Google Cloud documentation.",
   "activeProviders": [
     "aws",
     "azure",

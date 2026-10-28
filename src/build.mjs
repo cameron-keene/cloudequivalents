@@ -75,7 +75,7 @@ const HEADER = (active) => `<header class="top"><div class="wrap top-in">
 </div></header>`;
 
 const FOOTER = `<footer class="foot"><div class="wrap">
-  <p>${esc(config.siteName)} is an open-source, community-maintained study guide. It is not affiliated with Amazon Web Services or Microsoft. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
+  <p>${esc(config.siteName)} is an open-source, community-maintained study guide. It is not affiliated with Amazon Web Services, Microsoft, or Google. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
   <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
 </div></footer>`;
 
@@ -558,7 +558,7 @@ function aboutPage() {
   const body = `${bc.html}<article class="doc"><header class="doc-head"><h1>${esc(h1)}</h1>
 <p class="answer"><strong>${esc(config.siteName)} is an open-source study guide that maps cloud services between providers, with every claim tied to official documentation.</strong></p></header>
 <h2>Verification policy</h2><ul class="diffs">
-<li>Each mapping cites official AWS and Microsoft documentation, and the comparison is checked against those pages on the "Last verified" date.</li>
+<li>Each mapping cites official AWS and Microsoft documentation (and Google Cloud documentation for the GCP column), and the comparison is checked against those pages on the "Last verified" date.</li>
 <li>Lifecycle states (preview, maintenance, sunset, deprecated, retired) come from the vendors' own lifecycle and retirement pages.</li>
 <li>Prices are never quoted. Pages describe the pricing model and link to the official pricing page.</li>
 <li>Anything that could not be confirmed is listed under "Verification notes" on that page rather than stated as fact.</li>
