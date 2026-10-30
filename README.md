@@ -248,3 +248,10 @@ Community-maintained and not affiliated with Amazon Web Services or Microsoft. P
 ## License
 
 MIT (see `LICENSE`). Copyright (c) 2026 Cameron Keene.
+
+## Change log, newsletter, analytics and AI agents
+
+- **What changed** (`/changes/`, Atom at `/changes/feed.xml`): add an entry to `data/changes.yaml` (`date: 'YYYY-MM-DD'`, `title`, `summary`, optional `links` and `commit`). One entry per date; `npm run validate` checks it.
+- **Newsletter signup** (blog, blog posts, change log): set `site.config.json` → `"newsletter": { "provider": "buttondown", "url": "https://buttondown.com/api/emails/embed-subscribe/<username>" }`. Empty provider renders nothing.
+- **Analytics**: `"analytics": { "provider": "goatcounter", "code": "<site code>" }` adds GoatCounter's script to every page (`https://<code>.goatcounter.com/count`). `aiReferrers` lists AI assistant hosts; `npm run ai-referrers -- export.csv` counts AI-referred visits in a GoatCounter CSV export.
+- **For AI agents**: `robots.txt` explicitly allows search and AI crawlers, `/llms.txt` points to the dataset, hubs, exams, blog and change log, and `/api/v1/mappings.json` / `.csv` hold all mappings. IndexNow is pinged after every deploy.

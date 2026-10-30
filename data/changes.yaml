@@ -1,0 +1,22 @@
+# Public "What changed" log, rendered at /changes/ and /changes/feed.xml (newest first is not required; the build sorts by date).
+# Each entry: date (YYYY-MM-DD), title, summary, optional links (site paths or https URLs) and commit (short git hash).
+- date: '2026-10-19'
+  title: Launch with AWS ↔ Azure AI & ML mappings
+  summary: First release of the study guide, covering AWS to Azure equivalents for AI and machine learning services, each checked against official documentation, with a collapsible service matrix.
+  links: ['/category/ai-ml/']
+  commit: a8a8d2f
+- date: '2026-10-24'
+  title: Six new categories and the cloudequivalents.com domain
+  summary: Added Compute, Containers & serverless, Storage, Databases, Networking & content delivery, and Identity & security (267 AWS ↔ Azure mappings in total), moved the canonical site to https://cloudequivalents.com, and started submitting new and changed pages to IndexNow on every deploy.
+  links: ['/category/']
+  commit: 5798401
+- date: '2026-10-27'
+  title: Google Cloud column and Azure exam guides
+  summary: Every mapping now also lists its Google Cloud equivalent, with a separate AWS vs Google Cloud comparison page per row. Added 10 Azure certification guides written for AWS engineers.
+  links: ['/gcp/', '/exams/']
+  commit: b7dd3cf
+- date: '2026-10-29'
+  title: Open dataset (JSON and CSV)
+  summary: All 267 mappings are now downloadable as MIT-licensed JSON and CSV, regenerated on every build, with field docs and a suggested citation. Sitemap dates now reflect each page's own review date.
+  links: ['/data/', '/api/v1/mappings.json', '/api/v1/mappings.csv']
+  commit: c65892b

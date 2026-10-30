@@ -1,6 +1,7 @@
 // Static site generator: YAML data -> fully pre-rendered HTML in dist/.
 import fs from 'node:fs';
 import path from 'node:path';
+import yaml from 'js-yaml';
 import { loadData } from './data.mjs';
 import { makeOgRenderer } from './og.mjs';
 import { loadPosts } from './blog.mjs';
@@ -26,6 +27,22 @@ const PREFIX = (() => {
 const rel = (p) => PREFIX + p;
 const [PA, PB] = providers;
 const pages = []; // for sitemap
+// Newest real review date in the data; used for pages with no date of their own.
+const DATA_DATE = [...categories.flatMap((c) => [c.last_verified, c.gcp_last_verified]), ...[...examGuides.values()].map((g) => g.last_verified)].filter(Boolean).map(String).sort().pop();
+// Public "What changed" log (data/changes.yaml), newest first.
+const CHANGES = (yaml.load(fs.readFileSync(path.join(ROOT, 'data/changes.yaml'), 'utf8')) || []).map((c) => ({ ...c, date: String(c.date), links: c.links || [] })).sort((a, b) => b.date.localeCompare(a.date));
+// Optional newsletter signup (site.config.json "newsletter"). Empty provider or url => nothing is rendered.
+// buttondown: { "provider": "buttondown", "url": "https://buttondown.com/api/emails/embed-subscribe/<username>" }
+let NL_CACHE;
+const NEWSLETTER = () => (NL_CACHE ??= newsletterHtml());
+function newsletterHtml() {
+  const n = config.newsletter || {};
+  const prov = String(n.provider || '').trim().toLowerCase(); const url = String(n.url || '').trim();
+  if (!prov) return '';
+  if (!/^https:\/\/[^\s"<>]+$/.test(url)) { console.warn(`newsletter: provider "${prov}" set but url missing or not https; nothing rendered`); return ''; }
+  return `<aside class="signup" aria-labelledby="signup-h"><h2 id="signup-h">Get the weekly post by email</h2><p class="small muted">What changed across AWS, Azure and Google Cloud, once a week. Unsubscribe any time.</p>
+<form class="signup-form" action="${esc(url)}" method="post"><input type="hidden" name="embed" value="1"><label class="sr" for="signup-email">Email address</label><input id="signup-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"><button type="submit">Subscribe</button></form></aside>`;
+}
 const lastmods = new Map(); // url -> YYYY-MM-DD (blog pages); everything else uses the data date
 const usedTitles = new Set();
 
@@ -82,7 +99,7 @@ const HEADER = (active) => `<header class="top"><div class="wrap top-in">
 
 const FOOTER = `<footer class="foot"><div class="wrap">
   <p>${esc(config.siteName)} is an open-source, community-maintained study guide. It is not affiliated with Amazon Web Services, Microsoft, or Google. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
-  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/blog/')}">Blog</a> · <a href="${rel('/blog/feed.xml')}">Blog feed</a> · <a href="${rel('/data/')}">Open data (JSON/CSV)</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
+  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/blog/')}">Blog</a> · <a href="${rel('/blog/feed.xml')}">Blog feed</a> · <a href="${rel('/changes/')}">What changed</a> · <a href="${rel('/data/')}">Open data (JSON/CSV)</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
 </div></footer>`;
 
 // Optional cookieless analytics (site.config.json "analytics"). Empty provider => nothing is emitted.
@@ -428,7 +445,7 @@ ${items.map((s) => { const eq = [...new Map(s.rows.flatMap((r) => r.svc[o.id]).m
 </article>`;
   const og = `/og/${p.id}/index.png`;
   renderOg({ kicker: `${p.name} → ${o.name}`, title: `${p.name} services, mapped to ${o.name}`, subtitle: `${list.length} services with status, docs and equivalents.`, siteName: config.siteName }, path.join(OUT, og));
-  write(url, page({ url, title: `${p.name} services → ${o.name} equivalents | ${config.siteName}`, description: clip(`All ${list.length} ${p.long_name} services we map, grouped by category (${cats.map((c) => c.short || c.name).join(', ')}), with lifecycle status and ${o.long_name} equivalents.`, 158), h1, body, ld: [bc.ld], ogImage: og, ogType: 'website', active: p.id }));
+  write(url, page({ url, title: `${p.name} services → ${o.name} equivalents | ${config.siteName}`, description: clip(`All ${list.length} ${p.long_name} services we map, grouped by category (${cats.map((c) => c.short || c.name).join(', ')}), with lifecycle status and ${o.long_name} equivalents.`, 158), h1, body, ld: [bc.ld, { '@type': 'CollectionPage', name: h1, url: abs(url), dateModified: DATA_DATE, inLanguage: 'en' }], ogImage: og, ogType: 'website', active: p.id }));
 }
 
 // ---------- category page ----------
@@ -468,7 +485,7 @@ function categoryIndex() {
 <p class="small">${c.rows.length} mappings · ${matchBadge('direct')} ${k.direct} ${matchBadge('partial')} ${k.partial} ${matchBadge('none')} ${k.none}</p>
 <ul class="small">${c.groups.map((g) => `<li><a href="/category/${c.id}/#${g.id}">${esc(g.name)}</a> <span class="muted">(${c.rows.filter((r) => r.group === g.id).length})</span></li>`).join('')}</ul></section>`; }).join('')}</div>
 </article>`;
-  write(url, page({ url, title: `${PA.name} vs ${PB.name} service categories | ${config.siteName}`, description: clip(`Browse ${all.length} ${PA.name} to ${PB.name} service mappings by category: ${categories.map((c) => c.short || c.name).join(', ')}.`, 158), h1, body, ld: [bc.ld], ogType: 'website', active: 'cat' }));
+  write(url, page({ url, title: `${PA.name} vs ${PB.name} service categories | ${config.siteName}`, description: clip(`Browse ${all.length} ${PA.name} to ${PB.name} service mappings by category: ${categories.map((c) => c.short || c.name).join(', ')}.`, 158), h1, body, ld: [bc.ld, { '@type': 'CollectionPage', name: h1, url: abs(url), dateModified: DATA_DATE, inLanguage: 'en', hasPart: categories.map((c) => ({ '@type': 'CollectionPage', name: c.name, url: abs(`/category/${c.id}/`) })) }], ogType: 'website', active: 'cat' }));
 }
 
 // ---------- exams page ----------
@@ -556,7 +573,7 @@ ${rows.length ? categories.map((c) => { const cr = rows.filter((r) => r.category
 </article>`;
   const codes = (pid) => [...exams.values()].filter((e) => e.provider === pid && e.status !== 'retired' && !e.unverified_code).map((e) => e.code);
   renderOg({ kicker: 'Certification study map', title: 'AWS & Azure exams mapped to services', subtitle: `${codes(PA.id).slice(0, 5).join(', ')}, ${codes(PB.id).slice(0, 5).join(', ')} and more.`, siteName: config.siteName }, path.join(OUT, '/og/exams.png'));
-  write(url, page({ url, title: `AWS & Azure certification exams mapped to services | ${config.siteName}`, description: clip(`Study map linking ${PA.name} (${codes(PA.id).join(', ')}) and ${PB.name} (${codes(PB.id).join(', ')}) exams to service comparisons.`, 158), h1, body, ld: [bc.ld], ogImage: '/og/exams.png', ogType: 'website', active: 'exams' }));
+  write(url, page({ url, title: `AWS & Azure certification exams mapped to services | ${config.siteName}`, description: clip(`Study map linking ${PA.name} (${codes(PA.id).join(', ')}) and ${PB.name} (${codes(PB.id).join(', ')}) exams to service comparisons.`, 158), h1, body, ld: [bc.ld, { '@type': 'CollectionPage', name: h1, url: abs(url), dateModified: DATA_DATE, inLanguage: 'en' }], ogImage: '/og/exams.png', ogType: 'website', active: 'exams' }));
 }
 
 // ---------- about page ----------
@@ -575,7 +592,7 @@ function aboutPage() {
 <h2>Match levels</h2><dl class="pricing">${Object.entries(MATCH).map(([k, v]) => `<div><dt>${matchBadge(k)}</dt><dd>${esc(v[1])}</dd></div>`).join('')}</dl>
 <h2>Contribute</h2><p>All content lives in YAML files under <code>data/</code>, one file per category. Open a pull request with an official source URL for every change. <a href="${config.repoUrl}">View the repository</a>.</p>
 </article>`;
-  write(url, page({ url, title: `About & methodology | ${config.siteName}`, description: `How ${config.siteName} maps AWS and Azure services: official-source verification, lifecycle tracking, no invented prices, and open-source YAML data.`, h1, body, ld: [bc.ld], ogType: 'website', active: 'about' }));
+  write(url, page({ url, title: `About & methodology | ${config.siteName}`, description: `How ${config.siteName} maps AWS and Azure services: official-source verification, lifecycle tracking, no invented prices, and open-source YAML data.`, h1, body, ld: [bc.ld, { '@type': 'AboutPage', name: h1, url: abs(url), dateModified: DATA_DATE, inLanguage: 'en' }], ogType: 'website', active: 'about' }));
 }
 
 // ---------- blog (content/blog/*.md; see src/blog.mjs and README "Blog") ----------
@@ -601,7 +618,7 @@ function blogPages() {
     const body = `${bc.html}<article class="doc"><header class="doc-head"><h1>${esc(h1)}</h1>
 <p class="answer"><strong>What changed across AWS, Azure and Google Cloud, and what it means for the service mappings and certification exams.</strong></p>
 <p class="small muted">Every post links its official sources. <a href="/blog/feed.xml">Atom feed</a></p></header>
-${list}${pager}</article>`;
+${list}${pager}${NEWSLETTER()}</article>`;
     const ld = [bc.ld, { '@type': 'Blog', name: `${config.siteName} blog`, url: abs('/blog/'), publisher, blogPost: slice.map((p) => ({ '@type': 'BlogPosting', headline: p.title, url: abs(p.url), datePublished: p.date, dateModified: p.updated })) }];
     write(url, page({ url, title: n === 1 ? `Blog: AWS, Azure and Google Cloud changes | ${config.siteName}` : `Blog, page ${n} | ${config.siteName}`, description: n === 1 ? `Weekly notes on AWS, Azure and Google Cloud service changes, how they affect the ${config.siteName} mappings, and certification news, with official sources.` : `Older ${config.siteName} blog posts, page ${n} of ${pageCount}.`, h1, body, ld, ogImage: '/og/blog.png', ogType: 'website', active: 'blog', lastmod: posts[0]?.updated }));
   }
@@ -619,7 +636,7 @@ ${list}${pager}</article>`;
 ${rows.length ? `<section aria-labelledby="post-related"><h2 id="post-related">Related comparisons</h2><ul class="diffs">${rows.map((r) => `<li><a href="${r.url}">${esc(r.capability)}</a> <span class="muted small">${esc(r.what_for)}</span></li>`).join('')}</ul></section>` : ''}
 <section aria-labelledby="post-sources"><h2 id="post-sources">Sources</h2><ol class="sources">${p.sources.map((s) => `<li><a href="${esc(s.url)}" rel="noopener">${esc(s.title)}</a> <span class="path">${esc(host(s.url))}</span></li>`).join('')}</ol></section>
 <nav class="pager" aria-label="More posts">${newer ? `<a href="${newer.url}" rel="prev">← ${esc(newer.title)}</a>` : '<span></span>'}<a href="/blog/">All posts</a>${older ? `<a href="${older.url}" rel="next">${esc(older.title)} →</a>` : '<span></span>'}</nav>
-</article>`;
+${NEWSLETTER()}</article>`;
     const ld = [bc.ld, { '@type': 'BlogPosting', headline: clip(p.title, 110), description: p.description, datePublished: p.date, dateModified: p.updated, url: abs(p.url), mainEntityOfPage: abs(p.url), image: abs(og), keywords: p.tags.join(', '), wordCount: p.words, author: publisher, publisher, isPartOf: { '@type': 'Blog', name: `${config.siteName} blog`, url: abs('/blog/') }, citation: p.sources.map((s) => ({ '@type': 'CreativeWork', name: s.title, url: s.url })) }];
     write(p.url, page({ url: p.url, title: `${p.title} | ${config.siteName}`, description: p.description, h1: p.title, body, ld, ogImage: og, ogType: 'article', active: 'blog', lastmod: p.updated,
       extraHead: `<meta property="article:published_time" content="${p.date}">\n<meta property="article:modified_time" content="${p.updated}">\n${p.tags.map((t) => `<meta property="article:tag" content="${esc(t)}">`).join('\n')}\n` }));
@@ -681,7 +698,8 @@ ${tbodies}
 <p class="lede">${all.length} verified capability mappings across ${categories.length} categories, ${services[PA.id].size} ${esc(PA.name)} and ${services[PB.id].size} ${esc(PB.name)} services. Each has a plain-language purpose, match quality, key differences, pricing model, exam mapping and official sources. Retired and maintenance-mode services are flagged.</p>
 ${gcpCats.length ? `<p class="small">${gcpCats.length === categories.length ? 'New: a <strong>Google Cloud</strong> column across every category: ' : 'New: a <strong>Google Cloud</strong> column, verified category by category. Done so far: '}${gcpCats.map((c) => `<a href="#cat-${c.id}">${esc(c.name)}</a> (${c.rows.length})`).join(', ')}. <a href="/gcp/">Browse GCP services →</a></p>` : ''}
 <ul class="cat-pills" aria-label="Categories">${categories.map((c) => `<li><a href="#cat-${c.id}" data-jump-cat="${c.id}">${esc(c.short || c.name)} <span class="muted">${c.rows.length}</span></a></li>`).join('')}</ul>
-<p class="stats"><span>${matchBadge('direct')} ${counts.direct}</span><span>${matchBadge('partial')} ${counts.partial}</span><span>${matchBadge('none')} ${counts.none}</span><span class="small muted">Last verified ${fmtDate(categories.map((c) => c.last_verified).sort().pop())}</span></p></section>
+<p class="stats"><span>${matchBadge('direct')} ${counts.direct}</span><span>${matchBadge('partial')} ${counts.partial}</span><span>${matchBadge('none')} ${counts.none}</span><span class="small muted">Last verified ${fmtDate(categories.map((c) => c.last_verified).sort().pop())}</span></p>
+${CHANGES.length ? `<p class="small">Latest change (${fmtDate(CHANGES[0].date)}): ${esc(CHANGES[0].title)}. <a href="/changes/">What changed →</a></p>` : ''}</section>
 <div class="home-layout">
 <aside class="jump" aria-label="Jump to section">
 <nav class="jump-nav">${categories.map((c) => `<p class="jump-title"><a href="#cat-${c.id}" data-jump-cat="${c.id}">${esc(c.short || c.name)}</a></p><ul>${c.groups.map((g) => `<li><a href="#g-${g.id}" data-jump="${g.id}">${esc(g.name)} <span class="muted">(${c.rows.filter((r) => r.group === g.id).length})</span></a></li>`).join('')}</ul>`).join('')}</nav>
@@ -767,6 +785,69 @@ function datasetPage() {
   write(url, page({ url, title: `Open data: cloud service mappings (JSON, CSV) | ${config.siteName}`, description: `Download all ${rows.length} AWS, Azure and Google Cloud service mappings as JSON or CSV. MIT licensed, with field docs, review dates and a suggested citation.`, h1, body, ld, ogType: 'website' }));
 }
 
+
+// ---------- public change log: /changes/ + /changes/feed.xml ----------
+function changesPage() {
+  const url = '/changes/';
+  const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: 'What changed', url }]);
+  const h1 = `What changed on ${config.siteName}`;
+  const link = (l) => `<a href="${esc(l)}">${esc(l.replace(/^https?:\/\/[^/]+/, '') || l)}</a>`;
+  const commit = (c) => c.commit ? ` <a class="small muted" href="${config.repoUrl}/commit/${esc(c.commit)}">${esc(c.commit)}</a>` : '';
+  const body = `${bc.html}<article class="doc"><header class="doc-head"><h1>${esc(h1)}</h1>
+<p class="answer"><strong>A dated log of what was added or corrected on this site: new categories, providers, guides, data and fixes.</strong></p>
+<p class="small muted">Newest first. Last change <time datetime="${CHANGES[0].date}">${fmtDate(CHANGES[0].date)}</time>. <a href="/changes/feed.xml">Atom feed</a></p></header>
+<ol class="changes">${CHANGES.map((c) => `<li id="c-${c.date}"><h2><time datetime="${c.date}">${fmtDate(c.date)}</time>: ${esc(c.title)}</h2><p>${esc(c.summary)}</p>${c.links.length || c.commit ? `<p class="small">${c.links.map(link).join(' · ')}${commit(c)}</p>` : ''}</li>`).join('')}</ol>
+${NEWSLETTER()}</article>`;
+  const ld = [bc.ld, { '@type': 'WebPage', name: h1, url: abs(url), dateModified: CHANGES[0].date, inLanguage: 'en' }];
+  write(url, page({ url, title: `What changed: site change log | ${config.siteName}`, description: `Dated log of additions and corrections to ${config.siteName}: new categories, the Google Cloud column, exam guides and the open dataset.`, h1, body, ld, ogType: 'website' }));
+  const full = (l) => /^https?:/.test(l) ? l : abs(l);
+  write('/changes/feed.xml', `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>${xmlEsc(config.siteName)}: what changed</title>
+  <link rel="self" type="application/atom+xml" href="${abs('/changes/feed.xml')}"/>
+  <link rel="alternate" type="text/html" href="${abs(url)}"/>
+  <id>${abs(url)}</id>
+  <updated>${CHANGES[0].date}T12:00:00Z</updated>
+  <author><name>${xmlEsc(config.siteName)}</name><uri>${BASE}/</uri></author>
+${CHANGES.map((c) => `  <entry>
+    <title>${xmlEsc(c.title)}</title>
+    <link rel="alternate" type="text/html" href="${abs(url)}#c-${c.date}"/>
+    <id>${abs(url)}#c-${c.date}</id>
+    <updated>${c.date}T12:00:00Z</updated>
+    <summary>${xmlEsc(c.summary)}</summary>
+    <content type="html">${xmlEsc(`<p>${esc(c.summary)}</p>${c.links.length ? `<ul>${c.links.map((l) => `<li><a href="${esc(full(l))}">${esc(full(l))}</a></li>`).join('')}</ul>` : ''}`)}</content>
+  </entry>`).join('\n')}
+</feed>
+`);
+}
+
+// ---------- /llms.txt: short map of the site for AI tools ----------
+function llmsTxt() {
+  const n = rowsById.size;
+  write('/llms.txt', `# ${config.siteName}
+
+> Open-source study guide mapping ${n} AWS services to their Microsoft Azure and Google Cloud equivalents, each verified against official documentation and dated.
+
+Each mapping has an AWS vs Azure page and an AWS vs Google Cloud page with match level, key differences, pricing model, exam mapping and official sources. Data is MIT licensed.
+
+## Data
+- [Open dataset](${abs('/data/')}): field docs, license and citation
+- [mappings.json](${abs('/api/v1/mappings.json')}): all ${n} mappings as JSON, with sources
+- [mappings.csv](${abs('/api/v1/mappings.csv')}): the same as CSV
+
+## Browse
+- [Service matrix](${abs('/')})
+- [Categories](${abs('/category/')})
+${providers.map((p) => `- [${p.name} services](${abs(`/${p.id}/`)})`).join('\n')}
+- [Certification exams](${abs('/exams/')})
+
+## Updates
+- [Blog](${abs('/blog/')}) ([Atom](${abs('/blog/feed.xml')}))
+- [What changed](${abs('/changes/')}) ([Atom](${abs('/changes/feed.xml')}))
+- [Methodology](${abs('/about/')})
+`);
+}
+
 // ---------- run ----------
 fs.cpSync(path.join(ROOT, 'assets'), path.join(OUT, 'assets'), { recursive: true, filter: (s) => !s.includes('fonts') });
 // Pre-paint collapse rules for every group (matrix rows + category/hub details bodies).
@@ -792,12 +873,16 @@ for (const g of examGuides.values()) examGuidePage(g);
 examsPage();
 aboutPage();
 datasetPage();
+changesPage();
+llmsTxt();
 blogPages();
 write('/404.html', page({ url: '/404.html', title: `Not found | ${config.siteName}`, description: 'Page not found.', h1: 'Page not found', body: '<article class="doc"><h1>Page not found</h1><p>Try the <a href="/">service matrix</a> or search above.</p></article>' }).replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"'));
 pages.splice(pages.indexOf('/404.html'), 1);
-const today = [...categories.flatMap((c) => [c.last_verified, c.gcp_last_verified]), ...[...examGuides.values()].map((g) => g.last_verified)].filter(Boolean).map(String).sort().pop(); // newest real data date, for pages with no date of their own
+const today = DATA_DATE;
 write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${lastmods.get(u) || today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
-write('/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${abs('/sitemap.xml')}\n`);
+// Search and AI crawlers are explicitly welcome (training tokens included): the data is MIT licensed.
+const BOTS = ['Googlebot', 'Bingbot', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot', 'Applebot-Extended'];
+write('/robots.txt', `${BOTS.map((b) => `User-agent: ${b}`).join('\n')}\nAllow: /\n\nUser-agent: *\nAllow: /\n\nSitemap: ${abs('/sitemap.xml')}\n`);
 // IndexNow (Bing, Yandex, etc.) ownership key file
 if (config.indexNowKey) write(`/${config.indexNowKey}.txt`, config.indexNowKey);
 console.log(`Built ${pages.length} pages (${rowsById.size} compare pages, ${BLOG.posts.length} blog posts; ${BLOG.drafts.length} drafts and ${BLOG.scheduled.length} future-dated posts skipped) into dist/`);

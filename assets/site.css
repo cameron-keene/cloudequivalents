@@ -330,3 +330,13 @@ details:not(.cat-group) p{margin:0 0 12px}
 .prose pre code{background:none;padding:0}
 .prose blockquote{margin:1em 0;padding:.2em 1em;border-left:3px solid var(--line);color:var(--mu)}
 .pager{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:2em 0 0;padding-top:1em;border-top:1px solid var(--line)}
+
+/* change log + newsletter signup */
+.changes{list-style:none;padding:0;margin:1.5rem 0}
+.changes li{border-top:1px solid var(--line);padding:1rem 0}
+.changes h2{font-size:1.1rem;margin:0 0 .35rem}
+.signup{margin:2rem 0 0;padding:1rem 1.1rem;border:1px solid var(--line);border-radius:10px}
+.signup h2{font-size:1.05rem;margin:0 0 .25rem}
+.signup-form{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem}
+.signup-form input{flex:1 1 14rem;min-width:0;padding:.55rem .7rem;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--bg);color:var(--tx)}
+.signup-form button{padding:.55rem 1rem;border:0;border-radius:8px;font:inherit;cursor:pointer;background:var(--ac);color:#fff}
