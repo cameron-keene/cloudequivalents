@@ -82,7 +82,7 @@ const HEADER = (active) => `<header class="top"><div class="wrap top-in">
 
 const FOOTER = `<footer class="foot"><div class="wrap">
   <p>${esc(config.siteName)} is an open-source, community-maintained study guide. It is not affiliated with Amazon Web Services, Microsoft, or Google. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
-  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/blog/')}">Blog</a> · <a href="${rel('/blog/feed.xml')}">Blog feed</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
+  <p><a href="${config.repoUrl}">Source on GitHub</a> · <a href="${rel('/about/')}">Methodology</a> · <a href="${rel('/blog/')}">Blog</a> · <a href="${rel('/blog/feed.xml')}">Blog feed</a> · <a href="${rel('/data/')}">Open data (JSON/CSV)</a> · <a href="${rel('/sitemap.xml')}">Sitemap</a> · MIT License</p>
 </div></footer>`;
 
 // Optional cookieless analytics (site.config.json "analytics"). Empty provider => nothing is emitted.
@@ -106,6 +106,7 @@ const KEY_JS = `<script>addEventListener('keydown',function(e){if((e.key==='k'&&
 
 function page({ url, title, description, h1, body, ld = [], ogImage, ogType = 'article', active, scripts = '', extraHead = '', lastmod, noindex = false }) {
   if (!noindex) pages.push(url);
+  if (!lastmod) lastmod = ld.map((x) => x && x.dateModified).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d || '')).sort().pop();
   if (lastmod) lastmods.set(url, lastmod);
   // Prefix root-relative hrefs inside body (HEADER/FOOTER/assets already use rel()).
   body = body.replace(/(href|src)="(\/(?!\/)[^"]*)"/g, (_, a, path) => path.startsWith(PREFIX + '/') || path === PREFIX ? `${a}="${path}"` : `${a}="${PREFIX}${path}"`);
@@ -708,7 +709,7 @@ ${sections}
   renderOg({ kicker: 'Open-source cloud study guide', title: `${PA.name} ↔ ${PB.name} service equivalents`, subtitle: `${all.length} verified mappings: ${categories.map((c) => c.short || c.name).join(', ')}.`, siteName: config.siteName }, path.join(OUT, '/og/default.png'));
   const ld = [{ '@type': 'WebSite', name: config.siteName, url: BASE + '/', potentialAction: { '@type': 'SearchAction', target: BASE + '/?q={query}', 'query-input': 'required name=query' } },
     { '@type': 'ItemList', name: `${PA.name} to ${PB.name} service mappings`, numberOfItems: all.length, itemListElement: all.map((r, i) => ({ '@type': 'ListItem', position: i + 1, name: r.capability, url: abs(r.url) })) }];
-  write('/', page({ url: '/', title: `${PA.name} vs ${PB.name} service equivalents (2026) | ${config.siteName}`, description: clip(`Searchable matrix of ${all.length} verified ${PA.name} to ${PB.name} service mappings: ${categories.map((c) => c.short || c.name).join(', ')}. Differences, pricing models, exams, sources.`, 158), h1: `${PA.name} ↔ ${PB.name} service equivalents`, body, ld, ogType: 'website', active: 'home', extraHead: '', scripts: `<script src="${rel('/assets/home.js')}" defer></script>` }));
+  write('/', page({ url: '/', title: `AWS vs Azure vs Google Cloud service equivalents (2026) | ${config.siteName}`, description: clip(`Searchable matrix of ${all.length} verified AWS to Azure and Google Cloud service mappings: ${categories.map((c) => c.short || c.name).join(', ')}. Differences, pricing, exams, sources.`, 158), h1: `${PA.name} ↔ ${PB.name} service equivalents`, body, ld, ogType: 'website', active: 'home', extraHead: '', scripts: `<script src="${rel('/assets/home.js')}" defer></script>` }));
 
   // Lazy-loaded drawer data, one file per category.
   for (const cat of categories) {
@@ -718,6 +719,52 @@ ${sections}
       differences: r.differences, exams: examsFor(r).map((c) => ({ code: c, label: examLabel(c), name: exams.get(c).name, status: exams.get(c).status })), flags: r.flags || [] }));
     write(`/data/rows-${cat.id}.json`, JSON.stringify(idx));
   }
+}
+
+
+// ---------- open dataset: /api/v1/mappings.json + .csv, documented at /data/ ----------
+function datasetPage() {
+  const gOn = providers.some((p) => p.id === 'gcp');
+  const nm = (arr) => arr.map((s) => s.name);
+  const rows = categories.flatMap((cat) => cat.rows.map((r) => ({
+    id: r.id, category: cat.id, category_name: cat.name, group: r.group, group_name: groupName(cat, r.group), capability: r.capability,
+    aws: nm(r.svc.aws || []), azure: nm(r.svc.azure || []), azure_match: r.match,
+    gcp: gOn && r.gcp ? nm(r.svc.gcp || []) : null, gcp_match: gOn && r.gcp ? r.gcp.match : null,
+    aws_azure_url: abs(r.url), aws_gcp_url: gOn && r.gcpUrl ? abs(r.gcpUrl) : null,
+    azure_last_reviewed: String(cat.last_verified), gcp_last_reviewed: gOn && r.gcp && cat.gcp_last_verified ? String(cat.gcp_last_verified) : null,
+    sources: [...(r.sources || []), ...((r.gcp && r.gcp.sources) || [])],
+  })));
+  const modified = rows.flatMap((r) => [r.azure_last_reviewed, r.gcp_last_reviewed]).filter(Boolean).sort().pop();
+  const json = { name: `${config.siteName} cloud service mappings`, version: 1, license: 'MIT', url: abs('/data/'), modified, count: rows.length, rows };
+  write('/api/v1/mappings.json', JSON.stringify(json, null, 1) + '\n');
+  const cols = ['id', 'category', 'group', 'capability', 'aws', 'azure', 'azure_match', 'gcp', 'gcp_match', 'aws_azure_url', 'aws_gcp_url', 'azure_last_reviewed', 'gcp_last_reviewed'];
+  const cell = (v) => { const t = v == null ? '' : Array.isArray(v) ? v.join('; ') : String(v); return /[",\n;]/.test(t) || /^[=+\-@]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+  write('/api/v1/mappings.csv', [cols.join(','), ...rows.map((r) => cols.map((c) => cell(r[c])).join(','))].join('\n') + '\n');
+  const fields = [
+    ['id', 'string', 'Stable row id (also used in the site source YAML).'], ['category / category_name', 'string', 'Category id and display name.'], ['group / group_name', 'string', 'Sub-group within the category.'],
+    ['capability', 'string', 'What the services do, in plain words.'], ['aws', 'string[]', 'AWS service names (CSV: joined with "; ").'], ['azure', 'string[]', 'Azure equivalent(s); empty when there is no first-party equivalent.'],
+    ['azure_match', 'direct | partial | none', 'How closely the Azure service matches AWS.'], ['gcp', 'string[] | null', 'Google Cloud equivalent(s); null when the category has no reviewed GCP column.'], ['gcp_match', 'direct | partial | none | null', 'How closely the Google Cloud service matches AWS.'],
+    ['aws_azure_url / aws_gcp_url', 'URL', 'The comparison pages on this site.'], ['azure_last_reviewed / gcp_last_reviewed', 'YYYY-MM-DD', 'Date the mapping was last checked against official docs.'], ['sources', 'URL[] (JSON only)', 'Official documentation used to verify the row.'],
+  ];
+  const url = '/data/';
+  const h1 = 'Open data: AWS, Azure and Google Cloud service mappings';
+  const year = String(modified).slice(0, 4);
+  const cite = `${config.siteName} (${year}). AWS, Azure and Google Cloud service mappings, v1 (updated ${modified}). ${abs('/data/')}`;
+  const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: 'Open data', url }]);
+  const body = `${bc.html}<article class="doc"><header class="doc-head"><h1>${esc(h1)}</h1>
+<p class="answer"><strong>Every mapping on this site, ${rows.length} rows, as one JSON or CSV file, regenerated on every build from the same reviewed data as the pages.</strong></p>
+<p class="small muted">Last updated <time datetime="${modified}">${fmtDate(modified)}</time></p></header>
+<h2>Download</h2><ul class="diffs"><li><a href="/api/v1/mappings.json">/api/v1/mappings.json</a> (all fields, including official sources)</li><li><a href="/api/v1/mappings.csv">/api/v1/mappings.csv</a> (one row per mapping, lists joined with "; ")</li></ul>
+<p>Both files are static, need no key, and keep their URL and field names for v1. Breaking changes will ship under a new version path.</p>
+<h2>Fields</h2><div class="tscroll"><table class="exams"><thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Meaning</th></tr></thead><tbody>${fields.map(([a, b, c]) => `<tr><td><code>${esc(a)}</code></td><td>${esc(b)}</td><td>${esc(c)}</td></tr>`).join('')}</tbody></table></div>
+<h2>License</h2><p>The data is released under the MIT License, the same license as the <a href="${config.repoUrl}">site source</a>. Service names are trademarks of their owners. Always confirm details in the linked official documentation.</p>
+<h2>Suggested citation</h2><p><code>${esc(cite)}</code></p>
+<h2>Corrections</h2><p>Found a wrong mapping? Open an issue or pull request on <a href="${config.repoUrl}">GitHub</a>. See the <a href="/about/">methodology</a> for how rows are verified.</p></article>`;
+  const ld = [bc.ld, { '@type': 'Dataset', name: `${config.siteName}: AWS, Azure and Google Cloud service mappings`, description: `${rows.length} reviewed mappings between AWS services and their Microsoft Azure and Google Cloud equivalents, with match level, comparison page URLs, last-reviewed dates and official documentation sources.`,
+    url: abs(url), license: 'https://opensource.org/licenses/MIT', isAccessibleForFree: true, dateModified: modified, version: '1', keywords: ['AWS', 'Azure', 'Google Cloud', 'cloud service equivalents', 'cloud migration'],
+    creator: { '@type': 'Organization', name: config.siteName, url: BASE + '/' }, citation: cite,
+    distribution: [{ '@type': 'DataDownload', encodingFormat: 'application/json', contentUrl: abs('/api/v1/mappings.json') }, { '@type': 'DataDownload', encodingFormat: 'text/csv', contentUrl: abs('/api/v1/mappings.csv') }] }];
+  write(url, page({ url, title: `Open data: cloud service mappings (JSON, CSV) | ${config.siteName}`, description: `Download all ${rows.length} AWS, Azure and Google Cloud service mappings as JSON or CSV. MIT licensed, with field docs, review dates and a suggested citation.`, h1, body, ld, ogType: 'website' }));
 }
 
 // ---------- run ----------
@@ -744,10 +791,11 @@ for (const p of providers) { providerIndex(p); for (const s of services[p.id].va
 for (const g of examGuides.values()) examGuidePage(g);
 examsPage();
 aboutPage();
+datasetPage();
 blogPages();
 write('/404.html', page({ url: '/404.html', title: `Not found | ${config.siteName}`, description: 'Page not found.', h1: 'Page not found', body: '<article class="doc"><h1>Page not found</h1><p>Try the <a href="/">service matrix</a> or search above.</p></article>' }).replace('<meta name="description"', '<meta name="robots" content="noindex">\n<meta name="description"'));
 pages.splice(pages.indexOf('/404.html'), 1);
-const today = categories.map((c) => c.last_verified).sort().pop();
+const today = [...categories.flatMap((c) => [c.last_verified, c.gcp_last_verified]), ...[...examGuides.values()].map((g) => g.last_verified)].filter(Boolean).map(String).sort().pop(); // newest real data date, for pages with no date of their own
 write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((u) => `  <url><loc>${abs(u)}</loc><lastmod>${lastmods.get(u) || today}</lastmod></url>`).join('\n')}\n</urlset>\n`);
 write('/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${abs('/sitemap.xml')}\n`);
 // IndexNow (Bing, Yandex, etc.) ownership key file
