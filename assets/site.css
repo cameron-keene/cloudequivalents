@@ -39,7 +39,11 @@ code{background:var(--bg3);padding:.1em .35em;border-radius:5px;font-size:.9em}
 @media (max-width:820px){
   .top-in{flex-wrap:wrap;height:auto;min-height:var(--header-h);padding:10px 0;gap:8px}
   .search{flex-basis:100%}.search kbd{display:none}
-  :root{--header-h:96px}
+  /* Phones/tablets: nav wraps so every item is visible (no hidden sideways scroll); header scrolls away so sticky toolbars sit at the top. */
+  .top{position:static}
+  .nav{flex-wrap:wrap;overflow:visible;flex-basis:100%;order:3;gap:2px 4px}
+  .nav a{padding:6px 9px}
+  :root{--header-h:0px}
 }
 
 /* breadcrumbs */
