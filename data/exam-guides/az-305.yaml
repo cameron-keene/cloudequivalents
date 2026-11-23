@@ -147,8 +147,8 @@ gotchas:
     Migration objectives reference the Microsoft Cloud Adoption Framework. Its role is close to AWS's Migration Acceleration
     Program and Well-Architected guidance, with its own terminology (landing zones, plan/ready/adopt).
 closest_aws:
-- code: SAP-C02
-  why: 'Same role and depth: multi-service design trade-offs. SAP-C02 is being updated to SAP-C03.'
+- code: SAP-C03
+  why: 'Same role and depth: multi-service design trade-offs. SAP-C03 replaced SAP-C03 (last day for SAP-C03 was Nov 16, 2026).'
 - code: SAA-C03
   why: Lighter-weight design overlap.
 sources:

@@ -1539,26 +1539,27 @@ rows:
   capability: Enterprise AI work assistant
   what_for: A chat assistant for employees that answers from company data and automates tasks across work apps.
   match: partial
-  answer: Microsoft 365 Copilot is the Microsoft counterpart of Amazon Q Business. Q Business is in maintenance (no new customers), and AWS's successor is Amazon Quick.
+  answer: Microsoft 365 Copilot is the Microsoft counterpart of Amazon Q Business. Q Business is in maintenance (no new customers), and AWS's successor is AWS Quick (renamed from Amazon Quick on Nov 9, 2026).
   providers:
     aws: [amazon-quick, amazon-q-business]
     azure: [m365-copilot, copilot-studio]
   differences:
     - Microsoft 365 Copilot is embedded in Word, Excel, Outlook, and Teams, and grounded on Microsoft Graph. It's a SaaS per-user product, not an Azure service.
-    - Amazon Quick combines chat, Quick Index (company data), Quick Flows and Quick Automate (workflow and agentic automation), Research, Spaces, and Quick Sight BI. It connects Slack, Teams, Outlook, CRMs, and databases.
-    - For custom low-code agents, Microsoft's tool is Copilot Studio. Amazon Quick Flows/Automate cover some of the same ground.
+    - AWS Quick combines chat, Quick Index (company data), Quick Flows and Quick Automate (workflow and agentic automation), Research, Spaces, and AWS Quick Sight BI. It connects Slack, Teams, Outlook, CRMs, and databases.
+    - For custom low-code agents, Microsoft's tool is Copilot Studio. AWS Quick Flows/Automate cover some of the same ground.
   pricing:
-    aws: Per-user subscription tiers (Quick), plus capacity-based pricing for some features. Q Business uses per-user tiers for existing customers.
+    aws: Per-user subscription tiers (AWS Quick), plus capacity-based pricing for some features. Q Business uses per-user tiers for existing customers.
     azure: Microsoft 365 Copilot is a per-user monthly license. Copilot Studio uses tenant capacity packs or pay-as-you-go messages/credits.
   exams:
     aws: [AIF-C01]
     azure: [AB-620]
   faq:
     - q: What replaces Amazon Q Business?
-      a: AWS recommends Amazon Quick. You can start by bringing your existing Q Business index to Quick (Bring Your Own Index).
+      a: AWS recommends AWS Quick (formerly Amazon Quick). You can start by bringing your existing Q Business index to Quick (Bring Your Own Index).
   related: [coding-assistant, cloud-console-assistant, chatbot-builder]
   sources:
     - https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/qbusiness-availability-change.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/amazon-quick-aws-quick/
     - https://docs.aws.amazon.com/quick/latest/userguide/what-is.html
     - https://learn.microsoft.com/en-us/microsoft-365/copilot/microsoft-365-copilot-overview
     - https://learn.microsoft.com/en-us/microsoft-copilot-studio/fundamentals-what-is-copilot-studio
@@ -1568,9 +1569,9 @@ rows:
     services:
     - gemini-enterprise
     match: direct
-    answer: Amazon Quick (and Q Business) maps to Gemini Enterprise, a per-user assistant that searches and acts across company apps through connectors and agents.
+    answer: AWS Quick (and Q Business) maps to Gemini Enterprise, a per-user assistant that searches and acts across company apps through connectors and agents.
     differences:
-    - Gemini Enterprise is licensed in editions per user; Quick has its own per-user plans.
+    - Gemini Enterprise is licensed in editions per user; AWS Quick has its own per-user plans.
     - Old Google Agentspace documentation links now redirect to Gemini Enterprise.
     pricing: Per-user monthly subscription by edition. See the Gemini Enterprise pricing and editions pages.
     sources:
@@ -1623,13 +1624,15 @@ rows:
   capability: Cloud console / operations assistant
   what_for: Ask the cloud console questions about services and your resources, and get help troubleshooting or operating them.
   match: direct
-  answer: The Azure equivalent of Amazon Q Developer in the AWS Management Console is Azure Copilot.
+  answer: The Azure equivalent of the AWS assistant (the console assistant, renamed from Amazon Q Developer in the console on Nov 5, 2026) is Azure Copilot.
+  slug: aws-q-developer-vs-azure-copilot
   providers:
-    aws: [amazon-q-developer]
+    aws: [aws-assistant]
     azure: [azure-copilot]
   differences:
-    - Q Developer in the console, docs site, mobile app, and Slack/Teams is not affected by the IDE-plugin sunset.
+    - The AWS assistant is the same account-aware console, docs, and mobile assistant under a new name. Official AWS docs describe it as a generative AI assistant in the AWS Management Console, AWS websites, and the Console Mobile Application.
     - Azure Copilot works across the Azure portal and other surfaces, using the Azure control plane and your resource context.
+    - The Q Developer IDE plugins are a separate, sunset product; see the coding assistant comparison for Kiro.
   pricing:
     aws: Console chat is available to AWS customers, and some advanced capabilities need Q Developer Pro.
     azure: Included for Azure customers. Check the Azure Copilot overview for any capability-specific licensing.
@@ -1638,7 +1641,8 @@ rows:
     azure: []
   related: [coding-assistant]
   sources:
-    - https://aws.amazon.com/blogs/devops/amazon-q-developer-end-of-support-announcement/
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/q-developer-renamed-aws-assistant/
+    - https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/ask-q.html
     - https://learn.microsoft.com/en-us/azure/copilot/overview
   flags:
     - Pricing for both console assistants was not fully verified. Treat it as indicative.
@@ -1648,7 +1652,8 @@ rows:
     services:
     - gemini-cloud-assist
     match: direct
-    answer: Amazon Q Developer in the AWS console maps to Gemini Cloud Assist, which helps design, operate, and troubleshoot Google Cloud workloads.
+    slug: aws-q-developer-vs-gcp-gemini-cloud-assist
+    answer: The AWS assistant (formerly Amazon Q Developer in the AWS console) maps to Gemini Cloud Assist, which helps design, operate, and troubleshoot Google Cloud workloads.
     differences:
     - Gemini Cloud Assist was labeled a Preview offering on its overview page on 2026-10-27.
     pricing: Check the Cloud Assist docs for current pricing; it was offered in Preview at the time of verification.
@@ -2416,7 +2421,7 @@ rows:
     azure: []
   related: [metric-anomaly, ml-platform]
   sources:
-    - https://docs.aws.amazon.com/lookout-for-equipment/latest/ug/what-is.html
+    - https://aws.amazon.com/lookout-for-equipment/
     - https://docs.aws.amazon.com/general/latest/gr/sunset_services.html
     - https://docs.aws.amazon.com/Monitron/latest/user-guide/what-is-monitron.html
     - https://learn.microsoft.com/en-us/previous-versions/azure/ai-services/anomaly-detector/overview

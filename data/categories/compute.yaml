@@ -46,7 +46,7 @@ rows:
     aws: Per-second On-Demand billing (60-second minimum) for Linux and Windows. Spot, Savings Plans, and Reserved Instances discount it, and Dedicated Hosts are billed per host. EBS, data transfer, and public IPv4 addresses are billed separately.
     azure: Per-second pay-as-you-go billing for running (allocated) VMs. Spot VMs, reservations, and the savings plan discount it. Azure Hybrid Benefit removes the Windows Server or SQL Server license charge if you bring licenses. Managed disks, bandwidth, and public IPs are billed separately.
   exams:
-    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C02]
+    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C03]
     azure: [AZ-900, AZ-104, AZ-305]
   faq:
     - q: Does a stopped Azure VM cost money?
@@ -347,9 +347,10 @@ rows:
   answer: EC2 Spot Instances map to Azure Spot Virtual Machines. Both are steeply discounted spare capacity that can be reclaimed, but the warning time and eviction options differ.
   providers:
     aws: [ec2-spot]
-    azure: [spot-vms]
+    azure: [spot-vms, spot-plus]
   differences:
-    - Notice. EC2 gives a two-minute interruption notice plus an earlier "rebalance recommendation" signal. Azure gives up to 30 seconds via Scheduled Events, best effort.
+    - Notice. EC2 gives a two-minute interruption notice plus an earlier "rebalance recommendation" signal. Standard Azure Spot VMs give up to 30 seconds via Scheduled Events, best effort. Azure Compute Spot plus, in public preview as of Nov 17, 2026, is documented with a final warning of 30 seconds to 2 minutes and a rebalance notification, so the warning time on Azure now depends on which Spot tier you pick.
+    - Azure Spot plus also targets a best-effort 60-minute runtime, with no charge if the VM is evicted in the first 60 minutes. Official preview materials describe no direct EC2 counterpart for that billing protection.
     - Eviction behavior. EC2 can terminate, stop, or hibernate. Azure can Deallocate (default; disks kept and billed) or Delete.
     - Price cap. Both let you set a max price. Azure can also evict when the price rises above your cap. With a cap of -1, Azure evicts only for capacity.
     - Scaling. Both integrate with scale groups (ASG mixed instances policy and capacity rebalancing; VMSS Spot priority mix and instance mix) and with Batch and Kubernetes node pools.
@@ -365,6 +366,8 @@ rows:
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-spot-instances.html
     - https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html
     - https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
+    - https://azure.microsoft.com/updates?id=581145
+    - https://techcommunity.microsoft.com/blog/azurecompute/public-preview-azure-compute--spot-plus/4573059
   gcp:
     services:
     - spot-vms
@@ -397,7 +400,7 @@ rows:
     aws: Discounts of up to 72% vs On-Demand, depending on plan type, term, and payment option.
     azure: Discounts vary by product and term (not by commitment size) and are applied hourly to the highest-discount usage first.
   exams:
-    aws: [CLF-C02, SAA-C03, SAP-C02]
+    aws: [CLF-C02, SAA-C03, SAP-C03]
     azure: [AZ-900, AZ-104, AZ-305]
   related: [commitment-reserved, purchase-spot]
   sources:
@@ -434,7 +437,7 @@ rows:
     aws: All, Partial, or No upfront, with 1- or 3-year terms. Standard RIs discount more than Convertible.
     azure: Paid upfront or monthly for 1- or 3-year terms. The discount applies automatically to matching running VMs every hour.
   exams:
-    aws: [CLF-C02, SAA-C03, SAP-C02]
+    aws: [CLF-C02, SAA-C03, SAP-C03]
     azure: [AZ-900, AZ-104, AZ-305]
   related: [commitment-savings-plan, capacity-reserve]
   sources:
@@ -472,7 +475,7 @@ rows:
     aws: Billed at the On-Demand rate for the reserved instance type, used or unused. Immediate reservations have no term, and future-dated ones carry a minimum commitment.
     azure: Billed at the pay-as-you-go rate for the reserved size, used or unused. No term commitment.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [commitment-reserved, gpu-instances]
   sources:
@@ -508,7 +511,7 @@ rows:
     aws: Billed per host per second, with On-Demand, Savings Plans, or host reservations available. Instances on the host have no separate instance charge.
     azure: Billed per host. VMs on the host show a price of zero, and software licenses, storage, and network are billed separately. Reservations are available.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   related: [license-byol, mac-instances, bare-metal]
   sources:
@@ -545,7 +548,7 @@ rows:
     aws: License Manager has no extra charge for license tracking. Some license-included and user-based subscription features are billed.
     azure: Azure Hybrid Benefit is free to apply. It removes the license component of the VM price, and you must hold eligible licenses.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-104, AZ-305]
   related: [dedicated-hardware]
   sources:
@@ -662,7 +665,7 @@ rows:
     aws: Basic recommendations are free. Enhanced infrastructure metrics are billed per resource per hour.
     azure: Azure Advisor is free.
   exams:
-    aws: [SOA-C03, SAP-C02]
+    aws: [SOA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   related: [instance-families, commitment-savings-plan]
   sources:
@@ -700,7 +703,7 @@ rows:
     aws: There's no extra charge for AWS Batch. You pay for the EC2, Fargate, or EKS resources it launches.
     azure: Azure Batch is free. You pay for the pool VMs, storage, and networking. Spot VMs reduce pool costs.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [hpc-clusters, purchase-spot]
   sources:
@@ -737,7 +740,7 @@ rows:
     aws: ParallelCluster has no charge, so you pay for the resources. PCS charges an hourly cluster-controller fee (by controller size) and an hourly node-management fee per EC2 instance (an advanced tier for P and Trn families), plus the EC2 instances. Slurm accounting is optional and billed extra.
     azure: You pay for the VMs (including the CycleCloud server VM), storage, and networking that CycleCloud deploys.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [batch-jobs, hpc-networking, large-scale-training-clusters]
   sources:
@@ -775,7 +778,7 @@ rows:
     aws: No extra charge for EFA. It comes with supported instance types.
     azure: No separate charge. InfiniBand is included in the price of RDMA-capable sizes.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [hpc-clusters, placement-control, gpu-instances]
   sources:
@@ -813,7 +816,7 @@ rows:
     aws: There's no additional charge for Elastic Beanstalk. You pay for the EC2, load balancer, and storage resources it creates.
     azure: You pay per App Service plan (tier, instance size, and count), whatever the number of apps on it. There are Free and Shared tiers for testing, and the savings plan and reservations apply to some tiers.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AZ-104]
   related: [simple-vps]
   sources:
@@ -957,7 +960,7 @@ rows:
     aws: Outposts racks have 3-year terms (All, Partial, or No upfront) by configuration. Outposts servers have their own 3-year pricing. Hardware is AWS-owned.
     azure: A per-physical-core monthly host service fee (with different tiers for hyperconverged, multi-rack or external storage, and disconnected deployments). You also buy the hardware and pay for guest licensing and Azure services.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [metro-edge-zones, vmware-cloud]
   sources:
@@ -994,7 +997,7 @@ rows:
     aws: Local Zone pricing differs from the parent Region and is listed per zone.
     azure: Resources in Extended Zones are billed at their own rates per zone. See each service's pricing page and the pricing calculator.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [carrier-5g-edge, on-prem-cloud]
   sources:
@@ -1028,7 +1031,7 @@ rows:
     aws: Wavelength resources are billed at Wavelength Zone rates, plus data transfer through the carrier gateway.
     azure: No carrier-edge service to price. Extended Zones are billed per resource.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: []
   related: [metro-edge-zones]
   sources:
@@ -1065,7 +1068,7 @@ rows:
     aws: EVS has a service fee plus the EC2 bare-metal instances (On-Demand, 1-year, or 3-year). VCF licenses are your own.
     azure: Billed per host (node) by SKU, hourly or with 1-year or 3-year reservations (availability varies by SKU). The infrastructure and managed service are included, but the Broadcom VCF subscription isn't.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [bare-metal, on-prem-cloud]
   sources:
@@ -1077,17 +1080,23 @@ rows:
 
 # ───────────────────────── VM SECURITY & OPERATIONS ─────────────────────────
   gcp:
+    slug: aws-evs-vs-gcp-vmware-engine
     services:
+    - vmware-solution
     - vmware-engine
     match: direct
-    answer: Amazon Elastic VMware Service maps to Google Cloud VMware Engine, which runs fully managed VMware private clouds on dedicated Google Cloud nodes.
+    answer: Amazon Elastic VMware Service maps to VMware solution on Google Cloud, the self-managed VMware Cloud Foundation option on dedicated Compute Engine bare metal in your VPC. Google Cloud VMware Engine remains the Google-operated offering, and it lines up more closely with Azure VMware Solution.
     differences:
-    - Amazon EVS deploys VMware Cloud Foundation into your own VPC on EC2 bare metal; VMware Engine is a Google-managed service you connect to your VPC.
-    - VMware licensing (VCF) terms come from Broadcom and differ by offering; check current portability rules.
-    pricing: Billed per node-hour by node type, on demand or with 1- or 3-year commitments; a three-node minimum applies to production private clouds.
+    - Both EVS and VMware solution on Google Cloud are self-managed (or partner-managed) VCF environments on the provider's bare metal, with full root access to the VCF stack and a portable VCF subscription from Broadcom.
+    - Google Cloud VMware Engine is still available as the turnkey, Google-managed option and is the closer counterpart to Azure VMware Solution, which Microsoft operates.
+    - Official Google docs describe VMware solution as VCF 9.x on dedicated z3 bare-metal instances. VMware Engine's managed operating model and VCF version differ; check current docs when you choose.
+    pricing: Google says it charges for the Compute Engine bare-metal nodes, not a separate VMware solution fee. VCF licenses are yours (BYOL).
     sources:
-    - https://docs.cloud.google.com/vmware-engine/docs/overview
-    - https://cloud.google.com/vmware-engine/pricing
+    - https://docs.cloud.google.com/vmware-engine/docs/vmware-solution/architecture
+    - https://docs.cloud.google.com/vmware-engine/docs
+    - https://cloud.google.com/solutions/vmware
+    - https://cloud.google.com/blog/products/infrastructure-modernization/vmware-solution-on-google-cloud/
+    - https://cloud.google.com/products/compute/pricing
 - id: confidential-compute
   group: vm-security
   capability: Confidential computing
@@ -1214,7 +1223,7 @@ rows:
   differences:
     - Control. Patch Manager uses patch baselines (approval rules), patch groups, maintenance windows, and Quick Setup patch policies across accounts and Regions. Update Manager uses maintenance configurations, dynamic scopes, periodic assessment, and Azure Policy.
     - Azure extras. Hotpatching (critical updates without reboot on supported Windows Server editions) and automatic VM guest patching.
-    - Hybrid. On AWS, on-premises nodes register as hybrid managed nodes. On Azure, they must be Arc-enabled servers.
+    - Hybrid. On AWS, on-premises nodes register as hybrid managed nodes, and Systems Manager can also onboard Google Cloud VMs (as well as Azure machines) through Cloud Connector, announced Nov 13, 2026. On Azure, servers must be Arc-enabled; the multicloud connector enabled by Azure Arc discovers EC2 instances and Google Cloud VMs (Google Cloud support is in preview).
   pricing:
     aws: Patch Manager is free for EC2. On-premises nodes on the advanced tier are billed per node-hour.
     azure: Free for Azure VMs. Arc-enabled servers are billed per server per day when managed, unless included with Azure Local, Arc-enabled ESUs, or Defender for Servers Plan 2.
@@ -1224,7 +1233,9 @@ rows:
   related: [vm-remote-access]
   sources:
     - https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/systems-manager-google-cloud-support/
     - https://learn.microsoft.com/en-us/azure/update-manager/overview
+    - https://learn.microsoft.com/en-us/azure/azure-arc/multicloud-connector/overview
     - https://azure.microsoft.com/en-us/pricing/details/azure-update-management-center/
   gcp:
     services:

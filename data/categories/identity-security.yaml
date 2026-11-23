@@ -73,10 +73,10 @@ rows:
   match: direct
   answer: AWS IAM Identity Center maps to Microsoft Entra ID single sign-on, with Entra MFA and Conditional Access. Many organizations connect Entra ID to Identity Center as its external identity provider.
   providers:
-    aws: [iam-identity-center]
+    aws: [iam-identity-center, account-access-manager]
     azure: [entra-id]
   differences:
-    - Scope. Identity Center focuses on access to AWS accounts (through permission sets) and AWS-integrated or SAML apps. Entra ID is a full identity provider for thousands of SaaS apps, devices, and Microsoft 365.
+    - Scope. Identity Center focuses on access to AWS accounts and AWS-integrated or SAML apps. Account access can go through permission sets or, as of Nov 5, 2026, account access manager, which assigns existing IAM roles in member accounts to Identity Center users and groups from an organization instance. Entra ID is a full identity provider for thousands of SaaS apps, devices, and Microsoft 365.
     - Risk-based access. Entra Conditional Access evaluates user, device, location, and risk signals on every sign-in. Identity Center relies on MFA settings and on the external IdP for richer policies.
     - Instances. Identity Center recommends an organization instance. Account instances are for limited app use only.
   pricing:
@@ -88,6 +88,7 @@ rows:
   related: [cloud-iam, privileged-access]
   sources:
     - https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+    - https://aws.amazon.com/blogs/security/introducing-aws-account-access-manager-iam-role-flexibility-with-centralized-workforce-access/
     - https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/what-is-single-sign-on
     - https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/security-identity
@@ -121,7 +122,7 @@ rows:
     aws: Free.
     azure: Free.
   exams:
-    aws: [SAA-C03, DVA-C02, SCS-C03]
+    aws: [SAA-C03, DVA-C03, SCS-C03]
     azure: [AZ-104, AI-200, SC-500]
   related: [external-workload-federation, cloud-iam, secrets-management]
   sources:
@@ -264,7 +265,7 @@ rows:
     aws: Free.
     azure: Free.
   exams:
-    aws: [SAP-C02, ANS-C01]
+    aws: [SAP-C03, ANS-C01]
     azure: [AZ-104, AZ-305]
   related: [cloud-iam, multi-account-organization]
   sources:
@@ -301,7 +302,7 @@ rows:
     aws: Per monthly active user, by feature plan (Lite, Essentials, Plus), with a free tier, plus SMS and advanced security charges.
     azure: Per monthly active user, with a free tier, plus add-ons (such as SMS MFA).
   exams:
-    aws: [DVA-C02, SCS-C03, SAA-C03]
+    aws: [DVA-C03, SCS-C03, SAA-C03]
     azure: [SC-300, AI-200]
   flags:
     - Azure AD B2C is closed to new customers (since May 1, 2025), but existing tenants are still supported. Plan new apps on Entra External ID.
@@ -339,7 +340,7 @@ rows:
     aws: Per directory-hour by edition (Standard or Enterprise for Managed Microsoft AD), and per AD Connector-hour.
     azure: Per hour by SKU (Standard, Enterprise, Premium).
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, SC-300]
   related: [workforce-sso]
   sources:
@@ -373,7 +374,7 @@ rows:
     aws: Per authorization request, and per policy management operation.
     azure: Not applicable.
   exams:
-    aws: [DVA-C02, SCS-C03]
+    aws: [DVA-C03, SCS-C03]
     azure: [SC-300]
   related: [customer-identity]
   sources:
@@ -442,7 +443,7 @@ rows:
     aws: Free.
     azure: Free.
   exams:
-    aws: [SAA-C03, SAP-C02, SOA-C03]
+    aws: [SAA-C03, SAP-C03, SOA-C03]
     azure: [AZ-104, AZ-305]
   related: [org-guardrails, landing-zones]
   sources:
@@ -477,7 +478,7 @@ rows:
     aws: Free.
     azure: Free for Azure resources (some guest configuration and Arc scenarios are billed).
   exams:
-    aws: [SCS-C03, SAP-C02]
+    aws: [SCS-C03, SAP-C03]
     azure: [AZ-104, AZ-305, SC-500]
   related: [multi-account-organization, config-compliance, landing-zones]
   sources:
@@ -513,7 +514,7 @@ rows:
     aws: No charge for Control Tower itself. You pay for the services it sets up (Config, CloudTrail, and others).
     azure: No charge for the reference implementation. You pay for deployed resources (Log Analytics, Firewall, Defender, and others).
   exams:
-    aws: [SAP-C02, SOA-C03]
+    aws: [SAP-C03, SOA-C03]
     azure: [AZ-305]
   flags:
     - Azure Blueprints (preview) began a phased retirement on July 31, 2026, and fully retires January 31, 2027. Microsoft recommends migrating to Deployment Stacks.
@@ -701,7 +702,7 @@ rows:
     aws: Per customer-managed key per month plus per 10,000 requests.
     azure: Per key operation (with higher rates for HSM keys and per-key monthly fees for HSM keys in Premium). Managed HSM is billed per HSM pool-hour.
   exams:
-    aws: [SAA-C03, SCS-C03, DVA-C02]
+    aws: [SAA-C03, SCS-C03, DVA-C03]
     azure: [AZ-104, SC-500]
   related: [dedicated-hsm, secrets-management]
   sources:
@@ -776,18 +777,21 @@ rows:
     azure: [key-vault]
   differences:
     - Rotation. Secrets Manager has built-in rotation (managed for RDS and other services, or Lambda-based). Key Vault raises near-expiry events through Event Grid, and you rotate with Azure Functions or automation. Better still, use managed identities so there's no secret to rotate.
+    - Cross-account copies. As of Nov 13, 2026, Secrets Manager can replicate a secret into another AWS account as an independent resource that stays in sync with the primary, including on rotation. Azure Key Vault documentation covers regional replication and manual backup/restore in the same subscription and geography, not a managed always-in-sync replica in another subscription.
     - Cheaper alternative on AWS. Systems Manager Parameter Store also holds secrets (SecureString) without built-in rotation.
   pricing:
     aws: Per secret per month plus per 10,000 API calls.
     azure: Per 10,000 secret operations, with no per-secret monthly fee.
   exams:
-    aws: [SAA-C03, DVA-C02, SCS-C03]
+    aws: [SAA-C03, DVA-C03, SCS-C03]
     azure: [AZ-104, AI-200, SC-500]
   related: [key-management, workload-identity]
   sources:
     - https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/secrets-manager-cross-account/
     - https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-parameter-store.html
     - https://learn.microsoft.com/en-us/azure/key-vault/general/overview
+    - https://learn.microsoft.com/en-us/azure/key-vault/general/backup
   gcp:
     services:
     - secret-manager
@@ -795,10 +799,12 @@ rows:
     answer: AWS Secrets Manager maps to Secret Manager, with versioned secrets, global or regional services, and rotation schedules.
     differences:
     - Rotation schedules send notifications; you write the rotation logic (for example in Cloud Run functions).
+    - Secret Manager replication policies control where a secret lives (automatic or user-managed regions), not which projects get a managed, always-in-sync copy. Cross-project access is something you design yourself.
     pricing: Billed per active secret version and per access operation.
     sources:
     - https://docs.cloud.google.com/secret-manager/docs/overview
     - https://docs.cloud.google.com/secret-manager/docs/secret-rotation
+    - https://docs.cloud.google.com/secret-manager/docs/choosing-replication
     - https://cloud.google.com/secret-manager/pricing
 
 - id: tls-certificates
@@ -919,6 +925,7 @@ rows:
   differences:
     - Standards. Security Hub CSPM runs checks for AWS Foundational Security Best Practices, CIS, PCI DSS, and NIST. Foundational CSPM uses the Microsoft Cloud Security Benchmark and secure score, and Defender CSPM adds regulatory standards, attack paths, the cloud security explorer, and agentless scanning.
     - Naming. AWS renamed the original service Security Hub CSPM when it launched the new unified Security Hub. Older study material uses "Security Hub" for the control checks.
+    - Other clouds. As of Nov 17, 2026, Security Hub also monitors Google Cloud VMs, Artifact Registry images, Cloud Run functions, and identities, with CIS Google Cloud checks, in addition to the Azure coverage it already had. Defender for Cloud already connects to AWS and Google Cloud, so "which other clouds the posture tool covers" is no longer a point only in Azure's favor.
   pricing:
     aws: Security Hub CSPM is billed per security check and finding ingestion. The new Security Hub has its own resource-based pricing.
     azure: Foundational CSPM is free. Defender CSPM is billed per billable resource per month.
@@ -931,7 +938,10 @@ rows:
   sources:
     - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub-v2.html
     - https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/security-hub-gcp/
     - https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/quickstart-onboard-aws
+    - https://learn.microsoft.com/en-us/azure/defender-for-cloud/quickstart-onboard-gcp
   gcp:
     services:
     - security-command-center

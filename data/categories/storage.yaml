@@ -47,7 +47,7 @@ rows:
     aws: Per GB-month by storage class, plus per-request charges, retrieval fees for IA and Glacier classes, and data transfer out.
     azure: Per GB-month by access tier and redundancy option, plus per-10,000-operation charges, retrieval fees for cool, cold, and archive, geo-replication data transfer for GRS/GZRS, and data transfer out.
   exams:
-    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C02]
+    aws: [CLF-C02, SAA-C03, SOA-C03, SAP-C03]
     azure: [AZ-900, AZ-104, AZ-305]
   faq:
     - q: What is the Azure equivalent of an S3 bucket?
@@ -132,7 +132,7 @@ rows:
     aws: No extra charge for Access Points. Multi-Region Access Points add a per-GB data routing fee.
     azure: Not applicable.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [object-access-control, netapp-files]
   sources:
@@ -168,7 +168,7 @@ rows:
     aws: Per GB-month at a higher rate than S3 Standard, with lower per-request charges.
     azure: Higher per GB-month than hot, with lower per-operation charges. Microsoft shows it is cheaper overall for transaction-heavy workloads.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [object-storage, storage-classes]
   sources:
@@ -327,7 +327,7 @@ rows:
     aws: Destination storage, replication requests, inter-Region data transfer, and a per-GB RTC fee when enabled.
     azure: Object replication bills destination storage, write operations, change feed, versions, and cross-region transfer. GRS/GZRS pricing includes the secondary copy plus a geo-replication transfer charge.
   exams:
-    aws: [SAA-C03, SAP-C02, SOA-C03]
+    aws: [SAA-C03, SAP-C03, SOA-C03]
     azure: [AZ-104, AZ-305]
   related: [object-storage, object-lock]
   sources:
@@ -1106,7 +1106,7 @@ rows:
     aws: Per GB written to AWS (capped monthly per gateway), plus S3 storage and requests.
     azure: Data Box Gateway has a monthly device fee plus storage. Azure File Sync is billed per registered server per month, plus Azure Files charges.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   flags:
     - Data Box Gateway has no announced retirement, but it hasn't had a release since 2021. Check its status before you build on it.
@@ -1173,7 +1173,7 @@ rows:
     aws: Per GB written to AWS (capped monthly per gateway), plus volume storage and EBS snapshots.
     azure: Not applicable.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [file-gateway, tape-gateway]
   sources:
@@ -1233,7 +1233,7 @@ rows:
     azure: [azure-backup]
   differences:
     - Vaults. AWS Backup uses backup vaults, with cross-Region and cross-account copies. Azure Backup uses two vault types. Recovery Services vaults cover VMs, SQL Server and SAP HANA in VMs, Azure Files, and on-premises machines. Backup vaults cover disks, blobs, AKS, and PostgreSQL.
-    - Databases. AWS Backup covers RDS, Aurora, DynamoDB, and other AWS databases. Azure Backup covers SQL Server, SAP HANA, and SAP ASE in VMs, plus PostgreSQL and MySQL flexible servers. Azure SQL Database and Cosmos DB rely on their own built-in backups.
+    - Databases. AWS Backup covers RDS, Aurora, DynamoDB, and other AWS databases. As of Nov 20, 2026, AWS Backup can also take incremental DynamoDB backups after an initial full copy, with a new full every 15 days, including into logically air-gapped vaults. Azure Backup covers SQL Server, SAP HANA, and SAP ASE in VMs, plus PostgreSQL and MySQL flexible servers. Azure Backup for Azure Cosmos DB is generally available as of Nov 17, 2026, with vaulted immutable copies outside the Cosmos DB account and retention of up to 10 years. Azure SQL Database still relies on its own built-in backups. Native point-in-time recovery (about 35 days) remains a separate, in-service layer on both DynamoDB and Cosmos DB.
     - Object storage. AWS Backup backs up S3 buckets. Azure Backup has operational backup for blobs (local and continuous) and vaulted backup (offsite copies).
     - On premises. AWS Backup supports VMware VMs through a gateway appliance. Azure Backup uses the MARS agent or Microsoft Azure Backup Server (MABS).
     - Governance. AWS Backup integrates with AWS Organizations backup policies. Azure Backup uses Azure Policy and at-scale management in the Azure portal.
@@ -1241,12 +1241,15 @@ rows:
     aws: Per GB-month of backup storage (warm or cold tier) by resource type, plus restores and cross-Region transfer.
     azure: A monthly protected-instance fee based on size, plus backup storage per GB-month (LRS, ZRS, or GRS) and snapshot storage.
   exams:
-    aws: [SAA-C03, SOA-C03, SAP-C02]
+    aws: [SAA-C03, SOA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   related: [backup-vault-lock, block-snapshots, disaster-recovery]
   sources:
     - https://docs.aws.amazon.com/aws-backup/latest/devguide/whatisbackup.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/aws-backup-incremental-backups-dynamodb/
     - https://learn.microsoft.com/en-us/azure/backup/backup-overview
+    - https://learn.microsoft.com/en-us/azure/backup/backup-azure-cosmos-db-overview
+    - https://azure.microsoft.com/updates?id=579147
     - https://learn.microsoft.com/en-us/azure/backup/blob-backup-overview
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/storage
   gcp:
@@ -1312,7 +1315,7 @@ rows:
     aws: Per replicating source server per hour, plus staging-area EC2, EBS, and snapshots, and recovery instances while running.
     azure: Per protected instance per month, plus replica disk storage and compute after failover.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   related: [backup-service, block-snapshots]
   sources:
@@ -1344,19 +1347,21 @@ rows:
     azure: [storage-mover, azcopy]
   differences:
     - Direction. DataSync moves data into, out of, and between AWS storage services, including from Azure Blob Storage, Azure Files, and Google Cloud Storage. Storage Mover moves data into Azure only.
+    - Authentication. As of Nov 4, 2026, DataSync Enhanced mode can use OIDC to get short-lived credentials from Google Cloud or Microsoft Entra ID for Cloud Storage and Azure Blob Storage locations, so you no longer need HMAC keys or SAS tokens for those sources. Storage Transfer Service can already read Amazon S3 with federated identity (an IAM role that trusts accounts.google.com). Storage Mover's cloud-to-cloud path from S3 goes through an Azure Arc multicloud connector for AWS.
     - Sources. Storage Mover supports NFS and SMB shares (through an agent) and AWS S3, with FSx SMB and Google Cloud Storage in preview. Objects in S3 Glacier classes must be restored first.
     - Cost. DataSync bills per GB transferred. Storage Mover features are currently free, and AzCopy is a free tool, so you pay only for storage, transactions, and network.
   pricing:
     aws: Per GB transferred, plus any S3 request and data transfer charges.
     azure: Storage Mover and AzCopy are free. You pay for target storage and transactions, plus any egress charged by the source.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   flags:
     - Microsoft's aws-professional storage page maps DataSync to Azure File Sync. This guide maps it to Storage Mover and AzCopy because they match DataSync's migration purpose.
   related: [offline-data-transfer, managed-file-transfer, file-gateway]
   sources:
     - https://docs.aws.amazon.com/datasync/latest/userguide/what-is-datasync.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/datasync-enhanced-oidc-google-azure/
     - https://learn.microsoft.com/en-us/azure/storage-mover/service-overview
     - https://learn.microsoft.com/en-us/azure/storage-mover/billing
     - https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10
@@ -1371,6 +1376,7 @@ rows:
     pricing: Agentless and agent-based transfers are priced differently; agent-based transfers to or from file systems are billed per GiB. Network egress from the source applies.
     sources:
     - https://docs.cloud.google.com/storage-transfer/docs/overview
+    - https://docs.cloud.google.com/storage-transfer/docs/source-amazon-s3
     - https://cloud.google.com/storage-transfer/pricing
 
 - id: managed-file-transfer
@@ -1424,7 +1430,7 @@ rows:
     aws: Data Transfer Terminal is billed for the time you reserve. Snowball jobs were billed per job, per day, and for shipping.
     azure: A per-order service fee that includes a set number of days, plus extra days, shipping, and target storage.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-104, AZ-305]
   flags:
     - AWS sources conflict. The full-shutdown page lists Snowball Edge as shut down on November 12, 2025, while the Snowball developer guide only says it's unavailable to new customers. Check with AWS if you still depend on it.

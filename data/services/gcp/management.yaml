@@ -1,0 +1,13 @@
+# Google Cloud management and local-development services (category: management).
+- slug: spend-cap-budgets
+  name: Cloud Billing spend caps
+  status: ga
+  summary: Spend cap budgets on a project that pause usage of eligible services when gross estimated costs exceed the budget, then lift automatically at the start of the next budget period. Generally available. Caps apply only to eligible services, and official docs explain how enforcement uses estimated list-price costs.
+  docs: https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps
+  pricing: https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps
+- slug: gcloud-emulators
+  name: gcloud beta emulators
+  status: ga
+  summary: Per-service local emulators launched through the gcloud CLI, including Bigtable, Datastore, Firestore, Pub/Sub, and Spanner, rather than one endpoint for every Google Cloud API.
+  docs: https://docs.cloud.google.com/sdk/gcloud/reference/beta/emulators
+  pricing: https://docs.cloud.google.com/sdk/gcloud/reference/beta/emulators

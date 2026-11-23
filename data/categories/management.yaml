@@ -1,0 +1,93 @@
+# Management and developer tools: cost controls and local API emulators.
+category:
+  id: management
+  name: Management & developer tools
+  short: Management
+  order: 8
+  description: Cost controls that can stop or alert on spend, and local emulators for testing cloud APIs without calling the live service. AWS mapped to Azure and Google Cloud, verified against official docs.
+  seo_description: "AWS vs Azure vs Google Cloud management tools: AWS Budgets vs Cost Management budgets vs spend caps, and AWS Emulator vs Azurite vs gcloud emulators."
+  last_verified: "2026-11-23"
+  gcp_last_verified: "2026-11-23"
+  groups:
+    - id: cost-management
+      name: Cost management
+    - id: local-emulators
+      name: Local development & emulators
+
+rows:
+- id: spend-caps
+  group: cost-management
+  capability: Budget alerts and hard spend caps
+  what_for: Get notified when cloud spend hits a threshold, and where the provider allows it, automatically pause further usage so a runaway bill cannot keep growing.
+  match: partial
+  answer: AWS Budgets maps only partly to Microsoft Cost Management budgets. Both can alert you at a threshold. Google Cloud spend caps, which are generally available, can also pause usage of eligible services in a project when the cap is hit. AWS and Azure do not offer the same built-in hard stop on pay-as-you-go accounts.
+  providers:
+    aws: [aws-budgets]
+    azure: [cost-management-budgets]
+  differences:
+    - Hard stop. Google Cloud spend caps pause new usage of eligible services in a project when gross estimated costs exceed the budget, and the cap lifts automatically at the start of the next budget period. Official docs say caps apply only to eligible services and that enforcement uses estimated list-price costs.
+    - On AWS, budget actions can apply an IAM policy or SCP, or target specific EC2 or RDS instances, automatically or after approval. There is no general cap that pauses all eligible usage the way spend caps do.
+    - On Azure, budgets only notify by default. They can call an action group that runs your own automation. The spending limit that actually stops spend exists only on free and credit-based subscriptions, fixed at the credit amount, and is not available on pay-as-you-go.
+  pricing:
+    aws: AWS Budgets has its own pricing for budget and action usage; see the official AWS Budgets pricing page.
+    azure: Creating Cost Management budgets is a Cost Management feature. You pay for any automation the action group runs, and for the underlying resources.
+  exams:
+    aws: [CLF-C02, SAA-C03]
+    azure: [AZ-104]
+  related: []
+  sources:
+    - https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html
+    - https://aws.amazon.com/aws-cost-management/aws-budgets/pricing/
+    - https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets
+    - https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/spending-limit
+  gcp:
+    services:
+    - spend-cap-budgets
+    match: partial
+    answer: AWS Budgets maps only partly to Cloud Billing spend caps. Spend caps can pause eligible usage in a project when the cap is hit; AWS budget actions can restrict or stop specific resources, but there is no general hard cap of the same shape.
+    differences:
+    - Spend caps are generally available and can be managed in the console or through the Cloud Billing Budgets API.
+    - Official docs say enforcement uses gross estimated costs at list price, applies only to eligible services, and that you can lift a cap manually before the period resets.
+    pricing: Spend cap budgets are a Cloud Billing Budgets feature. See the official spend cap documentation for current details.
+    sources:
+    - https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps
+    - https://cloud.google.com/blog/topics/cost-management/google-cloud-spend-caps-now-generally-available/
+
+- id: local-emulators
+  group: local-emulators
+  capability: Local cloud API emulators
+  what_for: Test application code against cloud APIs on your machine or in CI, without calling the live service or creating real cloud resources.
+  match: partial
+  answer: AWS Emulator maps only partly to Azure's per-service emulators, such as Azurite for Blob, Queue, and Table Storage. AWS ships one local endpoint for every AWS API it models. Azure and Google Cloud ship a separate emulator for each service.
+  providers:
+    aws: [aws-emulator]
+    azure: [azurite]
+  differences:
+    - Shape. AWS Emulator is one local HTTPS endpoint built from published AWS API models, generally available Nov 11, 2026, with no additional service fee. You point the AWS CLI or SDKs at it with environment variables.
+    - Azure's official local tooling is per service. Azurite covers Blob, Queue, and Table Storage. The Cosmos DB emulator and Service Bus emulator are separate downloads.
+    - Limits. Official AWS Emulator docs say it does not evaluate IAM or resource policies the way AWS does, and each instance is a single account. On every cloud, still test permissions against the real service.
+  pricing:
+    aws: No additional service fee. You pay for AWS resources only when you deploy on AWS.
+    azure: The official emulators are provided at no extra emulator charge. You pay for Azure resources when you use the live services.
+  exams:
+    aws: [DVA-C03]
+    azure: [AZ-204]
+  related: []
+  sources:
+    - https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html
+    - https://aws.amazon.com/blogs/aws/test-your-applications-against-aws-locally-with-aws-emulator/
+    - https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite
+    - https://learn.microsoft.com/en-us/azure/cosmos-db/emulator
+    - https://learn.microsoft.com/en-us/azure/service-bus-messaging/overview-emulator
+  gcp:
+    services:
+    - gcloud-emulators
+    match: partial
+    answer: AWS Emulator maps only partly to the per-service emulators launched with gcloud beta emulators (including Bigtable, Datastore, Firestore, Pub/Sub, and Spanner). Google Cloud does not publish one emulator for every API.
+    differences:
+    - You configure a set of per-service emulators on Google Cloud, versus one endpoint on AWS.
+    - Official AWS docs say the emulator does not evaluate IAM the way AWS does; still test permissions against the real service on every cloud.
+    pricing: The gcloud emulators are part of the Google Cloud SDK. You pay for Google Cloud resources when you use the live services.
+    sources:
+    - https://docs.cloud.google.com/sdk/gcloud/reference/beta/emulators
+    - https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html
