@@ -122,6 +122,8 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/app-service/linux/
 - slug: azure-virtual-desktop
   name: Azure Virtual Desktop
+  seo_title: "Azure Virtual Desktop vs Amazon WorkSpaces vs Windows 365"
+  seo_description: "Amazon WorkSpaces maps to Azure Virtual Desktop (you run the hosts) and Windows 365 (Cloud PCs). Google Cloud has no first-party VDI."
   status: ga
   status_note: Azure Virtual Desktop (classic) retired Sep 30, 2026. Only ARM-based host pools are supported.
   summary: Desktop and app virtualization on session hosts you run in Azure (or on Azure Local). Windows 11/10 Enterprise multi-session is exclusive to it. Supports RemoteApp.

@@ -4,7 +4,7 @@
 # Score a later Search Console Pages export with: npm run title-test -- Pages.csv
 id: title-test-2026-11
 name: Service and compare page title split test
-status: awaiting_deploy  # titles are on seo/title-split-test; start_date is filled when this ships to main
+status: live  # shipped to main on 2026-11-23; /azure/virtual-desktop/ is excluded from scoring
 hypothesis: >
   Comparison-style titles and descriptions that name the equivalent services, and that reuse
   the wording people actually search (equivalent, vs, service short names), will increase
@@ -14,7 +14,7 @@ hypothesis: >
 scope:
   included: service hubs (/aws|azure|gcp/<seg>/) and compare pages (/compare/.../).
   excluded: home, blog, category indexes, provider indexes, exams, about, /data/, /changes/, API files.
-  held_constant: URL, H1, body copy, and Open Graph PNG artwork. Only <title>, meta description, og:title and og:description change on treatment pages (JSON-LD description follows the meta description).
+  held_constant: URL, H1, body copy, and Open Graph PNG artwork. Only <title>, meta description, og:title and og:description change on treatment pages (JSON-LD description follows the meta description). /azure/virtual-desktop/ also received a title override at launch, but it is excluded from the test and must not be scored in either group.
 
 design:
   method: matched pairs by impressions
@@ -32,18 +32,19 @@ design:
     0.7548469049910241, 0.8974816498515421, 0.6549820415218462, 0.15991237888778564,
     0.8128309738671603. first_is_treatment for the 20 pairs:
     [false, false, false, true, false, true, false, true, true, false, true, true, true, true, false, true, true, true, false, false].
-  start_date: null  # set to the date the treatment titles go live on cloudequivalents.com
+  start_date: '2026-11-23'  # America/New_York; date the titles go live on cloudequivalents.com
   review_after_days: 21
-  planned_review_if_deployed_2026-11-23: '2026-12-14'  # America/New_York; update if the merge slips
+  review_date: '2026-12-14'  # America/New_York
   metric: >
     Group CTR (sum of clicks / sum of impressions) and total clicks per group, from a Search
-    Console Pages export covering the test window. Also compare each group to its baseline CTR
-    from this 28-day window. Pair-level contrasts are secondary because pair 1 is unbalanced
-    (937 vs 267 impressions: Azure Virtual Desktop is an outlier).
+    Console Pages export covering 2026-11-23 to 2026-12-14. Also compare each group to its
+    baseline CTR from the 28-day window below. Do not include excluded pages (currently
+    /azure/virtual-desktop/) in either group's totals. Pair-level contrasts should skip pair 1,
+    which no longer has a control after Azure Virtual Desktop was pulled out at launch.
   power_note: >
-    The site had only 55 clicks (Chart.csv / Devices.csv) in the baseline window, and these 40
-    pages had 21 clicks combined. A conclusive result may take longer than 3 weeks. Review at
-    3 weeks and extend if needed. Do not change titles mid-test.
+    The site had only 55 clicks (Chart.csv / Devices.csv) in the baseline window, and the 39
+    scored pages had 21 clicks combined. A conclusive result may take longer than 3 weeks.
+    Review on 2026-12-14 and extend if needed. Do not change remaining group titles mid-test.
 
 baseline:
   window: 2026-10-25 to 2026-11-21  # Filters.csv: Last 28 days, search type Web
@@ -60,10 +61,11 @@ baseline:
     impressions: 2053
     ctr: 0.005358  # 0.54%
   control_group:
-    pages: 20
+    pages: 19  # 20 at assignment, minus /azure/virtual-desktop/ which was excluded at launch
     clicks: 10
-    impressions: 2689
-    ctr: 0.003719  # 0.37%
+    impressions: 1752  # 2689 minus AVD's 937
+    ctr: 0.005708  # 0.57%
+    as_assigned_including_avd: { pages: 20, clicks: 10, impressions: 2689, ctr: 0.003719 }
 
 treatment:
   - path: /azure/app-service/
@@ -355,14 +357,41 @@ treatment:
     override_on: service slug bedrock-knowledge-bases
     query_notes: "No confident matching queries in the export (broad 'RAG' substring matches were false positives on storage queries)."
 
-control:
+# Pulled out of the control group at launch (2026-11-23) so the 937-impression outlier
+# does not dominate control CTR, and so a new comparison title can ship immediately.
+# npm run title-test ignores this list when summing treatment vs control.
+excluded:
   - path: /azure/virtual-desktop/
     kind: service
+    reason: >
+      Outlier (937 baseline impressions, 0 clicks, average position 8.44) that made pair 1
+      and the control group totals unbalanced. Pulled out of control at launch and given its
+      own comparison title, written for the queries people actually searched (vdi azure vs
+      aws, aws workspaces vs azure virtual desktop, aws appstream vs azure). Do not count
+      this page in treatment or control CTR.
+    originally: control
+    pair: 1
     baseline_clicks: 0
     baseline_impressions: 937
     baseline_ctr: 0.000000
     old_title: "AWS equivalent of Azure Virtual Desktop | Cloud Equivalents"
     old_description: "AWS equivalent of Azure Virtual Desktop: Amazon WorkSpaces (Personal & Pools) and Amazon WorkSpaces Applications (formerly AppStream 2.0). Desktop and app…"
+    seo_title: "Azure Virtual Desktop vs Amazon WorkSpaces vs Windows 365"
+    seo_description: "Amazon WorkSpaces maps to Azure Virtual Desktop (you run the hosts) and Windows 365 (Cloud PCs). Google Cloud has no first-party VDI."
+    override_file: data/services/azure/compute.yaml
+    override_on: service slug azure-virtual-desktop
+    matched_queries:
+      - "aws appstream vs azure (34)"
+      - "vdi azure vs aws (13)"
+      - "aws workspaces vs azure virtual desktop (8)"
+      - "aws workspaces vs azure remoteapp (3)"
+      - "azure vdi vs amazon workspaces web (3)"
+      - "virtual desktop aws (3)"
+      - "amazon cloud pc (2)"
+      - "aws virtual desktop (2)"
+      - "azure virtual desktop (1)"
+
+control:
   - path: /gcp/cloud-run/
     kind: service
     baseline_clicks: 1
@@ -500,8 +529,10 @@ control:
 pairs:
   - n: 1
     treatment: /azure/app-service/
-    control: /azure/virtual-desktop/
+    control: null  # /azure/virtual-desktop/ excluded at launch; skip this pair in pair-level analysis
+    excluded_control: /azure/virtual-desktop/
     impressions: [937, 267]
+    note: Azure Virtual Desktop was the original control. It is excluded from scoring.
   - n: 2
     treatment: /azure/entra-pim/
     control: /gcp/cloud-run/

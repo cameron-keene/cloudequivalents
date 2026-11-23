@@ -50,21 +50,22 @@ const pad = (s, n, right = false) => {
   return s.length >= n ? s : (right ? s + ' '.repeat(n - s.length) : ' '.repeat(n - s.length) + s);
 };
 
-const treatment = new Map((exp.treatment || []).map((p) => [p.path, p]));
-const control = new Map((exp.control || []).map((p) => [p.path, p]));
+const excluded = new Map((exp.excluded || []).map((p) => [p.path, p]));
+const treatment = new Map((exp.treatment || []).filter((p) => !excluded.has(p.path)).map((p) => [p.path, p]));
+const control = new Map((exp.control || []).filter((p) => !excluded.has(p.path)).map((p) => [p.path, p]));
 const file = process.argv[2];
 
 const header = () => {
   const start = exp.design?.start_date || '(fill at deploy)';
-  const review = exp.design?.start_date
+  const review = exp.design?.review_date || (exp.design?.start_date
     ? `start + ${exp.design.review_after_days || 21} days`
-    : `${exp.design?.['planned_review_if_deployed_2026-11-23'] || 'start + 21 days'} if deployed 2026-11-23`;
+    : 'start + 21 days');
   console.log(`Title split test: ${exp.id}`);
   console.log(`Status: ${exp.status}`);
   console.log(`Baseline window: ${exp.baseline?.window}`);
   console.log(`Start date: ${start}`);
   console.log(`Review date: ${review}`);
-  console.log(`Pages: ${treatment.size} treatment, ${control.size} control`);
+  console.log(`Pages: ${treatment.size} treatment, ${control.size} control, ${excluded.size} excluded (not scored)`);
 };
 
 if (!file) {
@@ -74,7 +75,11 @@ if (!file) {
   console.log('\nBaseline (Pages.csv, 28 days ending 2026-11-21)');
   console.log(`  Treatment: ${tb.clicks ?? '—'} clicks, ${tb.impressions ?? '—'} impressions, CTR ${pct(tb.clicks, tb.impressions)}`);
   console.log(`  Control:   ${cb.clicks ?? '—'} clicks, ${cb.impressions ?? '—'} impressions, CTR ${pct(cb.clicks, cb.impressions)}`);
-  console.log('\nExport Pages.csv from Search Console (Pages report), then:\n  npm run title-test -- Pages.csv');
+  if (excluded.size) {
+    console.log('  Excluded from scoring:');
+    for (const [path, rec] of excluded) console.log(`    ${path}  (${rec.reason ? String(rec.reason).split('\n')[0].trim() : 'see experiment log'})`);
+  }
+  console.log('\nExport Pages.csv from Search Console (Pages report) for the test window, then:\n  npm run title-test -- Pages.csv');
   process.exit(0);
 }
 
@@ -160,3 +165,16 @@ const table = (label, paths, group) => {
 };
 table('Treatment pages', tPaths, treatment);
 table('Control pages', cPaths, control);
+
+if (excluded.size) {
+  console.log('\nExcluded pages (not scored in treatment or control):');
+  for (const [p, rec] of excluded) {
+    const rowX = exportPages.get(p);
+    const bCtr = pct(rec.baseline_clicks, rec.baseline_impressions);
+    if (!rowX) {
+      console.log(`  missing from export  (baseline ${rec.baseline_clicks} / ${rec.baseline_impressions}, ${bCtr})  ${p}`);
+      continue;
+    }
+    console.log(`  ${pad(rowX.clicks, 4)} clk  ${pad(rowX.impressions, 5)} impr  ${pad(pct(rowX.clicks, rowX.impressions), 7)}  (baseline ${rec.baseline_clicks} / ${rec.baseline_impressions}, ${bCtr})  ${p}`);
+  }
+}
