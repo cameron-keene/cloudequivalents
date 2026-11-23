@@ -49,9 +49,9 @@ That's a different operating model from Google Cloud VMware Engine, which Google
 
 Why it matters for comparisons:
 
-- Our [Amazon EVS vs Google Cloud VMware Engine](/compare/aws-evs-vs-gcp-vmware-engine/) page maps EVS to VMware Engine and lists the operating model as the main difference, because EVS is self-managed in your VPC. Google now has a self-managed counterpart on bare metal, so the closer match for EVS is the new VMware solution, while VMware Engine lines up better with [Azure VMware Solution](/compare/aws-evs-vs-azure-vmware-solution/), which Microsoft operates.
+- Until now, the usual comparison was [Amazon EVS vs Google Cloud VMware Engine](/compare/aws-evs-vs-gcp-vmware-engine/), with the operating model as the main difference, because EVS is self-managed in your VPC. Google now has a self-managed counterpart on bare metal, so the closer match for EVS is the new VMware solution, while VMware Engine lines up better with [Azure VMware Solution](/compare/aws-evs-vs-azure-vmware-solution/), which Microsoft operates.
 - The licensing story is now the same on all three clouds: bring a portable VCF subscription from Broadcom.
-- On Azure, the VMware option we map is Azure VMware Solution, which Microsoft operates. If you're moving from EVS to Azure and want to keep root access to the whole stack, that's a real difference to plan for.
+- On Azure, the equivalent is Azure VMware Solution, which Microsoft operates. If you're moving from EVS to Azure and want to keep root access to the whole stack, that's a real difference to plan for.
 
 ## Spend caps that actually stop usage, and how AWS and Azure compare
 
@@ -64,13 +64,13 @@ Here's how that lines up with the other two clouds:
 | Built-in hard stop on spend | Spend caps on budgets, per project, for eligible services | No general cap. [Budget actions](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html) can apply an IAM policy or SCP, or target specific EC2 or RDS instances, automatically or after approval | [Budgets](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets) only notify; resources aren't affected. They can call an action group that runs your own automation |
 | Closest "stop everything" switch | Spend cap | An SCP deny applied by a budget action stops new provisioning; running resources keep billing unless targeted | The [spending limit](https://learn.microsoft.com/en-us/azure/cost-management-billing/manage/spending-limit), only on free and credit-based subscriptions, fixed at the credit amount, not available on pay-as-you-go |
 
-If you're coming from Google Cloud to AWS or Azure, the habit "set a cap and forget it" doesn't carry over. On AWS you build the guardrail from budget actions; on Azure you write the automation behind an action group. We don't have a cost-management mapping on this site yet, and this is a good reason to add one.
+If you're coming from Google Cloud to AWS or Azure, the habit "set a cap and forget it" doesn't carry over. On AWS you build the guardrail from budget actions; on Azure you write the automation behind an action group.
 
 ## Cloud SQL gets blue/green upgrades, which RDS has had for a while
 
 On Oct 28, Google announced [blue-green deployments for Cloud SQL for MySQL](https://cloud.google.com/blog/products/databases/cloud-sql-blue-green-deployments/) in preview. Cloud SQL clones your instance, upgrades the clone to the target version, keeps it in sync with replication, and at switchover moves the IP address, instance name and backups to the upgraded instance. Google says PostgreSQL support is coming.
 
-That's the same shape as [Amazon RDS Blue/Green Deployments](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html), which supports RDS for MySQL, MariaDB and PostgreSQL and keeps names and endpoints at switchover. Our [RDS Blue/Green vs Google Cloud](/compare/aws-rds-blue-green-vs-gcp/) page currently says Cloud SQL has no blue/green feature, which is no longer true for MySQL. It's still preview and MySQL-only, so treat it as a partial match for now. The Azure side of [the same comparison](/compare/aws-rds-blue-green-vs-azure-postgresql-major-version-upgrade/) is unchanged this week.
+That's the same shape as [Amazon RDS Blue/Green Deployments](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html), which supports RDS for MySQL, MariaDB and PostgreSQL and keeps names and endpoints at switchover. Cloud SQL now has a MySQL blue/green path, so the [RDS Blue/Green vs Google Cloud](/compare/aws-rds-blue-green-vs-gcp/) comparison is a closer match than it was. It's still preview and MySQL-only, so treat it as a partial match for now. The Azure side of [the same comparison](/compare/aws-rds-blue-green-vs-azure-postgresql-major-version-upgrade/) is unchanged this week.
 
 ## Certifications: two AWS cutoffs this month, and a Microsoft badge with no exam
 
@@ -87,7 +87,7 @@ Two launches point the same way:
 - AWS made [Step Functions workflows available as AI agent tools](https://aws.amazon.com/about-aws/whats-new/2026/10/step-functions-workflows-ai-agent-tools/) through Amazon Bedrock AgentCore Gateway on Oct 29. The agent picks the workflow and input; Step Functions runs the steps as defined. Standard and Express workflows both work.
 - Azure made [Azure MCP Server 3.0](https://azure.microsoft.com/updates?id=578662) generally available the same day, adding Terraform, Azure Backup and Advisor tools. It includes breaking changes, so check the upgrade guidance first.
 
-The closest Azure counterpart to the Step Functions launch is [Logic Apps Standard workflows exposed as remote MCP servers](https://learn.microsoft.com/en-us/azure/logic-apps/set-up-model-context-protocol-server-standard), which is still in preview. The pattern is the same (a deterministic workflow behind an MCP tool), but the AWS version is wired through AgentCore Gateway, while Logic Apps serves MCP directly from the workflow app. See [Step Functions vs Logic Apps](/compare/aws-step-functions-vs-azure-logic-apps/) and [AgentCore Gateway vs Foundry agent tools](/compare/aws-agentcore-gateway-vs-azure-foundry-agent-tools/) for the wider mapping.
+The closest Azure counterpart to the Step Functions launch is [Logic Apps Standard workflows exposed as remote MCP servers](https://learn.microsoft.com/en-us/azure/logic-apps/set-up-model-context-protocol-server-standard), which is still in preview. The pattern is the same (a deterministic workflow behind an MCP tool), but the AWS version is wired through AgentCore Gateway, while Logic Apps serves MCP directly from the workflow app. See [Step Functions vs Logic Apps](/compare/aws-step-functions-vs-azure-logic-apps/) and [AgentCore Gateway vs Foundry agent tools](/compare/aws-agentcore-gateway-vs-azure-foundry-agent-tools/) for the wider comparison.
 
 ## Smaller changes worth knowing
 
