@@ -1,5 +1,7 @@
 - slug: compute-engine
   name: Compute Engine
+  seo_title: "Compute Engine vs Amazon EC2 vs Azure Virtual Machines"
+  seo_description: "The Google Cloud equivalent of Amazon EC2 is Compute Engine. The Azure equivalent is Azure Virtual Machines. All three are general-purpose IaaS VMs."
   status: ga
   summary: Google Cloud's IaaS for virtual machine and bare metal instances, with per-second billing and live migration during host maintenance.
   docs: https://docs.cloud.google.com/compute/docs/instances

@@ -44,6 +44,7 @@ npm run check-links   # HTTP-checks every URL in data/ (writes link-report.json)
 npm run preview       # http://localhost:4173/
 npm run new-post -- "Title"   # new blog post skeleton in content/blog/ (see "Blog" below)
 npm run news -- --days 7      # digest of official AWS/Azure/Google Cloud news feeds (data/news-feeds.yaml)
+npm run title-test -- Pages.csv  # treatment vs control CTR from a Search Console Pages export
 ```
 
 Requires Node 20 or later. The build needs no network access and no paid services. Open Graph images are rendered locally with `@resvg/resvg-js` using the bundled DejaVu fonts.
@@ -90,7 +91,7 @@ SEO and performance features:
 data/
   providers.yaml          # provider registry (aws, azure, gcp, oci*); *disabled
   exams.yaml              # certification exams, status (current/beta/retiring/retired), notes
-  services/<provider>/<category>.yaml   # one entry per service: slug, name, status, status_note, summary, docs, pricing
+  services/<provider>/<category>.yaml   # one entry per service: slug, name, optional seo_title/seo_description, status, status_note, summary, docs, pricing
                                         # (slugs are unique per provider across all files)
   categories/<category>.yaml            # category metadata (id, name, short, order, groups) and the mapping rows
   exam-guides/<code>.yaml               # exam guide for AWS engineers: domains (name, weight, official areas, aws, rows), gotchas,
@@ -111,6 +112,8 @@ A row (`data/categories/*.yaml`):
   differences: [ ... ]
   pricing: { aws: "...model, no numbers...", azure: "..." }
   exams: { aws: [AIF-C01], azure: [AI-103] }
+  seo_title: ...                    # optional; overrides <title> and og:title
+  seo_description: ...              # optional; overrides meta and og:description
   faq: [ { q: ..., a: ... } ]       # optional; 2-3 FAQs are also derived automatically
   related: [model-customization]
   sources: [ https://docs.aws.amazon.com/..., https://learn.microsoft.com/... ]
@@ -143,6 +146,8 @@ rows:
       sources: [ https://docs.cloud.google.com/... ]   # official Google (or AWS) URLs only
       flags: [ ... ]                 # optional verification notes
       slug: aws-x-vs-gcp-y           # optional; defaults to aws-<aws service>-vs-gcp-<gcp service>
+      seo_title: ...                 # optional; overrides the AWS vs GCP compare page title
+      seo_description: ...           # optional; overrides that page's meta and og:description
 ```
 
 Each GCP-mapped row gets an extra page at `/compare/aws-<service>-vs-gcp-<service>/`, a third column on its AWS↔Azure compare page, and a GCP cell (with its own match badge) in the matrix. GCP service hubs live under `/gcp/<service>/`. Categories without `gcp_last_verified` keep the two-column layout.
@@ -254,4 +259,5 @@ MIT (see `LICENSE`). Copyright (c) 2026 Cameron Keene.
 - **What changed** (`/changes/`, Atom at `/changes/feed.xml`): add an entry to `data/changes.yaml` (`date: 'YYYY-MM-DD'`, `title`, `summary`, optional `links` and `commit`). One entry per date; `npm run validate` checks it.
 - **Newsletter signup** (blog, blog posts, change log): set `site.config.json` → `"newsletter": { "provider": "buttondown", "url": "https://buttondown.com/api/emails/embed-subscribe/<username>" }`. Empty provider renders nothing.
 - **Analytics**: `"analytics": { "provider": "goatcounter", "code": "<site code>" }` adds GoatCounter's script to every page (`https://<code>.goatcounter.com/count`). `aiReferrers` lists AI assistant hosts; `npm run ai-referrers -- export.csv` counts AI-referred visits in a GoatCounter CSV export.
+- **Title split test**: optional `seo_title` / `seo_description` on a service or compare row (or `gcp:` block) override the generated `<title>`, meta description, `og:title` and `og:description`. The test design, groups and baseline are in `data/experiments/title-test-2026-11.yaml`. After a Search Console Pages export: `npm run title-test -- Pages.csv`.
 - **For AI agents**: `robots.txt` explicitly allows search and AI crawlers, `/llms.txt` points to the dataset, hubs, exams, blog and change log, and `/api/v1/mappings.json` / `.csv` hold all mappings. IndexNow is pinged after every deploy.

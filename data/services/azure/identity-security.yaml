@@ -1,6 +1,8 @@
 # Azure / Microsoft identity, governance & security services (category: identity-security).
 - slug: entra-id
   name: Microsoft Entra ID
+  seo_title: "Microsoft Entra ID (Azure AD) vs AWS IAM"
+  seo_description: "AWS IAM maps to Microsoft Entra ID (identities, SSO, MFA) plus Azure RBAC (roles on resources). For workforce SSO, Entra ID maps to IAM Identity Center."
   status: ga
   summary: Microsoft's cloud identity provider for users, groups, apps, and devices, with SSO (SAML, OIDC), MFA, Conditional Access, app registrations, and hybrid sync from on-premises AD.
   docs: https://learn.microsoft.com/en-us/entra/fundamentals/what-is-entra
@@ -25,6 +27,8 @@
   pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
 - slug: management-groups
   name: Azure management groups and subscriptions
+  seo_title: "Azure management groups vs AWS Organizations"
+  seo_description: "AWS Organizations maps to Azure management groups (accounts ≈ subscriptions, OUs ≈ management groups). On GCP: organization, folders, and projects."
   status: ga
   summary: A hierarchy of management groups (up to six levels of depth, not counting the root and subscriptions) containing subscriptions, where policy and RBAC assignments are inherited.
   docs: https://learn.microsoft.com/en-us/azure/governance/management-groups/overview
@@ -57,12 +61,16 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/microsoft-entra-ds/
 - slug: entra-pim
   name: Microsoft Entra Privileged Identity Management (PIM)
+  seo_title: "Azure PIM equivalent for AWS vs Google Cloud PAM"
+  seo_description: "Entra PIM is Azure's just-in-time access. AWS has no built-in PIM; Microsoft cites open-source on IAM Identity Center. GCP's is Privileged Access Manager."
   status: ga
   summary: Just-in-time, time-bound, approval-based activation of Entra and Azure roles, with access reviews and audit history.
   docs: https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/pim-configure
   pricing: https://www.microsoft.com/en-us/security/business/microsoft-entra-pricing
 - slug: entra-id-governance
   name: Microsoft Entra ID Governance (access reviews)
+  seo_title: "Entra ID Governance vs IAM Access Analyzer"
+  seo_description: "IAM Access Analyzer maps to Entra access reviews (Entra ID Governance): automated analysis vs human attestations. GCP's closest is Policy Intelligence."
   status: ga
   summary: Identity lifecycle workflows, entitlement management, and recurring access reviews of group memberships, app assignments, and role assignments.
   status_note: Microsoft Entra Permissions Management, the former multicloud CIEM product, retired November 1, 2025.

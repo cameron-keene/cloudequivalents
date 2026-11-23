@@ -52,6 +52,8 @@
   pricing: https://cloud.google.com/managed-microsoft-ad/pricing
 - slug: identity-aware-proxy
   name: Identity-Aware Proxy (IAP)
+  seo_title: "Google IAP vs AWS Verified Access vs Entra Private Access"
+  seo_description: "AWS Verified Access maps to Identity-Aware Proxy for identity-based app and VM access without a VPN. On Azure, the equivalent is Entra Private Access."
   status: ga
   summary: Identity- and context-based access to applications and VMs (including TCP forwarding) without a VPN.
   docs: https://docs.cloud.google.com/iap/docs/concepts-overview

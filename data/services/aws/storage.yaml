@@ -166,6 +166,8 @@
   pricing: https://aws.amazon.com/filecache/pricing/
 - slug: s3-file-gateway
   name: AWS Storage Gateway – Amazon S3 File Gateway
+  seo_title: "AWS Storage Gateway vs Data Box Gateway vs File Sync"
+  seo_description: "Microsoft maps S3 File Gateway to Azure Data Box Gateway (the closer match) and Azure File Sync. Google Cloud has no hybrid storage gateway like this."
   status: ga
   summary: An on-premises VM or hardware appliance that exposes NFS and SMB shares backed by S3 objects, with a local cache for recent data.
   docs: https://docs.aws.amazon.com/filegateway/latest/files3/what-is-file-s3.html

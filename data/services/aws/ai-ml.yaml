@@ -54,6 +54,8 @@
   pricing: https://aws.amazon.com/bedrock/pricing/
 - slug: bedrock-knowledge-bases
   name: Amazon Bedrock Knowledge Bases
+  seo_title: "Bedrock Knowledge Bases vs Foundry IQ vs RAG Engine"
+  seo_description: "The Azure equivalent of Amazon Bedrock Knowledge Bases is Foundry IQ knowledge bases, on Azure AI Search. On Google Cloud, the counterpart is RAG Engine."
   status: ga
   summary: Managed RAG. Managed Knowledge Base (AWS runs ingestion, storage, and agentic retrieval) or customer-managed (bring your own vector store, such as OpenSearch Serverless, Aurora, or Neptune).
   docs: https://docs.aws.amazon.com/bedrock/latest/userguide/knowledge-base.html

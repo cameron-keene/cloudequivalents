@@ -1,6 +1,8 @@
 # AWS compute services (category: compute). Same status vocabulary as ai-ml.yaml.
 - slug: ec2
   name: Amazon EC2
+  seo_title: "Amazon EC2 vs Azure VMs vs Google Compute Engine"
+  seo_description: "The Azure equivalent of Amazon EC2 is Azure Virtual Machines. The Google Cloud equivalent is Compute Engine. All three are general-purpose IaaS VMs."
   status: ga
   summary: Resizable virtual servers (instances) on the Nitro System, with On-Demand, Spot, Savings Plans, Reserved Instance, and Dedicated purchase options.
   docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html

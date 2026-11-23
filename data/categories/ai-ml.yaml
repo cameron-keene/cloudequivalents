@@ -104,6 +104,8 @@ rows:
   what_for: The cloud vendor's own model families, often the cheapest or most deeply integrated option on that cloud.
   match: partial
   answer: Amazon Nova's closest Azure counterpart is Microsoft's own models in Foundry (MAI and Phi, plus Model Router). But Microsoft's flagship LLMs on Azure are mainly OpenAI GPT models, so there's no one-to-one family match.
+  seo_title: "Amazon Nova vs Microsoft Foundry models (MAI and Phi)"
+  seo_description: "Nova's closest Azure counterparts are Microsoft Foundry models (MAI, Phi, Model Router). Azure's flagship LLMs are mainly OpenAI GPT, not a 1:1 match."
   providers:
     aws: [amazon-nova]
     azure: [microsoft-models, foundry-models]

@@ -1,0 +1,580 @@
+# Title and meta description split test for service and compare pages.
+# Treatment pages get seo_title / seo_description in the YAML data. Control pages stay on the
+# generated title and description. Do not change either group's titles mid-test.
+# Score a later Search Console Pages export with: npm run title-test -- Pages.csv
+id: title-test-2026-11
+name: Service and compare page title split test
+status: awaiting_deploy  # titles are on seo/title-split-test; start_date is filled when this ships to main
+hypothesis: >
+  Comparison-style titles and descriptions that name the equivalent services, and that reuse
+  the wording people actually search (equivalent, vs, service short names), will increase
+  click-through rate on service hub and compare pages relative to the generated
+  "Azure equivalent of X | Cloud Equivalents" titles.
+
+scope:
+  included: service hubs (/aws|azure|gcp/<seg>/) and compare pages (/compare/.../).
+  excluded: home, blog, category indexes, provider indexes, exams, about, /data/, /changes/, API files.
+  held_constant: URL, H1, body copy, and Open Graph PNG artwork. Only <title>, meta description, og:title and og:description change on treatment pages (JSON-LD description follows the meta description).
+
+design:
+  method: matched pairs by impressions
+  target_n: 40  # 20 pairs
+  source_export: Google Search Console Pages.csv, last 28 days, search type Web, 2026-10-25 to 2026-11-21
+  selection: >
+    Take every service or compare page in the Pages export, dedupe by path, sort by impressions
+    descending, then clicks descending, then path ascending. Keep the first 40. A 57-impression
+    tie at the cutoff was broken by path order, so /aws/bedrock-knowledge-bases/ is #40 and
+    /compare/aws-s3-storage-classes-vs-azure-blob-access-tiers/ and /gcp/model-garden/ are not in the test.
+  pairing: Adjacent pages in that ranked list (1 with 2, 3 with 4, …, 39 with 40).
+  assignment: >
+    Python 3.13.5 random.Random(20261123). For each pair, if rng.random() < 0.5 the first
+    page is treatment; otherwise the second is. First five rng.random() values were
+    0.7548469049910241, 0.8974816498515421, 0.6549820415218462, 0.15991237888778564,
+    0.8128309738671603. first_is_treatment for the 20 pairs:
+    [false, false, false, true, false, true, false, true, true, false, true, true, true, true, false, true, true, true, false, false].
+  start_date: null  # set to the date the treatment titles go live on cloudequivalents.com
+  review_after_days: 21
+  planned_review_if_deployed_2026-11-23: '2026-12-14'  # America/New_York; update if the merge slips
+  metric: >
+    Group CTR (sum of clicks / sum of impressions) and total clicks per group, from a Search
+    Console Pages export covering the test window. Also compare each group to its baseline CTR
+    from this 28-day window. Pair-level contrasts are secondary because pair 1 is unbalanced
+    (937 vs 267 impressions: Azure Virtual Desktop is an outlier).
+  power_note: >
+    The site had only 55 clicks (Chart.csv / Devices.csv) in the baseline window, and these 40
+    pages had 21 clicks combined. A conclusive result may take longer than 3 weeks. Review at
+    3 weeks and extend if needed. Do not change titles mid-test.
+
+baseline:
+  window: 2026-10-25 to 2026-11-21  # Filters.csv: Last 28 days, search type Web
+  source: Google Search Console export unzipped 2026-11-23
+  site:
+    # GSC property totals disagree slightly across reports; all three are recorded here.
+    chart: { clicks: 55, impressions: 11252 }      # Chart.csv daily sum
+    devices: { clicks: 55, impressions: 11252 }    # Devices.csv (desktop 48/10028, mobile 7/1145, tablet 0/79)
+    pages: { clicks: 56, impressions: 12073, rows: 525 }  # Pages.csv; page-level baselines below use this file
+    queries: { clicks: 3, impressions: 3849, rows: 1000 }  # Queries.csv is anonymized and incomplete; used only to word treatment titles
+  treatment_group:
+    pages: 20
+    clicks: 11
+    impressions: 2053
+    ctr: 0.005358  # 0.54%
+  control_group:
+    pages: 20
+    clicks: 10
+    impressions: 2689
+    ctr: 0.003719  # 0.37%
+
+treatment:
+  - path: /azure/app-service/
+    kind: service
+    baseline_clicks: 2
+    baseline_impressions: 267
+    baseline_ctr: 0.007491
+    old_title: "AWS equivalent of Azure App Service | Cloud Equivalents"
+    old_description: "AWS equivalent of Azure App Service: AWS Elastic Beanstalk, Amazon ECS Express Mode, AWS App Runner and AWS Lambda Web Functions. A managed PaaS for web…"
+    seo_title: "Azure App Service vs AWS Elastic Beanstalk vs Cloud Run"
+    seo_description: "AWS Elastic Beanstalk maps to Azure App Service, a fully managed PaaS. On Google Cloud, App Engine and Cloud Run are the closest platforms."
+    override_file: data/services/azure/compute.yaml
+    override_on: service slug app-service
+    matched_queries:
+      - "azure app service equivalent in aws (26 impressions)"
+      - "aws equivalent of azure app service (18)"
+      - "aws app service equivalent (10)"
+  - path: /azure/entra-pim/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 155
+    baseline_ctr: 0.006452
+    old_title: "AWS equivalent of Microsoft Entra Privileged Identity Management…"
+    old_description: "AWS equivalent of Microsoft Entra Privileged Identity Management (PIM): AWS IAM Identity Center. Just-in-time, time-bound, approval-based activation of…"
+    seo_title: "Azure PIM equivalent for AWS vs Google Cloud PAM"
+    seo_description: "Entra PIM is Azure's just-in-time access. AWS has no built-in PIM; Microsoft cites open-source on IAM Identity Center. GCP's is Privileged Access Manager."
+    override_file: data/services/azure/identity-security.yaml
+    override_on: service slug entra-pim
+    matched_queries:
+      - "aws pim (24)"
+      - "best azure pim equivalent for aws (21)"
+      - "pim aws (6)"
+      - "aws pim equivalent (3)"
+    query_notes: "Ignored nearby 'APIM' (API Management) queries, which are a different service."
+  - path: /aws/iam/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 149
+    baseline_ctr: 0.006711
+    old_title: "Azure equivalent of AWS Identity and Access Management (IAM) | Cloud…"
+    old_description: "Azure equivalent of AWS Identity and Access Management (IAM): Microsoft Entra ID, Azure role-based access control (Azure RBAC) and Microsoft Entra workload…"
+    seo_title: "AWS IAM equivalent in Azure: Entra ID and RBAC"
+    seo_description: "AWS IAM maps to two Azure services: Microsoft Entra ID holds identities, and Azure RBAC grants roles on resources. Google Cloud's counterpart is Cloud IAM."
+    override_file: data/services/aws/identity-security.yaml
+    override_on: service slug iam
+    matched_queries:
+      - "azure iam (28)"
+      - "azure iam services (23)"
+      - "aws iam equivalent in azure (4 impressions, 1 click)"
+  - path: /azure/private-link/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 140
+    baseline_ctr: 0.007143
+    old_title: "AWS equivalent of Azure Private Link and private endpoints | Cloud…"
+    old_description: "AWS equivalent of Azure Private Link and private endpoints: AWS PrivateLink (interface endpoints) and Amazon VPC Lattice. Private endpoints place a private…"
+    seo_title: "Azure Private Endpoint vs AWS PrivateLink"
+    seo_description: "AWS PrivateLink maps to Azure Private Link and private endpoints. On Google Cloud, the equivalent is Private Service Connect."
+    override_file: data/services/azure/networking.yaml
+    override_on: service slug private-link
+    matched_queries:
+      - "what amazon web services option is comparable to an azure private endpoint? (13)"
+      - "azure private endpoint equivalent in aws (2)"
+  - path: /compare/aws-direct-connect-vs-gcp-cloud-interconnect/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 120
+    baseline_ctr: 0.000000
+    old_title: "AWS Direct Connect vs Cloud Interconnect (AWS vs GCP)"
+    old_description: "AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a service provider). Get…"
+    seo_title: "AWS Direct Connect vs Google Cloud Interconnect"
+    seo_description: "AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a provider)."
+    override_file: data/categories/networking.yaml
+    override_on: compare row dedicated-connection gcp block
+    matched_queries:
+      - "cloud interconnect (26)"
+      - "cloud direct connect (13)"
+      - "google direct connect (5)"
+  - path: /azure/management-groups/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 119
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Azure management groups and subscriptions | Cloud…"
+    old_description: "AWS equivalent of Azure management groups and subscriptions: AWS Organizations. A hierarchy of management groups (up to six levels of depth, not counting…"
+    seo_title: "Azure management groups vs AWS Organizations"
+    seo_description: "AWS Organizations maps to Azure management groups (accounts ≈ subscriptions, OUs ≈ management groups). On GCP: organization, folders, and projects."
+    override_file: data/services/azure/identity-security.yaml
+    override_on: service slug management-groups
+    matched_queries:
+      - "aws organizations equivalent in azure (3)"
+  - path: /azure/fabric-data-science/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 115
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Microsoft Fabric Data Science | Cloud Equivalents"
+    old_description: "AWS equivalent of Microsoft Fabric Data Science: Amazon SageMaker Unified Studio. Notebooks, Spark, MLflow-based experiments and models, and SynapseML…"
+    seo_title: "Microsoft Fabric equivalent in AWS: SageMaker Unified Studio"
+    seo_description: "SageMaker Unified Studio maps most closely to Fabric Data Science plus Azure ML. Google Cloud has no single counterpart (BigQuery ML and Colab Enterprise)."
+    override_file: data/services/azure/ai-ml.yaml
+    override_on: service slug fabric-data-science
+    matched_queries:
+      - "microsoft fabric aws equivalent (10)"
+      - "microsoft fabric equivalent in aws (6)"
+      - "azure fabric aws equivalent (4)"
+  - path: /aws/s3-file-gateway/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 104
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of AWS Storage Gateway – Amazon S3 File Gateway |…"
+    old_description: "Azure equivalent of AWS Storage Gateway – Amazon S3 File Gateway: Azure Data Box Gateway and Azure File Sync. An on-premises VM or hardware appliance that…"
+    seo_title: "AWS Storage Gateway vs Data Box Gateway vs File Sync"
+    seo_description: "Microsoft maps S3 File Gateway to Azure Data Box Gateway (the closer match) and Azure File Sync. Google Cloud has no hybrid storage gateway like this."
+    override_file: data/services/aws/storage.yaml
+    override_on: service slug s3-file-gateway
+    matched_queries:
+      - "aws storage gateway vs azure file sync (21)"
+      - "how does aws storage gateway compare with azure data box gateway ... (21)"
+      - "s3 storage gateway (13)"
+      - "s3 file gateway (12)"
+  - path: /aws/ec2/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 99
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon EC2 | Cloud Equivalents"
+    old_description: "Azure equivalent of Amazon EC2: Azure Virtual Machines. Resizable virtual servers (instances) on the Nitro System, with On-Demand, Spot, Savings Plans,…"
+    seo_title: "Amazon EC2 vs Azure VMs vs Google Compute Engine"
+    seo_description: "The Azure equivalent of Amazon EC2 is Azure Virtual Machines. The Google Cloud equivalent is Compute Engine. All three are general-purpose IaaS VMs."
+    override_file: data/services/aws/compute.yaml
+    override_on: service slug ec2
+    matched_queries:
+      - "azure equivalent of ec2 (33)"
+      - "azure ec2 equivalent (20)"
+      - "ec2 equivalent in azure (14)"
+      - "gcp equivalent of ec2 (3)"
+  - path: /azure/entra-id/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 87
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Microsoft Entra ID | Cloud Equivalents"
+    old_description: "AWS equivalent of Microsoft Entra ID: AWS Identity and Access Management (IAM) and AWS IAM Identity Center. Microsoft's cloud identity provider for users,…"
+    seo_title: "Microsoft Entra ID (Azure AD) vs AWS IAM"
+    seo_description: "AWS IAM maps to Microsoft Entra ID (identities, SSO, MFA) plus Azure RBAC (roles on resources). For workforce SSO, Entra ID maps to IAM Identity Center."
+    override_file: data/services/azure/identity-security.yaml
+    override_on: service slug entra-id
+    matched_queries:
+      - "azure ad-federated-aws (19)"
+      - "evaluate microsoft on identity management (12)"
+  - path: /azure/vmss/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 85
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Azure Virtual Machine Scale Sets | Cloud Equivalents"
+    old_description: "AWS equivalent of Azure Virtual Machine Scale Sets: Amazon EC2 Auto Scaling. Groups of VMs managed as one, with autoscale (metrics, schedule, or…"
+    seo_title: "Azure VM Scale Sets vs EC2 Auto Scaling vs MIGs"
+    seo_description: "Amazon EC2 Auto Scaling maps to Azure Virtual Machine Scale Sets with autoscale. On Google Cloud, the equivalent is managed instance groups (MIGs)."
+    override_file: data/services/azure/compute.yaml
+    override_on: service slug vmss
+    matched_queries:
+      - "vm autoscaling solution (25)"
+  - path: /azure/entra-id-governance/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 79
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Microsoft Entra ID Governance (access reviews) |…"
+    old_description: "AWS equivalent of Microsoft Entra ID Governance (access reviews): IAM Access Analyzer. Identity lifecycle workflows, entitlement management, and recurring…"
+    seo_title: "Entra ID Governance vs IAM Access Analyzer"
+    seo_description: "IAM Access Analyzer maps to Entra access reviews (Entra ID Governance): automated analysis vs human attestations. GCP's closest is Policy Intelligence."
+    override_file: data/services/azure/identity-security.yaml
+    override_on: service slug entra-id-governance
+    matched_queries:
+      - "evaluate microsoft on identity governance (12)"
+      - "is it identity governance for multi-cloud aws azure gcp (2)"
+  - path: /gcp/compute-engine/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 76
+    baseline_ctr: 0.000000
+    old_title: "AWS & Azure equivalent of Compute Engine (GCP) | Cloud Equivalents"
+    old_description: "AWS equivalent of Google Cloud Compute Engine: Amazon EC2. Azure: Azure Virtual Machines. Google Cloud's IaaS for virtual machine and bare metal instances,…"
+    seo_title: "Compute Engine vs Amazon EC2 vs Azure Virtual Machines"
+    seo_description: "The Google Cloud equivalent of Amazon EC2 is Compute Engine. The Azure equivalent is Azure Virtual Machines. All three are general-purpose IaaS VMs."
+    override_file: data/services/gcp/compute.yaml
+    override_on: service slug compute-engine
+    query_notes: "No confident matching queries in the Queries.csv export (GSC hides most unattributed queries)."
+  - path: /gcp/identity-aware-proxy/
+    kind: service
+    baseline_clicks: 3
+    baseline_impressions: 72
+    baseline_ctr: 0.041667
+    old_title: "AWS & Azure equivalent of Identity-Aware Proxy (IAP) (GCP) | Cloud…"
+    old_description: "AWS equivalent of Google Cloud Identity-Aware Proxy (IAP): AWS Verified Access. Azure: Microsoft Entra Private Access. Identity- and context-based access to…"
+    seo_title: "Google IAP vs AWS Verified Access vs Entra Private Access"
+    seo_description: "AWS Verified Access maps to Identity-Aware Proxy for identity-based app and VM access without a VPN. On Azure, the equivalent is Entra Private Access."
+    override_file: data/services/gcp/identity-security.yaml
+    override_on: service slug identity-aware-proxy
+    matched_queries:
+      - "aws identity aware proxy (4)"
+      - "identity aware proxy aws (3)"
+      - "aws iap (2)"
+  - path: /compare/aws-nova-vs-azure-microsoft-models/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 70
+    baseline_ctr: 0.000000
+    old_title: "Cloud provider's own foundation models: AWS vs Azure"
+    old_description: "Amazon Nova's closest Azure counterpart is Microsoft's own models in Foundry (MAI and Phi, plus Model Router). The cloud vendor's own model families, often…"
+    seo_title: "Amazon Nova vs Microsoft Foundry models (MAI and Phi)"
+    seo_description: "Nova's closest Azure counterparts are Microsoft Foundry models (MAI, Phi, Model Router). Azure's flagship LLMs are mainly OpenAI GPT, not a 1:1 match."
+    override_file: data/categories/ai-ml.yaml
+    override_on: compare row first-party-models
+    query_notes: "No confident matching queries in the export. Title names Nova and the Foundry models from the mapping, which the previous generic title did not."
+  - path: /gcp/artifact-registry/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 69
+    baseline_ctr: 0.014493
+    old_title: "AWS & Azure equivalent of Artifact Registry (GCP) | Cloud Equivalents"
+    old_description: "AWS equivalent of Google Cloud Artifact Registry: Amazon ECR. Azure: Azure Container Registry. Regional and multi-regional repositories for container images…"
+    seo_title: "Artifact Registry vs Amazon ECR vs Azure Container Registry"
+    seo_description: "Amazon ECR maps to Artifact Registry for container images and other artifacts. On Azure, the equivalent is Azure Container Registry (ACR)."
+    override_file: data/services/gcp/containers-serverless.yaml
+    override_on: service slug artifact-registry
+    matched_queries:
+      - "artifact registry aws (21)"
+      - "aws artifact registry (18)"
+  - path: /compare/aws-security-hub-cspm-vs-gcp-security-command-center/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 69
+    baseline_ctr: 0.000000
+    old_title: "AWS Security Hub CSPM vs Security Command Center (AWS vs GCP)"
+    old_description: "AWS Security Hub maps to Security Command Center, which detects misconfigurations, vulnerabilities, and threats, with security postures to manage policy…"
+    seo_title: "AWS Security Hub CSPM vs Google Cloud SCC"
+    seo_description: "AWS Security Hub maps to Security Command Center for misconfigurations, vulnerabilities, and threats. On Azure, Security Hub CSPM maps to Defender CSPM."
+    override_file: data/categories/identity-security.yaml
+    override_on: compare row security-posture gcp block
+    matched_queries:
+      - "cspm aws (28)"
+      - "azure security center vs aws security hub (19)"
+      - "cspm azure (18)"
+      - "aws security hub vs azure security center (11)"
+      - "cspm gcp (8)"
+  - path: /compare/aws-sns-vs-gcp-pubsub/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 63
+    baseline_ctr: 0.000000
+    old_title: "Amazon SNS vs Pub/Sub: Pub/sub fan-out and notifications"
+    old_description: "Amazon SNS maps to Pub/Sub topics with multiple subscriptions for fan-out. Publish a message once and deliver it to many subscribers (queues, functions,…"
+    seo_title: "Amazon SNS vs Google Cloud Pub/Sub"
+    seo_description: "Amazon SNS maps to Pub/Sub topics for fan-out. Pub/Sub doesn't send SMS, email, or mobile push. On Azure, SNS maps to Service Bus and Event Grid."
+    override_file: data/categories/containers-serverless.yaml
+    override_on: compare row pubsub-fanout gcp block
+    matched_queries:
+      - "pub sub aws (10)"
+      - "sns equivalent in azure (8)"
+      - "aws pub sub (7)"
+  - path: /aws/control-tower/
+    kind: service
+    baseline_clicks: 2
+    baseline_impressions: 58
+    baseline_ctr: 0.034483
+    old_title: "Azure equivalent of AWS Control Tower | Cloud Equivalents"
+    old_description: "Azure equivalent of AWS Control Tower: Azure landing zones (Cloud Adoption Framework). Sets up and governs a multi-account landing zone on Organizations and…"
+    seo_title: "AWS Control Tower Azure equivalent: landing zones"
+    seo_description: "AWS Control Tower maps to Azure landing zones (Cloud Adoption Framework). On Google Cloud: Cloud Setup and the enterprise foundations blueprint."
+    override_file: data/services/aws/identity-security.yaml
+    override_on: service slug control-tower
+    matched_queries:
+      - "aws control tower azure equivalent (32 impressions, 1 click)"
+      - "azure control tower (2)"
+  - path: /aws/bedrock-knowledge-bases/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 57
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon Bedrock Knowledge Bases | Cloud Equivalents"
+    old_description: "Azure equivalent of Amazon Bedrock Knowledge Bases: Foundry IQ (knowledge bases) and Azure AI Search. Managed RAG. Managed Knowledge Base (AWS runs…"
+    seo_title: "Bedrock Knowledge Bases vs Foundry IQ vs RAG Engine"
+    seo_description: "The Azure equivalent of Amazon Bedrock Knowledge Bases is Foundry IQ knowledge bases, on Azure AI Search. On Google Cloud, the counterpart is RAG Engine."
+    override_file: data/services/aws/ai-ml.yaml
+    override_on: service slug bedrock-knowledge-bases
+    query_notes: "No confident matching queries in the export (broad 'RAG' substring matches were false positives on storage queries)."
+
+control:
+  - path: /azure/virtual-desktop/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 937
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Azure Virtual Desktop | Cloud Equivalents"
+    old_description: "AWS equivalent of Azure Virtual Desktop: Amazon WorkSpaces (Personal & Pools) and Amazon WorkSpaces Applications (formerly AppStream 2.0). Desktop and app…"
+  - path: /gcp/cloud-run/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 160
+    baseline_ctr: 0.006250
+    old_title: "AWS & Azure equivalent of Cloud Run (GCP) | Cloud Equivalents"
+    old_description: "AWS equivalent of Google Cloud Cloud Run: AWS Elastic Beanstalk, Amazon ECS, AWS Fargate, Amazon ECS Express Mode, AWS App Runner, Lambda provisioned…"
+  - path: /aws/workspaces/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 153
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon WorkSpaces (Personal & Pools) | Cloud…"
+    old_description: "Azure equivalent of Amazon WorkSpaces (Personal & Pools): Azure Virtual Desktop and Windows 365 (Cloud PC). Managed cloud desktops on Windows, Ubuntu, Rocky…"
+  - path: /aws/cloudtrail/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 121
+    baseline_ctr: 0.008264
+    old_title: "Azure equivalent of AWS CloudTrail | Cloud Equivalents"
+    old_description: "Azure equivalent of AWS CloudTrail: Azure Monitor activity log (and Entra audit logs). Records API activity. Event history gives 90 days of management…"
+  - path: /azure/sql-database-serverless/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 121
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Azure SQL Database serverless | Cloud Equivalents"
+    old_description: "AWS equivalent of Azure SQL Database serverless: Amazon Aurora Serverless v2. A compute tier for single databases that autoscales between minimum and…"
+  - path: /azure/expressroute-global-reach/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 118
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of ExpressRoute Global Reach | Cloud Equivalents"
+    old_description: "AWS equivalent of ExpressRoute Global Reach: Direct Connect gateway. Links ExpressRoute circuits together so on-premises sites can exchange traffic over the…"
+  - path: /azure/network-security-groups/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 118
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Network security groups and application security…"
+    old_description: "AWS equivalent of Network security groups and application security groups: Security groups and Network ACLs. Stateful, prioritized allow and deny rules…"
+  - path: /aws/dedicated-hosts/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 99
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon EC2 Dedicated Hosts & Dedicated Instances…"
+    old_description: "Azure equivalent of Amazon EC2 Dedicated Hosts & Dedicated Instances: Azure Dedicated Host. Physical servers dedicated to your account. Dedicated Hosts…"
+  - path: /compare/aws-backup-air-gapped-vault-vs-azure-backup-immutable-vault/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 93
+    baseline_ctr: 0.000000
+    old_title: "AWS Backup logically air-gapped vault vs Azure Backup immutable vaults"
+    old_description: "AWS Backup Vault Lock and logically air-gapped vaults map to Azure Backup immutable vaults (which can be locked), combined with soft delete and multi-user…"
+  - path: /aws/lambda/
+    kind: service
+    baseline_clicks: 1
+    baseline_impressions: 87
+    baseline_ctr: 0.011494
+    old_title: "Azure equivalent of AWS Lambda (Event Functions) | Cloud Equivalents"
+    old_description: "Azure equivalent of AWS Lambda (Event Functions): Azure Functions. Event-driven functions triggered by 200+ AWS services or API calls. Invocations run up to…"
+  - path: /compare/aws-elastic-ip-vs-azure-public-ip-addresses/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 81
+    baseline_ctr: 0.000000
+    old_title: "Static public IP addresses: AWS vs Azure"
+    old_description: "Elastic IP addresses map to Azure Standard public IP addresses. Keep a fixed public IP for an app, NAT, or allowlisting, and optionally bring your own IP…"
+  - path: /azure/local/
+    kind: service
+    baseline_clicks: 2
+    baseline_impressions: 77
+    baseline_ctr: 0.025974
+    old_title: "AWS equivalent of Azure Local (formerly Azure Stack HCI) | Cloud…"
+    old_description: "AWS equivalent of Azure Local (formerly Azure Stack HCI): AWS Outposts (racks & servers). Microsoft's distributed infrastructure on customer-owned validated…"
+  - path: /aws/kiro/
+    kind: service
+    baseline_clicks: 3
+    baseline_impressions: 72
+    baseline_ctr: 0.041667
+    old_title: "Azure equivalent of Kiro | Cloud Equivalents"
+    old_description: "Azure equivalent of Kiro: GitHub Copilot. AWS's agentic development environment (IDE + CLI) for spec-driven development, with specs, hooks, steering files,…"
+  - path: /aws/sns/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 71
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon SNS | Cloud Equivalents"
+    old_description: "Azure equivalent of Amazon SNS: Azure Service Bus and Azure Event Grid. Pub/sub topics (Standard and FIFO) that fan out to SQS, Lambda, HTTP, Firehose,…"
+  - path: /compare/aws-eks-hybrid-nodes-vs-azure-aks-hybrid-edge/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 70
+    baseline_ctr: 0.000000
+    old_title: "Managed Kubernetes on-premises and at the edge: AWS vs Azure"
+    old_description: "Amazon EKS Hybrid Nodes and EKS Anywhere map to AKS Hybrid and Edge (AKS enabled by Azure Arc). Run the cloud provider's Kubernetes distribution in your…"
+  - path: /compare/aws-inspector-vs-gcp-artifact-analysis/
+    kind: compare
+    baseline_clicks: 0
+    baseline_impressions: 69
+    baseline_ctr: 0.000000
+    old_title: "Amazon Inspector vs Artifact Analysis (AWS vs GCP)"
+    old_description: "Amazon Inspector maps partly to Artifact Analysis for container image vulnerabilities and Security Command Center vulnerability findings for VMs and GKE.…"
+  - path: /aws/security-hub/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 63
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of AWS Security Hub | Cloud Equivalents"
+    old_description: "Azure equivalent of AWS Security Hub: Defender for Cloud CSPM (Foundational and Defender CSPM). Unified cloud security service that correlates findings from…"
+  - path: /aws/s3/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 62
+    baseline_ctr: 0.000000
+    old_title: "Azure equivalent of Amazon S3 | Cloud Equivalents"
+    old_description: "Azure equivalent of Amazon S3: Azure Blob Storage and Azure Data Lake Storage (hierarchical namespace). Object storage in buckets, with 11 nines of…"
+  - path: /azure/acr/
+    kind: service
+    baseline_clicks: 0
+    baseline_impressions: 59
+    baseline_ctr: 0.000000
+    old_title: "AWS equivalent of Azure Container Registry | Cloud Equivalents"
+    old_description: "AWS equivalent of Azure Container Registry: Amazon ECR. Private OCI registry in Basic, Standard, or Premium tiers, with geo-replication, private endpoints,…"
+  - path: /aws/guardduty/
+    kind: service
+    baseline_clicks: 2
+    baseline_impressions: 58
+    baseline_ctr: 0.034483
+    old_title: "Azure equivalent of Amazon GuardDuty | Cloud Equivalents"
+    old_description: "Azure equivalent of Amazon GuardDuty: Microsoft Defender for Cloud (workload protection). Threat detection from CloudTrail, VPC Flow Logs, and DNS logs,…"
+
+pairs:
+  - n: 1
+    treatment: /azure/app-service/
+    control: /azure/virtual-desktop/
+    impressions: [937, 267]
+  - n: 2
+    treatment: /azure/entra-pim/
+    control: /gcp/cloud-run/
+    impressions: [160, 155]
+  - n: 3
+    treatment: /aws/iam/
+    control: /aws/workspaces/
+    impressions: [153, 149]
+  - n: 4
+    treatment: /azure/private-link/
+    control: /aws/cloudtrail/
+    impressions: [140, 121]
+  - n: 5
+    treatment: /compare/aws-direct-connect-vs-gcp-cloud-interconnect/
+    control: /azure/sql-database-serverless/
+    impressions: [121, 120]
+  - n: 6
+    treatment: /azure/management-groups/
+    control: /azure/expressroute-global-reach/
+    impressions: [119, 118]
+  - n: 7
+    treatment: /azure/fabric-data-science/
+    control: /azure/network-security-groups/
+    impressions: [118, 115]
+  - n: 8
+    treatment: /aws/s3-file-gateway/
+    control: /aws/dedicated-hosts/
+    impressions: [104, 99]
+  - n: 9
+    treatment: /aws/ec2/
+    control: /compare/aws-backup-air-gapped-vault-vs-azure-backup-immutable-vault/
+    impressions: [99, 93]
+  - n: 10
+    treatment: /azure/entra-id/
+    control: /aws/lambda/
+    impressions: [87, 87]
+  - n: 11
+    treatment: /azure/vmss/
+    control: /compare/aws-elastic-ip-vs-azure-public-ip-addresses/
+    impressions: [85, 81]
+  - n: 12
+    treatment: /azure/entra-id-governance/
+    control: /azure/local/
+    impressions: [79, 77]
+  - n: 13
+    treatment: /gcp/compute-engine/
+    control: /aws/kiro/
+    impressions: [76, 72]
+  - n: 14
+    treatment: /gcp/identity-aware-proxy/
+    control: /aws/sns/
+    impressions: [72, 71]
+  - n: 15
+    treatment: /compare/aws-nova-vs-azure-microsoft-models/
+    control: /compare/aws-eks-hybrid-nodes-vs-azure-aks-hybrid-edge/
+    impressions: [70, 70]
+  - n: 16
+    treatment: /gcp/artifact-registry/
+    control: /compare/aws-inspector-vs-gcp-artifact-analysis/
+    impressions: [69, 69]
+  - n: 17
+    treatment: /compare/aws-security-hub-cspm-vs-gcp-security-command-center/
+    control: /aws/security-hub/
+    impressions: [69, 63]
+  - n: 18
+    treatment: /compare/aws-sns-vs-gcp-pubsub/
+    control: /aws/s3/
+    impressions: [63, 62]
+  - n: 19
+    treatment: /aws/control-tower/
+    control: /azure/acr/
+    impressions: [59, 58]
+  - n: 20
+    treatment: /aws/bedrock-knowledge-bases/
+    control: /aws/guardduty/
+    impressions: [58, 57]

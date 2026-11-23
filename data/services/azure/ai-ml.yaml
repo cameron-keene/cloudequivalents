@@ -173,6 +173,8 @@
   pricing: null
 - slug: fabric-data-science
   name: Microsoft Fabric Data Science
+  seo_title: "Microsoft Fabric equivalent in AWS: SageMaker Unified Studio"
+  seo_description: "SageMaker Unified Studio maps most closely to Fabric Data Science plus Azure ML. Google Cloud has no single counterpart (BigQuery ML and Colab Enterprise)."
   status: ga
   summary: Notebooks, Spark, MLflow-based experiments and models, and SynapseML inside Fabric, integrated with Azure Machine Learning.
   docs: https://learn.microsoft.com/en-us/fabric/data-science/data-science-overview

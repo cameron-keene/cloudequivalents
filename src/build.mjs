@@ -53,6 +53,12 @@ const write = (p, html) => { const f = path.join(OUT, p.endsWith('/') ? p + 'ind
 const fmtDate = (iso) => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
 const host = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch { return u; } };
 const clip = (s, n) => (s.length <= n ? s : s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…');
+// Optional seo_title / seo_description on a service, compare row, or row.gcp block.
+// Blank or missing fields keep the generated title and description, so those pages stay unchanged.
+function pickSeo(entry, fallbackTitle, fallbackDesc) {
+  const text = (v) => (typeof v === 'string' && v.trim() ? v.trim() : '');
+  return { title: text(entry?.seo_title) || fallbackTitle, description: text(entry?.seo_description) || fallbackDesc };
+}
 // First sentence (avoids splitting on "e.g." / "vs." / decimals).
 function firstSentence(t) {
   const m = String(t).match(/^.*?[.!?](?=\s+[A-Z(“"]|$)/s);
@@ -205,10 +211,12 @@ function comparePage(r) {
   const short = (s) => s.name.replace(/\s*\(.*?\)/g, '').replace(/\s*&.*$/, '').trim();
   const core = B.length ? `${short(A[0])} vs ${short(B[0])}` : `${short(A[0])}: ${PB.name} equivalent`;
   const cands = [`${core}: ${r.capability}`, `${r.capability}: ${core}`, `${r.capability}: ${PA.name} vs ${PB.name}`, core].filter((c) => !usedTitles.has(c));
-  const title = cands.find((c) => c.length <= 65) || cands.sort((x, y) => x.length - y.length)[0];
-  usedTitles.add(title);
+  const titleFallback = cands.find((c) => c.length <= 65) || cands.sort((x, y) => x.length - y.length)[0];
+  usedTitles.add(titleFallback);
   const lead = firstSentence(r.answer);
-  const description = clip(`${lead} ${r.what_for}`, 158);
+  const descriptionFallback = clip(`${lead} ${r.what_for}`, 158);
+  const { title, description } = pickSeo(r, titleFallback, descriptionFallback);
+  if (title !== titleFallback) usedTitles.add(title);
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: cat.name, url: `/category/${cat.id}/` }, { name: r.capability, url: r.url }]);
   const faq = [...derivedFaq(r), ...(r.faq || [])];
   const ex = examsFor(r);
@@ -275,10 +283,12 @@ function gcpComparePage(r) {
   const h1 = G.length ? `${names(A).join(' / ')} vs ${names(G).join(' / ')}` : `${names(A).join(' / ')}: Google Cloud equivalent`;
   const core = G.length ? `${short(A[0])} vs ${short(G[0])}` : `${short(A[0])}: Google Cloud equivalent`;
   const cands = [`${core}: ${r.capability}`, `${core} (AWS vs GCP)`, `${r.capability}: AWS vs Google Cloud`, `${core} · ${r.capability} on GCP`].filter((c) => !usedTitles.has(c));
-  const title = cands.find((c) => c.length <= 65) || cands.sort((x, y) => x.length - y.length)[0];
-  usedTitles.add(title);
+  const titleFallback = cands.find((c) => c.length <= 65) || cands.sort((x, y) => x.length - y.length)[0];
+  usedTitles.add(titleFallback);
   const lead = firstSentence(g.answer);
-  const description = clip(`${lead} ${r.what_for}`.replace(/\s+/g, ' '), 158);
+  const descriptionFallback = clip(`${lead} ${r.what_for}`.replace(/\s+/g, ' '), 158);
+  const { title, description } = pickSeo(g, titleFallback, descriptionFallback);
+  if (title !== titleFallback) usedTitles.add(title);
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: cat.name, url: `/category/${cat.id}/` }, { name: `${r.capability} (AWS vs GCP)`, url: r.gcpUrl }]);
   const PP = [PA, GCP];
   const svcRows = (label, fn) => `<tr><th scope="row">${label}</th>${PP.map((p) => fn(r.svc[p.id], p)).join('')}</tr>`;
@@ -338,8 +348,9 @@ function gcpHubPage(s) {
   const az = [...new Map(rows.flatMap((r) => r.svc[PB.id]).map((x) => [x.slug, x])).values()];
   const h1 = `AWS and Azure equivalents of ${s.name}`;
   const directLead = `The closest AWS equivalent${aws.length > 1 ? 's' : ''} of Google Cloud ${s.name} ${aws.length > 1 ? 'are' : 'is'} ${joinNames(names(aws))}; on Azure, ${az.length ? joinNames(names(az)) : 'there is no first-party equivalent'}.`;
-  const title = clip(`AWS & Azure equivalent of ${s.name} (GCP) | ${config.siteName}`, 70);
-  const description = clip(`AWS equivalent of Google Cloud ${s.name}: ${joinNames(names(aws))}. Azure: ${az.length ? joinNames(names(az)) : 'none'}. ${s.summary}`, 158);
+  const titleFallback = clip(`AWS & Azure equivalent of ${s.name} (GCP) | ${config.siteName}`, 70);
+  const descriptionFallback = clip(`AWS equivalent of Google Cloud ${s.name}: ${joinNames(names(aws))}. Azure: ${az.length ? joinNames(names(az)) : 'none'}. ${s.summary}`, 158);
+  const { title, description } = pickSeo(s, titleFallback, descriptionFallback);
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: p.name, url: `/${p.id}/` }, { name: s.name, url: s.url }]);
   const svcs = (l) => l.length ? l.map((x) => `<a href="${x.url}">${esc(x.name)}</a>${statusBadge(x.status, x.status_note)}`).join(', ') : '<span class="muted">None</span>';
   const body = `${bc.html}
@@ -384,8 +395,9 @@ function hubPage(p, s) {
     ? `The closest ${o.name} equivalent${equivalents.length > 1 ? 's' : ''} of ${s.name} ${equivalents.length > 1 ? 'are' : 'is'} ${joinNames(names(equivalents))}.`
     : `${o.name} has no first-party equivalent of ${s.name}.`);
   const directLead = firstSentence(direct);
-  const title = clip(`${o.name} equivalent of ${s.name} | ${config.siteName}`, 70);
-  const description = clip(`${o.name} equivalent of ${s.name}: ${equivalents.length ? joinNames(names(equivalents)) : 'none (alternatives listed)'}. ${s.summary}`, 158);
+  const titleFallback = clip(`${o.name} equivalent of ${s.name} | ${config.siteName}`, 70);
+  const descriptionFallback = clip(`${o.name} equivalent of ${s.name}: ${equivalents.length ? joinNames(names(equivalents)) : 'none (alternatives listed)'}. ${s.summary}`, 158);
+  const { title, description } = pickSeo(s, titleFallback, descriptionFallback);
   const bc = breadcrumbs([{ name: 'Home', url: '/' }, { name: p.name, url: `/${p.id}/` }, { name: s.name, url: s.url }]);
   const body = `${bc.html}
 <article class="doc">

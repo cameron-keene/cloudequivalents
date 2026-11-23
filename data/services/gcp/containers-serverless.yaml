@@ -50,6 +50,8 @@
   pricing: https://cloud.google.com/service-mesh/pricing
 - slug: artifact-registry
   name: Artifact Registry
+  seo_title: "Artifact Registry vs Amazon ECR vs Azure Container Registry"
+  seo_description: "Amazon ECR maps to Artifact Registry for container images and other artifacts. On Azure, the equivalent is Azure Container Registry (ACR)."
   status: ga
   status_note: Successor to Container Registry, which shut down for writes on Mar 18, 2025.
   summary: Regional and multi-regional repositories for container images and other build artifacts and dependencies, with container vulnerability scanning.

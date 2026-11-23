@@ -798,6 +798,8 @@ rows:
     - cross-cloud-interconnect
     match: direct
     answer: 'AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a service provider).'
+    seo_title: "AWS Direct Connect vs Google Cloud Interconnect"
+    seo_description: "AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a provider)."
     differences:
     - Cross-Cloud Interconnect provides dedicated physical connections from Google Cloud to other cloud providers.
     - VLAN attachments connect a circuit to Cloud Router in a region, similar to virtual interfaces.

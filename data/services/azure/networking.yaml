@@ -61,6 +61,8 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-wan/
 - slug: private-link
   name: Azure Private Link and private endpoints
+  seo_title: "Azure Private Endpoint vs AWS PrivateLink"
+  seo_description: "AWS PrivateLink maps to Azure Private Link and private endpoints. On Google Cloud, the equivalent is Private Service Connect."
   status: ga
   summary: Private endpoints place a private IP for an Azure PaaS resource, partner service, or your own Private Link service inside your virtual network.
   docs: https://learn.microsoft.com/en-us/azure/private-link/private-link-overview

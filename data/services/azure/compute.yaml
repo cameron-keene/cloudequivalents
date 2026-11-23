@@ -76,6 +76,8 @@
   pricing: https://azure.microsoft.com/en-us/pricing/offers/hybrid-benefit/
 - slug: vmss
   name: Azure Virtual Machine Scale Sets
+  seo_title: "Azure VM Scale Sets vs EC2 Auto Scaling vs MIGs"
+  seo_description: "Amazon EC2 Auto Scaling maps to Azure Virtual Machine Scale Sets with autoscale. On Google Cloud, the equivalent is managed instance groups (MIGs)."
   status: ga
   summary: Groups of VMs managed as one, with autoscale (metrics, schedule, or predictive), zone/fault-domain spreading, instance mix, Spot priority mix, standby pools, and upgrade policies. Flexible orchestration is the recommended mode.
   docs: https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/overview
@@ -112,6 +114,8 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
 - slug: app-service
   name: Azure App Service
+  seo_title: "Azure App Service vs AWS Elastic Beanstalk vs Cloud Run"
+  seo_description: "AWS Elastic Beanstalk maps to Azure App Service, a fully managed PaaS. On Google Cloud, App Engine and Cloud Run are the closest platforms."
   status: ga
   summary: A managed PaaS for web apps, APIs, and containers (Windows or Linux). It includes deployment slots, autoscale, built-in auth, managed certificates, and App Service Environment for isolation.
   docs: https://learn.microsoft.com/en-us/azure/app-service/overview

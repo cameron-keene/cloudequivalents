@@ -938,6 +938,8 @@ rows:
     - security-posture
     match: direct
     answer: AWS Security Hub maps to Security Command Center, which detects misconfigurations, vulnerabilities, and threats, with security postures to manage policy drift.
+    seo_title: "AWS Security Hub CSPM vs Google Cloud SCC"
+    seo_description: "AWS Security Hub maps to Security Command Center for misconfigurations, vulnerabilities, and threats. On Azure, Security Hub CSPM maps to Defender CSPM."
     differences:
     - Standard tier includes basic findings; Premium adds advanced detectors and compliance reporting.
     - The Enterprise tier is deprecated (shuts down May 21, 2027).

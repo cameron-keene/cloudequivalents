@@ -12,7 +12,8 @@
     "preview": "node scripts/serve.mjs",
     "new-post": "node scripts/new-post.mjs",
     "news": "node scripts/news.mjs",
-    "ai-referrers": "node scripts/ai-referrers.mjs"
+    "ai-referrers": "node scripts/ai-referrers.mjs",
+    "title-test": "node scripts/title-test.mjs"
   },
   "dependencies": {
     "@resvg/resvg-js": "^2.6.2",

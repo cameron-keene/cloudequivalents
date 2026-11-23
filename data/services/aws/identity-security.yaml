@@ -1,6 +1,8 @@
 # AWS identity, governance & security services (category: identity-security).
 - slug: iam
   name: AWS Identity and Access Management (IAM)
+  seo_title: "AWS IAM equivalent in Azure: Entra ID and RBAC"
+  seo_description: "AWS IAM maps to two Azure services: Microsoft Entra ID holds identities, and Azure RBAC grants roles on resources. Google Cloud's counterpart is Cloud IAM."
   status: ga
   summary: Users, groups, roles, and JSON policies that authorize every AWS API call, with identity-based and resource-based policies, permissions boundaries, and conditions.
   docs: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
@@ -37,6 +39,8 @@
   pricing: https://aws.amazon.com/organizations/faqs/
 - slug: control-tower
   name: AWS Control Tower
+  seo_title: "AWS Control Tower Azure equivalent: landing zones"
+  seo_description: "AWS Control Tower maps to Azure landing zones (Cloud Adoption Framework). On Google Cloud: Cloud Setup and the enterprise foundations blueprint."
   status: ga
   summary: Sets up and governs a multi-account landing zone on Organizations and Identity Center, with account vending and preventive, detective, and proactive controls.
   docs: https://docs.aws.amazon.com/controltower/latest/userguide/what-is-control-tower.html

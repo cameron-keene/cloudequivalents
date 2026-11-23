@@ -975,6 +975,8 @@ rows:
     - pubsub
     match: direct
     answer: Amazon SNS maps to Pub/Sub topics with multiple subscriptions for fan-out.
+    seo_title: "Amazon SNS vs Google Cloud Pub/Sub"
+    seo_description: "Amazon SNS maps to Pub/Sub topics for fan-out. Pub/Sub doesn't send SMS, email, or mobile push. On Azure, SNS maps to Service Bus and Event Grid."
     differences:
     - Pub/Sub doesn't send SMS, email, or mobile push like SNS; use Firebase Cloud Messaging or a partner for that.
     - Push subscriptions deliver to HTTPS endpoints; pull subscriptions let consumers poll.
