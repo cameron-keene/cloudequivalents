@@ -99,7 +99,7 @@ sources:
     url: https://techcommunity.microsoft.com/t5/the-skills-hub-blog/heard-it-at-ignite-let-s-get-into-it/ba-p/4494135
 ---
 
-Microsoft Ignite ran this week and AWS kept up its run of pre-re:Invent launches, so both feeds were long. Most of it was single-cloud detail. This post sticks to the changes that move how the three clouds line up: Azure now has a GA answer to Aurora PostgreSQL, AWS and Azure each shipped managed private links to the other cloud, Cosmos DB and DynamoDB both got better vaulted backups, and Azure Spot VMs gained a tier that warns you about as early as EC2 Spot does. Two follow-ups to last week's edge story, certifications, and retirements are at the end.
+Microsoft Ignite ran this week and AWS kept up its run of pre-re:Invent launches, so both feeds were long. Most of it was single-cloud detail. This post sticks to the changes that move how the three clouds line up: Azure now has a GA answer to Aurora PostgreSQL, AWS and Azure each shipped managed private links to the other cloud, Cosmos DB and DynamoDB both got better vaulted backups, and Azure Spot VMs gained a tier that warns you about as early as EC2 Spot does. Two follow-ups to [last week's edge story](/blog/this-week-in-cloud-equivalents-nov-9-nov-15/), certifications, and retirements are at the end.
 
 ## Azure HorizonDB is generally available
 
@@ -154,7 +154,7 @@ So the "two minutes vs 30 seconds" line many of us memorized for SAA-C03 and AZ-
 
 ## Follow-ups: edge code and JWT checks
 
-Last week we compared Azure Front Door's new edge actions with CloudFront Functions. Two AWS changes this week shift that comparison:
+[Last week](/blog/this-week-in-cloud-equivalents-nov-9-nov-15/) we compared Azure Front Door's new edge actions with CloudFront Functions. Two AWS changes this week shift that comparison:
 
 - **CloudFront Functions can now make network calls** ([announcement](https://aws.amazon.com/about-aws/whats-new/2026/11/cloudfront-functions-network-calls/), Nov 18). `cf.fetch()` calls an origin that's already configured on the distribution, and `cf.beacon()` sends events in the background. The [developer guide](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/helper-functions-network-calls.html) says it requires JavaScript runtime 2.0, takes an origin ID rather than an arbitrary host name, and times out after 1 second. It's billed per call on top of invocations. Calling another service used to be one of the reasons to pick Lambda@Edge. We didn't find outbound calls described in the [edge actions documentation](https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions), so the lightweight tiers on AWS and Azure have moved further apart.
 - **API Gateway REST APIs now have a native JWT authorizer** ([announcement](https://aws.amazon.com/about-aws/whats-new/2026/11/amazon-api-gateway-rest-authorizers-jwt/), Nov 17). [HTTP APIs](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html) already had one. REST APIs needed a Lambda authorizer for tokens from any issuer other than Cognito. That's the same configure-don't-code model as API Management's [validate-jwt policy](https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy) and Google Cloud API Gateway's [JWT authentication](https://docs.cloud.google.com/api-gateway/docs/authenticating-users-jwt).
