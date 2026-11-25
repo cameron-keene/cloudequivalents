@@ -48,11 +48,24 @@
   pricing: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
 - slug: entra-external-id
   name: Microsoft Entra External ID
+  seo_title: "Entra External ID vs Cognito vs Identity Platform"
+  seo_description: "Microsoft Entra External ID is Azure's customer identity (CIAM) service, formerly Azure AD External Identities. The AWS equivalent is Amazon Cognito. On Google Cloud, it is Identity Platform."
   status: ga
   summary: Customer and partner identity. External tenants handle consumer and business-customer sign-up and sign-in with social and enterprise IdPs, and B2B collaboration handles guest access in workforce tenants.
   status_note: Azure AD B2C, the previous customer identity service, has been unavailable to new customers since May 1, 2025. Existing B2C tenants remain supported.
   docs: https://learn.microsoft.com/en-us/entra/external-id/external-identities-overview
   pricing: https://learn.microsoft.com/en-us/entra/external-id/external-identities-pricing
+  when_to_choose: Use Entra External ID, Cognito, or Identity Platform when customers or partners sign up
+    and sign in to your apps (CIAM), as opposed to workforce identity in Entra ID or IAM Identity Center.
+    Azure AD B2C, the previous Azure customer identity service, has been unavailable to new customers since
+    May 1, 2025; existing B2C tenants remain supported.
+  faq:
+  - q: What is Microsoft Entra External ID?
+    a: It is Azure's customer and partner identity service. External tenants handle consumer and business-customer
+      sign-up and sign-in with social and enterprise identity providers, and B2B collaboration handles guest
+      access in workforce tenants.
+  - q: What is the AWS equivalent of Entra External ID?
+    a: Amazon Cognito. On Google Cloud, the counterpart is Identity Platform.
 - slug: entra-domain-services
   name: Microsoft Entra Domain Services
   status: ga
@@ -90,10 +103,24 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/key-vault/
 - slug: managed-hsm
   name: Azure Key Vault Managed HSM
+  seo_title: "Azure Managed HSM vs AWS CloudHSM and Key Vault"
+  seo_description: "Azure Key Vault is the usual AWS KMS equivalent. Azure Key Vault Managed HSM is a single-tenant FIPS 140-3 Level 3 HSM pool for keys only. AWS CloudHSM is the closer hardware match. Google Cloud has Cloud KMS, Cloud HSM, and Cloud EKM."
   status: ga
   summary: Fully managed, single-tenant HSM pools (FIPS 140-3 Level 3) for keys only, with local RBAC and customer-controlled security domain.
   docs: https://learn.microsoft.com/en-us/azure/key-vault/managed-hsm/overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/key-vault/
+  when_to_choose: Use Key Vault (or AWS KMS or Cloud KMS) for routine keys, secrets, and certificates. Choose
+    Managed HSM or CloudHSM when you need a single-tenant HSM pool and a customer-controlled security domain,
+    and you can accept a keys-only service (Managed HSM does not store secrets or certificates).
+  faq:
+  - q: What is the AWS equivalent of Azure Key Vault?
+    a: AWS KMS is the usual equivalent for managed keys. Azure Key Vault also stores secrets and certificates,
+      which on AWS are closer to AWS Secrets Manager and ACM. This page covers Key Vault Managed HSM, the
+      single-tenant HSM pool; CloudHSM is the closer AWS hardware match.
+  - q: How is Managed HSM different from Key Vault Premium?
+    a: Key Vault Premium adds HSM-protected keys in a multi-tenant service that also stores secrets and
+      certificates. Managed HSM is a fully managed, single-tenant HSM pool (FIPS 140-3 Level 3) for keys
+      only, with local RBAC and a customer-controlled security domain.
 - slug: azure-cloud-hsm
   name: Azure Cloud HSM
   status: ga
@@ -114,10 +141,24 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/
 - slug: defender-cspm
   name: Defender for Cloud CSPM (Foundational and Defender CSPM)
+  seo_title: "Azure CSPM (Defender) vs AWS Security Hub vs SCC"
+  seo_description: "Azure's CSPM offering is Microsoft Defender CSPM, in Defender for Cloud. The AWS equivalent is Security Hub CSPM. On Google Cloud, it is Security Command Center."
   status: ga
   summary: Posture management. Free Foundational CSPM gives secure score and Microsoft Cloud Security Benchmark recommendations, and paid Defender CSPM adds attack paths, the security explorer, agentless scanning, and regulatory compliance standards.
   docs: https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management
   pricing: https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/
+  when_to_choose: Use a CSPM tool when you want a cloud security score, misconfiguration findings, and (in
+    the paid tiers) attack-path analysis. Defender for Cloud includes a free Foundational CSPM plan; paid
+    Defender CSPM adds attack paths, the security explorer, agentless scanning, and regulatory compliance
+    standards.
+  faq:
+  - q: What is Azure CSPM?
+    a: Microsoft Defender for Cloud provides CSPM. Foundational CSPM (free) gives a secure score and Microsoft
+      Cloud Security Benchmark recommendations. Paid Defender CSPM adds attack paths, the security explorer,
+      agentless scanning, and regulatory compliance standards.
+  - q: What is the AWS equivalent of Defender CSPM?
+    a: AWS Security Hub CSPM (and Security Hub). On Google Cloud, the counterpart is Security Command Center,
+      plus Security Posture.
 - slug: defender-for-servers
   name: Defender for Servers (with Defender Vulnerability Management)
   status: ga

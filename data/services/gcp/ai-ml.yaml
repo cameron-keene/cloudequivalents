@@ -16,10 +16,23 @@
   pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
 - slug: model-garden
   name: Model Garden
+  seo_title: "Model Garden vs Bedrock vs Azure AI Foundry models"
+  seo_description: "People looking for an Azure Model Garden usually want Microsoft Foundry models. On AWS, Vertex AI Model Garden maps to Amazon Bedrock and SageMaker JumpStart."
   status: ga
   summary: Catalog of Google, partner, and open models. Partner models (for example Anthropic Claude, xAI Grok, Mistral) are offered as managed APIs. Open models (for example Llama, DeepSeek, Qwen, Gemma) deploy to your own endpoints.
   docs: https://docs.cloud.google.com/gemini-enterprise-agent-platform/models/model-garden/explore-models
   pricing: https://cloud.google.com/products/gemini-enterprise-agent-platform/pricing
+  when_to_choose: Use Model Garden when you want one Google Cloud catalog of partner APIs (for example Claude)
+    and open models you deploy yourself. On AWS, Bedrock and Bedrock Marketplace cover managed model APIs,
+    and SageMaker JumpStart covers many self-deployed open models. On Azure, Microsoft Foundry models and
+    Azure Machine Learning are the usual counterparts.
+  faq:
+  - q: What is the Azure equivalent of Vertex AI Model Garden?
+    a: There is no product named Model Garden on Azure. The closest match is Microsoft Foundry models, and
+      Azure Machine Learning for models you deploy yourself.
+  - q: What is the AWS equivalent of Model Garden?
+    a: Amazon Bedrock and Bedrock Marketplace cover managed partner model APIs. SageMaker JumpStart is the
+      closer match for open models you deploy to your own endpoints.
 - slug: gemini-tuning
   name: Gemini model tuning
   status: ga

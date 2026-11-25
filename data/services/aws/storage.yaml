@@ -217,11 +217,23 @@
   pricing: https://aws.amazon.com/aws-transfer-family/pricing/
 - slug: snowball-edge
   name: AWS Snowball Edge (Snow Family)
+  seo_title: "AWS Snowball Edge (retired) vs Azure Data Box"
+  seo_description: "AWS Snowball Edge is retired and unavailable to new customers. The Azure equivalent is Azure Data Box. On Google Cloud, the counterpart is Transfer Appliance. AWS now points people to DataSync or Data Transfer Terminal."
   status: retired
   status_note: Listed on AWS's full-shutdown page as of November 12, 2025 (along with the V3S and V3G devices). The Snowball developer guide still describes it as unavailable to new customers. AWS points customers to DataSync (online), Data Transfer Terminal (physical), or Outposts and partners for edge compute.
   summary: Rugged shippable storage and compute devices for offline data migration and edge computing.
   docs: https://docs.aws.amazon.com/snowball/latest/developer-guide/whatisedge.html
   pricing: https://aws.amazon.com/snowball/pricing/
+  when_to_choose: Do not start a new design on Snowball Edge; AWS has shut the Snow Family down for new
+    customers. For offline migration, use Azure Data Box or Google Transfer Appliance, or AWS Data Transfer
+    Terminal. For online migration, AWS points customers to DataSync.
+  faq:
+  - q: Is AWS Snowball Edge discontinued?
+    a: Yes. AWS listed Snowball Edge (and the V3S and V3G devices) on its full-shutdown page as of November
+      12, 2025. The Snowball developer guide still describes it as unavailable to new customers.
+  - q: What is the Azure equivalent of Snowball Edge?
+    a: Azure Data Box. On Google Cloud, the counterpart is Transfer Appliance. AWS now points customers
+      to DataSync (online), Data Transfer Terminal (physical), or Outposts and partners for edge compute.
 - slug: data-transfer-terminal
   name: AWS Data Transfer Terminal
   status: ga

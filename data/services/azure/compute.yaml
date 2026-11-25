@@ -156,10 +156,25 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/azure-vmware/
 - slug: confidential-vms
   name: Azure confidential computing (confidential VMs & enclaves)
+  seo_title: "Azure Confidential VMs vs AWS SEV-SNP and Nitro Enclaves"
+  seo_description: "Azure confidential computing maps to AWS Nitro Enclaves and AMD SEV-SNP on EC2, plus Google Cloud Confidential VM and Confidential Space. Azure has a broader confidential VM lineup; AWS relies more on Nitro isolation plus enclaves."
   status: ga
   summary: Confidential VMs use AMD SEV-SNP (DCasv5/v6, ECasv5/v6) or Intel TDX (DCesv6, ECesv6), plus H100 confidential GPUs. Azure Attestation and confidential OS disk encryption are available, and Intel SGX application enclaves are offered too.
   docs: https://learn.microsoft.com/en-us/azure/confidential-computing/confidential-vm-overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-machines/linux/
+  when_to_choose: Choose confidential VMs when you need memory encrypted in use, or application enclaves
+    when you need a tighter isolated compute environment. On AWS, SEV-SNP covers confidential VMs and Nitro
+    Enclaves cover the enclave case. There is no extra AWS charge for Nitro Enclaves or SEV-SNP beyond the
+    parent instance; Azure confidential VM sizes have their own per-hour prices, plus a charge for the VM
+    guest state disk. See official pricing pages for current rates.
+  faq:
+  - q: What is the AWS equivalent of Azure Confidential VMs?
+    a: AWS Nitro Enclaves and AMD SEV-SNP on EC2. Google Cloud offers Confidential VM and Confidential Space.
+      Azure also includes SGX application enclaves in its confidential computing lineup.
+  - q: How is confidential computing priced?
+    a: AWS has no extra charge for Nitro Enclaves or SEV-SNP; you pay for the parent instance. Azure confidential
+      VM sizes have their own per-hour prices, plus a small charge for the VM guest state disk. Check the
+      official pricing pages for current rates.
 - slug: trusted-launch
   name: Trusted Launch for Azure VMs
   status: ga

@@ -100,10 +100,22 @@
   pricing: https://cloud.google.com/tasks/pricing
 - slug: api-gateway
   name: API Gateway
+  seo_title: "Google API Gateway vs Amazon API Gateway vs Azure APIM"
+  seo_description: "Google Cloud API Gateway is a managed gateway for Cloud Run, Cloud Run functions, and App Engine backends. Amazon API Gateway is the AWS equivalent. On Azure, it is API Management. Apigee is Google's enterprise API platform."
   status: ga
   summary: Managed gateway for serverless backends (Cloud Run, Cloud Run functions, App Engine) defined with OpenAPI specs.
   docs: https://docs.cloud.google.com/api-gateway/docs/about-api-gateway
   pricing: https://cloud.google.com/api-gateway/pricing
+  when_to_choose: Use API Gateway, Amazon API Gateway, or Azure API Management when you need a managed HTTP
+    gateway in front of serverless or HTTP backends. If you need a full enterprise API platform (portals,
+    productization, and advanced governance), Google Cloud's larger product is Apigee, which this site maps
+    separately alongside API Gateway.
+  faq:
+  - q: What is the AWS equivalent of Google Cloud API Gateway?
+    a: Amazon API Gateway. On Azure, the equivalent is Azure API Management (APIM).
+  - q: Is Google API Gateway the same as Apigee?
+    a: No. API Gateway is the managed gateway for serverless backends, defined with OpenAPI specs. Apigee
+      is Google's enterprise API management platform. This site maps both under managed API gateway.
 - slug: apigee
   name: Apigee
   status: ga

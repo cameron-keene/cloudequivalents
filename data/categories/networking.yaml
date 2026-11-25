@@ -1461,6 +1461,15 @@ rows:
   exams:
     aws: [ANS-C01, SOA-C03]
     azure: [AZ-104, AZ-700]
+  seo_title: "AWS Reachability Analyzer vs Azure Network Watcher"
+  seo_description: "VPC Reachability Analyzer maps to Azure Network Watcher tools such as connection troubleshoot and IP flow verify. On Google Cloud, the counterpart is Connectivity Tests in Network Intelligence Center."
+  faq:
+    - q: What is AWS Reachability Analyzer?
+      a: It analyzes whether packets can flow between two endpoints in your VPC configuration. Network Access Analyzer is the related AWS tool for checking network access against your policies. On Azure, Network Watcher tools such as connection troubleshoot, IP flow verify, next hop, and effective security rules cover the same jobs.
+    - q: What is the Google Cloud equivalent of Reachability Analyzer?
+      a: Connectivity Tests in Network Intelligence Center, which analyze configuration and, in some cases, the live data plane between endpoints.
+    - q: How is this priced?
+      a: AWS bills per analysis. Azure bills per diagnostic check and connection monitor test, with free monthly amounts. Google Cloud pricing is on the Network Intelligence Center pricing page. Check the official pages for current rates.
   related: [flow-logs, traffic-mirroring]
   sources:
     - https://docs.aws.amazon.com/vpc/latest/reachability/what-is-reachability-analyzer.html

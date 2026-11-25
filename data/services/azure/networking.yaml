@@ -53,6 +53,17 @@
   summary: Connects virtual networks in the same region or across regions (global peering) over the Microsoft backbone. Peering is non-transitive.
   docs: https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-peering-overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/virtual-network/
+  when_to_choose: Use virtual network peering (or AWS VPC peering) to connect two networks over the provider
+    backbone when you do not need a transit hub. Peering is non-transitive, so three or more networks usually
+    need a hub such as Azure Virtual WAN or AWS Transit Gateway rather than a full mesh of peerings.
+  faq:
+  - q: What is the AWS equivalent of Azure virtual network peering?
+    a: AWS VPC peering. On Google Cloud, the counterpart is VPC Network Peering. All three connect networks
+      over the provider backbone and are non-transitive.
+  - q: When should I use Virtual WAN or Transit Gateway instead of peering?
+    a: When you need to connect many networks, VPNs, or private circuits through a central router. Peering
+      is a point-to-point link and does not transit traffic to a third network, so a mesh of peerings gets
+      hard to manage as the number of networks grows.
 - slug: virtual-wan
   name: Azure Virtual WAN
   status: ga

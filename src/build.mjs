@@ -59,6 +59,64 @@ function pickSeo(entry, fallbackTitle, fallbackDesc) {
   const text = (v) => (typeof v === 'string' && v.trim() ? v.trim() : '');
   return { title: text(entry?.seo_title) || fallbackTitle, description: text(entry?.seo_description) || fallbackDesc };
 }
+
+// Paths in a live title/description test. New body sections must skip these pages mid-test.
+function liveTitleTestPaths() {
+  const dir = path.join(ROOT, 'data/experiments');
+  const paths = new Set();
+  if (!fs.existsSync(dir)) return paths;
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.yaml'))) {
+    const exp = yaml.load(fs.readFileSync(path.join(dir, f), 'utf8')) || {};
+    if (exp.status !== 'live') continue;
+    for (const group of ['treatment', 'control', 'excluded']) {
+      for (const item of exp[group] || []) if (item?.path) paths.add(item.path);
+    }
+  }
+  return paths;
+}
+const TITLE_TEST_PATHS = liveTitleTestPaths();
+function faqSection(faq) {
+  if (!faq?.length) return '';
+  return `<section aria-labelledby="t-faq"><h2 id="t-faq">FAQ</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</section>`;
+}
+function faqLd(faq) {
+  if (!faq?.length) return null;
+  return { '@type': 'FAQPage', mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+}
+function whenSection(text) {
+  const s = typeof text === 'string' ? text.trim() : '';
+  if (!s) return '';
+  return `<section aria-labelledby="t-when"><h2 id="t-when">When to choose which</h2><p>${esc(s)}</p></section>`;
+}
+function relatedItemsFromRows(rows, { preferGcp = false, excludeUrls = new Set() } = {}) {
+  const seen = new Set(excludeUrls);
+  const out = [];
+  for (const r of rows) {
+    for (const id of r.related || []) {
+      const x = rowsById.get(id);
+      if (!x) continue;
+      const url = preferGcp && x.gcpUrl ? x.gcpUrl : x.url;
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      const right = preferGcp && x.gcpUrl
+        ? (joinNames(names(x.svc.gcp)) || 'none')
+        : (joinNames(names(x.svc[PB.id])) || 'none');
+      out.push({ url, capability: x.capability, label: `${joinNames(names(x.svc[PA.id]))} → ${right}` });
+    }
+  }
+  return out.slice(0, 8);
+}
+function relatedSection(items, heading = 'Related comparisons') {
+  if (!items.length) return '';
+  return `<section aria-labelledby="t-rel"><h2 id="t-rel">${esc(heading)}</h2><ul class="related">${items.map((x) => `<li><a href="${x.url}">${esc(x.capability)}</a> <span class="muted small">${esc(x.label)}</span></li>`).join('')}</ul></section>`;
+}
+function hubExtras(s, rows, { preferGcp = false } = {}) {
+  const own = new Set(rows.flatMap((r) => [r.url, r.gcpUrl].filter(Boolean)));
+  const related = TITLE_TEST_PATHS.has(s.url) ? [] : relatedItemsFromRows(rows, { preferGcp, excludeUrls: own });
+  const heading = preferGcp ? 'Related AWS vs GCP comparisons' : 'Related comparisons';
+  return `${whenSection(s.when_to_choose)}${faqSection(s.faq)}${relatedSection(related, heading)}`;
+}
+
 // First sentence (avoids splitting on "e.g." / "vs." / decimals).
 function firstSentence(t) {
   const m = String(t).match(/^.*?[.!?](?=\s+[A-Z(“"]|$)/s);
@@ -307,6 +365,7 @@ ${svcRows('Pricing page', (l) => `<td>${l.map((x) => x.pricing ? `<a href="${esc
     { q: g.match === 'none' ? `Does Google Cloud have an equivalent to ${joinNames(names(A))}?` : `What is the Google Cloud equivalent of ${joinNames(names(A))}?`, a: g.answer },
     { q: `How does pricing compare between ${joinNames(names(A))} and ${joinNames(names(G)) || 'Google Cloud'}?`, a: `AWS: ${r.pricing?.[PA.id] || '—'} Google Cloud: ${g.pricing} Check the official pricing pages for current rates.` },
     { q: `What is the Azure equivalent?`, a: Z.length ? `${joinNames(names(Z))} (${MATCH[r.match][0].toLowerCase()}). ${firstSentence(r.answer)}` : `Azure has no first-party equivalent. ${firstSentence(r.answer)}` },
+      ...(g.faq || []),
   ];
   const related = (r.related || []).map((id) => rowsById.get(id)).filter((x) => x.gcpUrl);
   const body = `${bc.html}
@@ -375,10 +434,11 @@ ${rows.map((r) => `<tr><td><a href="${r.gcpUrl}">${esc(r.capability)}</a></td><t
 </tbody></table></div>
 ${rows.map((r) => `<div class="cat-row"><h3><a href="${r.gcpUrl}">${esc(r.capability)}</a> ${matchBadge(r.gcp.match)}</h3><p>${esc(r.gcp.answer)}</p><ul class="diffs">${r.gcp.differences.slice(0, 3).map((d) => `<li>${esc(d)}</li>`).join('')}</ul><p><a href="${r.gcpUrl}">AWS vs GCP comparison →</a> · <a href="${r.url}">AWS vs Azure →</a></p></div>`).join('')}
 </section>
+${hubExtras(s, rows, { preferGcp: true })}
 </article>`;
   const og = `/og/${p.id}/${s.seg}.png`;
   renderOg({ kicker: 'Google Cloud → AWS & Azure', title: `AWS equivalent of ${s.name}`, subtitle: directLead, badge: `${rows.length} mapping${rows.length > 1 ? 's' : ''}`, siteName: config.siteName }, path.join(OUT, og));
-  const ld = [bc.ld, { '@type': 'TechArticle', headline: h1, description, url: abs(s.url), dateModified: cat.gcp_last_verified, image: abs(og), about: { '@type': 'Thing', name: s.name, sameAs: s.docs } }];
+  const ld = [bc.ld, { '@type': 'TechArticle', headline: h1, description, url: abs(s.url), dateModified: cat.gcp_last_verified, image: abs(og), about: { '@type': 'Thing', name: s.name, sameAs: s.docs } }, faqLd(s.faq)].filter(Boolean);
   write(s.url, page({ url: s.url, title, description, h1, body, ld, ogImage: og, active: p.id }));
 }
 
@@ -432,10 +492,11 @@ ${(() => {
   }).join('');
 })()}
 </section>
+${hubExtras(s, s.rows)}
 </article>`;
   const og = `/og/${p.id}/${s.seg}.png`;
   renderOg({ kicker: `${p.name} → ${o.name}`, title: `${o.name} equivalent of ${s.name}`, subtitle: directLead, badge: `${s.rows.length} mapping${s.rows.length > 1 ? 's' : ''}`, siteName: config.siteName }, path.join(OUT, og));
-  const ld = [bc.ld, { '@type': 'TechArticle', headline: h1, description, url: abs(s.url), dateModified: cat.last_verified, image: abs(og), about: { '@type': 'Thing', name: s.name, sameAs: s.docs } }];
+  const ld = [bc.ld, { '@type': 'TechArticle', headline: h1, description, url: abs(s.url), dateModified: cat.last_verified, image: abs(og), about: { '@type': 'Thing', name: s.name, sameAs: s.docs } }, faqLd(s.faq)].filter(Boolean);
   write(s.url, page({ url: s.url, title, description, h1, body, ld, ogImage: og, active: p.id }));
 }
 

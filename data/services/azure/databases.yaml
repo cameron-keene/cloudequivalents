@@ -152,6 +152,18 @@
   summary: Table Storage is a simple, low-cost key-attribute store in a storage account. Cosmos DB for Table uses the same API with Cosmos DB throughput, global distribution, and SLAs.
   docs: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/storage/tables/
+  when_to_choose: Use Azure Table Storage when you want a low-cost key-attribute table and can accept a
+    simpler feature set than Cosmos DB. For a DynamoDB-like serverless NoSQL database with global distribution
+    and a richer query model, Azure Cosmos DB for NoSQL is the closer match. Google Cloud Firestore covers
+    both the document-database and some simpler table cases.
+  faq:
+  - q: Is Azure Table Storage the equivalent of DynamoDB?
+    a: Only for simple, low-cost key-attribute tables. Azure Cosmos DB for NoSQL is the closer feature match
+      to Amazon DynamoDB. This site maps DynamoDB to both, depending on the capability.
+  - q: When should I use Table Storage instead of Cosmos DB?
+    a: When you want a lower-cost key-attribute store and do not need Cosmos DB features such as global
+      distribution and a richer query model. If you are coming from DynamoDB and need those features, start
+      with Cosmos DB for NoSQL.
 - slug: azure-documentdb
   name: Azure DocumentDB (with MongoDB compatibility)
   status: ga
@@ -184,10 +196,28 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/data-explorer/
 - slug: azure-managed-redis
   name: Azure Managed Redis
+  seo_title: "Azure Managed Redis vs Amazon ElastiCache"
+  seo_description: "Azure Managed Redis is the Azure equivalent of Amazon ElastiCache for Redis-compatible caches. It is billed by tier and size; see official pricing for current rates. On Google Cloud, the counterpart is Memorystore for Valkey."
   status: ga
   summary: Managed Redis built on Redis Enterprise, in Memory Optimized, Balanced, Compute Optimized, and Flash Optimized tiers, with active geo-replication and Redis modules. It replaces Azure Cache for Redis, whose Enterprise tiers retire Mar 31, 2027 and Basic/Standard/Premium tiers retire Sep 30, 2028.
   docs: https://learn.microsoft.com/en-us/azure/redis/overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/managed-redis/
+  when_to_choose: Choose a managed Redis-compatible cache (ElastiCache, Azure Managed Redis, or Memorystore)
+    when you want an in-memory cache or data store without running Redis yourself. Azure Managed Redis is
+    built on Redis Enterprise and replaces Azure Cache for Redis, whose Enterprise tiers retire March 31,
+    2027 and Basic, Standard, and Premium tiers retire September 30, 2028.
+  faq:
+  - q: What is the AWS equivalent of Azure Managed Redis?
+    a: Amazon ElastiCache. On Google Cloud, the counterpart is Memorystore for Valkey.
+  - q: How does Azure Managed Redis pricing work?
+    a: Azure Managed Redis is offered in Memory Optimized, Balanced, Compute Optimized, and Flash Optimized
+      tiers, and is billed per instance-hour by tier and size, with high availability (two nodes) on by
+      default. ElastiCache serverless bills per GB-hour of data stored plus processing units; node-based
+      clusters bill per node-hour. Check the official pricing pages for current rates.
+  - q: Is Azure Cache for Redis going away?
+    a: Azure Managed Redis replaces Azure Cache for Redis. Microsoft lists Enterprise tiers as retiring
+      March 31, 2027 and Basic, Standard, and Premium tiers as retiring September 30, 2028. New designs
+      should use Azure Managed Redis.
 - slug: azure-database-migration-service
   name: Azure Database Migration Service
   status: ga

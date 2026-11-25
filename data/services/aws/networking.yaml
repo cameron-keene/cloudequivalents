@@ -73,10 +73,24 @@
   pricing: https://aws.amazon.com/vpc/pricing/
 - slug: transit-gateway
   name: AWS Transit Gateway
+  seo_title: "AWS Transit Gateway vs Azure Virtual WAN"
+  seo_description: "The Azure equivalent of AWS Transit Gateway is Azure Virtual WAN. Many Azure designs instead use a hub virtual network. On Google Cloud, the closest service is Network Connectivity Center."
   status: ga
   summary: Regional cloud router that connects VPCs, VPNs, Direct Connect, and peered transit gateways in a hub-and-spoke design, with multiple route tables for segmentation.
   docs: https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html
   pricing: https://aws.amazon.com/transit-gateway/pricing/
+  when_to_choose: Choose Transit Gateway or Virtual WAN when you need a hub-and-spoke router for many VPCs
+    or VNets, VPNs, and private circuits, instead of a mesh of peerings. On Azure, a customer-managed hub
+    virtual network with Azure Firewall or an NVA is still common. Because a Google Cloud VPC is global,
+    some GCP designs need no transit hub.
+  faq:
+  - q: What is the Azure equivalent of AWS Transit Gateway?
+    a: Azure Virtual WAN is the closest product. Many Azure designs instead build a customer-managed hub
+      virtual network, optionally with Virtual Network Manager.
+  - q: How does Transit Gateway pricing compare to Virtual WAN?
+    a: Transit Gateway is billed per attachment-hour plus per GB processed. Azure Virtual WAN Standard hubs
+      are billed per hub-hour plus data processed and per connection unit. Check the official pricing pages
+      for current rates.
 - slug: cloud-wan
   name: AWS Cloud WAN
   status: ga
