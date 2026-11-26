@@ -147,9 +147,15 @@
 - slug: api-management
   name: Azure API Management
   status: ga
-  summary: API gateway, developer portal, and management plane (policies, products, subscriptions, versioning) for REST, SOAP, GraphQL, WebSocket, and gRPC APIs. Includes AI gateway features. Tiers are Consumption, Developer, Basic, Standard, Premium, and v2 tiers.
+  summary: API gateway, developer portal, and management plane (policies, products, subscriptions, versioning) for REST, SOAP, GraphQL, WebSocket, and gRPC APIs. Tiers are Consumption, Developer, Basic, Standard, Premium, and v2 tiers. The former AI Gateway tier is now the standalone Azure AI Gateway service.
   docs: https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts
   pricing: https://azure.microsoft.com/en-us/pricing/details/api-management/
+- slug: ai-gateway
+  name: Azure AI Gateway
+  status: ga
+  summary: A standalone generally available service (announced Nov 17, 2026) that sits in front of models and MCP tools from multiple providers, with routing, failover, token budgets and quotas. It used to be the AI Gateway tier of API Management.
+  docs: https://learn.microsoft.com/en-us/azure/ai-gateway/overview
+  pricing: https://learn.microsoft.com/en-us/azure/ai-gateway/overview
 - slug: web-pubsub
   name: Azure Web PubSub
   status: ga

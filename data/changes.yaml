@@ -1,5 +1,9 @@
 # Public "What changed" log, rendered at /changes/ and /changes/feed.xml (newest first is not required; the build sorts by date).
 # Each entry: date (YYYY-MM-DD), title, summary, optional links (site paths or https URLs) and commit (short git hash).
+- date: '2026-11-23'
+  title: Mapping updates from November launches
+  summary: Updated mappings for HorizonDB GA, Front Door edge actions GA, Cloud SQL MySQL blue/green, AWS assistant and AWS Quick renames, Secrets Manager cross-account replication, DataSync OIDC, Security Hub Google Cloud coverage, vaulted Cosmos DB backups, incremental DynamoDB backups, Azure Spot plus, CloudFront Functions network calls, API Gateway REST JWT authorizers, and Azure AI Gateway as a standalone service. Added comparisons for spend caps, local emulators, and managed cloud-to-cloud interconnects, plus the self-managed VMware solution on Google Cloud. Retired the SAP-C02 exam in favor of SAP-C03, added DVA-C03, and fixed a broken Lookout for Equipment docs link.
+  links: ['/category/management/', '/changes/']
 - date: '2026-10-19'
   title: Launch with AWS ↔ Azure AI & ML mappings
   summary: First release of the study guide, covering AWS to Azure equivalents for AI and machine learning services, each checked against official documentation, with a collapsible service matrix.

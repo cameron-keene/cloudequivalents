@@ -42,7 +42,7 @@ rows:
     aws: Per instance-hour by class, plus storage (GB-month, with provisioned IOPS for io1/io2 or gp3 above the baseline), backup storage beyond the free allowance, and Extended Support fees for old versions.
     azure: Per vCore-hour by tier, plus provisioned storage (and IOPS on Premium SSD v2), backup storage beyond the free allowance, and the standby billed like a second server when HA is on.
   exams:
-    aws: [SAA-C03, SOA-C03, DVA-C02]
+    aws: [SAA-C03, SOA-C03, DVA-C03]
     azure: [AZ-305, AZ-104]
   related: [managed-mysql, ha-standby, read-replicas, connection-pooling, cloud-native-postgresql]
   sources:
@@ -238,7 +238,7 @@ rows:
     aws: RDS for Oracle is billed per instance-hour (bring your own license, or license-included for Standard Edition 2), plus storage. Oracle Database@AWS is billed through AWS Marketplace at Oracle's prices.
     azure: Billed through Azure Marketplace at Oracle's published prices (license-included or bring your own license).
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [sql-server-full-control, managed-db2]
   sources:
@@ -296,27 +296,28 @@ rows:
   capability: Cloud-native PostgreSQL (separate compute and storage)
   what_for: Get PostgreSQL with shared, auto-growing, zone-resilient storage, fast failover, and many low-lag read replicas.
   match: partial
-  answer: Microsoft maps Amazon Aurora PostgreSQL to Azure HorizonDB, a PostgreSQL service with disaggregated compute and storage. HorizonDB was in public preview when verified, so for production today the usual Azure target is Azure Database for PostgreSQL (flexible server).
+  answer: Microsoft maps Amazon Aurora PostgreSQL to Azure HorizonDB, a PostgreSQL service with disaggregated compute and storage. HorizonDB is generally available as of Nov 17, 2026, and is the like-for-like Azure target for Aurora PostgreSQL's architecture. Remaining differences are about features, not preview status. Flexible server remains the mature single-node alternative.
   providers:
     aws: [aurora-postgresql]
     azure: [azure-horizondb, azure-database-for-postgresql]
   differences:
-    - Maturity. Aurora PostgreSQL has been generally available for years and includes Global Database, Serverless v2, Limitless Database, Babelfish, and zero-ETL. HorizonDB is in preview, and Microsoft advises confirming its status before planning a production migration.
-    - Architecture. Both separate stateless compute from a distributed, zone-resilient storage layer and add read replicas that share storage. HorizonDB uses a database-as-a-log design with separate WAL and data storage fleets.
-    - Flexible server is a classic single-node-plus-standby design. It's mature, but it isn't a shared-storage cluster.
+    - Architecture. Both separate stateless compute from a distributed, zone-resilient storage layer and add read replicas that share storage. HorizonDB uses a database-as-a-log design with separate WAL and data storage fleets. A cluster has one writer and up to 15 reader nodes that share one copy of the data.
+    - Feature gaps Microsoft lists at GA include no cross-region reader nodes (for disaster recovery, use geo-redundant backup and restore to the paired region), no built-in connection pooling (use an external pooler), backup retention of up to 35 days with no long-term retention, no in-place major version upgrade, no VNet injection (Private Link only), and no combining customer-managed keys with geo-redundant backup. Only one compute pool per cluster is supported.
+    - Flexible server is a classic single-node-plus-standby design. It's mature, but it isn't a shared-storage cluster, and it does not fill those HorizonDB gaps (for example Global Database or RDS Proxy equivalents).
   pricing:
     aws: Per instance-hour (or ACU-hour for Serverless v2), plus storage per GB-month, and I/O requests on Aurora Standard (I/O-Optimized has no I/O charge but higher instance and storage prices).
-    azure: HorizonDB is billed for compute and storage per its preview pricing page. Flexible server is billed per vCore-hour plus storage.
+    azure: HorizonDB is billed for compute and storage per its pricing page. Flexible server is billed per vCore-hour plus storage.
   exams:
-    aws: [SAA-C03, SAP-C02, DVA-C02]
+    aws: [SAA-C03, SAP-C03, DVA-C03]
     azure: [AZ-305]
   flags:
-    - HorizonDB was in preview when verified. Check for GA, region availability, and pricing before planning on it.
+    - HorizonDB is generally available, but Microsoft's official overview still lists feature limitations that can change. Re-check that list before a production migration.
   related: [managed-postgresql, aurora-mysql-compatible, serverless-relational, sharded-postgresql]
   sources:
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.AuroraPostgreSQL.html
     - https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Overview.StorageReliability.html
     - https://learn.microsoft.com/en-us/azure/horizondb/overview
+    - https://azure.microsoft.com/updates?id=579388
     - https://learn.microsoft.com/en-us/azure/architecture/aws-professional/databases
   gcp:
     services:
@@ -348,7 +349,7 @@ rows:
     aws: Per instance-hour or ACU-hour, plus storage and I/O (Standard) or a higher I/O-Optimized price.
     azure: Per vCore-hour by tier, plus storage and IOPS.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [managed-mysql, cloud-native-postgresql]
   sources:
@@ -384,7 +385,7 @@ rows:
     aws: Per ACU-hour consumed plus storage and I/O (or I/O-Optimized).
     azure: SQL serverless bills compute per vCore-second used (nothing while paused) plus storage. Fabric SQL database draws from the Fabric capacity you buy.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [DP-300, AZ-305]
   related: [cloud-native-postgresql, managed-sql-server]
   sources:
@@ -421,7 +422,7 @@ rows:
     aws: Per distributed processing unit (DPU) consumed plus storage per GB-month.
     azure: Not applicable.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [global-database, multi-region-nosql]
   sources:
@@ -456,7 +457,7 @@ rows:
     aws: Billed per ACU-hour of the shard group (serverless capacity) plus Aurora storage and I/O.
     azure: Each node is billed like a flexible server (vCore-hours plus storage).
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [cloud-native-postgresql, managed-postgresql]
   sources:
@@ -490,7 +491,7 @@ rows:
     aws: No extra charge beyond Aurora PostgreSQL.
     azure: Not applicable.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [DP-300]
   related: [managed-sql-server]
   sources:
@@ -595,7 +596,7 @@ rows:
     aws: Secondary clusters are billed as normal Aurora clusters, plus replicated write I/O and cross-Region transfer.
     azure: Geo-secondaries are billed like primary databases (standby-only replicas can be cheaper with a license discount), plus data transfer.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [DP-300, AZ-305]
   related: [read-replicas, ha-standby, distributed-sql]
   sources:
@@ -633,7 +634,7 @@ rows:
     aws: Per vCPU-hour (or ACU-hour for Aurora Serverless) of the target database.
     azure: PgBouncer is included at no extra charge.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [AZ-305]
   related: [managed-postgresql]
   sources:
@@ -675,13 +676,18 @@ rows:
     - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/blue-green-deployments-overview.html
     - https://learn.microsoft.com/en-us/azure/postgresql/configure-maintain/concepts-major-version-upgrade
   gcp:
-    services: []
-    match: none
-    answer: Cloud SQL has no blue/green deployment feature. Major versions are upgraded in place, or by migrating to a new instance with Database Migration Service.
+    slug: aws-rds-blue-green-vs-gcp
+    services: [cloud-sql-mysql]
+    match: partial
+    answer: Amazon RDS Blue/Green Deployments map partly to blue-green deployments for Cloud SQL for MySQL, which are generally available as of Nov 17, 2026. Official docs say the feature is for MySQL only; Cloud SQL for PostgreSQL is not supported.
     differences:
-    - In-place major version upgrades take the instance offline for the upgrade.
-    pricing: Not applicable.
+    - Official Cloud SQL docs describe a green staging instance with continuous logical replication from production, then a switchover that swaps connection endpoints so applications do not need a new connection string.
+    - It is MySQL-only. Cloud SQL for PostgreSQL still uses in-place major version upgrades or a migration to a new instance.
+    - RDS Blue/Green also supports MariaDB and PostgreSQL, so the match is only partial.
+    pricing: You pay for the green environment's resources while it exists, as with other Cloud SQL instances.
     sources:
+    - https://docs.cloud.google.com/sql/docs/mysql/about-blue-green-deployments
+    - https://docs.cloud.google.com/sql/docs/release-notes
     - https://docs.cloud.google.com/sql/docs/postgres/upgrade-major-db-version-inplace
 
 - id: hybrid-database
@@ -700,7 +706,7 @@ rows:
     aws: Outposts capacity (a multi-year commitment) plus RDS instance fees.
     azure: Billed per vCore through Azure Arc (license-included or Azure Hybrid Benefit), on infrastructure you own.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [managed-sql-server]
   sources:
@@ -739,7 +745,7 @@ rows:
     aws: On-demand per million read and write request units, or provisioned capacity per hour (with reserved capacity), plus storage per GB-month and optional features (backups, streams, global tables).
     azure: Provisioned RU/s per hour (standard or autoscale, with reserved capacity), or serverless per million RUs, plus storage per GB-month, multiplied by the number of regions.
   exams:
-    aws: [SAA-C03, DVA-C02, DEA-C01]
+    aws: [SAA-C03, DVA-C03, DEA-C01]
     azure: [DP-420, AZ-305]
   faq:
     - q: Is Cosmos DB the same as DynamoDB?
@@ -782,7 +788,7 @@ rows:
     aws: Replicated write request units in each Region plus storage per Region and cross-Region transfer.
     azure: Provisioned RU/s and storage billed in every region. Multi-region writes multiply RU costs across regions.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [DP-420, AZ-305]
   related: [key-value-document, distributed-sql]
   sources:
@@ -819,7 +825,7 @@ rows:
     aws: Stream read requests (free for Lambda triggers) per 100,000 requests.
     azure: Reading the change feed consumes RUs from the container's throughput.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [DP-420]
   related: [key-value-document]
   sources:
@@ -854,7 +860,7 @@ rows:
     aws: Per DAX node-hour by node type.
     azure: Per dedicated gateway node-hour by size.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [DP-420]
   related: [key-value-document, in-memory-cache]
   sources:
@@ -886,7 +892,7 @@ rows:
     aws: DynamoDB on-demand or provisioned capacity plus storage (Standard or Standard-IA table class).
     azure: Table Storage bills per GB-month plus per-10,000 transactions. Cosmos DB for Table uses RU-based pricing.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-104, AZ-305]
   related: [key-value-document]
   sources:
@@ -923,7 +929,7 @@ rows:
     aws: Per instance-hour plus storage and I/O (or I/O-optimized), backups, and elastic cluster shard pricing.
     azure: Azure DocumentDB bills per cluster tier (vCores and memory) plus storage. Cosmos DB for MongoDB (RU) uses RU-based pricing.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [DP-420, AZ-305]
   flags:
     - Azure DocumentDB is the new name for the former vCore-based Azure Cosmos DB for MongoDB. Older study materials use the earlier name.
@@ -1108,7 +1114,7 @@ rows:
     aws: Serverless bills per GB-hour of data stored plus ElastiCache Processing Units. Node-based bills per node-hour (reserved nodes available). Valkey is priced lower than Redis OSS.
     azure: Per instance-hour by tier and size, with high availability (two nodes) on by default.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [AZ-305]
   flags:
     - Azure Cache for Redis retirement dates are from Microsoft's retirement notice. Plan migrations to Azure Managed Redis.
@@ -1145,7 +1151,7 @@ rows:
     aws: Per node-hour plus data written per GB, and snapshot storage.
     azure: Not applicable.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [AZ-305]
   related: [in-memory-cache]
   sources:
@@ -1215,7 +1221,7 @@ rows:
     aws: Per replication instance-hour (or DCU-hour for DMS Serverless) plus storage. Schema Conversion has no charge for the feature itself.
     azure: The Standard tier is free. Premium is billed per vCore-hour, with a free period for new instances.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [DP-300, AZ-305]
   flags:
     - Azure DMS supported scenarios change often. Check the current scenario matrix before relying on a source and target pair.

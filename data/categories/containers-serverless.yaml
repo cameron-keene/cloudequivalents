@@ -43,7 +43,7 @@ rows:
     aws: A per-cluster hourly fee (standard or extended support), plus the EC2, Fargate, or Auto Mode compute. Auto Mode adds a per-instance management fee, and Hybrid Nodes are billed per vCPU.
     azure: Free tier has no control-plane fee. Standard and Premium tiers are billed per cluster-hour. Node VMs, disks, load balancers, and public IPs are billed separately.
   exams:
-    aws: [SAA-C03, DOP-C02, SAP-C02]
+    aws: [SAA-C03, DOP-C02, SAP-C03]
     azure: [AZ-104, AZ-305, AI-200]
   related: [kubernetes-automatic, kubernetes-versions, pod-identity, container-orchestrator]
   sources:
@@ -191,7 +191,7 @@ rows:
     aws: Hybrid Nodes are billed per vCPU-hour on top of the EKS cluster fee. EKS Anywhere is free to use, with optional paid Enterprise Subscriptions for support.
     azure: AKS on Azure Local is included with Azure Local host fees (check current terms). Arc-enabled Kubernetes features such as Defender and Monitor are billed per vCPU or per usage.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [managed-kubernetes, on-prem-cloud]
   sources:
@@ -274,7 +274,7 @@ rows:
     aws: ROSA service fees per 4 vCPUs of worker nodes (hourly or under annual contracts), plus a cluster fee for HCP, plus EC2 and other AWS resources.
     azure: VM costs plus OpenShift license fees for worker nodes (hourly or reserved). Control-plane cost depends on architecture.
   exams:
-    aws: [SAP-C02]
+    aws: [SAP-C03]
     azure: [AZ-305]
   related: [managed-kubernetes]
   sources:
@@ -349,7 +349,7 @@ rows:
     aws: ECS itself is free. You pay for Fargate (vCPU and GB per second), EC2 instances, or ECS Managed Instances (EC2 plus a management fee).
     azure: Consumption is billed per vCPU-second and GiB-second plus requests, with a monthly free grant. Dedicated workload profiles are billed per profile instance plus an environment management fee.
   exams:
-    aws: [SAA-C03, DVA-C02, DOP-C02]
+    aws: [SAA-C03, DVA-C03, DOP-C02]
     azure: [AZ-104, AI-200]
   related: [serverless-containers, simple-container-web, managed-kubernetes]
   sources:
@@ -387,7 +387,7 @@ rows:
     aws: Per-second billing for requested vCPU, memory, and extra ephemeral storage (1-minute minimum). Fargate Spot and Compute Savings Plans discount it.
     azure: ACI is billed per second for vCPU and memory of the container group (Windows has a surcharge). Container Apps Consumption is billed per vCPU-second and GiB-second.
   exams:
-    aws: [SAA-C03, DVA-C02]
+    aws: [SAA-C03, DVA-C03]
     azure: [AZ-104, AI-200]
   related: [container-orchestrator, kubernetes-automatic]
   sources:
@@ -427,7 +427,7 @@ rows:
     aws: ECS Express Mode has no extra charge. You pay for Fargate, the ALB, and other resources. App Runner bills per vCPU and GB for active and provisioned instances.
     azure: Container Apps Consumption is billed per vCPU-second, GiB-second, and requests, with a free monthly grant. App Service is billed per plan.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-104, AI-200]
   related: [container-orchestrator, app-platform]
   sources:
@@ -466,7 +466,7 @@ rows:
     aws: Per GB-month of storage plus data transfer out. Enhanced scanning is billed through Inspector.
     azure: A daily fee per tier with included storage, plus overage per GB and ACR Tasks build minutes. Defender scanning is billed separately.
   exams:
-    aws: [DVA-C02, DOP-C02]
+    aws: [DVA-C03, DOP-C02]
     azure: [AZ-104, AI-200]
   related: [image-pipelines, container-orchestrator]
   sources:
@@ -507,7 +507,7 @@ rows:
     aws: Per request plus GB-seconds of duration (x86 or Arm rates), with a monthly free tier. Provisioned concurrency and SnapStart are billed separately. Compute Savings Plans apply.
     azure: Flex Consumption bills per execution plus GB-seconds of on-demand instances, with always-ready instances billed at their own rate. Premium bills per vCPU and GB of instances, and Dedicated bills per App Service plan.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AZ-305]
   related: [function-cold-start, function-http-endpoint, durable-workflows-code, web-app-functions]
   sources:
@@ -545,7 +545,7 @@ rows:
     aws: Provisioned concurrency is billed per GB-second configured, plus a lower duration rate. SnapStart has no extra charge for Java but charges caching and restore for Python and .NET.
     azure: Always-ready instances in Flex Consumption are billed for baseline memory time plus execution. Premium bills for minimum instances continuously.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [serverless-functions, function-dedicated-compute]
   sources:
@@ -585,7 +585,7 @@ rows:
     aws: Layers have no extra charge (storage counts toward the code storage quota).
     azure: Not applicable.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: []
   related: [serverless-functions]
   sources:
@@ -618,7 +618,7 @@ rows:
     aws: No extra charge beyond Lambda requests and duration.
     azure: No extra charge beyond the hosting plan's execution charges.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [serverless-functions, api-gateway-managed]
   sources:
@@ -653,7 +653,7 @@ rows:
     aws: Per request plus active CPU time plus memory over the environment's lifetime, plus data transfer.
     azure: Container Apps is billed per vCPU-second, GiB-second, and requests. App Service is billed per plan instance.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AI-200]
   related: [serverless-functions, simple-container-web, app-platform]
   sources:
@@ -691,7 +691,7 @@ rows:
     aws: EC2 instance price plus a Lambda management fee, plus request charges.
     azure: Premium is billed per vCPU-second and GB-second of allocated instances (with a minimum instance count). Dedicated is billed per App Service plan.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [function-cold-start, serverless-functions]
   sources:
@@ -728,7 +728,7 @@ rows:
     aws: Billed for MicroVM resources while running, at a lower rate while suspended. See the Lambda pricing page.
     azure: Code interpreter sessions are billed per session-hour. Custom container sessions are billed by the session pool's resource consumption.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AI-200]
   related: [agent-tools, serverless-functions]
   sources:
@@ -768,7 +768,7 @@ rows:
     aws: Standard is billed per state transition. Express is billed per execution plus duration and memory.
     azure: Consumption is billed per action and connector execution. Standard is billed per hosting plan (vCPU and memory), plus standard connector calls.
   exams:
-    aws: [DVA-C02, SAA-C03, DOP-C02]
+    aws: [DVA-C03, SAA-C03, DOP-C02]
     azure: [AZ-204, AZ-305]
   related: [durable-workflows-code, event-bus]
   sources:
@@ -807,7 +807,7 @@ rows:
     aws: Standard Lambda request and duration charges for active steps, plus durable-execution charges (see the Lambda pricing page). Waits don't incur compute charges.
     azure: Function execution charges under the hosting plan, plus the state backend. The Durable Task Scheduler is billed by SKU (Dedicated capacity units or Consumption per action).
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [workflow-orchestration, serverless-functions]
   sources:
@@ -844,7 +844,7 @@ rows:
     aws: Per million scheduled invocations, with a monthly free tier.
     azure: The cost of the compute or workflow that runs on the schedule (function executions, Logic Apps actions, job runtime).
   exams:
-    aws: [DVA-C02, SOA-C03]
+    aws: [DVA-C03, SOA-C03]
     azure: [AZ-204]
   related: [event-bus, workflow-orchestration]
   sources:
@@ -882,7 +882,7 @@ rows:
     aws: Per million custom or partner events published (AWS service events on the default bus are free), plus per-GB fees for archive, replay, and Pipes requests.
     azure: Per million operations, with a monthly free grant on basic topics. Namespaces are billed per throughput unit plus operations, and MQTT adds connections.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AI-200]
   related: [pubsub-fanout, message-queues, scheduled-jobs]
   sources:
@@ -922,7 +922,7 @@ rows:
     aws: Per million requests (64 KB chunks), with FIFO priced higher, plus a monthly free tier and data transfer.
     azure: Service Bus Basic and Standard are billed per million operations (Standard adds a base charge). Premium is billed per messaging unit-hour. Queue Storage is billed per GB stored plus per 10,000 operations.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AI-200]
   related: [pubsub-fanout, managed-message-broker, event-bus]
   sources:
@@ -963,7 +963,7 @@ rows:
     aws: Per million publishes plus per-delivery charges that vary by endpoint type (HTTP, SQS, and Lambda are cheap, while SMS is priced per message by country).
     azure: Service Bus Standard and Premium pricing (operations or messaging units). Event Grid per million operations.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AI-200]
   related: [message-queues, event-bus]
   sources:
@@ -1002,7 +1002,7 @@ rows:
     aws: Per broker instance-hour (single-instance or active/standby or cluster) plus storage.
     azure: Service Bus Premium is billed per messaging unit-hour.
   exams:
-    aws: [SAA-C03, SAP-C02]
+    aws: [SAA-C03, SAP-C03]
     azure: [AZ-305]
   related: [message-queues]
   sources:
@@ -1028,9 +1028,10 @@ rows:
   answer: Amazon API Gateway maps to Azure API Management. API Management is a fuller API management platform (developer portal, products, policies across many backends). API Gateway is a serverless front door that is especially tight with Lambda.
   providers:
     aws: [api-gateway]
-    azure: [api-management]
+    azure: [api-management, ai-gateway]
   differences:
-    - API types. API Gateway offers REST APIs (usage plans, API keys, caching, request validation, private APIs), HTTP APIs (cheaper, simpler, JWT auth), and WebSocket APIs. API Management handles REST, SOAP, GraphQL, WebSocket, and gRPC, plus AI gateway policies for LLM APIs.
+    - API types. API Gateway offers REST APIs (usage plans, API keys, caching, request validation, private APIs), HTTP APIs (cheaper, simpler, JWT authorizers), and WebSocket APIs. As of Nov 17, 2026, REST APIs also have a native JWT authorizer, so you no longer need a Lambda authorizer for tokens from issuers other than Cognito. API Management handles REST, SOAP, GraphQL, WebSocket, and gRPC, and has a validate-jwt policy.
+    - AI gateway. Azure AI Gateway is now a standalone generally available service (announced Nov 17, 2026) in front of models and MCP tools, with routing, failover, token budgets and quotas. It used to be the AI Gateway tier of API Management. Treat it as its own service, not only an API Management feature.
     - Tiers. API Gateway is pay-per-request with no tiers. API Management has Consumption (serverless), Developer (no SLA), Basic/Standard/Premium (classic), and Basic v2/Standard v2/Premium v2.
     - Developer portal. Built into API Management. API Gateway has none built in (AWS offers an open-source portal).
     - Self-hosted gateway. API Management can run gateways on-premises or in Kubernetes (Premium). API Gateway is cloud-only.
@@ -1038,13 +1039,18 @@ rows:
     aws: Per million API calls (REST priced higher than HTTP), WebSocket messages and connection minutes, optional cache per hour, and data transfer.
     azure: Consumption is billed per million calls with a free grant. Other tiers are billed per unit-hour, by tier and units.
   exams:
-    aws: [DVA-C02, SAA-C03]
+    aws: [DVA-C03, SAA-C03]
     azure: [AZ-204, AZ-305]
   related: [function-http-endpoint, graphql-realtime]
   sources:
     - https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/amazon-api-gateway-rest-authorizers-jwt/
+    - https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-jwt-authorizer.html
     - https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts
     - https://learn.microsoft.com/en-us/azure/api-management/api-management-features
+    - https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy
+    - https://learn.microsoft.com/en-us/azure/ai-gateway/overview
+    - https://azure.microsoft.com/updates?id=580080
   gcp:
     services:
     - api-gateway
@@ -1054,9 +1060,11 @@ rows:
     differences:
     - API Gateway fronts Cloud Run, Cloud Run functions, and App Engine; it has no WebSocket APIs.
     - Apigee covers usage plans, developer portals, and monetization that AWS spreads across API Gateway features.
+    - Google Cloud API Gateway can authenticate users with JWT, which now matches the configure-don't-code JWT authorizer available on both API Gateway HTTP APIs and REST APIs.
     pricing: API Gateway is billed by the number of API calls. Apigee has pay-as-you-go and subscription plans.
     sources:
     - https://docs.cloud.google.com/api-gateway/docs/about-api-gateway
+    - https://docs.cloud.google.com/api-gateway/docs/authenticating-users-jwt
     - https://cloud.google.com/api-gateway/pricing
     - https://docs.cloud.google.com/apigee/docs/api-platform/get-started/what-apigee
     flags:
@@ -1079,7 +1087,7 @@ rows:
     aws: Per million query and mutation operations, real-time messages and connection minutes, plus optional caching.
     azure: API Management tier pricing. Web PubSub is billed per unit per day plus messages beyond the included quota.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [api-gateway-managed]
   sources:
@@ -1116,7 +1124,7 @@ rows:
     aws: Build minutes, GB stored, GB served, and SSR request and duration charges. Has a free tier.
     azure: A Free plan for personal projects, and a Standard plan billed per app per month plus bandwidth overage.
   exams:
-    aws: [DVA-C02]
+    aws: [DVA-C03]
     azure: [AZ-204]
   related: [app-platform, web-app-functions]
   sources:

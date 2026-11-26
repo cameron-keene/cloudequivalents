@@ -133,6 +133,12 @@
   summary: Dedicated or hosted private connections from your network to AWS at Direct Connect locations, with private, public, and transit virtual interfaces.
   docs: https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html
   pricing: https://aws.amazon.com/directconnect/pricing/
+- slug: aws-interconnect
+  name: AWS Interconnect - multicloud
+  status: ga
+  summary: A managed private connection between AWS and another cloud, paired with the other provider's interconnect resource through an activation key. Generally available with Microsoft Azure on Nov 17, 2026, in us-east-1, ap-southeast-2, and eu-central-1. Distinct from Direct Connect, which reaches AWS from your own sites.
+  docs: https://docs.aws.amazon.com/interconnect/latest/userguide/what-is-interconnect.html
+  pricing: https://docs.aws.amazon.com/interconnect/latest/userguide/what-is-interconnect.html
 - slug: direct-connect-gateway
   name: Direct Connect gateway
   status: ga

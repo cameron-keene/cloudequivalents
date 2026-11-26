@@ -43,6 +43,13 @@
   summary: Unused Azure capacity at a discount, evicted when Azure needs capacity or the price exceeds your max price. The eviction policy is Deallocate (the default) or Delete. Scheduled Events gives up to 30 seconds of notice, best effort.
   docs: https://learn.microsoft.com/en-us/azure/virtual-machines/spot-vms
   pricing: https://azure.microsoft.com/en-us/pricing/spot-advisor/
+- slug: spot-plus
+  name: Azure Compute Spot plus
+  status: preview
+  status_note: Public preview as of Nov 17, 2026.
+  summary: A higher-priced Spot tier than standard Azure Spot VMs. Official preview materials describe a final warning of 30 seconds to 2 minutes, a rebalance notification, a best-effort 60-minute runtime target, and no charge if the VM is evicted in the first 60 minutes.
+  docs: https://azure.microsoft.com/updates?id=581145
+  pricing: https://azure.microsoft.com/en-us/pricing/spot-advisor/
 - slug: savings-plan-compute
   name: Azure savings plan for compute
   status: ga

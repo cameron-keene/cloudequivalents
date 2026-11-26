@@ -118,9 +118,16 @@
   provider: aws
   name: AWS Certified Solutions Architect – Professional
   level: Professional
-  status: retiring
+  status: retired
   url: https://aws.amazon.com/certification/certified-solutions-architect-professional/
-  note: Being updated to SAP-C03. Registration for SAP-C03 opens Oct 27, 2026. Last day to take SAP-C02 is Nov 16, 2026.
+  note: Retired. Last day to take SAP-C02 was Nov 16, 2026 (AWS Training and Certification Blog, Oct 27, 2026). Replaced by SAP-C03.
+- code: SAP-C03
+  provider: aws
+  name: AWS Certified Solutions Architect – Professional
+  level: Professional
+  status: current
+  url: https://aws.amazon.com/certification/certified-solutions-architect-professional/
+  note: Registration opened Oct 27, 2026. Official exam guide is the SAP-C03 guide.
 - code: SOA-C03
   provider: aws
   name: AWS Certified CloudOps Engineer – Associate
@@ -134,7 +141,14 @@
   level: Associate
   status: retiring
   url: https://aws.amazon.com/certification/certified-developer-associate/
-  note: Being updated to DVA-C03. Registration for DVA-C03 opens Oct 27, 2026. Last day to take DVA-C02 is Nov 30, 2026.
+  note: Being replaced by DVA-C03. Registration for DVA-C03 opened Oct 27, 2026. Last day to take DVA-C02 is Nov 30, 2026.
+- code: DVA-C03
+  provider: aws
+  name: AWS Certified Developer – Associate
+  level: Associate
+  status: current
+  url: https://aws.amazon.com/certification/certified-developer-associate/
+  note: Registration opened Oct 27, 2026. Official exam guide is the DVA-C03 guide.
 - code: SCS-C03
   provider: aws
   name: AWS Certified Security – Specialty

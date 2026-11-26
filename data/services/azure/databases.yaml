@@ -44,9 +44,9 @@
   pricing: https://www.oracle.com/cloud/azure/oracle-database-at-azure/pricing/
 - slug: azure-horizondb
   name: Azure HorizonDB
-  status: preview
-  status_note: Public preview when verified. Microsoft says to confirm its status before planning a production migration.
-  summary: Cloud-native PostgreSQL service with disaggregated compute and storage and a database-as-a-log design. Storage is zone-resilient by default and grows automatically, and read replicas share the storage.
+  status: ga
+  status_note: Generally available as of Nov 17, 2026. Official overview still lists feature gaps, including no cross-region readers, no built-in connection pooling, and backup retention of up to 35 days.
+  summary: Cloud-native PostgreSQL service with disaggregated compute and storage and a database-as-a-log design. Storage is zone-resilient by default and grows automatically, and a cluster has one writer plus up to 15 reader nodes that share the storage.
   docs: https://learn.microsoft.com/en-us/azure/horizondb/overview
   pricing: https://azure.microsoft.com/en-us/pricing/details/horizondb/
 - slug: postgresql-elastic-clusters

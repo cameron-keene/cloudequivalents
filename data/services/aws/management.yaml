@@ -1,0 +1,13 @@
+# AWS management and local-development services (category: management).
+- slug: aws-budgets
+  name: AWS Budgets
+  status: ga
+  summary: Budget thresholds with notifications and optional budget actions that can apply an IAM policy or SCP, or target specific EC2 or RDS instances, automatically or after approval. There is no general built-in hard stop that pauses all usage the way Google Cloud spend caps do.
+  docs: https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-controls.html
+  pricing: https://aws.amazon.com/aws-cost-management/aws-budgets/pricing/
+- slug: aws-emulator
+  name: AWS Emulator
+  status: ga
+  summary: A local emulator of AWS APIs, generally available Nov 11, 2026, with no additional service fee. It serves one local HTTPS endpoint built from published AWS API models. Official docs say it does not evaluate IAM or resource policies the way AWS does, and each instance is a single account.
+  docs: https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html
+  pricing: https://docs.aws.amazon.com/emulator/latest/userguide/what-is-service.html

@@ -635,7 +635,7 @@ rows:
     aws: Per attachment-hour plus per GB processed.
     azure: Virtual WAN Standard hubs are billed per hub-hour plus data processed and per connection unit (VPN, ExpressRoute, and user VPN scale units).
   exams:
-    aws: [SAA-C03, ANS-C01, SAP-C02]
+    aws: [SAA-C03, ANS-C01, SAP-C03]
     azure: [AZ-700, AZ-305]
   related: [vnet-peering, global-network, managed-firewall]
   sources:
@@ -672,7 +672,7 @@ rows:
     aws: Per core network edge-hour, per attachment-hour, and per GB processed.
     azure: Virtual WAN hub, connection, and data processing charges. Virtual Network Manager is billed separately.
   exams:
-    aws: [ANS-C01, SAP-C02]
+    aws: [ANS-C01, SAP-C03]
     azure: [AZ-700]
   related: [transit-hub, site-to-site-vpn]
   sources:
@@ -779,13 +779,14 @@ rows:
     - Microsoft services. ExpressRoute Microsoft peering reaches Microsoft 365 and Azure public services. Direct Connect public virtual interfaces reach AWS public endpoints.
     - Scope. An ExpressRoute circuit reaches all regions in its geopolitical region (Standard), or worldwide with Premium. Direct Connect reaches any Region through a Direct Connect gateway.
     - Encryption. Neither encrypts by default. Both support MACsec on dedicated or direct ports, or IPsec VPN over the circuit.
+    - Cloud-to-cloud. Direct Connect and ExpressRoute are for reaching a cloud from your own sites. Managed links from one cloud to another are a separate product; see the multicloud interconnect comparison.
   pricing:
     aws: Per port-hour plus data transfer out per GB, by location.
     azure: Monthly circuit fee by bandwidth, metered (per GB outbound) or unlimited data plans, plus the gateway, and Premium add-on if needed.
   exams:
-    aws: [SAA-C03, ANS-C01, SAP-C02]
+    aws: [SAA-C03, ANS-C01, SAP-C03]
     azure: [AZ-700, AZ-305]
-  related: [site-to-site-vpn, multi-region-private-connectivity]
+  related: [site-to-site-vpn, multi-region-private-connectivity, multicloud-interconnect]
   sources:
     - https://docs.aws.amazon.com/directconnect/latest/UserGuide/Welcome.html
     - https://docs.aws.amazon.com/directconnect/latest/UserGuide/MACsec.html
@@ -801,13 +802,54 @@ rows:
     seo_title: "AWS Direct Connect vs Google Cloud Interconnect"
     seo_description: "AWS Direct Connect maps to Cloud Interconnect: Dedicated Interconnect (your own circuit) or Partner Interconnect (through a provider)."
     differences:
-    - Cross-Cloud Interconnect provides dedicated physical connections from Google Cloud to other cloud providers.
+    - Cross-Cloud Interconnect provides dedicated physical connections from Google Cloud to other cloud providers. Cloud-to-cloud products are compared separately under multicloud interconnect.
     - VLAN attachments connect a circuit to Cloud Router in a region, similar to virtual interfaces.
     pricing: Hourly charges for Interconnect connections and VLAN attachments, plus discounted egress per GiB.
     sources:
     - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/overview
     - https://cloud.google.com/network-connectivity/interconnect/pricing
     - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview
+
+- id: multicloud-interconnect
+  group: hybrid-connectivity
+  capability: Managed private connection between clouds
+  what_for: Connect one public cloud to another over a provider-managed private link, without bringing your own routers, cross-connects, or colocation contract for that hop.
+  match: direct
+  answer: AWS Interconnect - multicloud maps to Azure Multicloud Interconnect. Both are managed cloud-to-cloud links, paired with an activation key, and are distinct from Direct Connect and ExpressRoute, which reach a cloud from your own sites.
+  providers:
+    aws: [aws-interconnect]
+    azure: [multicloud-interconnect]
+  differences:
+    - Scope. Official AWS and Azure announcements describe general availability of the AWS-Azure pairing on Nov 17, 2026. AWS listed us-east-1, ap-southeast-2, and eu-central-1 at launch. Microsoft says Google Cloud support on Azure Multicloud Interconnect is in public preview.
+    - How it is built. AWS describes redundant devices in at least two facilities and no routers, cross-connects, or BGP sessions for you to manage. Microsoft's overview says Azure Multicloud Interconnect is built on ExpressRoute (you create a circuit with the Multicloud Interconnect port type), with MACsec on by default on the physical links.
+    - On-premises access stays on Direct Connect and ExpressRoute. AWS Interconnect also has a separate last-mile offering for branch sites through partner networks, which is not this comparison.
+  pricing:
+    aws: See the official AWS Interconnect user guide for current charges. A public standalone pricing page was not published at the AWS /interconnect/pricing URL when verified.
+    azure: Billed as Azure Multicloud Interconnect; see the official pricing page. An ExpressRoute circuit with the Multicloud Interconnect port type is part of the setup.
+  exams:
+    aws: [SAA-C03, ANS-C01, SAP-C03]
+    azure: [AZ-700, AZ-305]
+  related: [dedicated-connection, site-to-site-vpn]
+  sources:
+    - https://docs.aws.amazon.com/interconnect/latest/userguide/what-is-interconnect.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/aws-announces-AWS-interconnect-multicloud-azure-ga/
+    - https://learn.microsoft.com/en-us/azure/multicloud-interconnect/overview
+    - https://azure.microsoft.com/updates?id=579766
+    - https://azure.microsoft.com/en-us/pricing/details/multicloud-interconnect/
+  gcp:
+    services:
+    - cross-cloud-interconnect
+    match: direct
+    answer: AWS Interconnect - multicloud maps to Partner Cross-Cloud Interconnect, Google's on-demand, provider-managed link to AWS and other supported clouds, which you attach through Network Connectivity Center or VPC Network Peering.
+    differences:
+    - Partner Cross-Cloud Interconnect is part of the Cross-Cloud Interconnect family, alongside dedicated physical connections that you provision yourself.
+    - Official Google docs describe attaching the partner connection through Network Connectivity Center or VPC Network Peering.
+    pricing: Hourly charges for Interconnect connections and VLAN attachments, plus discounted egress per GiB, as documented on the Cloud Interconnect pricing page.
+    sources:
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/partner-cci-for-csp-overview
+    - https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview
+    - https://cloud.google.com/network-connectivity/interconnect/pricing
+
 
 - id: multi-region-private-connectivity
   group: hybrid-connectivity
@@ -934,7 +976,7 @@ rows:
     aws: Per service-hour, per GB processed, and per request (and per resource-configuration-hour for resources).
     azure: Each service is billed separately.
   exams:
-    aws: [ANS-C01, SAP-C02]
+    aws: [ANS-C01, SAP-C03]
     azure: [AZ-700, AZ-305]
   related: [private-endpoints, application-load-balancing]
   sources:
@@ -1301,28 +1343,30 @@ rows:
   capability: Lightweight edge request logic
   what_for: Rewrite URLs, redirect, add security headers, validate tokens, or run A/B tests at the edge on every request.
   match: partial
-  answer: CloudFront Functions maps to Azure Front Door rule sets (no-code rules) and Front Door edge actions (custom JavaScript, in preview).
+  answer: CloudFront Functions maps to Azure Front Door rule sets (no-code rules) and Front Door edge actions (custom JavaScript, generally available as of Nov 10, 2026).
   providers:
     aws: [cloudfront-functions]
     azure: [front-door-rules-engine, front-door-edge-actions]
   differences:
-    - Code. CloudFront Functions run JavaScript on viewer request and viewer response events, with sub-millisecond startup and an optional CloudFront KeyValueStore. Edge actions run JavaScript on client requests only during preview, with a 16 KB code limit and a 10 ms execution limit.
+    - Code. CloudFront Functions run JavaScript on viewer request and viewer response events, with sub-millisecond startup and an optional CloudFront KeyValueStore. Edge actions are generally available and run JavaScript on client request and client response events, with a 16 KB code limit and a 10 ms execution limit.
+    - Network calls. As of Nov 18, 2026, CloudFront Functions can make network calls with cf.fetch() (to an origin already configured on the distribution) and cf.beacon(). Official Front Door edge actions documentation does not describe equivalent outbound calls, so the lightweight tiers have moved further apart on this point. Calling another service used to be a reason to pick Lambda@Edge.
     - No-code. Many CloudFront Functions use cases (redirects, header changes, URL rewrites) are handled on Azure by rule set actions without code.
-    - Maturity. CloudFront Functions is generally available. Edge actions was in preview when verified.
+    - Maturity. Both CloudFront Functions and edge actions are generally available. Lambda@Edge still has no Azure equivalent.
   pricing:
     aws: Per million invocations (included in flat-rate plans).
     azure: Rule sets are included in Front Door pricing (with limits by tier). Check the pricing page for edge actions.
   exams:
-    aws: [DVA-C02, ANS-C01]
+    aws: [DVA-C03, ANS-C01]
     azure: [AZ-700]
-  flags:
-    - Front Door edge actions was in public preview when verified, so limits and pricing may change at GA.
   related: [edge-functions-full, cdn]
   sources:
     - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/cloudfront-functions.html
     - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/edge-functions.html
+    - https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/helper-functions-network-calls.html
+    - https://aws.amazon.com/about-aws/whats-new/2026/11/cloudfront-functions-network-calls/
     - https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine
     - https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions
+    - https://azure.microsoft.com/updates?id=579310
   gcp:
     services:
     - service-extensions
@@ -1351,7 +1395,7 @@ rows:
     aws: Per request plus duration in GB-seconds (higher rates than regional Lambda).
     azure: Not applicable.
   exams:
-    aws: [DVA-C02, ANS-C01]
+    aws: [DVA-C03, ANS-C01]
     azure: [AZ-700]
   related: [edge-functions-lightweight, cdn]
   sources:

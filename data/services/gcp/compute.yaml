@@ -125,9 +125,15 @@
 - slug: vmware-engine
   name: Google Cloud VMware Engine
   status: ga
-  summary: Fully managed VMware private clouds (vSphere, vSAN, NSX) running on dedicated Google Cloud bare metal nodes.
+  summary: The Google-managed VMware offering (VCF 5.2 when verified in Google's comparison), where Google handles hypervisor lifecycle, patching, and the operating model. Distinct from the self-managed VMware solution on Google Cloud.
   docs: https://docs.cloud.google.com/vmware-engine/docs/overview
   pricing: https://cloud.google.com/vmware-engine/pricing
+- slug: vmware-solution
+  name: VMware solution on Google Cloud
+  status: ga
+  summary: Self-managed VMware Cloud Foundation (VCF 9.x) on dedicated Compute Engine bare-metal instances in your project and VPC, with full root access to the VCF stack. You bring a portable VCF subscription from Broadcom. Generally available; Google charges for the bare-metal nodes, not a separate VMware solution fee.
+  docs: https://docs.cloud.google.com/vmware-engine/docs/vmware-solution/architecture
+  pricing: https://cloud.google.com/products/compute/pricing
 - slug: confidential-vm
   name: Confidential VM
   status: ga

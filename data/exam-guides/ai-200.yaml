@@ -92,8 +92,8 @@ gotchas:
     Microsoft retired AZ-204 without naming a single replacement. We treat AI-200 as the closest current developer exam because
     its scope covers the same building blocks.
 closest_aws:
-- code: DVA-C02
-  why: Same developer role. DVA-C02 is being replaced by DVA-C03.
+- code: DVA-C03
+  why: Same developer role. DVA-C03 is the current exam; last day for DVA-C02 is Nov 30, 2026.
 flags:
 - On the AI-200 study guide, the "Skills at a glance" list gives 30–35% for "Develop AI solutions by using Azure data management
   services", but that section's own heading still says 25–30%. The change log says the weight increased on Oct 7, 2026, so

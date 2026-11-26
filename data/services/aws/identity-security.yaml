@@ -22,8 +22,14 @@
 - slug: iam-identity-center
   name: AWS IAM Identity Center
   status: ga
-  summary: Workforce sign-in and single sign-on to AWS accounts (through permission sets) and applications, using its own directory or an external IdP such as Microsoft Entra ID or Okta.
+  summary: Workforce sign-in and single sign-on to AWS accounts and applications, using its own directory or an external IdP such as Microsoft Entra ID or Okta. Account access can be granted with permission sets or, through account access manager, existing IAM roles in member accounts.
   docs: https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html
+  pricing: https://aws.amazon.com/iam/identity-center/
+- slug: account-access-manager
+  name: AWS account access manager
+  status: ga
+  summary: A part of IAM, generally available Nov 5, 2026, that assigns existing IAM roles in member accounts to users and groups from an organization instance of IAM Identity Center, as an alternative to permission sets.
+  docs: https://aws.amazon.com/blogs/security/introducing-aws-account-access-manager-iam-role-flexibility-with-centralized-workforce-access/
   pricing: https://aws.amazon.com/iam/identity-center/
 - slug: organizations
   name: AWS Organizations

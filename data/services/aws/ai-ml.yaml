@@ -238,17 +238,23 @@
   docs: https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/qbusiness-availability-change.html
   pricing: https://aws.amazon.com/q/business/pricing/
 - slug: amazon-quick
-  name: Amazon Quick
+  name: AWS Quick
   status: ga
-  summary: AI assistant for work. Quick Sight (BI), Quick Flows (workflow automation), Quick Automate (agentic process automation), Quick Index (grounding on company data), Research, and Spaces.
+  summary: AI assistant for work, renamed from Amazon Quick on Nov 9, 2026. AWS Quick Sight (BI), Quick Flows (workflow automation), Quick Automate (agentic process automation), Quick Index (grounding on company data), Research, and Spaces.
   docs: https://docs.aws.amazon.com/quick/latest/userguide/what-is.html
   pricing: https://aws.amazon.com/quick/pricing/
 - slug: amazon-q-developer
   name: Amazon Q Developer
   status: sunset
-  status_note: The IDE plugins and paid subscriptions reach end of support Apr 30, 2027. New signups stopped May 15, 2026. Q Developer in the AWS console, docs, mobile app, and chat apps (Slack/Teams) is not affected.
-  summary: AI assistant for AWS and software development. IDE chat and completions, plus help in the AWS console.
+  status_note: The IDE plugins and paid subscriptions reach end of support Apr 30, 2027. New signups stopped May 15, 2026. The console assistant was renamed to the AWS assistant on Nov 5, 2026, and is tracked as a separate service.
+  summary: AI assistant for software development in the IDE. The console, docs, and mobile assistant is now the AWS assistant.
   docs: https://docs.aws.amazon.com/amazonq/latest/qdeveloper-ug/what-is.html
+  pricing: https://aws.amazon.com/q/developer/pricing/
+- slug: aws-assistant
+  name: AWS assistant
+  status: ga
+  summary: Account-aware generative AI assistant in the AWS Management Console, AWS websites, and the Console Mobile Application. Renamed from Amazon Q Developer in the console on Nov 5, 2026.
+  docs: https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/ask-q.html
   pricing: https://aws.amazon.com/q/developer/pricing/
 - slug: kiro
   name: Kiro
@@ -363,7 +369,7 @@
   status: retired
   status_note: End of support Oct 7, 2026. The console and resources are no longer accessible.
   summary: Sensor-based anomaly detection for industrial equipment.
-  docs: https://docs.aws.amazon.com/lookout-for-equipment/latest/ug/what-is.html
+  docs: https://aws.amazon.com/lookout-for-equipment/
   pricing: null
 - slug: monitron
   name: Amazon Monitron

@@ -112,7 +112,7 @@
 - slug: cross-cloud-interconnect
   name: Cross-Cloud Interconnect
   status: ga
-  summary: Dedicated physical connections between Google Cloud and other clouds, plus partner options for AWS and OCI.
+  summary: Dedicated physical connections between Google Cloud and other clouds, including Partner Cross-Cloud Interconnect for on-demand, provider-managed links to AWS and other supported clouds, attached through Network Connectivity Center or VPC Network Peering.
   docs: https://docs.cloud.google.com/network-connectivity/docs/interconnect/concepts/cci-overview
   pricing: https://cloud.google.com/network-connectivity/interconnect/pricing
 - slug: private-service-connect

@@ -1,0 +1,13 @@
+# Azure management and local-development services (category: management).
+- slug: cost-management-budgets
+  name: Microsoft Cost Management budgets
+  status: ga
+  summary: Budget alerts in Cost Management that notify you when thresholds are reached. Budgets do not stop resources by themselves; they can call an action group that runs your own automation. A separate spending limit exists only on free and credit-based subscriptions, fixed at the credit amount, and is not available on pay-as-you-go.
+  docs: https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets
+  pricing: https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/tutorial-acm-create-budgets
+- slug: azurite
+  name: Azurite
+  status: ga
+  summary: The official local emulator for Azure Blob, Queue, and Table Storage. Other Azure services ship their own emulators, including the Azure Cosmos DB emulator and the Azure Service Bus emulator.
+  docs: https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite
+  pricing: https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite

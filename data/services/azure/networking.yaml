@@ -108,6 +108,12 @@
   summary: Private connections from your network to Microsoft through a connectivity provider or ExpressRoute Direct, with private peering (virtual networks) and Microsoft peering (Microsoft 365 and public PaaS).
   docs: https://learn.microsoft.com/en-us/azure/expressroute/expressroute-introduction
   pricing: https://azure.microsoft.com/en-us/pricing/details/expressroute/
+- slug: multicloud-interconnect
+  name: Azure Multicloud Interconnect
+  status: ga
+  summary: A managed private connection between Azure and another cloud, built on ExpressRoute with a Multicloud Interconnect port type and MACsec on by default on the physical links. Generally available with AWS on Nov 17, 2026; Google Cloud support is in public preview. Distinct from ExpressRoute used to reach Azure from your own sites.
+  docs: https://learn.microsoft.com/en-us/azure/multicloud-interconnect/overview
+  pricing: https://azure.microsoft.com/en-us/pricing/details/multicloud-interconnect/
 - slug: expressroute-global-reach
   name: ExpressRoute Global Reach
   status: ga
@@ -182,8 +188,8 @@
   pricing: https://azure.microsoft.com/en-us/pricing/details/frontdoor/
 - slug: front-door-edge-actions
   name: Azure Front Door edge actions
-  status: preview
-  summary: Custom JavaScript that runs at Front Door PoPs on client requests (header changes, URL rewrite and redirect, request rejection, origin selection, JWT validation), with a 16 KB code and 10 ms execution limit in preview.
+  status: ga
+  summary: Custom JavaScript that runs at Front Door PoPs on client request and client response events, with a 16 KB code limit and a 10 ms execution limit. Generally available as of Nov 10, 2026, on Front Door Standard and Premium.
   docs: https://learn.microsoft.com/en-us/azure/frontdoor/edge-actions
   pricing: https://azure.microsoft.com/en-us/pricing/details/frontdoor/
 - slug: azure-firewall
