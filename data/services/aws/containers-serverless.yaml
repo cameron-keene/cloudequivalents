@@ -35,6 +35,16 @@
   summary: AWS-managed platform features that run in EKS rather than on your nodes. Argo CD for GitOps, AWS Controllers for Kubernetes (ACK) to manage AWS resources, and kro for composing resources.
   docs: https://docs.aws.amazon.com/eks/latest/userguide/capabilities.html
   pricing: https://aws.amazon.com/eks/pricing/
+  when_to_choose: Use EKS Capabilities when you want AWS-managed platform add-ons that run in EKS rather
+    than on your nodes, especially Argo CD for GitOps, ACK to manage AWS resources, or kro to compose resources.
+    On Azure, AKS GitOps is the usual counterpart; on Google Cloud, Config Sync and Config Controller cover
+    similar ground.
+  faq:
+  - q: What is Amazon EKS Capabilities?
+    a: AWS-managed platform features that run in EKS rather than on your nodes. They include Argo CD for
+      GitOps, AWS Controllers for Kubernetes (ACK) to manage AWS resources, and kro for composing resources.
+  - q: What is the Azure equivalent of EKS Capabilities (Argo CD)?
+    a: AKS GitOps. On Google Cloud, Config Sync and Config Controller are the closest mappings.
 - slug: rosa
   name: Red Hat OpenShift Service on AWS (ROSA)
   status: ga

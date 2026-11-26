@@ -11,6 +11,17 @@
   summary: About 12 months of community support per minor version. Premium-tier LTS adds a second year (roughly 24 months in total). From June 1, 2027, clusters left on unsupported versions are upgraded by the platform after a 60-day grace period.
   docs: https://learn.microsoft.com/en-us/azure/aks/long-term-support
   pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+  when_to_choose: Choose community support when about 12 months per Kubernetes minor version is enough.
+    Choose AKS Long Term Support (Premium tier) when you need a second year, about 24 months in total. The
+    AWS counterpart is EKS extended support; Google Cloud uses GKE release channels. From June 1, 2027,
+    AKS clusters left on unsupported versions are upgraded by the platform after a 60-day grace period.
+  faq:
+  - q: How long does AKS support a Kubernetes version?
+    a: About 12 months of community support per minor version. Premium-tier Long Term Support adds a second
+      year, roughly 24 months in total. From June 1, 2027, clusters left on unsupported versions are upgraded
+      by the platform after a 60-day grace period.
+  - q: What is the AWS equivalent of AKS LTS?
+    a: EKS extended support. On Google Cloud, version support is organized through GKE release channels.
 - slug: workload-identity
   name: Microsoft Entra Workload ID for AKS
   status: ga
@@ -41,6 +52,18 @@
   summary: Microsoft-managed Istio control plane (revision-based upgrades) with optional ingress and egress gateways. Supported by Azure.
   docs: https://learn.microsoft.com/en-us/azure/aks/istio-about
   pricing: https://azure.microsoft.com/en-us/pricing/details/kubernetes-service/
+  when_to_choose: Use the Istio-based service mesh add-on for AKS when you want a Microsoft-managed Istio
+    control plane on Kubernetes. AWS App Mesh has reached end of support (September 30, 2026); AWS recommends
+    ECS Service Connect or VPC Lattice. On Google Cloud, the counterpart is Cloud Service Mesh.
+  faq:
+  - q: What is the Azure service mesh for AKS?
+    a: 'The Istio-based service mesh add-on for AKS is the Microsoft-managed option: a managed Istio control
+      plane with optional ingress and egress gateways, and revision-based upgrades. Open Service Mesh is
+      also listed on this site as a related Azure option.'
+  - q: What is the AWS equivalent of the AKS Istio add-on?
+    a: AWS App Mesh was the historical mesh, but it reached end of support on September 30, 2026 and is
+      retired. AWS recommends ECS Service Connect (or VPC Lattice). On Google Cloud, the counterpart is
+      Cloud Service Mesh.
 - slug: open-service-mesh
   name: Open Service Mesh (OSM) add-on for AKS
   status: deprecated

@@ -58,10 +58,23 @@
   pricing: https://cloud.google.com/spanner/pricing
 - slug: firestore
   name: Firestore
+  seo_title: "Firestore equivalent in AWS: DynamoDB"
+  seo_description: "The AWS equivalent of Google Cloud Firestore is Amazon DynamoDB. On Azure, the closest service is Azure Cosmos DB for NoSQL. All three are managed NoSQL databases with multi-region options."
   status: ga
   summary: Serverless document database (Standard and Enterprise editions) with regional or multi-region locations, strong consistency, and client SDKs for web and mobile.
   docs: https://docs.cloud.google.com/firestore/native/docs/overview
   pricing: https://cloud.google.com/firestore/pricing
+  when_to_choose: Choose Firestore when you want a serverless document database with strong consistency
+    and mobile or web client SDKs. DynamoDB is the usual AWS counterpart. If you mainly need a simple low-cost
+    table, Azure Table Storage also appears in some mappings, but Cosmos DB for NoSQL is the closer feature
+    match.
+  faq:
+  - q: What is the Firestore equivalent in AWS?
+    a: Amazon DynamoDB. On Azure, Azure Cosmos DB for NoSQL is the closest feature match; Azure Table Storage
+      maps to the simpler, low-cost table case.
+  - q: Is Firestore the same as Bigtable?
+    a: No. Firestore is a serverless document database. Bigtable is a wide-column database for large, low-latency
+      workloads, closer to some high-throughput DynamoDB or Cassandra-style designs.
 - slug: firestore-mongodb
   name: Firestore with MongoDB compatibility
   status: ga

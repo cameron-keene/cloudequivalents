@@ -21,10 +21,24 @@
   pricing: https://aws.amazon.com/ec2/pricing/on-demand/
 - slug: ec2-mac
   name: Amazon EC2 Mac instances
+  seo_title: "Amazon EC2 Mac instances: no Azure equivalent"
+  seo_description: "Amazon EC2 Mac instances run macOS on dedicated Mac mini and Mac Studio hosts. Azure and Google Cloud have no first-party macOS VMs. EC2 Mac requires a Dedicated Host with a 24-hour minimum allocation."
   status: ga
   summary: Bare-metal Apple Mac mini and Mac Studio hardware (Intel, M1, M1 Ultra, M2, M2 Pro, M4, M4 Pro) for macOS and iOS builds. Runs only on Dedicated Hosts with a 24-hour minimum allocation.
   docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-mac-instances.html
   pricing: https://aws.amazon.com/ec2/dedicated-hosts/pricing/
+  when_to_choose: Use EC2 Mac when you need a persistent, dedicated Mac host you administer, for example
+    long-running macOS or iOS build infrastructure. On Azure or Google Cloud there is no first-party equivalent;
+    macOS builds usually run on hosted CI (Azure Pipelines or GitHub Actions) or a third-party Mac cloud.
+  faq:
+  - q: Does Azure have Mac instances like EC2 Mac?
+    a: No. Azure has no first-party macOS VM offering. macOS builds on Azure usually run on Microsoft-hosted
+      macOS agents in Azure Pipelines or GitHub Actions, or on third-party Mac hosting. Google Cloud also
+      has no macOS instances.
+  - q: How are EC2 Mac instances priced?
+    a: They run only on Dedicated Hosts and are billed per host per second, with a 24-hour minimum allocation.
+      Savings Plans apply. See the official Dedicated Hosts pricing page for current rates. There is one
+      instance per host.
 - slug: ec2-bare-metal
   name: Amazon EC2 bare metal instances
   status: ga
@@ -33,10 +47,23 @@
   pricing: https://aws.amazon.com/ec2/pricing/on-demand/
 - slug: ami
   name: Amazon Machine Images (AMIs)
+  seo_title: "AMI equivalent in Azure: Compute Gallery"
+  seo_description: "The Azure equivalent of an Amazon Machine Image (AMI) is Azure Compute Gallery (shared image versions). Standalone Azure managed images are now legacy. On Google Cloud, custom and machine images fill the same role."
   status: ga
   summary: Regional launch images (EBS snapshots plus launch metadata) that you can share with accounts, organizations, or publicly, and copy across Regions.
   docs: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AMIs.html
   pricing: https://aws.amazon.com/ebs/pricing/
+  when_to_choose: Use an AMI or a Compute Gallery image version when you need a repeatable VM launch image
+    you can share and copy across regions. For new Azure work, use Compute Gallery rather than legacy standalone
+    managed images, which cannot be created from Trusted Launch VMs and do not version or replicate.
+  faq:
+  - q: What is the Azure equivalent of an AMI?
+    a: Azure Compute Gallery image versions. Azure standalone "managed images" still exist but are documented
+      as legacy.
+  - q: Do AMIs or Compute Gallery images have a separate service fee?
+    a: There is no AMI or Compute Gallery service charge. You pay for the snapshots or replica storage behind
+      the image, and for data transfer when you copy or replicate across regions. See the official pricing
+      pages.
 - slug: ec2-image-builder
   name: EC2 Image Builder
   status: ga

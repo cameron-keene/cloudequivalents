@@ -63,6 +63,15 @@ rows:
     - https://docs.cloud.google.com/sql/docs/postgres/introduction
     - https://docs.cloud.google.com/sql/docs/mysql/editions-intro
     - https://cloud.google.com/sql/pricing
+    seo_title: "Cloud SQL vs Amazon RDS for PostgreSQL"
+    seo_description: "Cloud SQL for PostgreSQL is Google Cloud's managed Postgres, the equivalent of Amazon RDS for PostgreSQL. Both bill for compute and storage; editions and HA change the cost. Azure's equivalent is Database for PostgreSQL."
+    faq:
+      - q: What is the difference between Cloud SQL and AlloyDB for PostgreSQL?
+        a: Cloud SQL for PostgreSQL is the like-for-like equivalent of Amazon RDS for PostgreSQL. AlloyDB for PostgreSQL is Google's higher-end PostgreSQL option, comparable to Amazon Aurora.
+      - q: How is managed PostgreSQL priced on AWS and Google Cloud?
+        a: RDS is billed per instance-hour by class, plus storage and backup storage beyond the free allowance. Cloud SQL is billed per vCPU and GB of memory per hour by edition (Enterprise or Enterprise Plus), plus storage, backups, and network. Committed use discounts are available on Google Cloud. Check the official pricing pages for current rates.
+      - q: When should I choose Cloud SQL over RDS or Azure Database for PostgreSQL?
+        a: All three run community PostgreSQL as a managed service with backups, point-in-time restore, HA, and replicas. Choose based on the rest of your cloud, HA shape (for example readable standbys), connection pooling (Azure has built-in PgBouncer; AWS uses RDS Proxy), and edition features such as Cloud SQL Enterprise Plus.
 
 - id: managed-mysql
   group: relational-engines

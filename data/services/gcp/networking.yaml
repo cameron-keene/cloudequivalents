@@ -38,10 +38,26 @@
   pricing: https://cloud.google.com/nat/pricing
 - slug: cloud-ngfw
   name: Cloud Next Generation Firewall
+  seo_title: "Cloud NGFW vs AWS security groups and Network Firewall"
+  seo_description: "Cloud Next Generation Firewall is Google Cloud's stateful firewall. Essentials (VPC firewall rules) maps to AWS security groups and Azure NSGs and has no additional charge. Standard and Enterprise add NGFW features comparable to Azure Firewall and AWS Network Firewall."
   status: ga
   summary: Stateful distributed firewall with Essentials, Standard, and Enterprise tiers, VPC firewall rules, and network firewall policies.
   docs: https://docs.cloud.google.com/firewall/docs/about-firewalls
   pricing: https://cloud.google.com/firewall/pricing
+  when_to_choose: Use Cloud NGFW Essentials, security groups, or NSGs for stateful instance or VPC firewall
+    rules (these essentials features have no additional charge on Google Cloud, and security groups and
+    NSGs are free). Choose Cloud NGFW Standard or Enterprise, AWS Network Firewall, or Azure Firewall when
+    you need a managed NGFW with threat intelligence, FQDN filtering, or intrusion prevention.
+  faq:
+  - q: What is the AWS equivalent of Cloud NGFW?
+    a: It depends on the tier. Cloud NGFW VPC firewall rules and network firewall policies (Essentials)
+      map to AWS security groups and Azure NSGs. Cloud NGFW Standard and Enterprise map more closely to
+      AWS Network Firewall and Azure Firewall.
+  - q: How is Cloud NGFW priced?
+    a: Cloud NGFW Essentials has no additional charge. Standard and Enterprise features are billed by usage;
+      Enterprise bills firewall endpoint hours plus data processed. AWS security groups and Azure NSGs are
+      free. AWS Network Firewall and Azure Firewall bill per endpoint or deployment-hour plus data processed.
+      Check the official pricing pages for current rates.
 - slug: hierarchical-firewall-policies
   name: Hierarchical firewall policies
   status: ga
